@@ -1,0 +1,1963 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#ffffff" id="theme-color-meta">
+    <meta name="apple-mobile-web-app-title" content="Turni Autisti 26">
+    <meta name="description" content="Gestione Turni Autisti 2026 - San Marino">
+    
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="logo.png">
+    <link rel="icon" type="image/png" href="logo.png">
+    
+    <title>TURNI AUTISTI 2026</title>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+    
+    <style>
+        /* --- RESET E BASE --- */
+        * { -webkit-tap-highlight-color: transparent; user-select: none; box-sizing: border-box; outline: none; }
+        
+        :root {
+            --primary: #2563eb; 
+            --bg: #f8fafc;
+            --bg-card: #ffffff;
+            --text-main: #0f172a;
+            --text-sec: #64748b;
+            --border: #e2e8f0;
+            --header-bg: rgba(255, 255, 255, 0.92);
+            
+            --header-h: 155px;        
+            --cell-h: 60px;                  
+            --font-base: 0.85rem;        
+            --font-small: 0.7rem;        
+            --th-h: 40px;                  
+            
+            /* --- COLORI TURNI (Base) --- */
+            --c-M: #026bfe; --t-M: #ffffff; --b-M: #bae6fd;
+            --c-P: #56a2ff; --t-P: #ffffff; --b-P: #c7d2fe;
+            --c-N: #003785; --t-N: #ffffff; --b-N: #c7d2fe;
+            --c-D-day: #fff1f2; --t-D-day: #4b5563; --b-D-day: #cc506983;
+            --c-R: #ecfdf5; --t-R: #059669; --b-R: #6ee7b7;
+            --c-SM: #10004f; --t-SM: #ffffff; --b-SM: #cbd5e1;
+
+            /* Specifici */
+            --bg-ferie: #ff782ff6; --t-ferie: #ffffff; --b-ferie: #a15300;
+            --bg-perm: #00e749; --t-perm: #000000; --b-perm: #004e1c;
+            --bg-cong: #ffea00; --t-cong: #000000; --b-cong: #fbff00;
+            --bg-rec: #d00173; --t-rec: #ffe8f2; --b-rec: #c3006b;
+            
+            --bg-fest: #f0f9ff; --t-fest: #0284c7; --b-fest: #7dd3fc;
+            --bg-mal: #8c8b8b; --t-mal: #bcbcbc; --b-mal: #f70000;
+
+            --month-bar-bg: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            --shadow-soft: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        /* --- DARK MODE VARIABLES --- */
+        body.dark-mode {
+            --bg: #0f172a; 
+            --bg-card: #1e293b; 
+            --text-main: #f1f5f9; 
+            --text-sec: #94a3b8; 
+            --border: #334155; 
+            --header-bg: rgba(15, 23, 42, 0.95);
+            --theme-color: #0f172a;
+        }
+
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: var(--bg); margin: 0; padding-top: var(--header-h); 
+            color: var(--text-main); transition: background 0.3s ease, color 0.3s ease; 
+            overscroll-behavior-y: none; 
+        }
+
+        /* HEADER */
+        header {
+            position: fixed; top: 0; left: 0; right: 0;
+            background: var(--header-bg); 
+            box-shadow: 0 1px 0 rgba(0,0,0,0.08);
+            z-index: 1000; height: var(--header-h);
+            display: flex; flex-direction: column;
+            padding-top: env(safe-area-inset-top);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .top-bar { padding: 0 16px; display: flex; justify-content: space-between; align-items: center; height: 55px; flex-shrink: 0; }
+        .logo { font-size: 1.15rem; font-weight: 900; color: var(--text-main); display: flex; align-items: center; gap: 10px; letter-spacing: -0.5px; }
+        .logo img { filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1)); border-radius: 8px; cursor: pointer; }
+        .logo img:active { transform: scale(0.9); }
+        
+        .right-controls { display: flex; gap: 8px; position: relative; }
+
+        .btn-action { 
+            background: var(--bg-card); color: var(--text-sec); border: 1px solid var(--border); 
+            width: 42px; height: 42px; padding: 0; 
+            border-radius: 12px; cursor: pointer; 
+            display: flex; align-items: center; justify-content: center; 
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+        .btn-action span { font-size: 1.5rem; }
+        .btn-action:active { transform: scale(0.94); opacity: 0.8; }
+        
+        /* Badge Notifiche */
+        .badge-dot {
+            position: absolute; top: 8px; right: 8px;
+            width: 10px; height: 10px; background: #ef4444;
+            border-radius: 50%; border: 2px solid var(--bg-card);
+            display: none; /* di default nascosto */
+        }
+        .badge-dot.visible { display: block; }
+
+        /* MENU DROPDOWN */
+        #menu-dropdown { 
+            position: absolute; top: 55px; right: 0; background: var(--bg-card); 
+            border-radius: 16px; box-shadow: 0 10px 30px -10px rgba(0,0,0,0.2); 
+            width: 220px; overflow: hidden; display: none; border: 1px solid var(--border); 
+            flex-direction: column; z-index: 5000; transform-origin: top right;
+        }
+        #menu-dropdown.open { display: flex; animation: scaleIn 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .menu-item { padding: 16px 20px; display: flex; align-items: center; gap: 12px; font-weight: 600; color: var(--text-main); border-bottom: 1px solid var(--border); cursor: pointer; transition: 0.2s; }
+        .menu-item:last-child { border-bottom: none; }
+        .menu-item:active { background: var(--bg); }
+        .menu-item span { color: var(--primary); }
+        
+        @keyframes scaleIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+
+        /* SCROLLERS */
+        .nav-scroller, .driver-scroller { flex: 1; display: flex; gap: 8px; overflow-x: auto; padding: 0 16px; align-items: center; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+        .nav-scroller { border-bottom: 1px solid var(--border); }
+        
+        .chip { 
+            padding: 8px 16px; border-radius: 10px; font-size: 0.8rem; font-weight: 700; 
+            white-space: nowrap; cursor: pointer; transition: all 0.2s ease; 
+            display: flex; align-items: center; justify-content: center;
+        }
+        
+        .chip-month { background: var(--bg-card); color: var(--text-sec); border: 1px solid var(--border); }
+        .chip-month.active { background: var(--primary); color: white; border-color: var(--primary); box-shadow: 0 4px 10px rgba(37, 99, 235, 0.3); transform: translateY(-1px); }
+        
+        .chip-driver { background: var(--bg); color: var(--text-sec); border: 1px solid var(--border); }
+        .chip-driver.active { background: var(--text-main); color: var(--bg-card); border-color: var(--text-main); box-shadow: 0 4px 10px rgba(0,0,0,0.1); transform: translateY(-1px); }
+
+        /* TABLE */
+        .container { padding: 0; max-width: 100%; margin: 0 auto; padding-bottom: 80px; }
+        table { width: 100%; border-collapse: separate; border-spacing: 0; }
+
+        thead th {
+            background: var(--bg); color: var(--text-sec); padding: 5px; font-size: 0.7rem; 
+            text-transform: uppercase; font-weight: 800; letter-spacing: 0.5px;
+            position: sticky; top: var(--header-h); z-index: 90; 
+            border-bottom: 1px solid var(--border); text-align: center; min-width: 115px;
+            height: var(--th-h); backdrop-filter: blur(5px);
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        thead th:first-child, .td-date { width: 60px !important; min-width: 60px !important; max-width: 60px !important; }
+
+        /* --- STILE BARRA MESE --- */
+        tr.month-header td {
+            background: var(--month-bar-bg);
+            color: white; 
+            position: sticky; top: calc(var(--header-h) + var(--th-h)); z-index: 85; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2); 
+            padding: 0; 
+            border: none;
+            line-height: 1;
+        }
+        .sticky-month-text { 
+            position: sticky; left: 0; width: 100vw; 
+            text-align: left; 
+            padding: 4px 0 4px 16px; 
+            display: flex; 
+            align-items: center;
+            gap: 12px;
+            min-height: 40px;
+        }
+        .month-label {
+            font-weight: 900;
+            font-size: 1.4rem; 
+            text-transform: uppercase;
+            letter-spacing: -0.5px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        .live-clock { 
+            font-variant-numeric: tabular-nums; 
+            font-weight: 800; 
+            font-size: 1rem; 
+            background: rgba(0,0,0,0.25); 
+            padding: 2px 10px;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.1);
+            letter-spacing: 0.5px;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        }
+
+        tbody td { 
+            padding: 2px; height: var(--cell-h); vertical-align: middle; 
+            border-bottom: 1px solid var(--border); border-right: 1px dashed var(--border); 
+            transition: height 0.3s ease;
+        }
+        
+        .td-date { 
+            text-align: center; font-weight: 800; color: var(--text-main); font-size: 1.1rem; 
+            border-right: 2px solid var(--border); background: var(--bg);
+            position: sticky; left: 0; z-index: 80;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            height: var(--cell-h); 
+        }
+        .td-date small { display: block; font-weight: 600; font-size: 0.7rem; text-transform: uppercase; color: var(--text-sec); margin-top: 2px; }
+        
+        .td-date.date-red { color: #dc2626; background: #fef2f2; border-right-color: #fca5a5; }
+        .td-date.date-red small { color: #ef4444; }
+        
+        /* Dark mode red overrides */
+        body.dark-mode .td-date.date-red { background: #450a0a; color: #fca5a5; border-right-color: #7f1d1d; }
+        body.dark-mode .td-date.date-red small { color: #fecaca; }
+
+        .holiday-name { font-size: 0.55rem; color: #dc2626; font-weight: 900; line-height: 1; margin-top: 3px; max-width: 55px; white-space: normal; }
+        body.dark-mode .holiday-name { color: #f87171; }
+        
+        .cell { 
+            display: flex; flex-direction: column; align-items: center; justify-content: center; 
+            height: 100%; width: 100%; border-radius: 10px; font-weight: 800; 
+            font-size: var(--font-base); text-transform: uppercase; position: relative; 
+            line-height: 1.1; text-align: center; cursor: pointer;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05); transition: transform 0.1s;
+            padding-bottom: 2px; 
+        }
+        .cell:active { transform: scale(0.96); }
+        
+        body.dark-mode .cell.empty { color: #475569; }
+        body.dark-mode .cell { box-shadow: none; border: 1px solid rgba(255,255,255,0.05); }
+
+        .time-tag { font-size: var(--font-small); font-weight: 600; opacity: 0.85; margin-top: 1px; letter-spacing: -0.3px; }
+        
+        .rep-badge { 
+            font-size: 0.55rem; 
+            color: #ffffff; 
+            margin-top: 1px;
+            font-weight: 900; 
+            background: linear-gradient(135deg, #ef4444, #dc2626); 
+            padding: 1px 6px; 
+            border-radius: 4px; 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2); 
+            letter-spacing: 0.5px;
+            line-height: 1; 
+            white-space: nowrap;
+        }
+
+        /* STILI TURNI */
+        .t-M { background: var(--c-M); color: var(--t-M); border: 1px solid var(--b-M); }
+        .t-P { background: var(--c-P); color: var(--t-P); border: 1px solid var(--b-P); }
+        .t-N { background: var(--c-N); color: var(--t-N); border: 1px solid var(--b-N); }
+        .t-R { background: var(--c-R); color: var(--t-R); border: 1px solid var(--b-R); }
+        .t-SM { background: var(--c-SM); color: var(--t-SM); border: 1px solid var(--b-SM); }
+        
+        /* --- ANIMAZIONE BORDO LAMPEGGIANTE M+N --- */
+        @keyframes border-blink {
+            0% { border-color: #ef4444; box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            50% { border-color: #b91c1c; box-shadow: 0 0 8px 1px rgba(239, 68, 68, 0.5); }
+            100% { border-color: #ef4444; box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+        }
+
+        .t-MN { 
+            background: linear-gradient(135deg, var(--c-M) 0%, var(--c-M) 45%, var(--c-N) 55%, var(--c-N) 100%); 
+            color: white; 
+            border: 2px solid #ef4444 !important; 
+            animation: border-blink 1.5s infinite ease-in-out; 
+            z-index: 10;
+        }
+
+        body.dark-mode .t-M { background: #1e40af; border-color: #1e3a8a; }
+        body.dark-mode .t-P { background: #3b82f6; border-color: #2563eb; }
+        body.dark-mode .t-N { background: #172554; border-color: #0f172a; }
+
+        .t-diurno { background: var(--c-D-day) !important; color: var(--t-D-day) !important; border: 1px solid var(--b-D-day) !important; }
+        body.dark-mode .t-diurno { background: #334155 !important; color: #e2e8f0 !important; border-color: #475569 !important; }
+
+        .spec-orange { background: var(--bg-ferie); color: var(--t-ferie); border: 1px solid var(--b-ferie); font-size: 0.65rem; }
+        .spec-green { background: var(--bg-perm); color: var(--t-perm); border: 1px solid var(--b-perm); font-size: 0.65rem; }
+        .spec-yellow { background: var(--bg-cong); color: var(--t-cong); border: 1px solid var(--b-cong); font-size: 0.65rem; }
+        .spec-pink { background: var(--bg-rec); color: var(--t-rec); border: 1px solid var(--b-rec); font-size: 0.65rem; }
+        
+        .spec-blue { background: #e0f2fe !important; color: #0369a1 !important; border: 1px solid #7dd3fc !important; font-size: 0.65rem; }
+        .spec-red { background: #fee2e2 !important; color: #b91c1c !important; border: 1px solid #fca5a5 !important; font-size: 0.75rem; }
+        .spec-nl { background: #e0f7fa !important; color: #006064 !important; border: 1px solid #b2ebf2 !important; font-size: 0.65rem; }
+
+        /* NUOVA CLASSE K (Viola) */
+        .spec-purple { background: #8b5cf6 !important; color: #ffffff !important; border: 1px solid #7c3aed !important; font-size: 0.65rem; }
+        
+        .empty { background: transparent; box-shadow: none; color: #cbd5e1; font-weight: 400;}
+
+        tr.today td { background: #fff7ed !important; border-bottom: 2px solid #f97316 !important; }
+        tr.today .td-date { color: #ea580c; border-left: 6px solid #ea580c; background: #fff7ed; border-right: 2px solid #f97316; }
+        
+        body.dark-mode tr.today td { background: #431407 !important; border-bottom: 2px solid #ea580c !important; }
+        body.dark-mode tr.today .td-date { background: #431407; color: #fdba74; }
+
+        /* LOADER */
+        #loader { position: fixed; inset: 0; background: var(--bg); z-index: 9999; display: flex; align-items: center; justify-content: center; flex-direction: column; text-align: center; padding: 20px;}
+        .spinner { border: 4px solid #f3f3f3; border-top: 4px solid var(--primary); border-radius: 50%; width: 40px; height: 40px; animation: spin 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55) infinite; margin-bottom: 20px; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        #manual-upload { display: none; margin-top: 20px; animation: fadeIn 0.5s ease; }
+        .file-label { background: var(--primary); color: white; padding: 12px 24px; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 0.95rem; display: inline-flex; align-items: center; gap: 8px; margin-top: 15px; box-shadow: 0 4px 15px rgba(37,99,235,0.4); transition: transform 0.2s; }
+        .file-label:active { transform: scale(0.96); }
+        input[type="file"] { display: none; }
+        
+        /* MODALE GENERICO */
+        #shift-modal, #dinner-modal, #options-modal, #notif-center-modal { display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.6); z-index: 3000; backdrop-filter: blur(8px); align-items: flex-end; justify-content: center; opacity: 0; transition: opacity 0.3s; }
+        #shift-modal.open, #dinner-modal.open, #options-modal.open, #notif-center-modal.open { opacity: 1; }
+        .modal-content { background: var(--bg-card); width: 100%; max-width: 600px; border-radius: 24px 24px 0 0; box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.3); overflow: hidden; transform: translateY(100%); transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1); max-height: 85vh; display: flex; flex-direction: column; }
+        #shift-modal.open .modal-content, #dinner-modal.open .modal-content, #options-modal.open .modal-content, #notif-center-modal.open .modal-content { transform: translateY(0); }
+        
+        .modal-header { background: var(--bg); color: var(--text-main); padding: 20px 24px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); }
+        .header-text h3 { margin: 0; font-size: 1.3rem; font-weight: 800; color: var(--text-main); display: flex; align-items: center; gap: 10px;}
+        .header-text span { display: block; font-size: 0.9rem; font-weight: 600; color: var(--text-sec); margin-top: 4px;}
+        
+        .btn-close-modal { background: var(--bg); border: none; color: var(--text-sec); cursor: pointer; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+        
+        .modal-body { padding: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+        .colleague-item { display: flex; justify-content: space-between; align-items: center; padding: 16px 24px; border-bottom: 1px solid var(--border); transition: background 0.2s; }
+        .c-name { font-weight: 700; color: var(--text-main); font-size: 1rem; }
+        .c-time { font-size: 0.8rem; font-weight: 600; color: var(--text-sec); background: var(--bg); padding: 6px 12px; border-radius: 8px; font-variant-numeric: tabular-nums; }
+        
+        /* OPTIONS MODAL SPECIFIC */
+        .option-item { padding: 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); font-weight: 600; color: var(--text-main); }
+        .option-item:last-child { border-bottom: none; }
+        .switch { position: relative; display: inline-block; width: 50px; height: 28px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--border); transition: .4s; border-radius: 34px; }
+        .slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+        input:checked + .slider { background-color: var(--primary); }
+        input:checked + .slider:before { transform: translateX(22px); }
+        
+        /* NOTIFICATION CENTER SPECIFIC */
+        .notif-list { padding: 10px; display: flex; flex-direction: column; gap: 10px; }
+        .notif-item { background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 15px; position: relative; transition: all 0.2s; }
+        .notif-item.unread { border-left: 4px solid var(--primary); background: #f0f9ff; }
+        body.dark-mode .notif-item.unread { background: #1e293b; border-color: #334155; border-left-color: var(--primary); }
+        .notif-date { font-size: 0.7rem; color: var(--text-sec); margin-bottom: 4px; font-weight: 600; }
+        .notif-text { font-size: 0.9rem; color: var(--text-main); line-height: 1.4; }
+        .btn-del-notif { position: absolute; top: 10px; right: 10px; color: #ef4444; background: none; border: none; cursor: pointer; padding: 5px; border-radius: 50%; }
+        .btn-del-notif:active { background: rgba(239, 68, 68, 0.1); }
+        .no-notif { text-align: center; padding: 40px 20px; color: var(--text-sec); font-size: 0.9rem; }
+
+        /* Pulsante Installazione sempre visibile */
+        .btn-install { 
+            background: var(--text-main); color: var(--bg); border: none; padding: 10px 18px; 
+            border-radius: 12px; font-weight: 700; display: flex; align-items: center; gap: 8px; 
+            cursor: pointer; font-size: 0.85rem; box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .btn-install:active { transform: scale(0.96); }
+
+        /* Modal Themes keep colors */
+        .modal-theme-M .modal-header { background: linear-gradient(135deg, #e0f2fe 0%, #f0f9ff 100%); } .modal-theme-M .header-text h3 { color: #0c4a6e; } .modal-theme-M .c-time { background: #e0f2fe; color: #0369a1; }
+        .modal-theme-P .modal-header { background: linear-gradient(135deg, #e0e7ff 0%, #eef2ff 100%); } .modal-theme-P .header-text h3 { color: #312e81; } .modal-theme-P .c-time { background: #e0e7ff; color: #4338ca; }
+        .modal-theme-N .modal-header { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); } .modal-theme-N .header-text h3 { color: white; } .modal-theme-N .header-text span { color: #94a3b8; } .modal-theme-N .btn-close-modal { background: #334155; color: white; } .modal-theme-N .c-time { background: #f1f5f9; color: #0f172a; }
+        .modal-theme-R .modal-header { background: linear-gradient(135deg, #dcfce7 0%, #ecfdf5 100%); } .modal-theme-R .header-text h3 { color: #064e3b; } .modal-theme-R .c-time { background: #dcfce7; color: #15803d; }
+        .modal-theme-MN .modal-header { background: linear-gradient(135deg, #026bfe 0%, #003785 100%); } .modal-theme-MN .header-text h3 { color: white; } .modal-theme-MN .header-text span { color: #e2e8f0; } .modal-theme-MN .btn-close-modal { background: rgba(255,255,255,0.2); color: white; }
+
+        /* MODALE CENA */
+        .dinner-checkbox-list { padding: 16px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .dinner-check-item { background: var(--bg-card); padding: 12px; border-radius: 12px; border: 1px solid var(--border); display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 0.85rem; font-weight: 600; color: var(--text-sec); transition: all 0.2s; }
+        .dinner-check-item.checked { background: var(--bg); border-color: var(--primary); color: var(--primary); box-shadow: 0 2px 4px rgba(37,99,235,0.1); }
+        .dinner-check-item input { display: none; }
+        .dinner-check-icon { width: 22px; height: 22px; border-radius: 6px; border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+        .dinner-check-item.checked .dinner-check-icon { background: var(--primary); border-color: var(--primary); color: white; }
+        
+        .dinner-section-title { font-size: 0.75rem; font-weight: 800; color: var(--text-sec); padding: 20px 20px 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .month-selector { display: flex; overflow-x: auto; gap: 8px; padding: 0 20px 10px; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+        .btn-find-dinner { margin: 20px; background: #0f172a; color: white; border: none; padding: 16px; border-radius: 14px; font-weight: 800; font-size: 1rem; width: calc(100% - 40px); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 4px 12px rgba(15, 23, 42, 0.3); transition: 0.2s; }
+        body.dark-mode .btn-find-dinner { background: var(--primary); }
+
+        .event-type-selector { display: flex; background: var(--bg); padding: 4px; border-radius: 14px; margin: 0 20px 10px; }
+        .event-option { flex: 1; text-align: center; padding: 12px; border-radius: 12px; font-weight: 700; font-size: 0.9rem; color: var(--text-sec); cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .event-option.active { background: var(--bg-card); color: var(--primary); box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+
+        .dinner-result-card { background: var(--bg-card); margin: 10px 20px; padding: 16px; border-radius: 16px; border: 1px solid var(--border); box-shadow: var(--shadow-soft); }
+        .d-res-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 12px; margin-bottom: 12px; }
+        .d-res-date { font-weight: 800; font-size: 1.1rem; color: var(--text-main); text-transform: capitalize; }
+        .d-res-score { background: #dcfce7; color: #15803d; font-weight: 700; padding: 4px 12px; border-radius: 20px; font-size: 0.85rem; }
+        body.dark-mode .d-res-score { background: #064e3b; color: #dcfce7; }
+        .missing-list { display: flex; flex-wrap: wrap; gap: 6px; }
+        .missing-badge { background: #fee2e2; color: #b91c1c; font-size: 0.75rem; font-weight: 600; padding: 4px 8px; border-radius: 6px; }
+        body.dark-mode .missing-badge { background: #7f1d1d; color: #fca5a5; }
+        .warning-badge { background: #fff7ed; color: #c2410c; border: 1px solid #ffedd5; font-size: 0.75rem; font-weight: 700; padding: 4px 8px; border-radius: 6px; display:inline-flex; align-items:center; gap:4px; }
+        body.dark-mode .warning-badge { background: #7c2d12; color: #fdba74; border-color: #9a3412; }
+
+        /* MODALE STATISTICHE */
+        #stats-modal { display: none; position: fixed; inset: 0; background: var(--bg-card); z-index: 4000; flex-direction: column; overflow: hidden; animation: slideInRight 0.3s ease; }
+        #stats-modal.open { display: flex; }
+        @keyframes slideInRight { from { transform: translateX(100%); } to { transform: translateX(0); } }
+        
+        .stats-header { padding: 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); background: var(--bg-card); }
+        .stats-body { flex: 1; overflow-y: auto; padding: 20px; background: var(--bg); -webkit-overflow-scrolling: touch; }
+        
+        .driver-list-item { padding: 18px; border-bottom: 1px solid var(--border); font-weight: 700; color: var(--text-main); cursor: pointer; display: flex; justify-content: space-between; align-items: center; background: var(--bg-card); margin-bottom: 10px; border-radius: 14px; box-shadow: var(--shadow-soft); transition: 0.2s; }
+        .driver-list-item:active { transform: scale(0.98); background: var(--bg); }
+        
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 10px; }
+        .stat-card { background: var(--bg-card); padding: 16px; border-radius: 18px; border: 1px solid var(--border); text-align: center; box-shadow: var(--shadow-soft); display:flex; flex-direction:column; justify-content:center; }
+        .stat-val { font-size: 2rem; font-weight: 900; display: block; margin-bottom: 4px; line-height: 1; letter-spacing: -1px; color: var(--text-main); }
+        .stat-lbl { font-size: 0.7rem; font-weight: 600; text-transform: uppercase; color: var(--text-sec); }
+        
+        .sc-fer { color: var(--b-ferie); border-color: var(--bg-ferie); background: #fff7ed; }
+        .sc-cong { color: var(--b-cong); border-color: var(--bg-cong); background: #fefce8; }
+        .sc-perm { color: var(--b-perm); border-color: var(--bg-perm); background: #f0fdf4; }
+        .sc-mal { color: #b91c1c; border-color: #fca5a5; background: #fef2f2; }
+        .sc-fest { color: #0369a1; border-color: #7dd3fc; background: #f0f9ff; }
+        .sc-rec { color: var(--b-rec); border-color: var(--bg-rec); background: #fdf2f8; }
+        
+        /* --- SECRET GALLERY CSS --- */
+        #secret-gallery {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: black;
+            z-index: 6000;
+            align-items: center;
+            justify-content: center;
+        }
+        #secret-gallery.open { display: flex; }
+        #secret-img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+        .btn-close-secret {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: white;
+            background: rgba(255,255,255,0.2);
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1.2rem;
+            z-index: 6010;
+        }
+        
+        /* --- MODALE AVVISI (VIGNETTA) --- */
+        #alert-modal {
+            display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.7); 
+            z-index: 9999; align-items: center; justify-content: center; 
+            opacity: 0; transition: opacity 0.3s; padding: 20px;
+        }
+        #alert-modal.open { opacity: 1; }
+
+        .alert-card {
+            background: var(--bg-card); width: 100%; max-width: 400px; 
+            border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.4); 
+            overflow: hidden; transform: scale(0.9); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 1px solid var(--border);
+        }
+        #alert-modal.open .alert-card { transform: scale(1); }
+
+        .alert-header {
+            padding: 20px 24px; display: flex; align-items: center; gap: 15px;
+            background: #fff7ed; border-bottom: 1px solid #ffedd5;
+        }
+        .alert-icon-box {
+            width: 45px; height: 45px; border-radius: 12px; background: #fffbeb; 
+            display: flex; align-items: center; justify-content: center;
+            color: #d97706; border: 1px solid #fcd34d; flex-shrink: 0;
+        }
+        .alert-title { font-weight: 800; font-size: 1.1rem; color: #92400e; line-height: 1.2; }
+
+        .alert-body { padding: 24px; font-size: 1rem; color: var(--text-main); line-height: 1.5; }
+
+        .alert-footer { padding: 0 24px 24px; }
+        .btn-alert-ok {
+            width: 100%; padding: 14px; border-radius: 14px; border: none;
+            background: #d97706; color: white; font-weight: 800; font-size: 1rem;
+            cursor: pointer; box-shadow: 0 4px 12px rgba(217, 119, 6, 0.3);
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+        }
+        .btn-alert-ok:active { transform: scale(0.98); }
+
+        /* --- STILE ICONA CANE --- */
+        .dog-icon {
+            position: absolute;
+            top: -5px;      /* Sporge un po' fuori */
+            right: -5px;    /* Sporge un po' fuori */
+            width: 28px;    /* Dimensione dell'immagine */
+            height: 28px;
+            z-index: 5;
+            filter: drop-shadow(0 2px 3px rgba(0,0,0,0.2)); /* Ombra per staccare dal fondo */
+        }
+
+        /* --- STILE ICONA AMBULANZA (NUOVO) --- */
+        .ambulance-icon {
+            position: absolute;
+            bottom: -5px;   /* Angolo opposto al cane */
+            right: -5px;
+            width: 24px;
+            height: 24px;
+            z-index: 6;
+            filter: drop-shadow(0 2px 3px rgba(0,0,0,0.3));
+            cursor: pointer;
+        }
+
+        /* --- STILI MINIGIOCO (LAVAGGIO) --- */
+        #game-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 5000; flex-direction: column; align-items: center; justify-content: center; }
+        #game-modal.open { display: flex; }
+        
+        #game-wrapper {
+            background: #f0f8ff; width: 100%; height: 100%;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            position: relative;
+        }
+        
+        #game-container-box {
+            position: relative;
+            width: 95vw; max-width: 600px;
+            aspect-ratio: 16/9;
+            background-image: url('ambulanza_bg.png'); /* FILE DA CARICARE */
+            background-size: contain; background-repeat: no-repeat; background-position: center;
+            background-color: white;
+            border: 5px solid white; border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+        
+        #dirtCanvas {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            border-radius: 15px; cursor: crosshair; touch-action: none;
+        }
+        
+        .game-ui { margin-top: 20px; text-align: center; z-index: 5; width: 100%; }
+        
+        .game-progress-bar {
+            width: 200px; height: 15px; background: #ddd;
+            border-radius: 10px; margin: 10px auto; overflow: hidden;
+        }
+        
+        #game-fill { width: 0%; height: 100%; background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%); transition: width 0.2s; }
+        
+        .game-btn {
+            padding: 12px 25px; background: #005eb8; color: white; border: none;
+            border-radius: 50px; font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            font-size: 1rem; cursor: pointer;
+        }
+        
+        .game-close-btn {
+            position: absolute; top: 20px; right: 20px;
+            background: rgba(255,255,255,0.3); color: black;
+            width: 40px; height: 40px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; cursor: pointer; z-index: 10;
+        }
+
+        .bubble {
+            position: absolute; background: rgba(173, 216, 230, 0.6);
+            border: 1px solid white; border-radius: 50%;
+            pointer-events: none; animation: floatUp 1s ease-out forwards;
+        }
+        @keyframes floatUp { to { transform: translateY(-50px) scale(1.5); opacity: 0; } }
+        
+    </style>
+</head>
+<body>
+
+    <audio id="dog-audio" src="cane.mp3" preload="auto"></audio>
+
+    <div id="game-modal">
+        <div id="game-wrapper">
+            <div class="game-close-btn" onclick="closeGameModal()">X</div>
+            <h2 style="color: #005eb8; margin-top:0;"> Lava l'Ambulanza moncappato! </h2>
+            
+            <div id="game-container-box">
+                <canvas id="dirtCanvas"></canvas>
+            </div>
+
+            <div class="game-ui">
+                <div class="game-progress-bar"><div id="game-fill"></div></div>
+                <button class="game-btn" onclick="resetGame()">Ricomincia</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="alert-modal">
+        <div class="alert-card">
+            <div class="alert-header">
+                <div class="alert-icon-box">
+                    <span class="material-icons-round" style="font-size: 28px;">notifications_active</span>
+                </div>
+                <div class="alert-title" id="alert-title-text">AVVISO</div>
+            </div>
+            <div class="alert-body" id="alert-message-text">
+                Contenuto avviso...
+            </div>
+            <div class="alert-footer">
+                <button class="btn-alert-ok" onclick="closeAlertAndSave()">
+                    <span class="material-icons-round">done</span> HO CAPITO
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="notif-center-modal">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <div class="header-text">
+                    <h3><span class="material-icons-round" style="margin-right:10px">notifications</span> NOTIFICHE</h3>
+                    <span>Storico Avvisi</span>
+                </div>
+                <div style="display:flex; gap:10px">
+                    <button class="btn-close-modal" onclick="clearAllNotif()" style="color:#ef4444">
+                        <span class="material-icons-round">delete_sweep</span>
+                    </button>
+                    <button class="btn-close-modal" onclick="closeNotifCenter()">
+                        <span class="material-icons-round">close</span>
+                    </button>
+                </div>
+            </div>
+            <div class="modal-body notif-list" id="notif-list-container">
+                </div>
+        </div>
+    </div>
+
+    <div id="secret-gallery" onclick="nextSecretPhoto()">
+        <div class="btn-close-secret" onclick="event.stopPropagation(); closeSecretGallery()">X</div>
+        <img id="secret-img" src="" alt="Galleria Segreta">
+    </div>
+
+    <div id="loader">
+        <div id="auto-loader">
+            <div class="spinner"></div>
+            <h3 style="color:var(--text-main); margin:0; font-size:1.1rem; font-weight:800">Inizializzazione...</h3>
+            <p style="color:var(--text-sec); font-size:0.85rem; margin-top:8px">Lettura Turni 2026</p>
+        </div>
+        <div id="manual-upload">
+            <p style="color:#ef4444; font-weight:bold; font-size:1.1rem; margin-bottom:10px">⚠️ File automatico non trovato</p>
+            <p style="color:var(--text-sec); font-size:0.9rem; margin:0">Carica manualmente il file Excel</p>
+            <label for="file-input" class="file-label">
+                <span class="material-icons-round">upload_file</span>
+                CARICA FILE (.xlsx)
+            </label>
+            <input type="file" id="file-input" accept=".xlsx">
+        </div>
+    </div>
+
+    <div id="shift-modal" onclick="closeShiftModal(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="modal-header" id="modal-header-bg">
+                <div class="header-text">
+                    <h3 id="modal-title">TITOLO</h3>
+                    <span id="modal-subtitle">Data del giorno</span>
+                </div>
+                <button class="btn-close-modal" onclick="closeShiftModal()">
+                    <span class="material-icons-round">keyboard_arrow_down</span>
+                </button>
+            </div>
+            <div class="modal-body" id="modal-list"></div>
+        </div>
+    </div>
+    
+    <div id="options-modal" onclick="closeOptionsModal(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <div class="header-text">
+                    <h3><span class="material-icons-round" style="margin-right:10px">settings</span> OPZIONI</h3>
+                    <span>Impostazioni App</span>
+                </div>
+                <button class="btn-close-modal" onclick="closeOptionsModal()">
+                    <span class="material-icons-round">close</span>
+                </button>
+            </div>
+            <div class="modal-body" style="padding:0">
+                
+                <div class="option-item" style="display:block">
+                    <div style="margin-bottom:10px">
+                        <span style="font-size:1rem; font-weight:700">Monitoraggio Turni</span>
+                        <div style="font-size:0.8rem; color:var(--text-sec)">Seleziona chi seguire. Riceverai un avviso nell'app se il turno cambia.</div>
+                    </div>
+                    <div id="notification-driver-list" class="dinner-checkbox-list" style="padding:0; grid-template-columns: 1fr 1fr;"></div>
+                </div>
+
+                <div class="option-item" id="install-container">
+                    <div style="display:flex; flex-direction:column">
+                        <span style="font-size:1rem">Installa Applicazione</span>
+                        <span style="font-size:0.8rem; color:var(--text-sec); font-weight:400">Aggiungi a schermata Home</span>
+                    </div>
+                    <button class="btn-install" id="btn-install-pwa" onclick="installPWA()">
+                        <span class="material-icons-round">install_mobile</span> INSTALLA
+                    </button>
+                </div>
+                
+                <div class="option-item">
+                    <div style="display:flex; flex-direction:column">
+                        <span style="font-size:1rem">Tema Scuro</span>
+                        <span style="font-size:0.8rem; color:var(--text-sec); font-weight:400">Riduci affaticamento occhi</span>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="dark-mode-toggle" onchange="toggleDarkMode()">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="dinner-modal" onclick="closeDinnerModal(event)">
+        <div class="modal-content" onclick="event.stopPropagation()" style="height:90vh; max-height:90vh;">
+            <div class="modal-header" style="background:#fff7ed; border-bottom-color:#ffedd5;">
+                <div class="header-text">
+                    <h3 style="color:#ea580c"><span class="material-icons-round" style="margin-right:8px">restaurant</span> ORGANIZZA</h3>
+                    <span style="color:#fb923c">Trova la data migliore</span>
+                </div>
+                <button class="btn-close-modal" onclick="closeDinnerModal()">
+                    <span class="material-icons-round">close</span>
+                </button>
+            </div>
+            <div class="modal-body" style="background:var(--bg-card); display:flex; flex-direction:column; height:100%;">
+                
+                <div id="dinner-step-1">
+                    <div class="dinner-section-title">1. MESE</div>
+                    <div class="month-selector" id="dinner-month-list"></div>
+
+                    <div class="dinner-section-title">2. TIPO DI USCITA</div>
+                    <div class="event-type-selector">
+                        <div class="event-option active" id="opt-cena" onclick="setEventType('cena', this)">
+                            <span class="material-icons-round">bedtime</span> CENA (Sera)
+                        </div>
+                        <div class="event-option" id="opt-pranzo" onclick="setEventType('pranzo', this)">
+                            <span class="material-icons-round">wb_sunny</span> PRANZO (Giorno)
+                        </div>
+                    </div>
+
+                    <div style="display:flex; justify-content:space-between; align-items:center; padding-right:20px;">
+                        <div class="dinner-section-title">3. SELEZIONA COLLEGHI</div>
+                        <button onclick="toggleAllDrivers()" style="background:none; border:none; color:var(--primary); font-weight:bold; cursor:pointer; font-size:0.8rem; padding:10px;">Tutti/Nessuno</button>
+                    </div>
+                    <div class="dinner-checkbox-list" id="dinner-driver-list"></div>
+
+                    <div style="padding:0 20px 20px 20px;">
+                        <button class="btn-find-dinner" onclick="calculateDinner()">
+                            <span class="material-icons-round">search</span> CERCA DISPONIBILITÀ
+                        </button>
+                    </div>
+                </div>
+
+                <div id="dinner-step-2" style="display:none; padding-bottom:30px;">
+                    <div style="padding:15px 20px; display:flex; align-items:center; gap:10px; cursor:pointer; color:var(--primary); font-weight:700" onclick="resetDinnerStep()">
+                        <span class="material-icons-round">arrow_back</span> Torna ai filtri
+                    </div>
+                    <div id="dinner-results-container"></div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div id="stats-modal">
+        <div class="stats-header">
+            <h3 style="margin:0; font-size:1.2rem; color:var(--text-main); display:flex; align-items:center; gap:10px;">
+                <span class="material-icons-round">bar_chart</span> STATISTICHE
+            </h3>
+            <button class="btn-close-modal" onclick="closeStatsModal()">
+                <span class="material-icons-round">close</span>
+            </button>
+        </div>
+        <div class="stats-body" id="stats-container">
+            </div>
+    </div>
+
+    <header>
+        <div class="top-bar">
+            <div class="logo" onclick="secretClick()">
+                <img src="logo.png" style="height: 40px; width: auto; display:block;" alt="Logo" onerror="this.style.display='none'">
+                <div style="display:flex; flex-direction:column; line-height:1;">
+                    <span>TURNI AUTISTI 2026</span>
+                    <span id="last-update-badge" style="font-size:0.65rem; font-weight:500; color:var(--text-sec); margin-top:4px;"></span>
+                </div>
+            </div>
+            <div class="right-controls">
+                
+                <button class="btn-action" onclick="vibrate(); scrollToToday()">
+                    <span class="material-icons-round">home</span>
+                </button>
+
+                <button class="btn-action" onclick="openNotifCenter()" style="position:relative">
+                    <span class="material-icons-round">notifications</span>
+                    <span id="notif-badge" class="badge-dot"></span>
+                </button>
+
+                <button class="btn-action" onclick="toggleMenu()">
+                    <span class="material-icons-round">more_vert</span>
+                </button>
+
+                <div id="menu-dropdown">
+                    <div class="menu-item" onclick="openDinnerModal()">
+                        <span class="material-icons-round">restaurant</span> Organizza Uscita
+                    </div>
+                    <div class="menu-item" onclick="openStatsSelection()">
+                        <span class="material-icons-round">bar_chart</span> Statistiche
+                    </div>
+                      <div class="menu-item" onclick="openOptionsModal()">
+                        <span class="material-icons-round">settings</span> Opzioni
+                    </div>
+                    <div class="menu-item" onclick="vibrate(); location.reload()">
+                        <span class="material-icons-round">refresh</span> Aggiorna
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <div class="nav-scroller" id="month-nav"></div>
+        <div class="driver-scroller" id="driver-nav"></div>
+    </header>
+
+    <div class="container">
+        <table id="main-table">
+            <thead><tr id="table-head"></tr></thead>
+            <tbody id="table-body"></tbody>
+        </table>
+    </div>
+
+    <script>
+        const FILE_NAME = "turni.xlsx?v=" + new Date().getTime(); 
+        const MONTH_MAP = { "GENNAIO":0, "FEBBRAIO":1, "MARZO":2, "APRILE":3, "MAGGIO":4, "GIUGNO":5, "LUGLIO":6, "AGOSTO":7, "SETTEMBRE":8, "OTTOBRE":9, "NOVEMBRE":10, "DICEMBRE":11 };
+        
+        const HOLIDAYS = {
+            "0-1": "CAPODANNO", "0-6": "EPIFANIA", "1-5": "S. AGATA",
+            "2-25": "ARENGO", "3-1": "REGGENZA", "3-5": "PASQUA",
+            "3-6": "LUN. ANGELO", "4-1": "1° MAGGIO", "5-4": "CORPUS DOM.",
+            "6-28": "LIBERAZIONE", "7-15": "FERRAGOSTO", "8-3": "S. MARINO",
+            "9-1": "REGGENZA", "10-1": "OGNISSANTI", "10-2": "COMM. DEFUNTI",
+            "11-8": "IMMACOLATA", "11-25": "NATALE", "11-26": "S. STEFANO"
+        };
+
+        const SCHEDULE = {
+            "M": "6:30-13:15", "MAT": "6:30-13:15", "MATTINA": "6:30-13:15",
+            "P": "12:45-20:10", "POM": "12:45-20:10", "POMERIGGIO": "12:45-20:10",
+            "N": "19:45-00:00", "NOTT": "19:45-00:00", "NOTTE": "19:45-00:00",
+            "SM": "00:00-7:20", "SMONTO": "00:00-7:20", "S": "00:00-7:20", 
+            "R": "RIPOSO", "RIP": "RIPOSO"
+        };
+
+        let finalData = [];
+        let drivers = [];
+        let selectedDrivers = new Set();
+        let notifHistory = []; 
+        let ambulanceMap = {}; // Mappa { "NomeAutista-Mese": "Giorno" }
+        
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+        });
+        
+        // --- FUNZIONE SUONO CANE ---
+        function playDogSound(event) {
+            event.stopPropagation();
+            const audioEl = document.getElementById('dog-audio');
+            if (audioEl) {
+                audioEl.currentTime = 0;
+                audioEl.play().catch(e => console.log(e));
+            }
+            if(navigator.vibrate) navigator.vibrate(200);
+        }
+
+        // --- GESTIONE MINIGIOCO AMBULANZA ---
+        let gameCanvas, gameCtx, isGameRunning = false, pointsCleaned = 0, totalToClean = 2000;
+
+        function openGameModal(e) {
+            e.stopPropagation(); // Evita apertura modale turno
+            vibrate();
+            
+            const modal = document.getElementById('game-modal');
+            modal.classList.add('open');
+            isGameRunning = true;
+            
+            // Inizializza Canvas dopo che è visibile
+            setTimeout(initGame, 100);
+        }
+
+        function closeGameModal() {
+            document.getElementById('game-modal').classList.remove('open');
+            isGameRunning = false;
+        }
+
+        function initGame() {
+            gameCanvas = document.getElementById('dirtCanvas');
+            gameCtx = gameCanvas.getContext('2d');
+            const containerBox = document.getElementById('game-container-box');
+            
+            gameCanvas.width = containerBox.offsetWidth;
+            gameCanvas.height = containerBox.offsetHeight;
+            
+            // Sporco
+            gameCtx.fillStyle = '#6d4c41'; 
+            gameCtx.fillRect(0, 0, gameCanvas.width, gameCanvas.height);
+            
+            // Testo
+            gameCtx.globalCompositeOperation = 'source-over';
+            gameCtx.fillStyle = 'rgba(255,255,255,0.5)';
+            gameCtx.font = 'bold 24px Arial';
+            gameCtx.textAlign = 'center';
+            gameCtx.fillText("TRASCINA PER PULIRE", gameCanvas.width/2, gameCanvas.height/2);
+            
+            pointsCleaned = 0;
+            document.getElementById('game-fill').style.width = '0%';
+            
+            // Event Listeners
+            gameCanvas.addEventListener('mousedown', () => isGameCleaning = true);
+            window.addEventListener('mouseup', () => isGameCleaning = false);
+            gameCanvas.addEventListener('mousemove', handleGameMove);
+            
+            gameCanvas.addEventListener('touchstart', (e) => { isGameCleaning = true; handleGameMove(e); }, {passive:false});
+            gameCanvas.addEventListener('touchend', () => isGameCleaning = false);
+            gameCanvas.addEventListener('touchmove', (e) => { handleGameMove(e); e.preventDefault(); }, {passive: false});
+        }
+
+        let isGameCleaning = false;
+
+        function handleGameMove(e) {
+            if (!isGameCleaning || !isGameRunning) return;
+            
+            const rect = gameCanvas.getBoundingClientRect();
+            const x = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
+            const y = (e.touches ? e.touches[0].clientY : e.clientY) - rect.top;
+
+            // Cancella sporco
+            gameCtx.globalCompositeOperation = 'destination-out';
+            gameCtx.beginPath();
+            gameCtx.arc(x, y, 30, 0, Math.PI * 2);
+            gameCtx.fill();
+
+            // Effetto bolle
+            if (Math.random() > 0.8) createGameBubble(x, y);
+
+            // Update progress
+            pointsCleaned++;
+            let percent = Math.min((pointsCleaned / totalToClean) * 100, 100);
+            document.getElementById('game-fill').style.width = percent + '%';
+            
+            if(percent >= 100) {
+                gameCtx.clearRect(0,0,gameCanvas.width, gameCanvas.height);
+            }
+        }
+
+        function createGameBubble(x, y) {
+            const bubble = document.createElement('div');
+            bubble.className = 'bubble';
+            const size = Math.random() * 20 + 10;
+            bubble.style.width = size + 'px';
+            bubble.style.height = size + 'px';
+            bubble.style.left = x + 'px';
+            bubble.style.top = y + 'px';
+            document.getElementById('game-container-box').appendChild(bubble);
+            setTimeout(() => bubble.remove(), 1000);
+        }
+
+        function resetGame() {
+            gameCtx.globalCompositeOperation = 'source-over';
+            initGame();
+        }
+
+        // --- SECRET GALLERY LOGIC ---
+        let logoClicks = 0;
+        let galleryIdx = 1;
+        let resetTimer;
+        const TOTAL_SECRET_PHOTOS = 10; 
+        const PHOTO_EXT = ".jpg"; 
+
+        function secretClick() {
+            logoClicks++;
+            clearTimeout(resetTimer);
+            if (logoClicks >= 5) {
+                openSecretGallery();
+                logoClicks = 0;
+            } else {
+                resetTimer = setTimeout(() => { logoClicks = 0; }, 2000);
+            }
+        }
+
+        function openSecretGallery() {
+            vibrate();
+            galleryIdx = 1;
+            const img = document.getElementById('secret-img');
+            img.src = `foto${galleryIdx}${PHOTO_EXT}`;
+            document.getElementById('secret-gallery').classList.add('open');
+        }
+
+        function nextSecretPhoto() {
+            galleryIdx++;
+            if(galleryIdx > TOTAL_SECRET_PHOTOS) galleryIdx = 1;
+            const img = document.getElementById('secret-img');
+            img.style.opacity = '0.5';
+            setTimeout(() => {
+                img.src = `foto${galleryIdx}${PHOTO_EXT}`;
+                img.style.opacity = '1';
+            }, 150);
+        }
+
+        function closeSecretGallery() {
+            document.getElementById('secret-gallery').classList.remove('open');
+        }
+
+        // FUNZIONE INSTALLAZIONE PWA
+        function installPWA() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    deferredPrompt = null;
+                });
+            } else {
+                const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+                if(isIOS) {
+                    alert("⚠️ ISTRUZIONI PER iPHONE/iPad:\n\n1. Tocca 'Condividi' (quadrato con freccia).\n\n2. Scorri e seleziona 'Aggiungi alla schermata Home'.");
+                } else {
+                    alert("Apri il menu del browser e cerca 'Installa app' o 'Aggiungi a schermata Home'.");
+                }
+            }
+        }
+
+        if(localStorage.getItem('theme') === 'dark') {
+            document.body.classList.add('dark-mode');
+            document.querySelector('#theme-color-meta').setAttribute('content', '#0f172a');
+            window.addEventListener('load', () => {
+                const tg = document.getElementById('dark-mode-toggle');
+                if(tg) tg.checked = true;
+            });
+        }
+
+        function vibrate() {
+            if(navigator.vibrate) navigator.vibrate(10);
+        }
+
+        function toggleMenu() {
+            vibrate();
+            let m = document.getElementById('menu-dropdown');
+            if(m.style.display === 'flex') {
+                m.classList.remove('open');
+                setTimeout(() => m.style.display = 'none', 100);
+            } else {
+                m.style.display = 'flex';
+                setTimeout(() => m.classList.add('open'), 10);
+            }
+        }
+        
+        function openOptionsModal() {
+            toggleMenu();
+            let m = document.getElementById('options-modal');
+            m.style.display = 'flex';
+            setTimeout(() => m.classList.add('open'), 10);
+            
+            const tg = document.getElementById('dark-mode-toggle');
+            if(tg) tg.checked = document.body.classList.contains('dark-mode');
+        }
+        
+        function closeOptionsModal(e) {
+            if (e && e.target !== e.currentTarget) return;
+            let m = document.getElementById('options-modal');
+            m.classList.remove('open');
+            setTimeout(() => m.style.display = 'none', 200);
+        }
+
+        function toggleDarkMode() {
+            vibrate();
+            document.body.classList.toggle('dark-mode');
+            const meta = document.querySelector('#theme-color-meta');
+            const isDark = document.body.classList.contains('dark-mode');
+            
+            if(isDark) {
+                localStorage.setItem('theme', 'dark');
+                meta.setAttribute('content', '#0f172a');
+            } else {
+                localStorage.setItem('theme', 'light');
+                meta.setAttribute('content', '#ffffff');
+            }
+        }
+
+        document.addEventListener('click', function(event) {
+            let m = document.getElementById('menu-dropdown');
+            let btn = document.querySelector('.btn-action[onclick="toggleMenu()"]');
+            if (m.style.display === 'flex' && !m.contains(event.target) && !btn.contains(event.target)) {
+                toggleMenu();
+            }
+        });
+
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js').catch(err => console.log('SW Fail'));
+        }
+
+        window.onload = async () => {
+            try {
+                const lastUp = new Date(document.lastModified);
+                const dateStr = lastUp.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: '2-digit' });
+                const timeStr = lastUp.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
+                document.getElementById('last-update-badge').innerText = `Agg. ${dateStr} ${timeStr}`;
+            } catch(e) { console.log(e); }
+            
+            const tg = document.getElementById('dark-mode-toggle');
+            if(tg) tg.checked = document.body.classList.contains('dark-mode');
+
+            try {
+                const response = await fetch(FILE_NAME);
+                if (!response.ok) throw new Error("File mancante");
+                const buffer = await response.arrayBuffer();
+                loadWorkbook(buffer);
+            } catch (e) {
+                console.error(e);
+                document.getElementById('auto-loader').style.display = 'none';
+                document.getElementById('manual-upload').style.display = 'block';
+            }
+        };
+
+        document.getElementById('file-input').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if(!file) return;
+            const reader = new FileReader();
+            reader.onload = (evt) => loadWorkbook(evt.target.result);
+            reader.readAsArrayBuffer(file);
+        });
+
+        async function loadWorkbook(buffer) {
+            try {
+                const workbook = new ExcelJS.Workbook();
+                await workbook.xlsx.load(buffer);
+                let ws = workbook.getWorksheet("Foglio2") || workbook.worksheets[0];
+                
+                let rawData = [];
+                ws.eachRow({ includeEmpty: true }, (row, rowNumber) => {
+                    let rowData = [];
+                    row.eachCell({ includeEmpty: true }, (cell, colNumber) => {
+                        let val = cell.value;
+                        if(typeof val === 'object' && val !== null) val = val.result || "";
+                        let bg = null;
+                        if(cell.fill && cell.fill.fgColor) {
+                            bg = cell.fill.fgColor.argb;
+                            if(!bg && cell.fill.fgColor.theme !== undefined) bg = "THEME_" + cell.fill.fgColor.theme; 
+                        }
+                        rowData[colNumber] = { v: val, c: bg };
+                    });
+                    rawData[rowNumber] = rowData;
+                });
+
+                finalData = convertHorizontalToVertical(rawData);
+                document.getElementById('loader').style.opacity = '0';
+                setTimeout(() => document.getElementById('loader').style.display = 'none', 500);
+                initApp();
+            } catch(e) {
+                alert("Errore lettura file: " + e.message);
+                document.getElementById('loader').innerHTML = `<h3 style="color:red">Errore File!</h3><p>${e.message}</p><button onclick="location.reload()">Riprova</button>`;
+            }
+        }
+
+        function convertHorizontalToVertical(raw) {
+            let processed = [];
+            let header = ["MESE", "GIORNO", "NOME"];
+            let driverRows = [];
+            
+            for(let r=3; r<raw.length; r++) {
+                if(!raw[r]) continue;
+                let cellName = raw[r][1]; 
+                
+                if(cellName && cellName.v && typeof cellName.v === 'string') {
+                    let txt = cellName.v.toUpperCase();
+                    if(txt.includes("CONGEDO") || txt.includes("MALATTIA") || txt.includes("RESIDUE") || 
+                       txt.includes("P.S.") || txt.includes("RECUPERO") || txt.includes("PERM.") || 
+                       txt.includes("ASPETTATIVA") || txt.includes("FEST.") || txt.includes("DISTACCO") || 
+                       txt.includes("1>7") || txt.includes("P/PN")) {
+                        continue; 
+                    }
+                }
+                
+                if(cellName && cellName.v && typeof cellName.v === 'string' && cellName.v.length > 2) {
+                    let driverObj = { name: cellName.v, idx: r, subIdx: null };
+                    if(raw[r+1] && (!raw[r+1][1] || !raw[r+1][1].v || raw[r+1][1].v.toString().trim() === "")) {
+                        driverObj.subIdx = r + 1; 
+                    }
+                    driverRows.push(driverObj);
+                    header.push(cellName.v);
+                }
+            }
+            processed.push(header);
+
+            let rowMese = raw[1];
+            let rowGiorno = raw[2];
+            let currentMonth = "";
+
+            if(rowGiorno) {
+                for(let c=2; c<rowGiorno.length; c++) {
+                    let cellDay = rowGiorno[c];
+                    let cellMese = rowMese ? rowMese[c] : null;
+                    let dayNum = cellDay ? cellDay.v : null;
+                    
+                    if(cellMese && cellMese.v && typeof cellMese.v === 'string') {
+                        let parts = cellMese.v.split("."); 
+                        if(parts[0]) currentMonth = parts[0].trim().toUpperCase();
+                    }
+
+                    if(dayNum && !isNaN(parseInt(dayNum))) {
+                        let newRow = [{v:currentMonth}, {v:dayNum}, {v:""}];
+                        driverRows.forEach(dr => {
+                            let mainData = raw[dr.idx][c] || {v:"", c:null};
+                            let subData = dr.subIdx ? (raw[dr.subIdx][c] || {v:"", c:null}) : {v:"", c:null};
+                            newRow.push({ v: mainData.v, c: mainData.c, subV: subData.v, subC: subData.c });
+                        });
+                        processed.push(newRow);
+                    }
+                }
+            }
+            return processed;
+        }
+
+        function initApp() {
+            let header = finalData[0];
+            drivers = [];
+            for(let i=3; i<header.length; i++) {
+                let name = header[i].toUpperCase();
+                drivers.push({name: name, idx: i});
+            }
+            const drvNav = document.getElementById('driver-nav');
+            drvNav.innerHTML = "";
+            let btnAll = document.createElement('div');
+            btnAll.className = "chip chip-driver active";
+            btnAll.innerText = "TUTTI";
+            btnAll.dataset.idx = "all";
+            btnAll.onclick = () => filterDriver("all", btnAll);
+            drvNav.appendChild(btnAll);
+
+            drivers.forEach(d => {
+                let btn = document.createElement('div');
+                btn.className = "chip chip-driver";
+                btn.innerText = d.name;
+                btn.dataset.idx = d.idx;
+                btn.onclick = () => filterDriver(d.idx, btn);
+                drvNav.appendChild(btn);
+            });
+
+            let savedDr = localStorage.getItem("selected_drivers");
+            if(savedDr) {
+                try {
+                    const savedArr = JSON.parse(savedDr);
+                    if(Array.isArray(savedArr) && savedArr.length > 0) {
+                        selectedDrivers = new Set(savedArr);
+                        updateDriverButtons();
+                    }
+                } catch(e) { console.error("Error loading selected drivers", e); }
+            }
+            
+            initNotificationOptions();
+            loadNotificationHistory(); 
+            
+            // CALCOLA DATE AMBULANZA PRIMA DEL RENDER
+            calculateAmbulanceDates();
+            
+            renderTable();
+            startLiveClock();
+            setTimeout(scrollToToday, 600);
+            setTimeout(checkForScheduleChanges, 2000);
+        }
+
+        /* --- LOGICA AMBULANZA RANDOM --- */
+        function calculateAmbulanceDates() {
+            // Recupera mappa salvata
+            let storedMap = localStorage.getItem('ambulance_dates_map');
+            if (storedMap) {
+                ambulanceMap = JSON.parse(storedMap);
+            }
+
+            // Mese corrente del loop
+            let currentM = "";
+            
+            // Raggruppa i giorni per autista e mese
+            // Struttura: tempMap[DriverIdx][Mese] = [array di giorni con turno M]
+            let tempMap = {};
+
+            for (let i = 1; i < finalData.length; i++) {
+                let row = finalData[i];
+                let month = row[0].v;
+                let day = row[1].v;
+                if (!month || !day) continue;
+
+                drivers.forEach(d => {
+                    let cellData = row[d.idx];
+                    let val = cellData.v ? cellData.v.toString().trim() : "";
+                    if (normalizeShift(val) === "M") {
+                        if (!tempMap[d.idx]) tempMap[d.idx] = {};
+                        if (!tempMap[d.idx][month]) tempMap[d.idx][month] = [];
+                        tempMap[d.idx][month].push(day);
+                    }
+                });
+            }
+
+            // Assegna date se mancano
+            let hasChanges = false;
+            for (let dIdx in tempMap) {
+                for (let month in tempMap[dIdx]) {
+                    let key = `${dIdx}-${month}`; // Chiave univoca: IDAutista-Mese
+                    if (!ambulanceMap[key]) {
+                        // Seleziona un giorno a caso tra quelli disponibili
+                        let availableDays = tempMap[dIdx][month];
+                        if (availableDays.length > 0) {
+                            let randomDay = availableDays[Math.floor(Math.random() * availableDays.length)];
+                            ambulanceMap[key] = randomDay;
+                            hasChanges = true;
+                        }
+                    }
+                }
+            }
+
+            if (hasChanges) {
+                localStorage.setItem('ambulance_dates_map', JSON.stringify(ambulanceMap));
+            }
+        }
+
+        /* --- GESTIONE NOTIFICHE --- */
+        let watchedDrivers = new Set();
+
+        function initNotificationOptions() {
+            const list = document.getElementById('notification-driver-list');
+            if(!list) return;
+            list.innerHTML = "";
+            
+            const saved = localStorage.getItem('watched_drivers_ids');
+            if(saved) {
+                watchedDrivers = new Set(JSON.parse(saved));
+            }
+
+            drivers.forEach(d => {
+                let isChecked = watchedDrivers.has(d.idx) ? "checked" : "";
+                let item = document.createElement('label');
+                item.className = `dinner-check-item ${isChecked}`;
+                item.innerHTML = `
+                    <input type="checkbox" value="${d.idx}" ${isChecked ? "checked" : ""} onchange="toggleWatchDriver(${d.idx}, this)">
+                    <div class="dinner-check-icon"><span class="material-icons-round" style="font-size:14px">notifications</span></div>
+                    ${d.name}
+                `;
+                list.appendChild(item);
+            });
+        }
+
+        function toggleWatchDriver(idx, el) {
+            vibrate();
+            if(watchedDrivers.has(idx)) {
+                watchedDrivers.delete(idx);
+                el.parentElement.classList.remove('checked');
+            } else {
+                watchedDrivers.add(idx);
+                el.parentElement.classList.add('checked');
+            }
+            localStorage.setItem('watched_drivers_ids', JSON.stringify([...watchedDrivers]));
+        }
+
+        function getShiftReadableName(code) {
+            code = code ? code.toString().trim().toUpperCase() : "";
+            if(!code) return "Vuoto";
+            if(code === "M" || code.startsWith("MAT")) return "Mattina";
+            if(code === "P" || code.startsWith("POM")) return "Pomeriggio";
+            if(code === "N" || code.startsWith("NOT")) return "Notte";
+            if(code === "R" || code.startsWith("RIP")) return "Riposo";
+            if(code === "SM" || code.startsWith("SMO")) return "Smonto";
+            if(code === "M+N" || code === "MN") return "Mattina+Notte";
+            if(code.includes("FER")) return "Ferie";
+            if(code.includes("MAL")) return "Malattia";
+            if(code.includes("REC")) return "Recupero";
+            if(code.includes("CONG")) return "Congedo";
+            return code;
+        }
+
+        function checkForScheduleChanges() {
+            if(watchedDrivers.size === 0) return;
+
+            let currentSnapshot = {};
+            
+            for(let i=1; i<finalData.length; i++) {
+                let row = finalData[i];
+                let month = row[0].v;   
+                let day = row[1].v;        
+                if(!day || !month) continue;
+
+                let dateKey = `${month}-${day}`; 
+
+                watchedDrivers.forEach(dIdx => {
+                    let cell = row[dIdx];
+                    let val = cell.v ? cell.v.toString().trim() : "";
+                    let col = cell.c || "no-col";
+                    let sub = cell.subV || "";
+                    
+                    let uniqueKey = `${dateKey}-DRV${dIdx}`;
+                    currentSnapshot[uniqueKey] = `${val}|${col}|${sub}`;
+                });
+            }
+
+            let oldJson = localStorage.getItem('schedule_snapshot');
+            
+            if(oldJson) {
+                let oldSnapshot = JSON.parse(oldJson);
+                let changesFound = [];
+
+                for (const [key, newVal] of Object.entries(currentSnapshot)) {
+                    let oldVal = oldSnapshot[key];
+                    if(oldVal && oldVal !== newVal) {
+                        let parts = key.split("-DRV"); 
+                        let datePart = parts[0]; 
+                        let drvIdx = parseInt(parts[1]);
+                        let drvName = drivers.find(d => d.idx === drvIdx)?.name || "Autista";
+
+                        if(newVal === "||" && oldVal === "||") continue;
+
+                        let oldShiftCode = oldVal.split('|')[0];
+                        let newShiftCode = newVal.split('|')[0];
+
+                        let oldShiftName = getShiftReadableName(oldShiftCode);
+                        let newShiftName = getShiftReadableName(newShiftCode);
+
+                        let detailMsg = `<b>${drvName}</b> - ${datePart}<br>
+                                         <span style="font-size:0.85rem; color:var(--text-sec)">
+                                         Da: <b style="color:#ef4444">${oldShiftName}</b> &rarr; A: <b style="color:#15803d">${newShiftName}</b>
+                                         </span>`;
+
+                        changesFound.push(detailMsg);
+                        
+                        let notifObj = {
+                            id: Date.now() + Math.random(),
+                            text: detailMsg,
+                            read: false,
+                            date: new Date().toLocaleString()
+                        };
+                        notifHistory.unshift(notifObj);
+                    }
+                }
+
+                if(changesFound.length > 0) {
+                    saveNotifications(); 
+                    updateBadge();       
+                    showChangeAlert(changesFound);
+                }
+            }
+            localStorage.setItem('schedule_snapshot', JSON.stringify(currentSnapshot));
+        }
+
+        // --- FUNZIONI CENTRO NOTIFICHE ---
+        function loadNotificationHistory() {
+            let saved = localStorage.getItem('notifications_history');
+            if(saved) {
+                notifHistory = JSON.parse(saved);
+            }
+            updateBadge();
+        }
+
+        function saveNotifications() {
+            localStorage.setItem('notifications_history', JSON.stringify(notifHistory));
+        }
+
+        function updateBadge() {
+            const unreadCount = notifHistory.filter(n => !n.read).length;
+            const badge = document.getElementById('notif-badge');
+            if(unreadCount > 0) {
+                badge.classList.add('visible');
+            } else {
+                badge.classList.remove('visible');
+            }
+        }
+
+        function openNotifCenter() {
+            vibrate();
+            let modal = document.getElementById('notif-center-modal');
+            modal.style.display = 'flex';
+            setTimeout(() => modal.classList.add('open'), 10);
+            renderNotifList();
+            setTimeout(() => {
+                notifHistory.forEach(n => n.read = true);
+                saveNotifications();
+                updateBadge();
+            }, 1000);
+        }
+
+        function closeNotifCenter() {
+            let modal = document.getElementById('notif-center-modal');
+            modal.classList.remove('open');
+            setTimeout(() => modal.style.display = 'none', 300);
+        }
+
+        function renderNotifList() {
+            const container = document.getElementById('notif-list-container');
+            container.innerHTML = "";
+
+            if(notifHistory.length === 0) {
+                container.innerHTML = `<div class="no-notif">Nessuna notifica presente.</div>`;
+                return;
+            }
+
+            notifHistory.forEach(item => {
+                let div = document.createElement('div');
+                div.className = `notif-item ${item.read ? '' : 'unread'}`;
+                div.innerHTML = `
+                    <div class="notif-date">${item.date}</div>
+                    <div class="notif-text">${item.text}</div>
+                    <button class="btn-del-notif" onclick="deleteNotif(${item.id})">
+                        <span class="material-icons-round" style="font-size:18px">close</span>
+                    </button>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function deleteNotif(id) {
+            vibrate();
+            notifHistory = notifHistory.filter(n => n.id !== id);
+            saveNotifications();
+            renderNotifList();
+            updateBadge();
+        }
+
+        function clearAllNotif() {
+            if(confirm("Eliminare tutte le notifiche?")) {
+                vibrate();
+                notifHistory = [];
+                saveNotifications();
+                renderNotifList();
+                updateBadge();
+            }
+        }
+
+        function showChangeAlert(changes) {
+            let msg = "Sono stati rilevati cambi turno per gli autisti che segui:<br><br>";
+            msg += changes.slice(0, 5).join("<br><br>"); 
+            if(changes.length > 5) msg += `<br><br>...e altri ${changes.length - 5}.`;
+            msg += "<br><br><small>Controlla il calendario aggiornato.</small>";
+
+            let modal = document.getElementById('alert-modal');
+            document.getElementById('alert-title-text').innerText = "⚠️ VARIAZIONE TURNO";
+            document.getElementById('alert-message-text').innerHTML = msg;
+            modal.style.display = 'flex';
+            setTimeout(() => modal.classList.add('open'), 100);
+            vibrate();
+        }
+
+        function closeAlertAndSave() {
+            vibrate();
+            let modal = document.getElementById('alert-modal');
+            modal.classList.remove('open');
+            setTimeout(() => { modal.style.display = 'none'; }, 300);
+        }
+
+        function scrollToToday() {
+            const el = document.getElementById('today-row');
+            if (el) {
+                const headerHeight = 160; 
+                const extraOffset = 100; 
+                
+                const bodyRect = document.body.getBoundingClientRect().top;
+                const elementRect = el.getBoundingClientRect().top;
+                const elementPosition = elementRect - bodyRect;
+                
+                const offsetPosition = elementPosition - headerHeight - extraOffset;
+                window.scrollTo({ top: offsetPosition, behavior: "smooth" });
+            }
+        }
+
+        function filterDriver(val, btnEl) {
+            vibrate();
+            
+            if (val === 'all') {
+                selectedDrivers.clear();
+            } else {
+                const intVal = parseInt(val);
+                if (selectedDrivers.has(intVal)) {
+                    selectedDrivers.delete(intVal);
+                } else {
+                    selectedDrivers.add(intVal);
+                }
+            }
+            localStorage.setItem("selected_drivers", JSON.stringify([...selectedDrivers]));
+            updateDriverButtons();
+            renderTable();
+        }
+
+        function updateDriverButtons() {
+             const allBtn = document.querySelector('.chip-driver[data-idx="all"]');
+             if(selectedDrivers.size === 0) {
+                 allBtn.classList.add('active');
+             } else {
+                 allBtn.classList.remove('active');
+             }
+
+             document.querySelectorAll('.chip-driver:not([data-idx="all"])').forEach(btn => {
+                 const idx = parseInt(btn.dataset.idx);
+                 if(selectedDrivers.has(idx)) {
+                     btn.classList.add('active');
+                 } else {
+                     btn.classList.remove('active');
+                 }
+             });
+        }
+
+        function startLiveClock() {
+            setInterval(() => {
+                const now = new Date();
+                const dateStr = now.toLocaleDateString('it-IT', { weekday: 'short', day: 'numeric', month: 'short' });
+                const timeStr = now.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                const fullStr = `${dateStr} • ${timeStr}`;
+                document.querySelectorAll('.live-clock').forEach(el => { el.innerText = fullStr; });
+            }, 1000);
+        }
+
+        function renderTable() {
+            const thead = document.getElementById('table-head');
+            const tbody = document.getElementById('table-body');
+            const nav = document.getElementById('month-nav');
+            thead.innerHTML = ""; tbody.innerHTML = ""; nav.innerHTML = "";
+
+            let cols = [];
+            if (selectedDrivers.size === 0) {
+                cols = drivers; 
+            } else {
+                cols = drivers.filter(d => selectedDrivers.has(d.idx));
+            }
+
+            let thD = document.createElement('th'); thD.innerText = "DATA"; 
+            thD.style.left = "0"; thD.style.zIndex="95"; thead.appendChild(thD);
+
+            cols.forEach(d => {
+                let th = document.createElement('th'); th.innerText = d.name; thead.appendChild(th);
+            });
+
+            let currentMonth = "";
+            let monthsFound = [];
+            let year = 2026;
+            const today = new Date();
+            const curD = today.getDate(); const curM = today.getMonth();
+
+            for(let i = 1; i < finalData.length; i++) {
+                let row = finalData[i];
+                let mName = row[0].v;
+                let dNum = parseInt(row[1].v);
+
+                if(mName && mName !== currentMonth) {
+                    currentMonth = mName;
+                    let mId = "m-" + i;
+                    monthsFound.push({name: mName, id: mId});
+                    let trM = document.createElement('tr'); trM.className = "month-header";
+                    trM.id = mId;
+                    
+                    trM.innerHTML = `
+                    <td colspan="${cols.length + 1}">
+                        <div class="sticky-month-text">
+                            <span class="month-label">${mName} ${year}</span>
+                            <span class="live-clock"></span>
+                        </div>
+                    </td>`;
+                    tbody.appendChild(trM);
+                }
+
+                let tr = document.createElement('tr');
+                let mIdx = MONTH_MAP[currentMonth];
+                
+                let dateObj = new Date(year, mIdx, dNum);
+                let dayWeek = dateObj.toLocaleDateString('it-IT', { weekday: 'short' }).toUpperCase();
+                let dayIdx = dateObj.getDay(); 
+                let holKey = `${mIdx}-${dNum}`;
+                let holidayName = HOLIDAYS[holKey];
+                
+                let isRed = (dayIdx === 0 || dayIdx === 6 || holidayName);
+                let dateClass = isRed ? "td-date date-red" : "td-date";
+                
+                if(mIdx === curM && dNum === curD && today.getFullYear() === year) {
+                    tr.className = "today";
+                    tr.id = "today-row";
+                }
+
+                let dateHtml = `
+                    ${dNum}
+                    <small>${dayWeek}</small>
+                    ${holidayName ? `<div class="holiday-name">${holidayName}</div>` : ""}
+                `;
+                
+                tr.innerHTML = `<td class="${dateClass}">${dateHtml}</td>`;
+
+                // Conteggio autisti per turno
+                let countM = 0;
+                let countP = 0;
+
+                drivers.forEach(dr => {
+                    let cellData = row[dr.idx];
+                    let val = cellData.v ? cellData.v.toString().trim() : "";
+                    let sType = normalizeShift(val);
+                    if(sType === "M") countM++;
+                    if(sType === "P") countP++;
+                });
+
+                cols.forEach(d => {
+                    let cellInfo = row[d.idx];
+                    let td = document.createElement('td');
+                    
+                    let val = cellInfo.v ? cellInfo.v.toString().trim() : "";
+                    let sType = normalizeShift(val);
+                    let showDog = false;
+                    let showAmbulance = false;
+
+                    // Logica Cane
+                    if(sType === "M" && countM === 1) showDog = true;
+                    if(sType === "P" && countP === 1) showDog = true;
+
+                    // Logica Ambulanza (Solo M, random una volta al mese)
+                    if(sType === "M") {
+                        let key = `${d.idx}-${mName}`;
+                        if (ambulanceMap[key] == dNum) {
+                            showAmbulance = true;
+                        }
+                    }
+
+                    td.innerHTML = formatCell(cellInfo, showDog, showAmbulance);
+                    
+                    if(["M", "P", "N", "R", "MN"].includes(sType)) {
+                        td.onclick = () => openShiftModal(i, sType, mName, dNum, dayWeek);
+                    }
+                    tr.appendChild(td);
+                });
+                tbody.appendChild(tr);
+            }
+
+            monthsFound.forEach(m => {
+                let btn = document.createElement('div');
+                btn.className = "chip chip-month";
+                btn.innerText = m.name.substr(0,3);
+                btn.onclick = () => {
+                    vibrate();
+                    document.querySelectorAll('.chip-month').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    const el = document.getElementById(m.id);
+                    const headerHeight = 160; 
+                    const bodyRect = document.body.getBoundingClientRect().top;
+                    const elementRect = el.getBoundingClientRect().top;
+                    const elementPosition = elementRect - bodyRect;
+                    const offset = elementPosition - headerHeight;
+                    window.scrollTo({ top: offset, behavior: "smooth" });
+                };
+                nav.appendChild(btn);
+            });
+        }
+
+        function normalizeShift(val) {
+            let u = val.toUpperCase();
+            if(u === "M+N" || u === "M + N") return "MN"; 
+            if(u === "M" || u.startsWith("MAT") || u === "M/R") return "M";
+            if(u === "P" || u.startsWith("POM")) return "P";
+            if(u === "N" || u.startsWith("NOT")) return "N";
+            if(u === "R" || u.startsWith("RIP")) return "R";
+            return "";
+        }
+
+        function openShiftModal(rowIndex, shiftType, month, day, weekDay) {
+            vibrate();
+            let row = finalData[rowIndex];
+            let list = document.getElementById('modal-list');
+            let title = document.getElementById('modal-title');
+            let sub = document.getElementById('modal-subtitle');
+            let modalContent = document.querySelector('#shift-modal .modal-content');
+            
+            modalContent.classList.remove('modal-theme-M', 'modal-theme-P', 'modal-theme-N', 'modal-theme-R', 'modal-theme-MN');
+            modalContent.classList.add('modal-theme-' + shiftType);
+            list.innerHTML = "";
+            
+            let fullShiftName = "";
+            let iconHtml = "";
+            if(shiftType === "M") { fullShiftName = "MATTINA"; iconHtml = '<span class="material-icons-round">wb_sunny</span>'; }
+            if(shiftType === "P") { fullShiftName = "POMERIGGIO"; iconHtml = '<span class="material-icons-round">wb_twilight</span>'; }
+            if(shiftType === "N") { fullShiftName = "NOTTE"; iconHtml = '<span class="material-icons-round">bedtime</span>'; }
+            if(shiftType === "R") { fullShiftName = "RIPOSO"; iconHtml = '<span class="material-icons-round">weekend</span>'; }
+            if(shiftType === "MN") { fullShiftName = "MATTINA + NOTTE"; iconHtml = '<span class="material-icons-round">schedule</span>'; }
+
+            title.innerHTML = `${iconHtml} ${fullShiftName}`;
+            sub.innerText = `${weekDay} ${day} ${month}`;
+            
+            let found = 0;
+            drivers.forEach(d => {
+                let cellData = row[d.idx];
+                let val = cellData.v ? cellData.v.toString().trim() : "";
+                
+                if(normalizeShift(val) === shiftType) {
+                    found++;
+                    let time = "";
+                    
+                    if(val === "m" || val.startsWith('m')) time = "6:30-13:42";
+                    else if(val === "p" || val.startsWith('p')) time = "13:15-20:27"; 
+
+                    else if(val === "M/R") time = "6:30-13:15";
+                    else time = SCHEDULE[val] || SCHEDULE[val.toUpperCase()] || SCHEDULE[val.charAt(0).toUpperCase()] || "";
+
+                    if(shiftType === "R") time = "Riposo"; 
+                    if(shiftType === "MN") time = "6:30-13:15 + 19:45-00:00"; 
+
+                    let isRep = (val.toLowerCase().includes("/r") || val === "M/R");
+                    let repTag = isRep ? `<span class="rep-badge" style="margin-left:8px">REP</span>` : "";
+
+                    let div = document.createElement('div');
+                    div.className = "colleague-item";
+                    div.innerHTML = `<span class="c-name">${d.name} ${repTag}</span><span class="c-time">${time}</span>`;
+                    list.appendChild(div);
+                }
+            });
+            
+            if(found === 0) list.innerHTML = "<div style='text-align:center; color:var(--text-sec); padding:30px; font-weight:500'>Nessun altro collega in questo turno.</div>";
+            let modal = document.getElementById('shift-modal');
+            modal.style.display = 'flex';
+            setTimeout(() => modal.classList.add('open'), 10);
+        }
+
+        function closeShiftModal(e) {
+            if (e && e.target !== e.currentTarget) return; 
+            let modal = document.getElementById('shift-modal');
+            modal.classList.remove('open');
+            setTimeout(() => { modal.style.display = 'none'; }, 200);
+        }
+
+        // --- RICONOSCIMENTO COLORI ---
+        function detectColorCategory(argb) {
+            if(!argb || argb.length < 8) return null;
+            let r = parseInt(argb.substring(2, 4), 16);
+            let g = parseInt(argb.substring(4, 6), 16);
+            let b = parseInt(argb.substring(6, 8), 16);
+            
+            if(isNaN(r) || isNaN(g) || isNaN(b)) return null;
+
+            if (r > g + 40 && r > b + 40) return { lbl: "MALATTIA", cls: "spec-red" };
+
+            let blueDominant = (b > r + 40 && b > g + 40);
+            let cyanDominant = (b > r + 40 && g > r + 40); 
+            if (blueDominant || cyanDominant) return { lbl: "FESTIVO<br>NON GODUTO", cls: "spec-blue" };
+
+            if (g > r && g > b) return { lbl: "PERMESSO<br>STRAORD.", cls: "spec-green" };
+            
+            if (r > b && r > g) {
+                if (g > 180 && g >= r * 0.8) return { lbl: "CONGEDO<br>ORDINARIO", cls: "spec-yellow" };
+                if (g > 80 && g < r * 0.8) return { lbl: "FERIE<br>RESIDUE", cls: "spec-orange" };
+            }
+            
+            if ((r > 150 && b > 100) || (r > g && b > g)) return { lbl: "RECUPERO", cls: "spec-pink" };
+            
+            return null; 
+        }
+
+        function formatCell(info, showDog, showAmbulance) {
+            let val = info.v ? info.v.toString().trim() : "";
+            let color = info.c || "";
+            let subColor = info.subC || ""; 
+            let u = val.toUpperCase();
+            let subVal = info.subV ? info.subV.toString().trim().toUpperCase() : "";
+
+            const dogHtml = '<img src="cane.png" class="dog-icon" alt="dog" onclick="playDogSound(event)">';
+            const ambHtml = '<img src="ambulanza.png" class="ambulance-icon" alt="game" onclick="openGameModal(event)">';
+
+            if(u === "M+N" || u === "M + N") {
+                 return `<div class="cell t-MN">
+                            <div>MAT+NOT</div>
+                            <div class="time-tag">6:30-13:15</div>
+                            <div class="time-tag">19:45-00:00</div>
+                        </div>`;
+            }
+
+            if(u === "NL" || subVal === "NL") return renderSpecial("FESTIVO<br>NON LAVORATO", "spec-nl");
+
+            if(subVal === "NG") return renderSpecial("FESTIVO<br>NON GODUTO", "spec-blue");
+            
+            // --- MODIFICA RICHIESTA: SE MALATTIA, METTI ROSSO QUI ---
+            if(subVal === "M" || subVal === "MALATTIA" || subVal === "MAL" || u === "MALATTIA" || u === "MAL") {
+                return renderSpecial("MALATTIA", "spec-red");
+            }
+            
+            // NUOVO: K = DISTACCO SPECIALE
+            if(subVal === "K" || u === "K") return renderSpecial("DISTACCO<br>SPECIALE", "spec-purple");
+            
+            if (subColor && !subColor.startsWith('FFFFFFFF') && subColor !== 'FF000000' && subColor.length >= 6) {
+                let subCat = detectColorCategory(subColor);
+                if (subCat && (subCat.cls === "spec-blue" || subCat.cls === "spec-red")) {
+                    return `<div class="cell ${subCat.cls}">${subCat.lbl}</div>`;
+                }
+            }
+
+            let hasColor = (color && !color.startsWith('FFFFFFFF') && color !== 'FF000000' && color.length >= 6); 
+            if(hasColor) {
+                let cat = detectColorCategory(color);
+                if(cat) return `<div class="cell ${cat.cls}">${cat.lbl}</div>`;
+            }
+
+            let isEmpty = (val === "-" || val === "." || val === "0" || val === "");
+            
+            if(subVal === "F" || subVal.includes("CONG")) return renderSpecial("CONGEDO<br>ORDINARIO", "spec-yellow");
+            if(subVal === "V" || subVal.includes("FER")) return renderSpecial("FERIE<br>RESIDUE", "spec-orange");
+            if(subVal === "R" || subVal.includes("REC")) return renderSpecial("RECUPERO", "spec-pink");
+            if(subVal === "P" || subVal.includes("PER")) return renderSpecial("PERMESSO<br>STRAORD.", "spec-green");
+            
+            if(u === "F" || u.includes("CONG")) return `<div class="cell spec-yellow">CONGEDO<br>ORDINARIO</div>`;
+            if(u === "V" || u.includes("FER")) return `<div class="cell spec-orange">FERIE<br>RESIDUE</div>`;
+            if(u.includes("REC")) return `<div class="cell spec-pink">RECUPERO</div>`;
+            if(u.includes("PERM")) return `<div class="cell spec-green">PERMESSO<br>STRAORD.</div>`;
+            
+            if(isEmpty) return `<div class="cell empty">-</div>`;
+
+            let display = u;
+            let cls = "cell";
+            let time = "";
+
+            let rawVal = val.trim();
+            let firstChar = rawVal.charAt(0);
+
+            if (firstChar === 'm' || firstChar === 'p') {
+                if (firstChar === 'm') {
+                      display = "MATTINA";
+                      time = "6:30-13:42";
+                } else {
+                      display = "POMERIGGIO";
+                      time = "13:15-20:27";
+                }
+                cls += " t-diurno"; 
+            }
+            else {
+                if(u.startsWith("M")) { display = "MATTINA"; cls += " t-M"; }
+                else if(u.startsWith("P")) { display = "POMERIGGIO"; cls += " t-P"; }
+                else if(u.startsWith("N")) { display = "NOTTE"; cls += " t-N"; }
+                else if(u.startsWith("R")) { display = "RIPOSO"; cls += " t-R"; }
+                else if(u.startsWith("S")) { display = "SMONTO"; cls += " t-SM"; }
+                else { cls += " empty"; }
+
+                if (!time) {
+                    if (SCHEDULE[val]) { time = SCHEDULE[val]; }
+                    else if(SCHEDULE[u]) { time = SCHEDULE[u]; }
+                    else if(SCHEDULE[val.charAt(0)]) { time = SCHEDULE[val.charAt(0)]; }
+                }
+            }
+
+            let isRep = false;
+            if (rawVal.toLowerCase().includes("/r")) isRep = true; 
+            
+            let repHtml = isRep ? `<div class="rep-badge">REPERIBILE</div>` : "";
+
+            // INIETTIAMO IL CANE e/o L'AMBULANZA
+            return `<div class="${cls}">
+                ${showDog ? dogHtml : ''}
+                ${showAmbulance ? ambHtml : ''}
+                <div>${display}</div>
+                ${time ? `<div class="time-tag">${time}</div>` : ""}
+                ${repHtml}
+            </div>`;
+        }
+
+        function renderSpecial(text, cssClass) {
+            return `<div class="cell ${cssClass}">${text}</div>`;
+        }
+    </script>
+</body>
+</html>
