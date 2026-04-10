@@ -8,18 +8,20 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#ffffff" id="theme-color-meta">
-    <meta name="apple-mobile-web-app-title" content="Turni Autisti 26">
+    <meta name="apple-mobile-web-app-title" content="A.S. 26">
     <meta name="description" content="Gestione Turni Autisti 2026 - San Marino">
     
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="logo.png">
     <link rel="icon" type="image/png" href="logo.png">
     
-    <title>TURNI AUTISTI 2026</title>
+    <title>A.S. 26</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
     
     <style>
         /* --- RESET E BASE --- */
@@ -34,11 +36,11 @@
             --border: #e2e8f0;
             --header-bg: rgba(255, 255, 255, 0.92);
             
-            --header-h: 155px;        
-            --cell-h: 60px;                  
+            --header-h: 100px;      
+            --cell-h: 60px;                    
             --font-base: 0.85rem;        
             --font-small: 0.7rem;        
-            --th-h: 40px;                  
+            --th-h: 40px;                    
             
             /* --- COLORI TURNI (Base) --- */
             --c-M: #026bfe; --t-M: #ffffff; --b-M: #bae6fd;
@@ -82,74 +84,96 @@
         /* HEADER */
         header {
             position: fixed; top: 0; left: 0; right: 0;
-            background: var(--header-bg); 
-            box-shadow: 0 1px 0 rgba(0,0,0,0.08);
+            background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 60%, #2563eb 100%);
+            box-shadow: 0 2px 20px rgba(0,0,0,0.25);
             z-index: 1000; height: var(--header-h);
             display: flex; flex-direction: column;
             padding-top: env(safe-area-inset-top);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border-bottom: 1px solid var(--border);
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
+        body.dark-mode header { background: linear-gradient(135deg, #020617 0%, #0f172a 60%, #1e3a8a 100%); }
         
-        .top-bar { padding: 0 16px; display: flex; justify-content: space-between; align-items: center; height: 55px; flex-shrink: 0; }
-        .logo { font-size: 1.15rem; font-weight: 900; color: var(--text-main); display: flex; align-items: center; gap: 10px; letter-spacing: -0.5px; }
-        .logo img { filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1)); border-radius: 8px; cursor: pointer; }
-        .logo img:active { transform: scale(0.9); }
+        .top-bar { 
+            padding: 0 12px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            height: 60px;
+            flex-shrink: 0; 
+            gap: 10px;
+        }
         
-        .right-controls { display: flex; gap: 8px; position: relative; }
+        .logo { 
+            font-size: 1rem; 
+            font-weight: 900; 
+            color: #ffffff; 
+            display: flex; 
+            align-items: center; 
+            gap: 9px; 
+            letter-spacing: -0.5px;
+            white-space: nowrap; 
+            flex-shrink: 1; 
+            min-width: 0;
+            overflow: hidden;
+            margin-right: auto;
+        }
+        .logo img { filter: drop-shadow(0 2px 6px rgba(0,0,0,0.3)); border-radius: 10px; cursor: pointer; height: 34px; width: auto; border: 2px solid rgba(255,255,255,0.2); }
+        .logo-text { display: flex; flex-direction: column; line-height: 1; overflow: hidden; }
+        .logo-title { font-size: 1.05rem; font-weight: 900; color: #fff; letter-spacing: -0.5px; text-shadow: 0 1px 3px rgba(0,0,0,0.3); }
+        .logo-sub { font-size: 0.6rem; font-weight: 600; color: rgba(255,255,255,0.65); margin-top: 2px; letter-spacing: 0.5px; text-transform: uppercase; }
+        
+        .right-controls { display: flex; gap: 5px; position: relative; flex-shrink: 0; align-items: center; }
 
         .btn-action { 
-            background: var(--bg-card); color: var(--text-sec); border: 1px solid var(--border); 
-            width: 42px; height: 42px; padding: 0; 
-            border-radius: 12px; cursor: pointer; 
+            background: rgba(255,255,255,0.12);
+            color: rgba(255,255,255,0.9);
+            border: 1px solid rgba(255,255,255,0.2);
+            width: 38px; height: 38px; 
+            padding: 0; 
+            border-radius: 11px; cursor: pointer; 
             display: flex; align-items: center; justify-content: center; 
             transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
+            backdrop-filter: blur(8px);
         }
-        .btn-action span { font-size: 1.5rem; }
-        .btn-action:active { transform: scale(0.94); opacity: 0.8; }
+        .btn-action span.material-icons-round { font-size: 1.2rem; }
+        .btn-action:active { transform: scale(0.92); background: rgba(255,255,255,0.22); }
+        .btn-action:hover { background: rgba(255,255,255,0.2); }
         
-        /* Badge Notifiche */
         .badge-dot {
-            position: absolute; top: 8px; right: 8px;
-            width: 10px; height: 10px; background: #ef4444;
-            border-radius: 50%; border: 2px solid var(--bg-card);
-            display: none; /* di default nascosto */
+            position: absolute; top: 5px; right: 5px;
+            width: 8px; height: 8px; background: #f97316;
+            border-radius: 50%; border: 2px solid transparent;
+            display: none; box-shadow: 0 0 0 2px rgba(249,115,22,0.4);
         }
-        .badge-dot.visible { display: block; }
+        .badge-dot.visible { display: block; animation: pulse-dot 2s infinite; }
+        @keyframes pulse-dot { 0%,100% { box-shadow: 0 0 0 2px rgba(249,115,22,0.4); } 50% { box-shadow: 0 0 0 4px rgba(249,115,22,0.2); } }
 
         /* MENU DROPDOWN */
         #menu-dropdown { 
-            position: absolute; top: 55px; right: 0; background: var(--bg-card); 
-            border-radius: 16px; box-shadow: 0 10px 30px -10px rgba(0,0,0,0.2); 
-            width: 220px; overflow: hidden; display: none; border: 1px solid var(--border); 
+            position: absolute; top: 48px; right: 0; background: var(--bg-card); 
+            border-radius: 16px; box-shadow: 0 10px 40px -5px rgba(0,0,0,0.3); 
+            width: 230px; overflow: hidden; display: none; border: 1px solid var(--border); 
             flex-direction: column; z-index: 5000; transform-origin: top right;
         }
         #menu-dropdown.open { display: flex; animation: scaleIn 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        .menu-item { padding: 16px 20px; display: flex; align-items: center; gap: 12px; font-weight: 600; color: var(--text-main); border-bottom: 1px solid var(--border); cursor: pointer; transition: 0.2s; }
+        .menu-item { padding: 15px 18px; display: flex; align-items: center; gap: 12px; font-weight: 600; font-size: 0.9rem; color: var(--text-main); border-bottom: 1px solid var(--border); cursor: pointer; transition: 0.2s; }
         .menu-item:last-child { border-bottom: none; }
         .menu-item:active { background: var(--bg); }
-        .menu-item span { color: var(--primary); }
+        .menu-item .material-icons-round { color: var(--primary); font-size: 1.2rem; }
         
         @keyframes scaleIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
 
-        /* SCROLLERS */
-        .nav-scroller, .driver-scroller { flex: 1; display: flex; gap: 8px; overflow-x: auto; padding: 0 16px; align-items: center; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
-        .nav-scroller { border-bottom: 1px solid var(--border); }
+        .driver-scroller { flex: 1; display: flex; gap: 7px; overflow-x: auto; padding: 0 12px; align-items: center; scrollbar-width: none; -webkit-overflow-scrolling: touch; border-top: 1px solid rgba(255,255,255,0.12); height: 40px; background: rgba(0,0,0,0.15); }
+        .driver-scroller::-webkit-scrollbar { display: none; }
         
         .chip { 
-            padding: 8px 16px; border-radius: 10px; font-size: 0.8rem; font-weight: 700; 
-            white-space: nowrap; cursor: pointer; transition: all 0.2s ease; 
+            padding: 5px 11px; border-radius: 7px; font-size: 0.72rem; font-weight: 700; 
+            white-space: nowrap; cursor: pointer; transition: all 0.18s ease; 
             display: flex; align-items: center; justify-content: center;
         }
-        
-        .chip-month { background: var(--bg-card); color: var(--text-sec); border: 1px solid var(--border); }
-        .chip-month.active { background: var(--primary); color: white; border-color: var(--primary); box-shadow: 0 4px 10px rgba(37, 99, 235, 0.3); transform: translateY(-1px); }
-        
-        .chip-driver { background: var(--bg); color: var(--text-sec); border: 1px solid var(--border); }
-        .chip-driver.active { background: var(--text-main); color: var(--bg-card); border-color: var(--text-main); box-shadow: 0 4px 10px rgba(0,0,0,0.1); transform: translateY(-1px); }
+        .chip-driver { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.7); border: 1px solid rgba(255,255,255,0.18); }
+        .chip-driver.active { background: rgba(255,255,255,0.95); color: #1e3a8a; border-color: transparent; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
 
         /* TABLE */
         .container { padding: 0; max-width: 100%; margin: 0 auto; padding-bottom: 80px; }
@@ -164,8 +188,18 @@
             white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
         }
         thead th:first-child, .td-date { width: 60px !important; min-width: 60px !important; max-width: 60px !important; }
+        thead th:first-child {
+            position: -webkit-sticky !important;
+            position: sticky !important;
+            left: 0; z-index: 96 !important;
+            background: var(--bg) !important;
+        }
+        .td-date {
+            position: -webkit-sticky !important;
+            position: sticky !important;
+            left: 0; z-index: 80;
+        }
 
-        /* --- STILE BARRA MESE --- */
         tr.month-header td {
             background: var(--month-bar-bg);
             color: white; 
@@ -213,7 +247,6 @@
         .td-date { 
             text-align: center; font-weight: 800; color: var(--text-main); font-size: 1.1rem; 
             border-right: 2px solid var(--border); background: var(--bg);
-            position: sticky; left: 0; z-index: 80;
             display: flex; flex-direction: column; justify-content: center; align-items: center;
             height: var(--cell-h); 
         }
@@ -222,12 +255,33 @@
         .td-date.date-red { color: #dc2626; background: #fef2f2; border-right-color: #fca5a5; }
         .td-date.date-red small { color: #ef4444; }
         
-        /* Dark mode red overrides */
         body.dark-mode .td-date.date-red { background: #450a0a; color: #fca5a5; border-right-color: #7f1d1d; }
         body.dark-mode .td-date.date-red small { color: #fecaca; }
 
-        .holiday-name { font-size: 0.55rem; color: #dc2626; font-weight: 900; line-height: 1; margin-top: 3px; max-width: 55px; white-space: normal; }
+        .holiday-name { font-size: 0.48rem; color: #dc2626; font-weight: 900; line-height: 1; margin-top: 1px; max-width: 54px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         body.dark-mode .holiday-name { color: #f87171; }
+
+        /* ── Contatori turni nella colonna DATA ── */
+        /* NOTA: ora mostra solo M e P, N rimosso */
+        .shift-dots { display: flex; flex-direction: row; gap: 3px; margin-top: 3px; justify-content: center; }
+        .sd {
+            width: 17px; height: 17px; border-radius: 5px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.58rem; font-weight: 900; line-height: 1; flex-shrink: 0;
+        }
+        .sd-M { background: #2563eb; color: #fff; }
+        .sd-P { background: #818cf8; color: #fff; }
+        body.dark-mode .sd-M { background: #1d4ed8; }
+        body.dark-mode .sd-P { background: #6366f1; }
+        @keyframes solo-pulse {
+            0%,100% { box-shadow: 0 0 0 0 rgba(239,68,68,0.8); transform: scale(1); }
+            50%      { box-shadow: 0 0 0 4px rgba(239,68,68,0); transform: scale(1.1); }
+        }
+        .sd.sd-solo {
+            background: #dc2626 !important; color: #fff !important;
+            border-radius: 50% !important;
+            animation: solo-pulse 1.2s ease-in-out infinite;
+        }
         
         .cell { 
             display: flex; flex-direction: column; align-items: center; justify-content: center; 
@@ -265,7 +319,6 @@
         .t-R { background: var(--c-R); color: var(--t-R); border: 1px solid var(--b-R); }
         .t-SM { background: var(--c-SM); color: var(--t-SM); border: 1px solid var(--b-SM); }
         
-        /* --- ANIMAZIONE BORDO LAMPEGGIANTE M+N --- */
         @keyframes border-blink {
             0% { border-color: #ef4444; box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
             50% { border-color: #b91c1c; box-shadow: 0 0 8px 1px rgba(239, 68, 68, 0.5); }
@@ -295,8 +348,6 @@
         .spec-blue { background: #e0f2fe !important; color: #0369a1 !important; border: 1px solid #7dd3fc !important; font-size: 0.65rem; }
         .spec-red { background: #fee2e2 !important; color: #b91c1c !important; border: 1px solid #fca5a5 !important; font-size: 0.75rem; }
         .spec-nl { background: #e0f7fa !important; color: #006064 !important; border: 1px solid #b2ebf2 !important; font-size: 0.65rem; }
-
-        /* NUOVA CLASSE K (Viola) */
         .spec-purple { background: #8b5cf6 !important; color: #ffffff !important; border: 1px solid #7c3aed !important; font-size: 0.65rem; }
         
         .empty { background: transparent; box-shadow: none; color: #cbd5e1; font-weight: 400;}
@@ -308,28 +359,58 @@
         body.dark-mode tr.today .td-date { background: #431407; color: #fdba74; }
 
         /* LOADER */
-        #loader { position: fixed; inset: 0; background: var(--bg); z-index: 9999; display: flex; align-items: center; justify-content: center; flex-direction: column; text-align: center; padding: 20px;}
-        .spinner { border: 4px solid #f3f3f3; border-top: 4px solid var(--primary); border-radius: 50%; width: 40px; height: 40px; animation: spin 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55) infinite; margin-bottom: 20px; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        
+        #loader {
+            position: fixed; inset: 0; z-index: 9999;
+            background: #0f172a;
+            display: flex; align-items: center; justify-content: center;
+            flex-direction: column;
+        }
+        #loader-text {
+            position: relative; z-index: 2;
+            margin-top: 20px;
+            pointer-events: none;
+            text-align: center;
+        }
+        #loader-text h3 {
+            margin: 0; font-size: 1rem; font-weight: 900;
+            color: #f1f5f9; text-shadow: 0 2px 12px rgba(0,0,0,0.8);
+            animation: lblink 0.7s ease-in-out infinite alternate;
+        }
+        #loader-text p { margin: 5px 0 0; font-size: 0.72rem; color: rgba(255,255,255,0.4); font-weight: 500; }
+        @keyframes lblink { from { opacity:0.5; } to { opacity:1; } }
+        .spinner { border: 4px solid rgba(255,255,255,0.15); border-top: 4px solid var(--primary); border-radius: 50%; width: 40px; height: 40px; animation: spin 0.8s linear infinite; margin-bottom: 20px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
         #manual-upload { display: none; margin-top: 20px; animation: fadeIn 0.5s ease; }
         .file-label { background: var(--primary); color: white; padding: 12px 24px; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 0.95rem; display: inline-flex; align-items: center; gap: 8px; margin-top: 15px; box-shadow: 0 4px 15px rgba(37,99,235,0.4); transition: transform 0.2s; }
         .file-label:active { transform: scale(0.96); }
         input[type="file"] { display: none; }
         
-        /* MODALE GENERICO */
-        #shift-modal, #dinner-modal, #options-modal, #notif-center-modal { display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.6); z-index: 3000; backdrop-filter: blur(8px); align-items: flex-end; justify-content: center; opacity: 0; transition: opacity 0.3s; }
-        #shift-modal.open, #dinner-modal.open, #options-modal.open, #notif-center-modal.open { opacity: 1; }
+        /* MODALI */
+        #shift-modal, #dinner-modal, #options-modal, #notif-center-modal, #month-select-modal { display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.6); z-index: 3000; backdrop-filter: blur(8px); align-items: flex-end; justify-content: center; opacity: 0; transition: opacity 0.3s; }
+        #shift-modal.open, #dinner-modal.open, #options-modal.open, #notif-center-modal.open, #month-select-modal.open { opacity: 1; }
         .modal-content { background: var(--bg-card); width: 100%; max-width: 600px; border-radius: 24px 24px 0 0; box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.3); overflow: hidden; transform: translateY(100%); transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1); max-height: 85vh; display: flex; flex-direction: column; }
-        #shift-modal.open .modal-content, #dinner-modal.open .modal-content, #options-modal.open .modal-content, #notif-center-modal.open .modal-content { transform: translateY(0); }
+        #shift-modal.open .modal-content, #dinner-modal.open .modal-content, #options-modal.open .modal-content, #notif-center-modal.open .modal-content, #month-select-modal.open .modal-content { transform: translateY(0); }
         
-        .modal-header { background: var(--bg); color: var(--text-main); padding: 20px 24px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); }
-        .header-text h3 { margin: 0; font-size: 1.3rem; font-weight: 800; color: var(--text-main); display: flex; align-items: center; gap: 10px;}
-        .header-text span { display: block; font-size: 0.9rem; font-weight: 600; color: var(--text-sec); margin-top: 4px;}
+        .modal-header { background: var(--bg); color: var(--text-main); padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); }
+        .header-text h3 { margin: 0; font-size: 1.2rem; font-weight: 800; color: var(--text-main); display: flex; align-items: center; gap: 10px;}
+        .header-text span { display: block; font-size: 0.85rem; font-weight: 600; color: var(--text-sec); margin-top: 2px;}
         
         .btn-close-modal { background: var(--bg); border: none; color: var(--text-sec); cursor: pointer; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
         
         .modal-body { padding: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+        
+        /* SPECIFICO MODALE MESI */
+        .month-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; padding: 20px; }
+        .month-btn { 
+            aspect-ratio: 2/1; background: var(--bg); border: 1px solid var(--border); 
+            border-radius: 12px; display: flex; align-items: center; justify-content: center; 
+            font-weight: 800; color: var(--text-main); font-size: 0.9rem; cursor: pointer;
+            text-transform: uppercase; transition: 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .month-btn:active { transform: scale(0.96); background: var(--bg-card); }
+        .month-btn.current { border-color: var(--primary); color: var(--primary); background: #eff6ff; }
+        
+        /* ALTRI ELEMENTI */
         .colleague-item { display: flex; justify-content: space-between; align-items: center; padding: 16px 24px; border-bottom: 1px solid var(--border); transition: background 0.2s; }
         .c-name { font-weight: 700; color: var(--text-main); font-size: 1rem; }
         .c-time { font-size: 0.8rem; font-weight: 600; color: var(--text-sec); background: var(--bg); padding: 6px 12px; border-radius: 8px; font-variant-numeric: tabular-nums; }
@@ -344,7 +425,7 @@
         input:checked + .slider { background-color: var(--primary); }
         input:checked + .slider:before { transform: translateX(22px); }
         
-        /* NOTIFICATION CENTER SPECIFIC */
+        /* NOTIFICATION CENTER */
         .notif-list { padding: 10px; display: flex; flex-direction: column; gap: 10px; }
         .notif-item { background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 15px; position: relative; transition: all 0.2s; }
         .notif-item.unread { border-left: 4px solid var(--primary); background: #f0f9ff; }
@@ -355,7 +436,6 @@
         .btn-del-notif:active { background: rgba(239, 68, 68, 0.1); }
         .no-notif { text-align: center; padding: 40px 20px; color: var(--text-sec); font-size: 0.9rem; }
 
-        /* Pulsante Installazione sempre visibile */
         .btn-install { 
             background: var(--text-main); color: var(--bg); border: none; padding: 10px 18px; 
             border-radius: 12px; font-weight: 700; display: flex; align-items: center; gap: 8px; 
@@ -363,7 +443,7 @@
         }
         .btn-install:active { transform: scale(0.96); }
 
-        /* Modal Themes keep colors */
+        /* Modal Themes */
         .modal-theme-M .modal-header { background: linear-gradient(135deg, #e0f2fe 0%, #f0f9ff 100%); } .modal-theme-M .header-text h3 { color: #0c4a6e; } .modal-theme-M .c-time { background: #e0f2fe; color: #0369a1; }
         .modal-theme-P .modal-header { background: linear-gradient(135deg, #e0e7ff 0%, #eef2ff 100%); } .modal-theme-P .header-text h3 { color: #312e81; } .modal-theme-P .c-time { background: #e0e7ff; color: #4338ca; }
         .modal-theme-N .modal-header { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); } .modal-theme-N .header-text h3 { color: white; } .modal-theme-N .header-text span { color: #94a3b8; } .modal-theme-N .btn-close-modal { background: #334155; color: white; } .modal-theme-N .c-time { background: #f1f5f9; color: #0f172a; }
@@ -378,14 +458,29 @@
         .dinner-check-icon { width: 22px; height: 22px; border-radius: 6px; border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; transition: 0.2s; }
         .dinner-check-item.checked .dinner-check-icon { background: var(--primary); border-color: var(--primary); color: white; }
         
-        .dinner-section-title { font-size: 0.75rem; font-weight: 800; color: var(--text-sec); padding: 20px 20px 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .dinner-section-title { 
+            font-size: 0.72rem; font-weight: 800; color: var(--text-sec); 
+            padding: 16px 20px 8px; text-transform: uppercase; letter-spacing: 0.6px; 
+            display: flex; align-items: center; gap: 6px;
+        }
         .month-selector { display: flex; overflow-x: auto; gap: 8px; padding: 0 20px 10px; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
-        .btn-find-dinner { margin: 20px; background: #0f172a; color: white; border: none; padding: 16px; border-radius: 14px; font-weight: 800; font-size: 1rem; width: calc(100% - 40px); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 4px 12px rgba(15, 23, 42, 0.3); transition: 0.2s; }
-        body.dark-mode .btn-find-dinner { background: var(--primary); }
+        .month-selector .chip { background: var(--bg); color: var(--text-sec); border: 1px solid var(--border); }
+        .month-selector .chip.active { background: var(--primary); color: white; border-color: var(--primary); }
 
-        .event-type-selector { display: flex; background: var(--bg); padding: 4px; border-radius: 14px; margin: 0 20px 10px; }
-        .event-option { flex: 1; text-align: center; padding: 12px; border-radius: 12px; font-weight: 700; font-size: 0.9rem; color: var(--text-sec); cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; }
-        .event-option.active { background: var(--bg-card); color: var(--primary); box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+        .event-type-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 4px 20px 14px; }
+        .event-tile { background: var(--bg-card); border: 2px solid var(--border); border-radius: 14px; padding: 14px 10px; display: flex; flex-direction: column; align-items: center; gap: 5px; cursor: pointer; transition: all 0.2s; text-align: center; }
+        .event-tile .material-icons-round { font-size: 1.6rem; color: var(--text-sec); }
+        .event-tile-label { font-size: 0.8rem; font-weight: 800; color: var(--text-main); }
+        .event-tile-sub { font-size: 0.65rem; font-weight: 500; color: var(--text-sec); }
+        .event-tile.active { border-color: var(--primary); background: #eff6ff; }
+        .event-tile.active .material-icons-round { color: var(--primary); }
+        .event-tile.active .event-tile-label { color: var(--primary); }
+        body.dark-mode .event-tile.active { background: #1e3a8a33; }
+        .event-tile:active { transform: scale(0.97); }
+
+        .dinner-toggle-all-btn { background: none; border: none; color: var(--primary); font-weight: 700; cursor: pointer; font-size: 0.75rem; padding: 8px 16px 8px 0; }
+        .dinner-back-btn { padding: 14px 20px; display: flex; align-items: center; gap: 10px; cursor: pointer; color: var(--primary); font-weight: 700; font-size: 0.9rem; border-bottom: 1px solid var(--border); background: var(--bg-card); }
+        .dinner-back-btn:active { opacity: 0.7; }
 
         .dinner-result-card { background: var(--bg-card); margin: 10px 20px; padding: 16px; border-radius: 16px; border: 1px solid var(--border); box-shadow: var(--shadow-soft); }
         .d-res-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 12px; margin-bottom: 12px; }
@@ -398,194 +493,350 @@
         .warning-badge { background: #fff7ed; color: #c2410c; border: 1px solid #ffedd5; font-size: 0.75rem; font-weight: 700; padding: 4px 8px; border-radius: 6px; display:inline-flex; align-items:center; gap:4px; }
         body.dark-mode .warning-badge { background: #7c2d12; color: #fdba74; border-color: #9a3412; }
 
-        /* MODALE STATISTICHE */
+        /* STATISTICHE */
         #stats-modal { display: none; position: fixed; inset: 0; background: var(--bg-card); z-index: 4000; flex-direction: column; overflow: hidden; animation: slideInRight 0.3s ease; }
         #stats-modal.open { display: flex; }
         @keyframes slideInRight { from { transform: translateX(100%); } to { transform: translateX(0); } }
         
-        .stats-header { padding: 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); background: var(--bg-card); }
-        .stats-body { flex: 1; overflow-y: auto; padding: 20px; background: var(--bg); -webkit-overflow-scrolling: touch; }
+        .stats-header { padding: 18px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); background: var(--bg-card); flex-shrink: 0; }
+        .stats-body { flex: 1; overflow-y: auto; background: var(--bg); -webkit-overflow-scrolling: touch; }
         
         .driver-list-item { padding: 18px; border-bottom: 1px solid var(--border); font-weight: 700; color: var(--text-main); cursor: pointer; display: flex; justify-content: space-between; align-items: center; background: var(--bg-card); margin-bottom: 10px; border-radius: 14px; box-shadow: var(--shadow-soft); transition: 0.2s; }
         .driver-list-item:active { transform: scale(0.98); background: var(--bg); }
+
+        /* SECRET GALLERY */
+        #secret-gallery { display: none; position: fixed; inset: 0; background: black; z-index: 6000; align-items: center; justify-content: center; }
+        #secret-gallery.open { display: flex; }
+        #secret-img { max-width: 100%; max-height: 100%; object-fit: contain; cursor: pointer; transition: opacity 0.2s; }
+        .btn-close-secret { position: absolute; top: 20px; right: 20px; color: white; background: rgba(255,255,255,0.2); width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-weight: bold; font-size: 1.2rem; z-index: 6010; }
         
-        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 10px; }
-        .stat-card { background: var(--bg-card); padding: 16px; border-radius: 18px; border: 1px solid var(--border); text-align: center; box-shadow: var(--shadow-soft); display:flex; flex-direction:column; justify-content:center; }
-        .stat-val { font-size: 2rem; font-weight: 900; display: block; margin-bottom: 4px; line-height: 1; letter-spacing: -1px; color: var(--text-main); }
-        .stat-lbl { font-size: 0.7rem; font-weight: 600; text-transform: uppercase; color: var(--text-sec); }
-        
-        .sc-fer { color: var(--b-ferie); border-color: var(--bg-ferie); background: #fff7ed; }
-        .sc-cong { color: var(--b-cong); border-color: var(--bg-cong); background: #fefce8; }
-        .sc-perm { color: var(--b-perm); border-color: var(--bg-perm); background: #f0fdf4; }
-        .sc-mal { color: #b91c1c; border-color: #fca5a5; background: #fef2f2; }
-        .sc-fest { color: #0369a1; border-color: #7dd3fc; background: #f0f9ff; }
-        .sc-rec { color: var(--b-rec); border-color: var(--bg-rec); background: #fdf2f8; }
-        
-        /* --- SECRET GALLERY CSS --- */
-        #secret-gallery {
+        /* MODALE AVVISI */
+        #alert-modal { display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.7); z-index: 9999; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s; padding: 20px; }
+        #alert-modal.open { opacity: 1; }
+        .alert-card { background: var(--bg-card); width: 100%; max-width: 400px; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.4); overflow: hidden; transform: scale(0.9); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); border: 1px solid var(--border); }
+        #alert-modal.open .alert-card { transform: scale(1); }
+        .alert-header { padding: 20px 24px; display: flex; align-items: center; gap: 15px; background: #fff7ed; border-bottom: 1px solid #ffedd5; }
+        .alert-icon-box { width: 45px; height: 45px; border-radius: 12px; background: #fffbeb; display: flex; align-items: center; justify-content: center; color: #d97706; border: 1px solid #fcd34d; flex-shrink: 0; }
+        .alert-title { font-weight: 800; font-size: 1.1rem; color: #92400e; line-height: 1.2; }
+        .alert-body { padding: 24px; font-size: 1rem; color: var(--text-main); line-height: 1.5; }
+        .alert-footer { padding: 0 24px 24px; }
+        .btn-alert-ok { width: 100%; padding: 14px; border-radius: 14px; border: none; background: #d97706; color: white; font-weight: 800; font-size: 1rem; cursor: pointer; box-shadow: 0 4px 12px rgba(217, 119, 6, 0.3); display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn-alert-ok:active { transform: scale(0.98); }
+
+        /* ==============================================
+           POPUP CHANGELOG - PRIMO AVVIO
+        ============================================== */
+        #changelog-modal {
             display: none;
             position: fixed;
             inset: 0;
-            background: black;
-            z-index: 6000;
+            background: rgba(0,0,0,0.75);
+            z-index: 9998;
             align-items: center;
             justify-content: center;
+            padding: 20px;
+            opacity: 0;
+            transition: opacity 0.4s;
+            backdrop-filter: blur(10px);
         }
-        #secret-gallery.open { display: flex; }
-        #secret-img {
-            max-width: 100%;
-            max-height: 100%;
-            object-fit: contain;
-            cursor: pointer;
-            transition: opacity 0.2s;
+        #changelog-modal.open {
+            opacity: 1;
         }
-        .btn-close-secret {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            color: white;
-            background: rgba(255,255,255,0.2);
-            width: 40px; height: 40px;
-            border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 1.2rem;
-            z-index: 6010;
-        }
-        
-        /* --- MODALE AVVISI (VIGNETTA) --- */
-        #alert-modal {
-            display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.7); 
-            z-index: 9999; align-items: center; justify-content: center; 
-            opacity: 0; transition: opacity 0.3s; padding: 20px;
-        }
-        #alert-modal.open { opacity: 1; }
-
-        .alert-card {
-            background: var(--bg-card); width: 100%; max-width: 400px; 
-            border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.4); 
-            overflow: hidden; transform: scale(0.9); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        .changelog-card {
+            background: var(--bg-card);
+            width: 100%;
+            max-width: 420px;
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+            overflow: hidden;
+            transform: scale(0.85) translateY(20px);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             border: 1px solid var(--border);
+            max-height: 88vh;
+            display: flex;
+            flex-direction: column;
         }
-        #alert-modal.open .alert-card { transform: scale(1); }
-
-        .alert-header {
-            padding: 20px 24px; display: flex; align-items: center; gap: 15px;
-            background: #fff7ed; border-bottom: 1px solid #ffedd5;
+        #changelog-modal.open .changelog-card {
+            transform: scale(1) translateY(0);
         }
-        .alert-icon-box {
-            width: 45px; height: 45px; border-radius: 12px; background: #fffbeb; 
+        .changelog-header {
+            background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 60%, #2563eb 100%);
+            padding: 22px 24px 18px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            flex-shrink: 0;
+        }
+        .changelog-icon {
+            width: 48px; height: 48px;
+            border-radius: 14px;
+            background: rgba(255,255,255,0.15);
             display: flex; align-items: center; justify-content: center;
-            color: #d97706; border: 1px solid #fcd34d; flex-shrink: 0;
+            border: 1px solid rgba(255,255,255,0.2);
+            flex-shrink: 0;
         }
-        .alert-title { font-weight: 800; font-size: 1.1rem; color: #92400e; line-height: 1.2; }
-
-        .alert-body { padding: 24px; font-size: 1rem; color: var(--text-main); line-height: 1.5; }
-
-        .alert-footer { padding: 0 24px 24px; }
-        .btn-alert-ok {
-            width: 100%; padding: 14px; border-radius: 14px; border: none;
-            background: #d97706; color: white; font-weight: 800; font-size: 1rem;
-            cursor: pointer; box-shadow: 0 4px 12px rgba(217, 119, 6, 0.3);
-            display: flex; align-items: center; justify-content: center; gap: 8px;
+        .changelog-icon .material-icons-round { font-size: 26px; color: white; }
+        .changelog-title-block { flex: 1; }
+        .changelog-title { font-size: 1.15rem; font-weight: 900; color: white; letter-spacing: -0.3px; }
+        .changelog-version { font-size: 0.65rem; font-weight: 700; color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 1px; margin-top: 2px; }
+        .changelog-body {
+            padding: 18px 20px;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            flex: 1;
         }
-        .btn-alert-ok:active { transform: scale(0.98); }
-
-        /* --- STILE ICONA CANE --- */
-        .dog-icon {
-            position: absolute;
-            top: -5px;      /* Sporge un po' fuori */
-            right: -5px;    /* Sporge un po' fuori */
-            width: 28px;    /* Dimensione dell'immagine */
-            height: 28px;
-            z-index: 5;
-            filter: drop-shadow(0 2px 3px rgba(0,0,0,0.2)); /* Ombra per staccare dal fondo */
+        .changelog-intro {
+            font-size: 0.85rem;
+            color: var(--text-sec);
+            margin-bottom: 16px;
+            line-height: 1.5;
+            font-weight: 500;
         }
+        .changelog-section {
+            margin-bottom: 16px;
+        }
+        .changelog-section-title {
+            font-size: 0.62rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-sec);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .changelog-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 10px 12px;
+            border-radius: 12px;
+            margin-bottom: 6px;
+            border: 1px solid var(--border);
+            background: var(--bg);
+        }
+        .changelog-item-icon {
+            width: 30px; height: 30px;
+            border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+        .changelog-item-icon .material-icons-round { font-size: 16px; }
+        .changelog-item-text { flex: 1; }
+        .changelog-item-title { font-size: 0.85rem; font-weight: 700; color: var(--text-main); line-height: 1.2; }
+        .changelog-item-desc { font-size: 0.72rem; color: var(--text-sec); margin-top: 2px; line-height: 1.4; }
 
-        /* --- STILE ICONA AMBULANZA (NUOVO) --- */
-        .ambulance-icon {
-            position: absolute;
-            bottom: -5px;   /* Angolo opposto al cane */
-            right: -5px;
-            width: 24px;
-            height: 24px;
-            z-index: 6;
-            filter: drop-shadow(0 2px 3px rgba(0,0,0,0.3));
+        .ci-new .changelog-item-icon { background: #dcfce7; }
+        .ci-new .changelog-item-icon .material-icons-round { color: #16a34a; }
+        .ci-fix .changelog-item-icon { background: #dbeafe; }
+        .ci-fix .changelog-item-icon .material-icons-round { color: #2563eb; }
+        .ci-imp .changelog-item-icon { background: #fef3c7; }
+        .ci-imp .changelog-item-icon .material-icons-round { color: #d97706; }
+        .ci-rem .changelog-item-icon { background: #fee2e2; }
+        .ci-rem .changelog-item-icon .material-icons-round { color: #dc2626; }
+
+        body.dark-mode .ci-new .changelog-item-icon { background: #14532d; }
+        body.dark-mode .ci-fix .changelog-item-icon { background: #1e3a8a; }
+        body.dark-mode .ci-imp .changelog-item-icon { background: #78350f; }
+        body.dark-mode .ci-rem .changelog-item-icon { background: #7f1d1d; }
+
+        .changelog-footer {
+            padding: 14px 20px 20px;
+            flex-shrink: 0;
+            border-top: 1px solid var(--border);
+        }
+        .btn-changelog-ok {
+            width: 100%;
+            padding: 14px;
+            border-radius: 14px;
+            border: none;
+            background: linear-gradient(135deg, #1e3a8a, #2563eb);
+            color: white;
+            font-weight: 800;
+            font-size: 1rem;
             cursor: pointer;
+            box-shadow: 0 4px 15px rgba(37,99,235,0.35);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: transform 0.15s;
+        }
+        .btn-changelog-ok:active { transform: scale(0.97); }
+        .changelog-note {
+            text-align: center;
+            font-size: 0.65rem;
+            color: var(--text-sec);
+            margin-top: 8px;
         }
 
-        /* --- STILI MINIGIOCO (LAVAGGIO) --- */
+        /* CANE & AMBULANZA */
+        .dog-icon { position: absolute; top: -5px; right: -5px; width: 28px; height: 28px; z-index: 5; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.2)); }
+        .ambulance-icon { position: absolute; bottom: -5px; right: -5px; width: 24px; height: 24px; z-index: 6; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.3)); cursor: pointer; }
+
+        /* MINIGIOCO */
         #game-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 5000; flex-direction: column; align-items: center; justify-content: center; }
         #game-modal.open { display: flex; }
-        
-        #game-wrapper {
-            background: #f0f8ff; width: 100%; height: 100%;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            position: relative;
-        }
-        
-        #game-container-box {
-            position: relative;
-            width: 95vw; max-width: 600px;
-            aspect-ratio: 16/9;
-            background-image: url('ambulanza_bg.png'); /* FILE DA CARICARE */
-            background-size: contain; background-repeat: no-repeat; background-position: center;
-            background-color: white;
-            border: 5px solid white; border-radius: 20px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-        }
-        
-        #dirtCanvas {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            border-radius: 15px; cursor: crosshair; touch-action: none;
-        }
-        
+        #game-wrapper { background: #f0f8ff; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
+        #game-container-box { position: relative; width: 95vw; max-width: 600px; aspect-ratio: 16/9; background-size: contain; background-repeat: no-repeat; background-position: center; background-color: white; border: 5px solid white; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+        #dirtCanvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 15px; cursor: crosshair; touch-action: none; }
         .game-ui { margin-top: 20px; text-align: center; z-index: 5; width: 100%; }
-        
-        .game-progress-bar {
-            width: 200px; height: 15px; background: #ddd;
-            border-radius: 10px; margin: 10px auto; overflow: hidden;
-        }
-        
+        .game-progress-bar { width: 200px; height: 15px; background: #ddd; border-radius: 10px; margin: 10px auto; overflow: hidden; }
         #game-fill { width: 0%; height: 100%; background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%); transition: width 0.2s; }
-        
-        .game-btn {
-            padding: 12px 25px; background: #005eb8; color: white; border: none;
-            border-radius: 50px; font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-            font-size: 1rem; cursor: pointer;
-        }
-        
-        .game-close-btn {
-            position: absolute; top: 20px; right: 20px;
-            background: rgba(255,255,255,0.3); color: black;
-            width: 40px; height: 40px; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            font-weight: bold; cursor: pointer; z-index: 10;
-        }
-
-        .bubble {
-            position: absolute; background: rgba(173, 216, 230, 0.6);
-            border: 1px solid white; border-radius: 50%;
-            pointer-events: none; animation: floatUp 1s ease-out forwards;
-        }
+        .game-btn { padding: 12px 25px; background: #005eb8; color: white; border: none; border-radius: 50px; font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.2); font-size: 1rem; cursor: pointer; }
+        .game-close-btn { position: absolute; top: 20px; right: 20px; background: rgba(255,255,255,0.3); color: black; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; cursor: pointer; z-index: 10; }
+        .bubble { position: absolute; background: rgba(173,216,230,0.6); border: 1px solid white; border-radius: 50%; pointer-events: none; animation: floatUp 1s ease-out forwards; }
         @keyframes floatUp { to { transform: translateY(-50px) scale(1.5); opacity: 0; } }
-        
+
+        /* SEZIONE HEADERS NEL MODALE TURNO */
+        .modal-section-header { display: flex; align-items: center; gap: 9px; padding: 10px 20px; font-weight: 800; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.8px; }
+        .modal-section-driver { background: linear-gradient(90deg, #eff6ff, #f8fafc); color: #1e3a8a; border-top: 2px solid #bfdbfe; border-bottom: 1px solid #dbeafe; }
+        .modal-section-nurse { background: linear-gradient(90deg, #f0fdf4, #f8fafc); color: #064e3b; border-top: 2px solid #6ee7b7; border-bottom: 1px solid #a7f3d0; }
+        body.dark-mode .modal-section-driver { background: linear-gradient(90deg,#0f172a,#1e293b); color: #93c5fd; border-color: #1e3a8a; }
+        body.dark-mode .modal-section-nurse { background: linear-gradient(90deg,#022c22,#042f23); color: #34d399; border-color: #065f46; }
+
+        .nurses-section-header { display: flex; align-items: center; gap: 10px; padding: 13px 24px; background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%); font-weight: 800; font-size: 0.78rem; color: #064e3b; text-transform: uppercase; letter-spacing: 0.8px; border-top: 2px solid #6ee7b7; border-bottom: 1px solid #a7f3d0; }
+        body.dark-mode .nurses-section-header { background: linear-gradient(135deg, #022c22 0%, #042f23 100%); color: #34d399; border-color: #065f46; }
+        .nurse-name { display: flex; align-items: center; }
+        .nurse-shift-tag { font-size: 0.78rem; font-weight: 700; color: #059669; background: #d1fae5; padding: 5px 12px; border-radius: 8px; white-space: nowrap; display: flex; align-items: center; gap: 4px; }
+        body.dark-mode .nurse-shift-tag { background: #064e3b; color: #34d399; }
+        .nurse-loading { text-align: center; padding: 24px; color: var(--text-sec); font-size: 0.85rem; display: flex; align-items: center; justify-content: center; gap: 10px; font-weight: 500; }
+        .nurse-loading .spinner { border-color: var(--border); border-top-color: #059669; }
+
+        .btn-inf { background: linear-gradient(135deg, #059669, #10b981) !important; color: white !important; border-color: rgba(255,255,255,0.3) !important; font-weight: 900 !important; }
+        .btn-inf:active { background: linear-gradient(135deg, #047857, #059669) !important; }
+
+        /* Pulsante Find Dinner */
+        .btn-find-dinner {
+            width: 100%; padding: 16px; border-radius: 14px; border: none;
+            background: linear-gradient(135deg, #92400e, #d97706);
+            color: white; font-weight: 800; font-size: 1rem; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            box-shadow: 0 4px 15px rgba(217,119,6,0.3);
+        }
+        .btn-find-dinner:active { transform: scale(0.98); }
     </style>
 </head>
 <body>
 
     <audio id="dog-audio" src="cane.mp3" preload="auto"></audio>
 
+
+    <!-- =============================================
+         POPUP CHANGELOG - PRIMO AVVIO
+    ============================================== -->
+    <div id="changelog-modal">
+        <div class="changelog-card">
+            <div class="changelog-header">
+                <div class="changelog-icon">
+                    <span class="material-icons-round">rocket_launch</span>
+                </div>
+                <div class="changelog-title-block">
+                    <div class="changelog-title">Benvenuto in A.S. 26</div>
+                    <div class="changelog-version">Aggiornamenti &amp; Novità</div>
+                </div>
+            </div>
+            <div class="changelog-body">
+                <div class="changelog-intro">
+                    Ecco le novità della versione 2.0! Questo messaggio apparirà solo una volta.
+                </div>
+
+                <div class="changelog-section">
+                    <div class="changelog-section-title">
+                        <span class="material-icons-round" style="font-size:14px;color:#16a34a">fiber_new</span>
+                        Nuove funzionalità
+                    </div>
+                    <div class="changelog-item ci-new">
+                        <div class="changelog-item-icon"><span class="material-icons-round">touch_app</span></div>
+                        <div class="changelog-item-text">
+                            <div class="changelog-item-title">Info aggiornamento Excel</div>
+                            <div class="changelog-item-desc">Tocca il logo in alto a sinistra per vedere data e ora dell'ultimo caricamento del file turni su GitHub.</div>
+                        </div>
+                    </div>
+                    <div class="changelog-item ci-new">
+                        <div class="changelog-item-icon"><span class="material-icons-round">play_circle</span></div>
+                        <div class="changelog-item-text">
+                            <div class="changelog-item-title">Nuovo schermo di caricamento</div>
+                            <div class="changelog-item-desc">L'animazione iniziale è stata sostituita con un video personalizzato.</div>
+                        </div>
+                    </div>
+                    <div class="changelog-item ci-new">
+                        <div class="changelog-item-icon"><span class="material-icons-round">medical_services</span></div>
+                        <div class="changelog-item-text">
+                            <div class="changelog-item-title">Turni Infermieri integrati</div>
+                            <div class="changelog-item-desc">Toccando un turno vengono mostrati anche gli infermieri in servizio quel giorno.</div>
+                        </div>
+                    </div>
+                    <div class="changelog-item ci-new">
+                        <div class="changelog-item-icon"><span class="material-icons-round">celebration</span></div>
+                        <div class="changelog-item-text">
+                            <div class="changelog-item-title">Organizza Uscita</div>
+                            <div class="changelog-item-desc">Trova il giorno migliore per uscire con il gruppo. Considera autisti e infermieri.</div>
+                        </div>
+                    </div>
+                    <div class="changelog-item ci-new">
+                        <div class="changelog-item-icon"><span class="material-icons-round">bar_chart</span></div>
+                        <div class="changelog-item-text">
+                            <div class="changelog-item-title">Statistiche complete</div>
+                            <div class="changelog-item-desc">Ore totali, medie settimanali, turni notturni e dettaglio mese per mese.</div>
+                        </div>
+                    </div>
+                    <div class="changelog-item ci-new">
+                        <div class="changelog-item-icon"><span class="material-icons-round">notifications_active</span></div>
+                        <div class="changelog-item-text">
+                            <div class="changelog-item-title">Monitoraggio variazioni turno</div>
+                            <div class="changelog-item-desc">Ricevi un avviso quando il turno di un collega monitorato cambia.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="changelog-section">
+                    <div class="changelog-section-title">
+                        <span class="material-icons-round" style="font-size:14px;color:#d97706">build</span>
+                        Miglioramenti
+                    </div>
+                    <div class="changelog-item ci-imp">
+                        <div class="changelog-item-icon"><span class="material-icons-round">calendar_month</span></div>
+                        <div class="changelog-item-text">
+                            <div class="changelog-item-title">Navigazione mesi rapida</div>
+                            <div class="changelog-item-desc">Tasto calendario per saltare a qualsiasi mese dell'anno.</div>
+                        </div>
+                    </div>
+                    <div class="changelog-item ci-imp">
+                        <div class="changelog-item-icon"><span class="material-icons-round">speed</span></div>
+                        <div class="changelog-item-text">
+                            <div class="changelog-item-title">Contatori turno nella data</div>
+                            <div class="changelog-item-desc">Numero autisti in mattina e pomeriggio visibile nella colonna data.</div>
+                        </div>
+                    </div>
+                    <div class="changelog-item ci-imp">
+                        <div class="changelog-item-icon"><span class="material-icons-round">settings</span></div>
+                        <div class="changelog-item-text">
+                            <div class="changelog-item-title">Opzioni migliorate</div>
+                            <div class="changelog-item-desc">Nuove opzioni nel pannello impostazioni per personalizzare l'esperienza.</div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="changelog-footer">
+                <button class="btn-changelog-ok" onclick="closeChangelog()">
+                    <span class="material-icons-round">check_circle</span>
+                    HO CAPITO, INIZIA!
+                </button>
+                <div class="changelog-note">Questo popup non apparirà più al prossimo avvio</div>
+            </div>
+        </div>
+    </div>
+
     <div id="game-modal">
         <div id="game-wrapper">
             <div class="game-close-btn" onclick="closeGameModal()">X</div>
-            <h2 style="color: #005eb8; margin-top:0;"> Lava l'Ambulanza moncappato! </h2>
-            
             <div id="game-container-box">
                 <canvas id="dirtCanvas"></canvas>
             </div>
-
             <div class="game-ui">
                 <div class="game-progress-bar"><div id="game-fill"></div></div>
                 <button class="game-btn" onclick="resetGame()">Ricomincia</button>
@@ -601,9 +852,7 @@
                 </div>
                 <div class="alert-title" id="alert-title-text">AVVISO</div>
             </div>
-            <div class="alert-body" id="alert-message-text">
-                Contenuto avviso...
-            </div>
+            <div class="alert-body" id="alert-message-text">Contenuto avviso...</div>
             <div class="alert-footer">
                 <button class="btn-alert-ok" onclick="closeAlertAndSave()">
                     <span class="material-icons-round">done</span> HO CAPITO
@@ -628,8 +877,24 @@
                     </button>
                 </div>
             </div>
-            <div class="modal-body notif-list" id="notif-list-container">
+            <div class="modal-body notif-list" id="notif-list-container"></div>
+        </div>
+    </div>
+
+    <div id="month-select-modal" onclick="closeMonthModal(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <div class="header-text">
+                    <h3><span class="material-icons-round" style="margin-right:10px">calendar_month</span> VAI AL MESE</h3>
+                    <span>Selezione Rapida</span>
                 </div>
+                <button class="btn-close-modal" onclick="closeMonthModal()">
+                    <span class="material-icons-round">close</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="month-grid" id="month-grid-container"></div>
+            </div>
         </div>
     </div>
 
@@ -639,14 +904,15 @@
     </div>
 
     <div id="loader">
-        <div id="auto-loader">
-            <div class="spinner"></div>
-            <h3 style="color:var(--text-main); margin:0; font-size:1.1rem; font-weight:800">Inizializzazione...</h3>
-            <p style="color:var(--text-sec); font-size:0.85rem; margin-top:8px">Lettura Turni 2026</p>
+        <img src="logo.png" alt="Logo" style="width:80px;height:80px;border-radius:18px;box-shadow:0 4px 20px rgba(0,0,0,0.4);position:relative;z-index:2;margin-bottom:20px;" onerror="this.style.display='none'">
+        <div class="spinner" style="position:relative;z-index:2;"></div>
+        <div id="loader-text">
+            <h3 id="loader-msg">🚑 Caricamento in corso...</h3>
+            <p>A.S. 26 — San Marino</p>
         </div>
         <div id="manual-upload">
-            <p style="color:#ef4444; font-weight:bold; font-size:1.1rem; margin-bottom:10px">⚠️ File automatico non trovato</p>
-            <p style="color:var(--text-sec); font-size:0.9rem; margin:0">Carica manualmente il file Excel</p>
+            <p style="color:#ef4444; font-weight:bold; font-size:1.1rem; margin-bottom:10px">&#x26A0; File automatico non trovato</p>
+            <p style="color:rgba(255,255,255,0.7); font-size:0.9rem; margin:0">Carica manualmente il file Excel</p>
             <label for="file-input" class="file-label">
                 <span class="material-icons-round">upload_file</span>
                 CARICA FILE (.xlsx)
@@ -654,6 +920,30 @@
             <input type="file" id="file-input" accept=".xlsx">
         </div>
     </div>
+
+    <script>
+    // ═══════════════════════════════════════════
+    //  LOADER — v5 (logo only)
+    // ═══════════════════════════════════════════
+    window._loaderDataReady = false;
+    window._loaderDismiss   = null;
+    window._stopLoaderAnim  = null;
+
+    (function() {
+        window._stopLoaderAnim = function() {};
+
+        window._loaderDismiss = function() {
+            var el = document.getElementById('loader');
+            if (el) {
+                el.style.transition = 'opacity 0.6s ease';
+                el.style.opacity = '0';
+                setTimeout(function() {
+                    if (el.parentNode) el.parentNode.removeChild(el);
+                }, 650);
+            }
+        };
+    })();
+    </script>
 
     <div id="shift-modal" onclick="closeShiftModal(event)">
         <div class="modal-content" onclick="event.stopPropagation()">
@@ -682,7 +972,6 @@
                 </button>
             </div>
             <div class="modal-body" style="padding:0">
-                
                 <div class="option-item" style="display:block">
                     <div style="margin-bottom:10px">
                         <span style="font-size:1rem; font-weight:700">Monitoraggio Turni</span>
@@ -690,7 +979,6 @@
                     </div>
                     <div id="notification-driver-list" class="dinner-checkbox-list" style="padding:0; grid-template-columns: 1fr 1fr;"></div>
                 </div>
-
                 <div class="option-item" id="install-container">
                     <div style="display:flex; flex-direction:column">
                         <span style="font-size:1rem">Installa Applicazione</span>
@@ -700,7 +988,6 @@
                         <span class="material-icons-round">install_mobile</span> INSTALLA
                     </button>
                 </div>
-                
                 <div class="option-item">
                     <div style="display:flex; flex-direction:column">
                         <span style="font-size:1rem">Tema Scuro</span>
@@ -711,57 +998,87 @@
                         <span class="slider"></span>
                     </label>
                 </div>
+                <div class="option-item" style="cursor:pointer" onclick="openChangelog()">
+                    <div style="display:flex; flex-direction:column">
+                        <span style="font-size:1rem">Note di Rilascio</span>
+                        <span style="font-size:0.8rem; color:var(--text-sec); font-weight:400">Vedi gli ultimi aggiornamenti</span>
+                    </div>
+                    <span class="material-icons-round" style="color:var(--text-sec)">info_outline</span>
+                </div>
             </div>
         </div>
     </div>
 
     <div id="dinner-modal" onclick="closeDinnerModal(event)">
-        <div class="modal-content" onclick="event.stopPropagation()" style="height:90vh; max-height:90vh;">
-            <div class="modal-header" style="background:#fff7ed; border-bottom-color:#ffedd5;">
+        <div class="modal-content" onclick="event.stopPropagation()" style="height:92vh; max-height:92vh;">
+            <div class="modal-header" style="background:linear-gradient(135deg,#fff7ed,#fef3c7); border-bottom-color:#fde68a; flex-shrink:0;">
                 <div class="header-text">
-                    <h3 style="color:#ea580c"><span class="material-icons-round" style="margin-right:8px">restaurant</span> ORGANIZZA</h3>
-                    <span style="color:#fb923c">Trova la data migliore</span>
+                    <h3 style="color:#92400e"><span class="material-icons-round" style="margin-right:8px">celebration</span> ORGANIZZA USCITA</h3>
+                    <span style="color:#b45309">Trova la data migliore per il gruppo</span>
                 </div>
                 <button class="btn-close-modal" onclick="closeDinnerModal()">
                     <span class="material-icons-round">close</span>
                 </button>
             </div>
-            <div class="modal-body" style="background:var(--bg-card); display:flex; flex-direction:column; height:100%;">
-                
+            <div class="modal-body" style="background:var(--bg); display:flex; flex-direction:column; height:100%; overflow-y:auto;">
                 <div id="dinner-step-1">
-                    <div class="dinner-section-title">1. MESE</div>
+                    <div class="dinner-section-title">
+                        <span class="material-icons-round" style="font-size:14px">calendar_month</span> 1. SELEZIONA MESE
+                    </div>
                     <div class="month-selector" id="dinner-month-list"></div>
-
-                    <div class="dinner-section-title">2. TIPO DI USCITA</div>
-                    <div class="event-type-selector">
-                        <div class="event-option active" id="opt-cena" onclick="setEventType('cena', this)">
-                            <span class="material-icons-round">bedtime</span> CENA (Sera)
+                    <div class="dinner-section-title">
+                        <span class="material-icons-round" style="font-size:14px">schedule</span> 2. TIPO DI EVENTO
+                    </div>
+                    <div class="event-type-grid" id="event-type-grid">
+                        <div class="event-tile active" data-type="colazione" onclick="setEventType('colazione', this)">
+                            <span class="material-icons-round">free_breakfast</span>
+                            <span class="event-tile-label">COLAZIONE</span>
+                            <span class="event-tile-sub">Mattina presto</span>
                         </div>
-                        <div class="event-option" id="opt-pranzo" onclick="setEventType('pranzo', this)">
-                            <span class="material-icons-round">wb_sunny</span> PRANZO (Giorno)
+                        <div class="event-tile" data-type="pranzo" onclick="setEventType('pranzo', this)">
+                            <span class="material-icons-round">wb_sunny</span>
+                            <span class="event-tile-label">PRANZO</span>
+                            <span class="event-tile-sub">Mezzogiorno</span>
+                        </div>
+                        <div class="event-tile" data-type="aperitivo" onclick="setEventType('aperitivo', this)">
+                            <span class="material-icons-round">local_bar</span>
+                            <span class="event-tile-label">APERITIVO</span>
+                            <span class="event-tile-sub">Pomeriggio</span>
+                        </div>
+                        <div class="event-tile" data-type="cena" onclick="setEventType('cena', this)">
+                            <span class="material-icons-round">dinner_dining</span>
+                            <span class="event-tile-label">CENA</span>
+                            <span class="event-tile-sub">Serata</span>
                         </div>
                     </div>
-
-                    <div style="display:flex; justify-content:space-between; align-items:center; padding-right:20px;">
-                        <div class="dinner-section-title">3. SELEZIONA COLLEGHI</div>
-                        <button onclick="toggleAllDrivers()" style="background:none; border:none; color:var(--primary); font-weight:bold; cursor:pointer; font-size:0.8rem; padding:10px;">Tutti/Nessuno</button>
+                    <div style="display:flex; justify-content:space-between; align-items:center; padding-right:16px;">
+                        <div class="dinner-section-title" style="margin-bottom:0">
+                            <span class="material-icons-round" style="font-size:14px">drive_eta</span> 3. AUTISTI
+                        </div>
+                        <button onclick="toggleAllGroup('driver')" class="dinner-toggle-all-btn">Tutti/Nessuno</button>
                     </div>
                     <div class="dinner-checkbox-list" id="dinner-driver-list"></div>
-
-                    <div style="padding:0 20px 20px 20px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; padding-right:16px;">
+                        <div class="dinner-section-title" style="margin-bottom:0">
+                            <span class="material-icons-round" style="font-size:14px">medical_services</span> 4. INFERMIERI
+                        </div>
+                        <button onclick="toggleAllGroup('nurse')" class="dinner-toggle-all-btn">Tutti/Nessuno</button>
+                    </div>
+                    <div id="dinner-nurse-status" style="padding:0 20px 6px;font-size:0.78rem;color:var(--text-sec);font-weight:500"></div>
+                    <div class="dinner-checkbox-list" id="dinner-nurse-list"></div>
+                    <div style="padding:12px 20px 24px 20px;">
                         <button class="btn-find-dinner" onclick="calculateDinner()">
                             <span class="material-icons-round">search</span> CERCA DISPONIBILITÀ
                         </button>
                     </div>
                 </div>
-
                 <div id="dinner-step-2" style="display:none; padding-bottom:30px;">
-                    <div style="padding:15px 20px; display:flex; align-items:center; gap:10px; cursor:pointer; color:var(--primary); font-weight:700" onclick="resetDinnerStep()">
-                        <span class="material-icons-round">arrow_back</span> Torna ai filtri
+                    <div class="dinner-back-btn" onclick="resetDinnerStep()">
+                        <span class="material-icons-round">arrow_back</span> Modifica filtri
                     </div>
+                    <div id="dinner-results-summary" style="padding:12px 20px;font-size:0.82rem;color:var(--text-sec);font-weight:600;border-bottom:1px solid var(--border)"></div>
                     <div id="dinner-results-container"></div>
                 </div>
-
             </div>
         </div>
     </div>
@@ -775,52 +1092,56 @@
                 <span class="material-icons-round">close</span>
             </button>
         </div>
-        <div class="stats-body" id="stats-container">
-            </div>
+        <div class="stats-body" id="stats-container"></div>
     </div>
 
     <header>
         <div class="top-bar">
             <div class="logo" onclick="secretClick()">
-                <img src="logo.png" style="height: 40px; width: auto; display:block;" alt="Logo" onerror="this.style.display='none'">
-                <div style="display:flex; flex-direction:column; line-height:1;">
-                    <span>TURNI AUTISTI 2026</span>
-                    <span id="last-update-badge" style="font-size:0.65rem; font-weight:500; color:var(--text-sec); margin-top:4px;"></span>
+                <img src="logo.png" alt="Logo" onerror="this.style.display='none'">
+                <div class="logo-text">
+                    <span class="logo-title">A.S. 26</span>
+                    <span class="logo-sub" id="last-update-badge">San Marino</span>
                 </div>
             </div>
             <div class="right-controls">
-                
                 <button class="btn-action" onclick="vibrate(); scrollToToday()">
                     <span class="material-icons-round">home</span>
                 </button>
-
+                <button class="btn-action" onclick="openMonthModal()">
+                   <span class="material-icons-round">calendar_month</span>
+                </button>
+                <button class="btn-action btn-inf" onclick="openInfLink()" title="Turni Infermieri 2026">
+                   <span class="material-icons-round" style="font-size:1.1rem">medical_services</span>
+                </button>
                 <button class="btn-action" onclick="openNotifCenter()" style="position:relative">
                     <span class="material-icons-round">notifications</span>
                     <span id="notif-badge" class="badge-dot"></span>
                 </button>
-
                 <button class="btn-action" onclick="toggleMenu()">
                     <span class="material-icons-round">more_vert</span>
                 </button>
-
-                <div id="menu-dropdown">
+                
+                   <div id="menu-dropdown">
+                    <div class="menu-item" onclick="openPersonalArea()">
+                        <span class="material-icons-round">badge</span> Area Personale
+                    </div>
                     <div class="menu-item" onclick="openDinnerModal()">
                         <span class="material-icons-round">restaurant</span> Organizza Uscita
                     </div>
                     <div class="menu-item" onclick="openStatsSelection()">
                         <span class="material-icons-round">bar_chart</span> Statistiche
                     </div>
-                      <div class="menu-item" onclick="openOptionsModal()">
+                    <div class="menu-item" onclick="openOptionsModal()">
                         <span class="material-icons-round">settings</span> Opzioni
                     </div>
                     <div class="menu-item" onclick="vibrate(); location.reload()">
                         <span class="material-icons-round">refresh</span> Aggiorna
                     </div>
                 </div>
-
+                </div>
             </div>
         </div>
-        <div class="nav-scroller" id="month-nav"></div>
         <div class="driver-scroller" id="driver-nav"></div>
     </header>
 
@@ -856,15 +1177,136 @@
         let drivers = [];
         let selectedDrivers = new Set();
         let notifHistory = []; 
-        let ambulanceMap = {}; // Mappa { "NomeAutista-Mese": "Giorno" }
+        let ambulanceMap = {}; 
+        let globalMonthsList = [];
+        let nursesData = [];
+        let nurses = [];
+        let nursesLoaded = false;
+
+        // ==============================================
+        // GESTIONE CHANGELOG / PRIMO AVVIO
+        // ==============================================
+        const CHANGELOG_VERSION = "v2026-1.4"; // Cambia questo per far riapparire il popup
+
+        function checkFirstLaunch() {
+            const seen = localStorage.getItem('changelog_seen_version');
+            if (seen !== CHANGELOG_VERSION) {
+                showChangelog();
+            }
+        }
+
+        function showChangelog() {
+            const modal = document.getElementById('changelog-modal');
+            modal.style.display = 'flex';
+            setTimeout(() => modal.classList.add('open'), 50);
+        }
+
+        function closeChangelog() {
+            vibrate();
+            localStorage.setItem('changelog_seen_version', CHANGELOG_VERSION);
+            const modal = document.getElementById('changelog-modal');
+            modal.classList.remove('open');
+            setTimeout(() => modal.style.display = 'none', 400);
+        }
+
+        // Anche accessibile dal menu Opzioni
+        function openChangelog() {
+            closeOptionsModal();
+            setTimeout(showChangelog, 200);
+        }
         
+        // --- FUNZIONE LINK INF ---
+        function openInfLink() {
+            vibrate();
+            window.open("https://centrale118rsm-code.github.io/Turni-Infermieri-2026/", "_blank");
+        }
+// --- FUNZIONE AREA PERSONALE AUTISTI ---
+        function openPersonalArea() {
+            vibrate(); // Mantiene il feedback tattile coerente con il resto dell'app
+            toggleMenu(); // Chiude il menu a tendina prima di aprire la nuova pagina
+            
+            // INSERISCI QUI IL LINK ESATTO DEL TUO FILE SU GITHUB
+            window.open("https://centrale118rsm-code.github.io/Area-riservata-A.S.-118/", "_blank");
+        }
+        // --- CARICAMENTO DATI INFERMIERI ---
+        async function loadNursesData() {
+            try {
+                const resp = await fetch("https://centrale118rsm-code.github.io/Turni-Infermieri-2026/infermieri.xlsx?v=" + Date.now());
+                if (!resp.ok) throw new Error("File infermieri non trovato");
+                const buf = await resp.arrayBuffer();
+                const wb = new ExcelJS.Workbook();
+                await wb.xlsx.load(buf);
+                let ws = wb.getWorksheet("Foglio2") || wb.worksheets[0];
+                let rawData = [];
+                ws.eachRow({ includeEmpty: true }, (row, rowNumber) => {
+                    let rowData = [];
+                    row.eachCell({ includeEmpty: true }, (cell, colNumber) => {
+                        let val = cell.value;
+                        if (typeof val === 'object' && val !== null) val = val.result || "";
+                        rowData[colNumber] = { v: val, c: null };
+                    });
+                    rawData[rowNumber] = rowData;
+                });
+                nursesData = convertHorizontalToVertical(rawData);
+                let header = nursesData[0];
+                nurses = [];
+                for (let i = 3; i < header.length; i++) {
+                    let nm = header[i] ? header[i].toString().trim() : "";
+                    if (nm !== "") nurses.push({ name: nm.toUpperCase(), idx: i });
+                }
+                nursesLoaded = true;
+            } catch (e) {
+                console.log("ℹ️ Dati infermieri non disponibili:", e.message);
+                nursesLoaded = false;
+            }
+        }
+
+        // --- GESTIONE MODALE MESI VELOCE ---
+        function openMonthModal() {
+            vibrate();
+            const grid = document.getElementById('month-grid-container');
+            grid.innerHTML = "";
+            if(globalMonthsList.length === 0) {
+                grid.innerHTML = "<div style='grid-column:1/-1; text-align:center;'>Nessun mese disponibile</div>";
+            } else {
+                globalMonthsList.forEach(m => {
+                    let btn = document.createElement('div');
+                    btn.className = 'month-btn';
+                    btn.innerText = m.name.substr(0,3);
+                    btn.onclick = () => {
+                        vibrate();
+                        closeMonthModal();
+                        const el = document.getElementById(m.id);
+                        if(el) {
+                            const headerHeight = 100;
+                            const bodyRect = document.body.getBoundingClientRect().top;
+                            const elementRect = el.getBoundingClientRect().top;
+                            const elementPosition = elementRect - bodyRect;
+                            const offset = elementPosition - headerHeight;
+                            window.scrollTo({ top: offset, behavior: "smooth" });
+                        }
+                    };
+                    grid.appendChild(btn);
+                });
+            }
+            let m = document.getElementById('month-select-modal');
+            m.style.display = 'flex';
+            setTimeout(() => m.classList.add('open'), 10);
+        }
+
+        function closeMonthModal(e) {
+            if (e && e.target !== e.currentTarget) return;
+            let m = document.getElementById('month-select-modal');
+            m.classList.remove('open');
+            setTimeout(() => m.style.display = 'none', 300);
+        }
+
         let deferredPrompt;
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
         });
         
-        // --- FUNZIONE SUONO CANE ---
         function playDogSound(event) {
             event.stopPropagation();
             const audioEl = document.getElementById('dog-audio');
@@ -875,18 +1317,14 @@
             if(navigator.vibrate) navigator.vibrate(200);
         }
 
-        // --- GESTIONE MINIGIOCO AMBULANZA ---
         let gameCanvas, gameCtx, isGameRunning = false, pointsCleaned = 0, totalToClean = 2000;
 
         function openGameModal(e) {
-            e.stopPropagation(); // Evita apertura modale turno
+            e.stopPropagation(); 
             vibrate();
-            
             const modal = document.getElementById('game-modal');
             modal.classList.add('open');
             isGameRunning = true;
-            
-            // Inizializza Canvas dopo che è visibile
             setTimeout(initGame, 100);
         }
 
@@ -899,29 +1337,20 @@
             gameCanvas = document.getElementById('dirtCanvas');
             gameCtx = gameCanvas.getContext('2d');
             const containerBox = document.getElementById('game-container-box');
-            
             gameCanvas.width = containerBox.offsetWidth;
             gameCanvas.height = containerBox.offsetHeight;
-            
-            // Sporco
             gameCtx.fillStyle = '#6d4c41'; 
             gameCtx.fillRect(0, 0, gameCanvas.width, gameCanvas.height);
-            
-            // Testo
             gameCtx.globalCompositeOperation = 'source-over';
             gameCtx.fillStyle = 'rgba(255,255,255,0.5)';
             gameCtx.font = 'bold 24px Arial';
             gameCtx.textAlign = 'center';
             gameCtx.fillText("TRASCINA PER PULIRE", gameCanvas.width/2, gameCanvas.height/2);
-            
             pointsCleaned = 0;
             document.getElementById('game-fill').style.width = '0%';
-            
-            // Event Listeners
             gameCanvas.addEventListener('mousedown', () => isGameCleaning = true);
             window.addEventListener('mouseup', () => isGameCleaning = false);
             gameCanvas.addEventListener('mousemove', handleGameMove);
-            
             gameCanvas.addEventListener('touchstart', (e) => { isGameCleaning = true; handleGameMove(e); }, {passive:false});
             gameCanvas.addEventListener('touchend', () => isGameCleaning = false);
             gameCanvas.addEventListener('touchmove', (e) => { handleGameMove(e); e.preventDefault(); }, {passive: false});
@@ -931,25 +1360,17 @@
 
         function handleGameMove(e) {
             if (!isGameCleaning || !isGameRunning) return;
-            
             const rect = gameCanvas.getBoundingClientRect();
             const x = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
             const y = (e.touches ? e.touches[0].clientY : e.clientY) - rect.top;
-
-            // Cancella sporco
             gameCtx.globalCompositeOperation = 'destination-out';
             gameCtx.beginPath();
             gameCtx.arc(x, y, 30, 0, Math.PI * 2);
             gameCtx.fill();
-
-            // Effetto bolle
             if (Math.random() > 0.8) createGameBubble(x, y);
-
-            // Update progress
             pointsCleaned++;
             let percent = Math.min((pointsCleaned / totalToClean) * 100, 100);
             document.getElementById('game-fill').style.width = percent + '%';
-            
             if(percent >= 100) {
                 gameCtx.clearRect(0,0,gameCanvas.width, gameCanvas.height);
             }
@@ -972,22 +1393,51 @@
             initGame();
         }
 
-        // --- SECRET GALLERY LOGIC ---
         let logoClicks = 0;
         let galleryIdx = 1;
         let resetTimer;
         const TOTAL_SECRET_PHOTOS = 10; 
         const PHOTO_EXT = ".jpg"; 
 
+        let githubLastUpload = null;
+
         function secretClick() {
-            logoClicks++;
-            clearTimeout(resetTimer);
-            if (logoClicks >= 5) {
-                openSecretGallery();
-                logoClicks = 0;
+            vibrate();
+            if (githubLastUpload) {
+                const d = new Date(githubLastUpload);
+                const dateStr = d.toLocaleDateString('it-IT', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' });
+                const timeStr = d.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                let msg = `<div style="text-align:center;padding:4px">
+                    <div style="font-size:0.68rem;color:var(--text-sec);text-transform:uppercase;font-weight:800;letter-spacing:1px;margin-bottom:10px">Ultimo caricamento file turni</div>
+                    <div style="font-size:1.05rem;font-weight:900;color:var(--text-main);text-transform:capitalize">${dateStr}</div>
+                    <div style="font-size:1.4rem;font-weight:900;color:var(--primary);margin-top:6px;font-variant-numeric:tabular-nums">${timeStr}</div>
+                    <div style="font-size:0.6rem;color:var(--text-sec);margin-top:10px">Fonte: GitHub Repository</div>
+                </div>`;
+                let modal = document.getElementById('alert-modal');
+                document.getElementById('alert-title-text').innerHTML = '📅 FILE TURNI';
+                document.getElementById('alert-message-text').innerHTML = msg;
+                modal.style.display = 'flex';
+                setTimeout(() => modal.classList.add('open'), 50);
             } else {
-                resetTimer = setTimeout(() => { logoClicks = 0; }, 2000);
+                let modal = document.getElementById('alert-modal');
+                document.getElementById('alert-title-text').innerHTML = '⏳ CARICAMENTO...';
+                document.getElementById('alert-message-text').innerHTML = '<div style="text-align:center;color:var(--text-sec)">Recupero data in corso...<br>Riprova tra qualche secondo.</div>';
+                modal.style.display = 'flex';
+                setTimeout(() => modal.classList.add('open'), 50);
+                fetchGithubLastUpload();
             }
+        }
+
+        async function fetchGithubLastUpload() {
+            try {
+                const resp = await fetch("https://api.github.com/repos/centrale118rsm-code/Turni-Autisti-2026/commits?path=turni.xlsx&per_page=1");
+                if (resp.ok) {
+                    const data = await resp.json();
+                    if (data && data.length > 0 && data[0].commit && data[0].commit.committer) {
+                        githubLastUpload = data[0].commit.committer.date;
+                    }
+                }
+            } catch(e) { console.log("GitHub API error:", e); }
         }
 
         function openSecretGallery() {
@@ -1013,7 +1463,7 @@
             document.getElementById('secret-gallery').classList.remove('open');
         }
 
-        // FUNZIONE INSTALLAZIONE PWA
+
         function installPWA() {
             if (deferredPrompt) {
                 deferredPrompt.prompt();
@@ -1056,11 +1506,10 @@
         }
         
         function openOptionsModal() {
-            toggleMenu();
+            if(document.getElementById('menu-dropdown').style.display === 'flex') toggleMenu();
             let m = document.getElementById('options-modal');
             m.style.display = 'flex';
             setTimeout(() => m.classList.add('open'), 10);
-            
             const tg = document.getElementById('dark-mode-toggle');
             if(tg) tg.checked = document.body.classList.contains('dark-mode');
         }
@@ -1077,7 +1526,6 @@
             document.body.classList.toggle('dark-mode');
             const meta = document.querySelector('#theme-color-meta');
             const isDark = document.body.classList.contains('dark-mode');
-            
             if(isDark) {
                 localStorage.setItem('theme', 'dark');
                 meta.setAttribute('content', '#0f172a');
@@ -1104,11 +1552,18 @@
                 const lastUp = new Date(document.lastModified);
                 const dateStr = lastUp.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: '2-digit' });
                 const timeStr = lastUp.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
-                document.getElementById('last-update-badge').innerText = `Agg. ${dateStr} ${timeStr}`;
+                document.getElementById('last-update-badge').innerText = `Aggiornato ${dateStr} ${timeStr}`;
             } catch(e) { console.log(e); }
             
             const tg = document.getElementById('dark-mode-toggle');
             if(tg) tg.checked = document.body.classList.contains('dark-mode');
+
+            // Aggiungi transition al loader per dissolvenza
+            const loaderEl = document.getElementById('loader');
+            if(loaderEl) loaderEl.style.transition = 'opacity 0.5s ease';
+
+            loadNursesData();
+            fetchGithubLastUpload();
 
             try {
                 const response = await fetch(FILE_NAME);
@@ -1117,8 +1572,11 @@
                 loadWorkbook(buffer);
             } catch (e) {
                 console.error(e);
-                document.getElementById('auto-loader').style.display = 'none';
-                document.getElementById('manual-upload').style.display = 'block';
+                if(window._stopLoaderAnim) window._stopLoaderAnim();
+                const lt  = document.getElementById('loader-text');
+                const mu  = document.getElementById('manual-upload');
+                if(lt)  lt.style.display  = 'none';
+                if(mu)  mu.style.display  = 'block';
             }
         };
 
@@ -1135,7 +1593,6 @@
                 const workbook = new ExcelJS.Workbook();
                 await workbook.xlsx.load(buffer);
                 let ws = workbook.getWorksheet("Foglio2") || workbook.worksheets[0];
-                
                 let rawData = [];
                 ws.eachRow({ includeEmpty: true }, (row, rowNumber) => {
                     let rowData = [];
@@ -1151,10 +1608,13 @@
                     });
                     rawData[rowNumber] = rowData;
                 });
-
                 finalData = convertHorizontalToVertical(rawData);
-                document.getElementById('loader').style.opacity = '0';
-                setTimeout(() => document.getElementById('loader').style.display = 'none', 500);
+                // Segnala che i dati sono pronti — il loader si rimuove quando l'animazione finisce
+                if(window._loaderDismiss) window._loaderDismiss();
+                else {
+                    const loaderDiv = document.getElementById('loader');
+                    if(loaderDiv) { loaderDiv.style.opacity='0'; setTimeout(()=>loaderDiv.remove(),550); }
+                }
                 initApp();
             } catch(e) {
                 alert("Errore lettura file: " + e.message);
@@ -1170,7 +1630,6 @@
             for(let r=3; r<raw.length; r++) {
                 if(!raw[r]) continue;
                 let cellName = raw[r][1]; 
-                
                 if(cellName && cellName.v && typeof cellName.v === 'string') {
                     let txt = cellName.v.toUpperCase();
                     if(txt.includes("CONGEDO") || txt.includes("MALATTIA") || txt.includes("RESIDUE") || 
@@ -1180,7 +1639,6 @@
                         continue; 
                     }
                 }
-                
                 if(cellName && cellName.v && typeof cellName.v === 'string' && cellName.v.length > 2) {
                     let driverObj = { name: cellName.v, idx: r, subIdx: null };
                     if(raw[r+1] && (!raw[r+1][1] || !raw[r+1][1].v || raw[r+1][1].v.toString().trim() === "")) {
@@ -1259,37 +1717,26 @@
             
             initNotificationOptions();
             loadNotificationHistory(); 
-            
-            // CALCOLA DATE AMBULANZA PRIMA DEL RENDER
             calculateAmbulanceDates();
-            
             renderTable();
             startLiveClock();
             setTimeout(scrollToToday, 600);
             setTimeout(checkForScheduleChanges, 2000);
+            // Mostra changelog al primo avvio (dopo il caricamento)
+            setTimeout(checkFirstLaunch, 800);
         }
 
-        /* --- LOGICA AMBULANZA RANDOM --- */
         function calculateAmbulanceDates() {
-            // Recupera mappa salvata
             let storedMap = localStorage.getItem('ambulance_dates_map');
             if (storedMap) {
                 ambulanceMap = JSON.parse(storedMap);
             }
-
-            // Mese corrente del loop
-            let currentM = "";
-            
-            // Raggruppa i giorni per autista e mese
-            // Struttura: tempMap[DriverIdx][Mese] = [array di giorni con turno M]
             let tempMap = {};
-
             for (let i = 1; i < finalData.length; i++) {
                 let row = finalData[i];
                 let month = row[0].v;
                 let day = row[1].v;
                 if (!month || !day) continue;
-
                 drivers.forEach(d => {
                     let cellData = row[d.idx];
                     let val = cellData.v ? cellData.v.toString().trim() : "";
@@ -1300,14 +1747,11 @@
                     }
                 });
             }
-
-            // Assegna date se mancano
             let hasChanges = false;
             for (let dIdx in tempMap) {
                 for (let month in tempMap[dIdx]) {
-                    let key = `${dIdx}-${month}`; // Chiave univoca: IDAutista-Mese
+                    let key = `${dIdx}-${month}`;
                     if (!ambulanceMap[key]) {
-                        // Seleziona un giorno a caso tra quelli disponibili
                         let availableDays = tempMap[dIdx][month];
                         if (availableDays.length > 0) {
                             let randomDay = availableDays[Math.floor(Math.random() * availableDays.length)];
@@ -1317,25 +1761,21 @@
                     }
                 }
             }
-
             if (hasChanges) {
                 localStorage.setItem('ambulance_dates_map', JSON.stringify(ambulanceMap));
             }
         }
 
-        /* --- GESTIONE NOTIFICHE --- */
         let watchedDrivers = new Set();
 
         function initNotificationOptions() {
             const list = document.getElementById('notification-driver-list');
             if(!list) return;
             list.innerHTML = "";
-            
             const saved = localStorage.getItem('watched_drivers_ids');
             if(saved) {
                 watchedDrivers = new Set(JSON.parse(saved));
             }
-
             drivers.forEach(d => {
                 let isChecked = watchedDrivers.has(d.idx) ? "checked" : "";
                 let item = document.createElement('label');
@@ -1379,77 +1819,74 @@
 
         function checkForScheduleChanges() {
             if(watchedDrivers.size === 0) return;
-
             let currentSnapshot = {};
-            
             for(let i=1; i<finalData.length; i++) {
                 let row = finalData[i];
                 let month = row[0].v;   
                 let day = row[1].v;        
                 if(!day || !month) continue;
-
                 let dateKey = `${month}-${day}`; 
-
                 watchedDrivers.forEach(dIdx => {
                     let cell = row[dIdx];
                     let val = cell.v ? cell.v.toString().trim() : "";
-                    let col = cell.c || "no-col";
-                    let sub = cell.subV || "";
-                    
+                    // Normalizza il valore per confronto stabile
+                    let normalized = normalizeShift(val) || val.toUpperCase();
                     let uniqueKey = `${dateKey}-DRV${dIdx}`;
-                    currentSnapshot[uniqueKey] = `${val}|${col}|${sub}`;
+                    currentSnapshot[uniqueKey] = normalized;
                 });
             }
-
             let oldJson = localStorage.getItem('schedule_snapshot');
-            
             if(oldJson) {
                 let oldSnapshot = JSON.parse(oldJson);
-                let changesFound = [];
-
+                // Raggruppa cambi per autista
+                let changesByDriver = {};
                 for (const [key, newVal] of Object.entries(currentSnapshot)) {
                     let oldVal = oldSnapshot[key];
-                    if(oldVal && oldVal !== newVal) {
-                        let parts = key.split("-DRV"); 
-                        let datePart = parts[0]; 
-                        let drvIdx = parseInt(parts[1]);
-                        let drvName = drivers.find(d => d.idx === drvIdx)?.name || "Autista";
-
-                        if(newVal === "||" && oldVal === "||") continue;
-
-                        let oldShiftCode = oldVal.split('|')[0];
-                        let newShiftCode = newVal.split('|')[0];
-
-                        let oldShiftName = getShiftReadableName(oldShiftCode);
-                        let newShiftName = getShiftReadableName(newShiftCode);
-
-                        let detailMsg = `<b>${drvName}</b> - ${datePart}<br>
-                                         <span style="font-size:0.85rem; color:var(--text-sec)">
-                                         Da: <b style="color:#ef4444">${oldShiftName}</b> &rarr; A: <b style="color:#15803d">${newShiftName}</b>
-                                         </span>`;
-
-                        changesFound.push(detailMsg);
-                        
-                        let notifObj = {
-                            id: Date.now() + Math.random(),
-                            text: detailMsg,
-                            read: false,
-                            date: new Date().toLocaleString()
-                        };
-                        notifHistory.unshift(notifObj);
-                    }
+                    if(!oldVal || oldVal === newVal) continue;
+                    // Ignora cambi trascurabili (entrambi vuoti/"-")
+                    if((!newVal || newVal === "-" || newVal === "") && (!oldVal || oldVal === "-" || oldVal === "")) continue;
+                    let parts = key.split("-DRV"); 
+                    let datePart = parts[0]; 
+                    let drvIdx = parseInt(parts[1]);
+                    let drvName = drivers.find(d => d.idx === drvIdx)?.name || "Autista";
+                    let oldShiftName = getShiftReadableName(oldVal);
+                    let newShiftName = getShiftReadableName(newVal);
+                    // Ignora se i nomi leggibili sono identici (es. M → MAT)
+                    if(oldShiftName === newShiftName) continue;
+                    if(!changesByDriver[drvName]) changesByDriver[drvName] = [];
+                    changesByDriver[drvName].push({ date: datePart, from: oldShiftName, to: newShiftName });
                 }
-
+                let changesFound = [];
+                for(const [drvName, changes] of Object.entries(changesByDriver)) {
+                    // Formato notifica raggruppato per autista
+                    let detailLines = changes.slice(0, 4).map(c =>
+                        `<span style="font-size:0.8rem;display:block;margin-top:3px;color:var(--text-sec)">
+                            📅 ${c.date} &nbsp;
+                            <span style="color:#ef4444;font-weight:700">${c.from}</span>
+                            <span style="opacity:0.5"> → </span>
+                            <span style="color:#15803d;font-weight:700">${c.to}</span>
+                        </span>`
+                    ).join('');
+                    if(changes.length > 4) detailLines += `<span style="font-size:0.75rem;color:var(--text-sec);display:block;margin-top:2px">...e altri ${changes.length-4} cambi</span>`;
+                    let msg = `<b style="font-size:1rem">${drvName}</b> &nbsp;<span style="background:#dbeafe;color:#1e40af;font-size:0.6rem;font-weight:700;padding:2px 6px;border-radius:5px;vertical-align:middle">${changes.length} variaz.</span>${detailLines}`;
+                    changesFound.push(msg);
+                    let notifObj = {
+                        id: Date.now() + Math.random(),
+                        text: msg,
+                        read: false,
+                        date: new Date().toLocaleString('it-IT')
+                    };
+                    notifHistory.unshift(notifObj);
+                }
                 if(changesFound.length > 0) {
                     saveNotifications(); 
-                    updateBadge();       
+                    updateBadge();        
                     showChangeAlert(changesFound);
                 }
             }
             localStorage.setItem('schedule_snapshot', JSON.stringify(currentSnapshot));
         }
 
-        // --- FUNZIONI CENTRO NOTIFICHE ---
         function loadNotificationHistory() {
             let saved = localStorage.getItem('notifications_history');
             if(saved) {
@@ -1494,12 +1931,10 @@
         function renderNotifList() {
             const container = document.getElementById('notif-list-container');
             container.innerHTML = "";
-
             if(notifHistory.length === 0) {
                 container.innerHTML = `<div class="no-notif">Nessuna notifica presente.</div>`;
                 return;
             }
-
             notifHistory.forEach(item => {
                 let div = document.createElement('div');
                 div.className = `notif-item ${item.read ? '' : 'unread'}`;
@@ -1533,14 +1968,14 @@
         }
 
         function showChangeAlert(changes) {
-            let msg = "Sono stati rilevati cambi turno per gli autisti che segui:<br><br>";
-            msg += changes.slice(0, 5).join("<br><br>"); 
-            if(changes.length > 5) msg += `<br><br>...e altri ${changes.length - 5}.`;
-            msg += "<br><br><small>Controlla il calendario aggiornato.</small>";
-
+            let msg = "";
+            changes.slice(0, 4).forEach((c, i) => {
+                msg += `<div style="background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:${i < changes.length-1 ? '8px' : '0'}">${c}</div>`;
+            });
+            if(changes.length > 4) msg += `<div style="font-size:0.78rem;color:var(--text-sec);text-align:center;margin-top:8px">...e altri ${changes.length - 4} autisti</div>`;
             let modal = document.getElementById('alert-modal');
-            document.getElementById('alert-title-text').innerText = "⚠️ VARIAZIONE TURNO";
-            document.getElementById('alert-message-text').innerHTML = msg;
+            document.getElementById('alert-title-text').innerText = `⚠️ VARIAZIONE TURNI (${changes.length})`;
+            document.getElementById('alert-message-text').innerHTML = `<div style="font-size:0.85rem;color:var(--text-sec);margin-bottom:12px">Hai rilevato cambi turno per gli autisti monitorati:</div>${msg}`;
             modal.style.display = 'flex';
             setTimeout(() => modal.classList.add('open'), 100);
             vibrate();
@@ -1558,11 +1993,9 @@
             if (el) {
                 const headerHeight = 160; 
                 const extraOffset = 100; 
-                
                 const bodyRect = document.body.getBoundingClientRect().top;
                 const elementRect = el.getBoundingClientRect().top;
                 const elementPosition = elementRect - bodyRect;
-                
                 const offsetPosition = elementPosition - headerHeight - extraOffset;
                 window.scrollTo({ top: offsetPosition, behavior: "smooth" });
             }
@@ -1570,7 +2003,6 @@
 
         function filterDriver(val, btnEl) {
             vibrate();
-            
             if (val === 'all') {
                 selectedDrivers.clear();
             } else {
@@ -1587,21 +2019,20 @@
         }
 
         function updateDriverButtons() {
-             const allBtn = document.querySelector('.chip-driver[data-idx="all"]');
-             if(selectedDrivers.size === 0) {
-                 allBtn.classList.add('active');
-             } else {
-                 allBtn.classList.remove('active');
-             }
-
-             document.querySelectorAll('.chip-driver:not([data-idx="all"])').forEach(btn => {
-                 const idx = parseInt(btn.dataset.idx);
-                 if(selectedDrivers.has(idx)) {
-                     btn.classList.add('active');
-                 } else {
-                     btn.classList.remove('active');
-                 }
-             });
+            const allBtn = document.querySelector('.chip-driver[data-idx="all"]');
+            if(selectedDrivers.size === 0) {
+                allBtn.classList.add('active');
+            } else {
+                allBtn.classList.remove('active');
+            }
+            document.querySelectorAll('.chip-driver:not([data-idx="all"])').forEach(btn => {
+                const idx = parseInt(btn.dataset.idx);
+                if(selectedDrivers.has(idx)) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
         }
 
         function startLiveClock() {
@@ -1617,8 +2048,7 @@
         function renderTable() {
             const thead = document.getElementById('table-head');
             const tbody = document.getElementById('table-body');
-            const nav = document.getElementById('month-nav');
-            thead.innerHTML = ""; tbody.innerHTML = ""; nav.innerHTML = "";
+            thead.innerHTML = ""; tbody.innerHTML = ""; 
 
             let cols = [];
             if (selectedDrivers.size === 0) {
@@ -1629,13 +2059,12 @@
 
             let thD = document.createElement('th'); thD.innerText = "DATA"; 
             thD.style.left = "0"; thD.style.zIndex="95"; thead.appendChild(thD);
-
             cols.forEach(d => {
                 let th = document.createElement('th'); th.innerText = d.name; thead.appendChild(th);
             });
 
             let currentMonth = "";
-            let monthsFound = [];
+            globalMonthsList = [];
             let year = 2026;
             const today = new Date();
             const curD = today.getDate(); const curM = today.getMonth();
@@ -1648,10 +2077,9 @@
                 if(mName && mName !== currentMonth) {
                     currentMonth = mName;
                     let mId = "m-" + i;
-                    monthsFound.push({name: mName, id: mId});
+                    globalMonthsList.push({name: mName, id: mId});
                     let trM = document.createElement('tr'); trM.className = "month-header";
                     trM.id = mId;
-                    
                     trM.innerHTML = `
                     <td colspan="${cols.length + 1}">
                         <div class="sticky-month-text">
@@ -1664,13 +2092,11 @@
 
                 let tr = document.createElement('tr');
                 let mIdx = MONTH_MAP[currentMonth];
-                
                 let dateObj = new Date(year, mIdx, dNum);
                 let dayWeek = dateObj.toLocaleDateString('it-IT', { weekday: 'short' }).toUpperCase();
                 let dayIdx = dateObj.getDay(); 
                 let holKey = `${mIdx}-${dNum}`;
                 let holidayName = HOLIDAYS[holKey];
-                
                 let isRed = (dayIdx === 0 || dayIdx === 6 || holidayName);
                 let dateClass = isRed ? "td-date date-red" : "td-date";
                 
@@ -1684,79 +2110,63 @@
                     <small>${dayWeek}</small>
                     ${holidayName ? `<div class="holiday-name">${holidayName}</div>` : ""}
                 `;
-                
                 tr.innerHTML = `<td class="${dateClass}">${dateHtml}</td>`;
 
-                // Conteggio autisti per turno
-                let countM = 0;
-                let countP = 0;
-
+                // ──────────────────────────────────────────────────────
+                // CONTATORI TURNI: solo M e P (N rimosso per pulizia)
+                // ──────────────────────────────────────────────────────
+                let countM = 0, countP = 0;
                 drivers.forEach(dr => {
-                    let cellData = row[dr.idx];
-                    let val = cellData.v ? cellData.v.toString().trim() : "";
+                    let val = (row[dr.idx]?.v || "").toString().trim();
                     let sType = normalizeShift(val);
-                    if(sType === "M") countM++;
+                    if(sType === "M" || sType === "MN") countM++;
                     if(sType === "P") countP++;
                 });
+
+                let dotsHtml = "";
+                if(countM > 0) dotsHtml += `<div class="sd sd-M${countM===1?' sd-solo':''}">${countM}</div>`;
+                if(countP > 0) dotsHtml += `<div class="sd sd-P${countP===1?' sd-solo':''}">${countP}</div>`;
+                // sd-N rimosso: il contatore notte non appare più nella colonna data
+                if(dotsHtml) {
+                    tr.querySelector('td').innerHTML += `<div class="shift-dots">${dotsHtml}</div>`;
+                }
 
                 cols.forEach(d => {
                     let cellInfo = row[d.idx];
                     let td = document.createElement('td');
-                    
                     let val = cellInfo.v ? cellInfo.v.toString().trim() : "";
                     let sType = normalizeShift(val);
                     let showDog = false;
                     let showAmbulance = false;
 
-                    // Logica Cane
                     if(sType === "M" && countM === 1) showDog = true;
                     if(sType === "P" && countP === 1) showDog = true;
 
-                    // Logica Ambulanza (Solo M, random una volta al mese)
                     if(sType === "M") {
                         let key = `${d.idx}-${mName}`;
-                        if (ambulanceMap[key] == dNum) {
-                            showAmbulance = true;
-                        }
+                        if (ambulanceMap[key] == dNum) showAmbulance = true;
                     }
 
                     td.innerHTML = formatCell(cellInfo, showDog, showAmbulance);
                     
-                    if(["M", "P", "N", "R", "MN"].includes(sType)) {
+                    if(["M", "P", "N", "R", "MN", "SM"].includes(sType)) {
                         td.onclick = () => openShiftModal(i, sType, mName, dNum, dayWeek);
                     }
                     tr.appendChild(td);
                 });
                 tbody.appendChild(tr);
             }
-
-            monthsFound.forEach(m => {
-                let btn = document.createElement('div');
-                btn.className = "chip chip-month";
-                btn.innerText = m.name.substr(0,3);
-                btn.onclick = () => {
-                    vibrate();
-                    document.querySelectorAll('.chip-month').forEach(b => b.classList.remove('active'));
-                    btn.classList.add('active');
-                    const el = document.getElementById(m.id);
-                    const headerHeight = 160; 
-                    const bodyRect = document.body.getBoundingClientRect().top;
-                    const elementRect = el.getBoundingClientRect().top;
-                    const elementPosition = elementRect - bodyRect;
-                    const offset = elementPosition - headerHeight;
-                    window.scrollTo({ top: offset, behavior: "smooth" });
-                };
-                nav.appendChild(btn);
-            });
         }
 
         function normalizeShift(val) {
-            let u = val.toUpperCase();
+            if (!val) return "";
+            let u = val.toString().toUpperCase().trim();
             if(u === "M+N" || u === "M + N") return "MN"; 
-            if(u === "M" || u.startsWith("MAT") || u === "M/R") return "M";
-            if(u === "P" || u.startsWith("POM")) return "P";
+            if(u === "M" || u.startsWith("MAT") || u === "M/R" || u === "m") return "M";
+            if(u === "P" || u.startsWith("POM") || u === "p") return "P";
             if(u === "N" || u.startsWith("NOT")) return "N";
             if(u === "R" || u.startsWith("RIP")) return "R";
+            if(u === "SM" || u.startsWith("SMO")) return "SM";
             return "";
         }
 
@@ -1766,52 +2176,168 @@
             let list = document.getElementById('modal-list');
             let title = document.getElementById('modal-title');
             let sub = document.getElementById('modal-subtitle');
-            let modalContent = document.querySelector('#shift-modal .modal-content');
-            
-            modalContent.classList.remove('modal-theme-M', 'modal-theme-P', 'modal-theme-N', 'modal-theme-R', 'modal-theme-MN');
-            modalContent.classList.add('modal-theme-' + shiftType);
+            let mc = document.querySelector('#shift-modal .modal-content');
+            mc.className = mc.className.replace(/modal-theme-\w+/g, '');
+            mc.classList.add('modal-theme-' + shiftType);
             list.innerHTML = "";
-            
-            let fullShiftName = "";
-            let iconHtml = "";
-            if(shiftType === "M") { fullShiftName = "MATTINA"; iconHtml = '<span class="material-icons-round">wb_sunny</span>'; }
-            if(shiftType === "P") { fullShiftName = "POMERIGGIO"; iconHtml = '<span class="material-icons-round">wb_twilight</span>'; }
-            if(shiftType === "N") { fullShiftName = "NOTTE"; iconHtml = '<span class="material-icons-round">bedtime</span>'; }
-            if(shiftType === "R") { fullShiftName = "RIPOSO"; iconHtml = '<span class="material-icons-round">weekend</span>'; }
-            if(shiftType === "MN") { fullShiftName = "MATTINA + NOTTE"; iconHtml = '<span class="material-icons-round">schedule</span>'; }
 
-            title.innerHTML = `${iconHtml} ${fullShiftName}`;
+            const shiftMeta = {
+                "M":  { name:"MATTINA",       icon:"wb_sunny",      time:"6:30 \u2013 13:15" },
+                "P":  { name:"POMERIGGIO",    icon:"wb_twilight",   time:"12:45 \u2013 20:10" },
+                "N":  { name:"NOTTE",         icon:"bedtime",       time:"19:45 \u2013 00:00" },
+                "SM": { name:"SMONTO",        icon:"night_shelter", time:"00:00 \u2013 07:20" },
+                "R":  { name:"RIPOSO",        icon:"weekend",       time:"Giorno libero" },
+                "MN": { name:"MAT + NOTTE",   icon:"schedule",      time:"6:30\u201313:15 \u00b7 19:45\u201300:00" }
+            };
+            let meta = shiftMeta[shiftType] || { name: shiftType, icon:"schedule", time:"" };
+            title.innerHTML = `<span class="material-icons-round">${meta.icon}</span> ${meta.name}`;
             sub.innerText = `${weekDay} ${day} ${month}`;
-            
-            let found = 0;
+
+            function isAbsenceOrEmpty(val) {
+                if (!val || val === '-' || val === '.' || val === '0') return true;
+                let u = val.toUpperCase().trim();
+                if (u.includes('FER') || u.includes('CONG') || u.includes('PERM') ||
+                    u.includes('MAL') || u.includes('REC') ||
+                    u === 'NL' || u === 'NG' || u === 'K') return true;
+                if (normalizeShift(val) === 'R') return true;
+                return false;
+            }
+
+            // ══ AUTISTI: solo quelli nel turno cliccato ══
+            let driverHeader = document.createElement('div');
+            driverHeader.className = "modal-section-header modal-section-driver";
+            driverHeader.innerHTML = `<span class="material-icons-round" style="font-size:17px">drive_eta</span> AUTISTI \u2014 ${meta.name}`;
+            list.appendChild(driverHeader);
+
+            let driversInShift = [];
             drivers.forEach(d => {
-                let cellData = row[d.idx];
-                let val = cellData.v ? cellData.v.toString().trim() : "";
+                let val = (row[d.idx]?.v || "").toString().trim();
+                if (isAbsenceOrEmpty(val)) return;
+                if (normalizeShift(val) !== shiftType) return;
                 
-                if(normalizeShift(val) === shiftType) {
-                    found++;
-                    let time = "";
-                    
-                    if(val === "m" || val.startsWith('m')) time = "6:30-13:42";
-                    else if(val === "p" || val.startsWith('p')) time = "13:15-20:27"; 
+                // Salviamo anche il valore originale (rawVal) per poter identificare i minuscoli
+                driversInShift.push({ 
+                    name: d.name, 
+                    isRep: val.toLowerCase().includes("/r"),
+                    rawVal: val 
+                });
+            });
 
-                    else if(val === "M/R") time = "6:30-13:15";
-                    else time = SCHEDULE[val] || SCHEDULE[val.toUpperCase()] || SCHEDULE[val.charAt(0).toUpperCase()] || "";
+            if (driversInShift.length === 0) {
+                let nd = document.createElement('div');
+                nd.className = "nurse-loading";
+                nd.innerHTML = `<span class="material-icons-round" style="color:var(--text-sec);font-size:16px">person_off</span> Nessun autista in ${meta.name}`;
+                list.appendChild(nd);
+            } else {
+                driversInShift.forEach(({ name, isRep, rawVal }) => {
+                    let firstChar = rawVal.charAt(0);
+                    let specificTime = meta.time;
+                    let isDiurno = false;
 
-                    if(shiftType === "R") time = "Riposo"; 
-                    if(shiftType === "MN") time = "6:30-13:15 + 19:45-00:00"; 
-
-                    let isRep = (val.toLowerCase().includes("/r") || val === "M/R");
-                    let repTag = isRep ? `<span class="rep-badge" style="margin-left:8px">REP</span>` : "";
+                    // Controlliamo se la prima lettera è minuscola (Diurnista)
+                    if (firstChar === 'm') {
+                        specificTime = "6:30 \u2013 13:42";
+                        isDiurno = true;
+                    } else if (firstChar === 'p') {
+                        specificTime = "13:15 \u2013 20:27";
+                        isDiurno = true;
+                    }
 
                     let div = document.createElement('div');
                     div.className = "colleague-item";
-                    div.innerHTML = `<span class="c-name">${d.name} ${repTag}</span><span class="c-time">${time}</span>`;
+                    div.innerHTML = `
+                        <span class="c-name">
+                            <span class="material-icons-round" style="font-size:14px;color:#2563eb;margin-right:5px;vertical-align:middle">person</span>
+                            ${name}
+                            ${isDiurno ? '<span style="font-size:0.65rem; background:var(--bg); color:var(--text-sec); padding:3px 6px; border-radius:6px; margin-left:6px; font-weight:800; border:1px solid var(--border); letter-spacing:0.5px;">DIURNO</span>' : ''}
+                            ${isRep ? ' <span class="rep-badge" style="margin-left:6px">REP</span>' : ''}
+                        </span>
+                        <span class="c-time">${specificTime}</span>`;
                     list.appendChild(div);
+                });
+            }
+
+            // ══ NOTA: la sezione REPERIBILI separata è stata rimossa.
+            //    Il badge REP rosso è già mostrato accanto al nome dell'autista. ══
+
+            // ══ INFERMIERI: solo quelli nel turno cliccato ══
+            let nHeader = document.createElement('div');
+            nHeader.className = "modal-section-header modal-section-nurse";
+            nHeader.innerHTML = `<span class="material-icons-round" style="font-size:17px">medical_services</span> INFERMIERI \u2014 ${meta.name}`;
+            list.appendChild(nHeader);
+
+            if (!nursesLoaded) {
+                let ld = document.createElement('div');
+                ld.className = "nurse-loading";
+                ld.innerHTML = `<div class="spinner" style="width:22px;height:22px;border-width:3px;margin:0"></div> <span>Caricamento infermieri...</span>`;
+                list.appendChild(ld);
+                loadNursesData().then(() => {
+                    if (nursesLoaded) openShiftModal(rowIndex, shiftType, month, day, weekDay);
+                });
+            } else {
+                let mUpper = (month || "").toString().toUpperCase().trim();
+                let nurseRow = null;
+                for (let k = 1; k < nursesData.length; k++) {
+                    let r = nursesData[k];
+                    if ((r[0].v || "").toString().toUpperCase().trim() === mUpper && parseInt(r[1].v) === day) {
+                        nurseRow = r; break;
+                    }
                 }
-            });
-            
-            if(found === 0) list.innerHTML = "<div style='text-align:center; color:var(--text-sec); padding:30px; font-weight:500'>Nessun altro collega in questo turno.</div>";
+                if (!nurseRow) {
+                    let nd = document.createElement('div');
+                    nd.className = "nurse-loading";
+                    nd.innerHTML = `<span class="material-icons-round" style="font-size:16px;color:var(--text-sec)">event_busy</span> Nessun dato infermieri per questa data`;
+                    list.appendChild(nd);
+                } else {
+                    let nurseFound = 0;
+                    nurses.forEach(n => {
+                        let val = (nurseRow[n.idx]?.v || "").toString().trim();
+                        if (isAbsenceOrEmpty(val)) return;
+                        if (normalizeShift(val) !== shiftType) return;
+                        nurseFound++;
+                        
+                        let firstChar = val.charAt(0);
+                        let specificTime = meta.time;
+                        let isDiurno = false;
+
+                        // Controlliamo se la prima lettera è minuscola (Diurnista)
+                        if (firstChar === 'm') {
+                            specificTime = "6:30 \u2013 13:42";
+                            isDiurno = true;
+                        } else if (firstChar === 'p') {
+                            specificTime = "13:15 \u2013 20:27";
+                            isDiurno = true;
+                        } else {
+                            // Fallback per gli altri turni
+                            specificTime = SCHEDULE[val.toUpperCase()] || SCHEDULE[shiftType] || meta.time;
+                        }
+
+                        let isRep = val.toLowerCase().includes("/r");
+                        
+                        let div = document.createElement('div');
+                        div.className = "colleague-item";
+                        div.innerHTML = `
+                            <span class="c-name nurse-name">
+                                <span class="material-icons-round" style="font-size:14px;color:#059669;margin-right:5px;vertical-align:middle">local_hospital</span>
+                                ${n.name}
+                                ${isDiurno ? '<span style="font-size:0.65rem; background:var(--bg); color:var(--text-sec); padding:3px 6px; border-radius:6px; margin-left:6px; font-weight:800; border:1px solid var(--border); letter-spacing:0.5px;">DIURNO</span>' : ''}
+                                ${isRep ? ' <span class="rep-badge" style="margin-left:6px">REP</span>' : ''}
+                            </span>
+                            <span class="nurse-shift-tag" style="text-align:right;">
+                                ${meta.name}<br>
+                                <span style="font-size:0.68rem;opacity:0.75">${specificTime}</span>
+                            </span>`;
+                        list.appendChild(div);
+                    });
+                    if (nurseFound === 0) {
+                        let nd = document.createElement('div');
+                        nd.className = "nurse-loading";
+                        nd.innerHTML = `<span class="material-icons-round" style="font-size:16px;color:var(--text-sec)">sentiment_satisfied</span> Nessun infermiere in ${meta.name}`;
+                        list.appendChild(nd);
+                    }
+                }
+            }
+
             let modal = document.getElementById('shift-modal');
             modal.style.display = 'flex';
             setTimeout(() => modal.classList.add('open'), 10);
@@ -1824,30 +2350,22 @@
             setTimeout(() => { modal.style.display = 'none'; }, 200);
         }
 
-        // --- RICONOSCIMENTO COLORI ---
         function detectColorCategory(argb) {
             if(!argb || argb.length < 8) return null;
             let r = parseInt(argb.substring(2, 4), 16);
             let g = parseInt(argb.substring(4, 6), 16);
             let b = parseInt(argb.substring(6, 8), 16);
-            
             if(isNaN(r) || isNaN(g) || isNaN(b)) return null;
-
             if (r > g + 40 && r > b + 40) return { lbl: "MALATTIA", cls: "spec-red" };
-
             let blueDominant = (b > r + 40 && b > g + 40);
             let cyanDominant = (b > r + 40 && g > r + 40); 
             if (blueDominant || cyanDominant) return { lbl: "FESTIVO<br>NON GODUTO", cls: "spec-blue" };
-
             if (g > r && g > b) return { lbl: "PERMESSO<br>STRAORD.", cls: "spec-green" };
-            
             if (r > b && r > g) {
                 if (g > 180 && g >= r * 0.8) return { lbl: "CONGEDO<br>ORDINARIO", cls: "spec-yellow" };
                 if (g > 80 && g < r * 0.8) return { lbl: "FERIE<br>RESIDUE", cls: "spec-orange" };
             }
-            
             if ((r > 150 && b > 100) || (r > g && b > g)) return { lbl: "RECUPERO", cls: "spec-pink" };
-            
             return null; 
         }
 
@@ -1862,7 +2380,7 @@
             const ambHtml = '<img src="ambulanza.png" class="ambulance-icon" alt="game" onclick="openGameModal(event)">';
 
             if(u === "M+N" || u === "M + N") {
-                 return `<div class="cell t-MN">
+                return `<div class="cell t-MN">
                             <div>MAT+NOT</div>
                             <div class="time-tag">6:30-13:15</div>
                             <div class="time-tag">19:45-00:00</div>
@@ -1870,15 +2388,10 @@
             }
 
             if(u === "NL" || subVal === "NL") return renderSpecial("FESTIVO<br>NON LAVORATO", "spec-nl");
-
             if(subVal === "NG") return renderSpecial("FESTIVO<br>NON GODUTO", "spec-blue");
-            
-            // --- MODIFICA RICHIESTA: SE MALATTIA, METTI ROSSO QUI ---
             if(subVal === "M" || subVal === "MALATTIA" || subVal === "MAL" || u === "MALATTIA" || u === "MAL") {
                 return renderSpecial("MALATTIA", "spec-red");
             }
-            
-            // NUOVO: K = DISTACCO SPECIALE
             if(subVal === "K" || u === "K") return renderSpecial("DISTACCO<br>SPECIALE", "spec-purple");
             
             if (subColor && !subColor.startsWith('FFFFFFFF') && subColor !== 'FF000000' && subColor.length >= 6) {
@@ -1917,15 +2430,14 @@
 
             if (firstChar === 'm' || firstChar === 'p') {
                 if (firstChar === 'm') {
-                      display = "MATTINA";
-                      time = "6:30-13:42";
+                    display = "MATTINA";
+                    time = "6:30-13:42";
                 } else {
-                      display = "POMERIGGIO";
-                      time = "13:15-20:27";
+                    display = "POMERIGGIO";
+                    time = "13:15-20:27";
                 }
                 cls += " t-diurno"; 
-            }
-            else {
+            } else {
                 if(u.startsWith("M")) { display = "MATTINA"; cls += " t-M"; }
                 else if(u.startsWith("P")) { display = "POMERIGGIO"; cls += " t-P"; }
                 else if(u.startsWith("N")) { display = "NOTTE"; cls += " t-N"; }
@@ -1942,10 +2454,8 @@
 
             let isRep = false;
             if (rawVal.toLowerCase().includes("/r")) isRep = true; 
-            
             let repHtml = isRep ? `<div class="rep-badge">REPERIBILE</div>` : "";
 
-            // INIETTIAMO IL CANE e/o L'AMBULANZA
             return `<div class="${cls}">
                 ${showDog ? dogHtml : ''}
                 ${showAmbulance ? ambHtml : ''}
@@ -1955,9 +2465,600 @@
             </div>`;
         }
 
+        // =========================================================
+        // DINNER / ORGANIZZA USCITA
+        // =========================================================
+        let selectedDinnerDrivers = new Set();
+        let selectedDinnerNurses = new Set();
+        let dinnerMonth = "";
+        let dinnerEventType = "colazione";
+
+        function isPersonFree(shiftCode, eventType) {
+            let st = normalizeShift(shiftCode);
+            let u = shiftCode.toUpperCase();
+            if (u.includes('MAL') || u.includes('FER') || u.includes('CONG') || u === 'NL') return 'absent';
+            switch(eventType) {
+                case 'colazione': return (st === 'R' || st === 'P' || st === '' || st === 'SM') ? 'free' : 'busy';
+                case 'pranzo':    return (st === 'R' || st === 'P' || st === 'SM' || st === '') ? 'free' : 'busy';
+                case 'aperitivo': return (st === 'R' || st === 'M' || st === 'SM' || st === '') ? 'free' : 'busy';
+                case 'cena':      return (st === 'R' || st === 'SM' || st === 'M' || st === '') ? 'free' : 'busy';
+                default:          return (st === 'R' || st === '') ? 'free' : 'busy';
+            }
+        }
+
+        function openDinnerModal() {
+            if(document.getElementById('menu-dropdown').style.display === 'flex') toggleMenu();
+            vibrate();
+            const modal = document.getElementById('dinner-modal');
+            document.getElementById('dinner-step-1').style.display = 'block';
+            document.getElementById('dinner-step-2').style.display = 'none';
+
+            const ml = document.getElementById('dinner-month-list');
+            ml.innerHTML = '';
+            globalMonthsList.forEach(m => {
+                let btn = document.createElement('div');
+                btn.className = 'chip' + (dinnerMonth === m.name ? ' active' : '');
+                btn.innerText = m.name.substr(0,3);
+                btn.onclick = () => {
+                    dinnerMonth = m.name;
+                    ml.querySelectorAll('.chip').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                };
+                ml.appendChild(btn);
+            });
+            if (!dinnerMonth && globalMonthsList.length > 0) {
+                dinnerMonth = globalMonthsList[0].name;
+                ml.children[0] && ml.children[0].classList.add('active');
+            }
+
+            document.querySelectorAll('.event-tile').forEach(t => {
+                t.classList.toggle('active', t.dataset.type === dinnerEventType);
+            });
+
+            buildDinnerPersonList('driver');
+            buildDinnerNurseList();
+
+            modal.style.display = 'flex';
+            setTimeout(() => modal.classList.add('open'), 10);
+        }
+
+        function buildDinnerPersonList(group) {
+            const dl = document.getElementById('dinner-driver-list');
+            dl.innerHTML = '';
+            drivers.forEach(d => {
+                let isChecked = selectedDinnerDrivers.has(d.idx);
+                let item = document.createElement('label');
+                item.className = `dinner-check-item ${isChecked ? 'checked' : ''}`;
+                item.innerHTML = `
+                    <input type="checkbox" value="${d.idx}" ${isChecked ? 'checked' : ''} onchange="toggleDinnerPerson('driver', ${d.idx}, this)">
+                    <div class="dinner-check-icon"><span class="material-icons-round" style="font-size:13px">person</span></div>
+                    ${d.name}`;
+                dl.appendChild(item);
+            });
+        }
+
+        function buildDinnerNurseList() {
+            const nl = document.getElementById('dinner-nurse-list');
+            const status = document.getElementById('dinner-nurse-status');
+            nl.innerHTML = '';
+            if (!nursesLoaded || nurses.length === 0) {
+                status.innerHTML = `<span class="material-icons-round" style="font-size:13px;vertical-align:middle">cloud_off</span> Dati infermieri non ancora caricati`;
+                return;
+            }
+            status.innerHTML = '';
+            nurses.forEach(n => {
+                let isChecked = selectedDinnerNurses.has(n.idx);
+                let item = document.createElement('label');
+                item.className = `dinner-check-item ${isChecked ? 'checked' : ''}`;
+                item.innerHTML = `
+                    <input type="checkbox" value="${n.idx}" ${isChecked ? 'checked' : ''} onchange="toggleDinnerPerson('nurse', ${n.idx}, this)">
+                    <div class="dinner-check-icon" style="border-color:#059669"><span class="material-icons-round" style="font-size:13px;color:#059669">local_hospital</span></div>
+                    ${n.name}`;
+                nl.appendChild(item);
+            });
+        }
+
+        function toggleDinnerPerson(group, idx, el) {
+            let set = group === 'driver' ? selectedDinnerDrivers : selectedDinnerNurses;
+            if (set.has(idx)) { set.delete(idx); el.parentElement.classList.remove('checked'); }
+            else { set.add(idx); el.parentElement.classList.add('checked'); }
+        }
+
+        function toggleAllGroup(group) {
+            let listId = group === 'driver' ? 'dinner-driver-list' : 'dinner-nurse-list';
+            let set = group === 'driver' ? selectedDinnerDrivers : selectedDinnerNurses;
+            const all = document.querySelectorAll(`#${listId} .dinner-check-item`);
+            const anyChecked = set.size > 0;
+            set.clear();
+            all.forEach(item => {
+                const cb = item.querySelector('input');
+                if (!anyChecked) { set.add(parseInt(cb.value)); item.classList.add('checked'); cb.checked = true; }
+                else { item.classList.remove('checked'); cb.checked = false; }
+            });
+        }
+
+        function closeDinnerModal(e) {
+            if (e && e.target !== e.currentTarget) return;
+            let modal = document.getElementById('dinner-modal');
+            modal.classList.remove('open');
+            setTimeout(() => modal.style.display = 'none', 300);
+        }
+
+        function setEventType(type, el) {
+            dinnerEventType = type;
+            document.querySelectorAll('.event-tile').forEach(o => o.classList.remove('active'));
+            el.classList.add('active');
+        }
+
+        function resetDinnerStep() {
+            document.getElementById('dinner-step-1').style.display = 'block';
+            document.getElementById('dinner-step-2').style.display = 'none';
+        }
+
+        const EVENT_LABELS = {
+            colazione: { label:"Colazione", icon:"free_breakfast", color:"#d97706" },
+            pranzo: { label:"Pranzo", icon:"wb_sunny", color:"#059669" },
+            aperitivo: { label:"Aperitivo", icon:"local_bar", color:"#7c3aed" },
+            cena: { label:"Cena", icon:"dinner_dining", color:"#2563eb" }
+        };
+
+        function calculateDinner() {
+            if (!dinnerMonth) { alert("Seleziona un mese!"); return; }
+            const evMeta = EVENT_LABELS[dinnerEventType] || EVENT_LABELS.cena;
+            const targetDriverIdxs = selectedDinnerDrivers.size > 0 ? [...selectedDinnerDrivers] : drivers.map(d => d.idx);
+            const targetNurseIdxs  = selectedDinnerNurses.size > 0  ? [...selectedDinnerNurses]  : (nursesLoaded ? nurses.map(n => n.idx) : []);
+            const results = [];
+
+            finalData.forEach((row, i) => {
+                if (i === 0) return;
+                if (!row[0].v || row[0].v !== dinnerMonth) return;
+                let dNum = parseInt(row[1].v);
+                let nurseRow = null;
+                let mUpper = dinnerMonth.toUpperCase().trim();
+                if (nursesLoaded) {
+                    for (let k=1; k<nursesData.length; k++) {
+                        if (nursesData[k][0].v?.toString().toUpperCase().trim() === mUpper && parseInt(nursesData[k][1].v) === dNum) {
+                            nurseRow = nursesData[k]; break;
+                        }
+                    }
+                }
+
+                let freeDrivers=[], busyDrivers=[], absentDrivers=[];
+                targetDriverIdxs.forEach(dIdx => {
+                    let d = drivers.find(x => x.idx === dIdx);
+                    if (!d) return;
+                    let val = (row[d.idx]?.v || "").toString().trim();
+                    let res = isPersonFree(val, dinnerEventType);
+                    if (res === 'free') freeDrivers.push(d.name);
+                    else if (res === 'absent') absentDrivers.push(d.name);
+                    else busyDrivers.push(d.name);
+                });
+
+                let freeNurses=[], busyNurses=[];
+                if (nurseRow) {
+                    targetNurseIdxs.forEach(nIdx => {
+                        let n = nurses.find(x => x.idx === nIdx);
+                        if (!n) return;
+                        let val = (nurseRow[n.idx]?.v || "").toString().trim();
+                        let res = isPersonFree(val, dinnerEventType);
+                        if (res === 'free') freeNurses.push(n.name);
+                        else if (res !== 'absent') busyNurses.push(n.name);
+                    });
+                }
+
+                let totalPeople = targetDriverIdxs.length + targetNurseIdxs.length;
+                let totalFree   = freeDrivers.length + freeNurses.length;
+                let score = totalPeople > 0 ? Math.round((totalFree / totalPeople) * 100) : 0;
+                results.push({ day: dNum, month: dinnerMonth, freeDrivers, busyDrivers, absentDrivers, freeNurses, busyNurses, totalFree, totalPeople, score });
+            });
+
+            results.sort((a, b) => b.score - a.score || a.day - b.day);
+
+            let summaryEl = document.getElementById('dinner-results-summary');
+            const evTimings = { colazione: "Prima delle 6:30", pranzo: "~12:00-14:00", aperitivo: "~17:00-20:00", cena: "Dalle 20:30" };
+            summaryEl.innerHTML = `
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+                    <span class="material-icons-round" style="color:${evMeta.color}">${evMeta.icon}</span>
+                    <span style="font-weight:800;font-size:0.9rem;color:var(--text-main)">${evMeta.label}</span>
+                    <span style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:2px 8px;font-size:0.7rem;font-weight:600;color:var(--text-sec)">${evTimings[dinnerEventType]||''}</span>
+                </div>
+                <div style="font-size:0.75rem;color:var(--text-sec)">${dinnerMonth} &nbsp;·&nbsp; ${results.length} giorni analizzati &nbsp;·&nbsp; Top ${Math.min(15,results.length)} risultati</div>
+            `;
+
+            const rc = document.getElementById('dinner-results-container');
+            rc.innerHTML = '';
+            if (results.length === 0) {
+                rc.innerHTML = '<div style="padding:30px;text-align:center;color:var(--text-sec)">Nessun risultato.</div>';
+            } else {
+                results.slice(0, 15).forEach((r, idx) => {
+                    let mIdx = MONTH_MAP[r.month];
+                    let dateObj = new Date(2026, mIdx, r.day);
+                    let dayName = dateObj.toLocaleDateString('it-IT', { weekday: 'long' });
+                    let isWeekend = [0,6].includes(dateObj.getDay());
+                    let scoreColor = r.score >= 80 ? '#15803d' : r.score >= 50 ? '#d97706' : '#dc2626';
+                    let scoreBg    = r.score >= 80 ? '#dcfce7' : r.score >= 50 ? '#fef3c7' : '#fee2e2';
+                    let medal = idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : '';
+
+                    let card = document.createElement('div');
+                    card.className = 'dinner-result-card';
+                    if (isWeekend) card.style.borderLeftColor = '#f59e0b';
+                    if (idx === 0) card.style.cssText += 'border:2px solid ' + scoreColor + ';';
+
+                    card.innerHTML = `
+                        <div class="d-res-header">
+                            <div>
+                                <span class="d-res-date">${medal} ${dayName.charAt(0).toUpperCase()+dayName.slice(1)} ${r.day} ${r.month}${isWeekend ? ' 🌟' : ''}</span>
+                                <div style="font-size:0.68rem;color:var(--text-sec);margin-top:3px;display:flex;align-items:center;gap:6px">
+                                    <span style="background:#dbeafe;color:#1e40af;padding:2px 7px;border-radius:6px;font-weight:700">🚗 ${r.freeDrivers.length} autisti</span>
+                                    ${r.freeNurses.length > 0 ? `<span style="background:#d1fae5;color:#065f46;padding:2px 7px;border-radius:6px;font-weight:700">🏥 ${r.freeNurses.length} infermieri</span>` : ''}
+                                </div>
+                            </div>
+                            <div style="text-align:right">
+                                <span class="d-res-score" style="background:${scoreBg};color:${scoreColor}">${r.score}%</span>
+                                <div style="font-size:0.6rem;color:var(--text-sec);margin-top:3px">${r.totalFree}/${r.totalPeople} liberi</div>
+                            </div>
+                        </div>
+                        ${r.freeDrivers.length > 0 ? `<div style="margin-bottom:6px">
+                            <div style="font-size:0.62rem;color:#1e40af;font-weight:800;margin-bottom:4px;text-transform:uppercase;display:flex;align-items:center;gap:4px"><span class="material-icons-round" style="font-size:11px">drive_eta</span> Autisti disponibili</div>
+                            <div class="missing-list">${r.freeDrivers.map(n=>`<span style="background:#dbeafe;color:#1e40af;font-size:0.7rem;font-weight:700;padding:4px 9px;border-radius:8px">${n}</span>`).join('')}</div>
+                        </div>` : ''}
+                        ${r.freeNurses.length > 0 ? `<div style="margin-bottom:6px">
+                            <div style="font-size:0.62rem;color:#065f46;font-weight:800;margin-bottom:4px;text-transform:uppercase;display:flex;align-items:center;gap:4px"><span class="material-icons-round" style="font-size:11px">local_hospital</span> Infermieri disponibili</div>
+                            <div class="missing-list">${r.freeNurses.map(n=>`<span style="background:#d1fae5;color:#065f46;font-size:0.7rem;font-weight:700;padding:4px 9px;border-radius:8px">${n}</span>`).join('')}</div>
+                        </div>` : ''}
+                        ${r.busyDrivers.length > 0 ? `<div style="margin-bottom:4px">
+                            <div style="font-size:0.62rem;color:#b45309;font-weight:800;margin-bottom:4px;text-transform:uppercase;display:flex;align-items:center;gap:4px"><span class="material-icons-round" style="font-size:11px">work</span> Autisti in turno</div>
+                            <div class="missing-list">${r.busyDrivers.map(n=>`<span class="missing-badge">${n}</span>`).join('')}</div>
+                        </div>` : ''}
+                        ${r.busyNurses.length > 0 ? `<div style="margin-bottom:4px">
+                            <div style="font-size:0.62rem;color:#b45309;font-weight:800;margin-bottom:4px;text-transform:uppercase;display:flex;align-items:center;gap:4px"><span class="material-icons-round" style="font-size:11px">work</span> Infermieri in turno</div>
+                            <div class="missing-list">${r.busyNurses.map(n=>`<span class="missing-badge" style="background:#fef3c7;color:#92400e">${n}</span>`).join('')}</div>
+                        </div>` : ''}
+                        ${r.absentDrivers.length > 0 ? `<div style="margin-bottom:2px">
+                            <div class="missing-list">${r.absentDrivers.map(n=>`<span class="warning-badge">🏥 ${n}</span>`).join('')}</div>
+                        </div>` : ''}
+                    `;
+                    rc.appendChild(card);
+                });
+            }
+
+            document.getElementById('dinner-step-1').style.display = 'none';
+            document.getElementById('dinner-step-2').style.display = 'block';
+        }
+
+        // =========================================================
+        // STATISTICHE
+        // =========================================================
+        const SHIFT_HOURS = {
+            "M": 6.75, "P": 7.42, "N": 4.25, "SM": 7.33, "MN": 11.0
+        };
+
+        function openStatsSelection() {
+            if(document.getElementById('menu-dropdown').style.display === 'flex') toggleMenu();
+            vibrate();
+            const container = document.getElementById('stats-container');
+            container.innerHTML = '';
+            const modal = document.getElementById('stats-modal');
+            let intro = document.createElement('div');
+            intro.style.cssText = "padding:16px 20px;font-size:0.82rem;color:var(--text-sec);border-bottom:1px solid var(--border);";
+            intro.innerText = "Seleziona un autista per vedere le statistiche complete 2026";
+            container.appendChild(intro);
+            drivers.forEach(d => {
+                let item = document.createElement('div');
+                item.className = 'driver-list-item';
+                item.innerHTML = `<div style="display:flex;align-items:center;gap:10px"><span class="material-icons-round" style="color:var(--primary);font-size:20px">person</span><span>${d.name}</span></div><span class="material-icons-round" style="color:var(--text-sec)">chevron_right</span>`;
+                item.onclick = () => { vibrate(); showDriverStats(d); };
+                container.appendChild(item);
+            });
+            modal.style.display = 'flex';
+            setTimeout(() => modal.classList.add('open'), 10);
+        }
+
+        function closeStatsModal() {
+            vibrate();
+            const modal = document.getElementById('stats-modal');
+            modal.classList.remove('open');
+            setTimeout(() => modal.style.display = 'none', 300);
+        }
+
+        function showDriverStats(driver) {
+            vibrate();
+            const container = document.getElementById('stats-container');
+            container.innerHTML = '';
+
+            let backBtn = document.createElement('div');
+            backBtn.style.cssText = "padding:14px 20px;display:flex;align-items:center;gap:10px;cursor:pointer;color:var(--primary);font-weight:700;font-size:0.9rem;border-bottom:1px solid var(--border);background:var(--bg-card);flex-shrink:0;";
+            backBtn.innerHTML = `<span class="material-icons-round">arrow_back</span> Tutti gli autisti`;
+            backBtn.onclick = openStatsSelection;
+            container.appendChild(backBtn);
+
+            let stats = {};
+            let totals = { M:0, P:0, N:0, SM:0, R:0, MN:0, FERIE:0, CONG:0, PERM:0, MAL:0, REC:0, NL:0, NG:0, ORE:0 };
+            let weekData = {};
+
+            for (let i=1; i<finalData.length; i++) {
+                let row = finalData[i];
+                let mName = row[0].v; if(!mName) continue;
+                let dNum = parseInt(row[1].v); if(!dNum) continue;
+                let cellData = row[driver.idx]; if(!cellData) continue;
+                let val = cellData.v ? cellData.v.toString().trim() : "";
+                let subVal = cellData.subV ? cellData.subV.toString().trim().toUpperCase() : "";
+                let color = cellData.c || "";
+                let u = val.toUpperCase();
+
+                if (!stats[mName]) stats[mName] = { M:0,P:0,N:0,SM:0,R:0,MN:0,FERIE:0,CONG:0,PERM:0,MAL:0,REC:0,NL:0,NG:0,ORE:0 };
+                let ms = stats[mName];
+                let st = normalizeShift(val);
+                let isSpecial = false;
+
+                if (subVal === "NL" || u === "NL") { ms.NL++; totals.NL++; isSpecial = true; }
+                else if (subVal === "NG") { ms.NG++; totals.NG++; isSpecial = true; }
+                else if (subVal === "M" || subVal === "MAL" || u === "MALATTIA" || u === "MAL") { ms.MAL++; totals.MAL++; isSpecial = true; }
+                else if (subVal === "F" || subVal.includes("CONG") || u === "F") { ms.CONG++; totals.CONG++; isSpecial = true; }
+                else if (subVal === "V" || subVal.includes("FER") || u.includes("FER")) { ms.FERIE++; totals.FERIE++; isSpecial = true; }
+                else if (subVal === "R" || subVal.includes("REC") || u.includes("REC")) { ms.REC++; totals.REC++; isSpecial = true; }
+                else if (subVal === "P" || subVal.includes("PER") || u.includes("PERM")) { ms.PERM++; totals.PERM++; isSpecial = true; }
+                else if (color) {
+                    let cat = detectColorCategory(color);
+                    if (cat) {
+                        if (cat.cls==="spec-red") { ms.MAL++; totals.MAL++; isSpecial=true; }
+                        else if (cat.cls==="spec-orange") { ms.FERIE++; totals.FERIE++; isSpecial=true; }
+                        else if (cat.cls==="spec-yellow") { ms.CONG++; totals.CONG++; isSpecial=true; }
+                        else if (cat.cls==="spec-green") { ms.PERM++; totals.PERM++; isSpecial=true; }
+                        else if (cat.cls==="spec-pink") { ms.REC++; totals.REC++; isSpecial=true; }
+                        else if (cat.cls==="spec-blue") { ms.NG++; totals.NG++; isSpecial=true; }
+                    }
+                }
+
+                if (!isSpecial && st === "R") { ms.R++; totals.R++; }
+                else if (!isSpecial && st) {
+                    let ore = SHIFT_HOURS[st] || 0;
+                    ms[st]++; totals[st]++;
+                    ms.ORE += ore; totals.ORE += ore;
+                    let mIdx = MONTH_MAP[mName];
+                    if (mIdx !== undefined) {
+                        let wk = `W${getWeekNumber(new Date(2026, mIdx, dNum))}`;
+                        if (!weekData[wk]) weekData[wk] = 0;
+                        weekData[wk] += ore;
+                    }
+                }
+            }
+
+            let oreAnno = totals.ORE;
+            let turniLavorati = totals.M + totals.P + totals.N + totals.SM + totals.MN;
+            let weekVals = Object.values(weekData);
+            let oreSettMedia = weekVals.length > 0 ? weekVals.reduce((a,b)=>a+b,0)/weekVals.length : 0;
+            // Notte e Smonto unificati + MN
+            let nottiTot = totals.N + totals.SM + totals.MN;
+            let nottiNS  = totals.N + totals.SM;  // Notte+Smonto insieme
+            let oreNottiNS = (totals.N * SHIFT_HOURS.N) + (totals.SM * SHIFT_HOURS.SM);
+            let oreNotti = oreNottiNS + (totals.MN * SHIFT_HOURS.MN);
+            let totalAssenze = totals.FERIE + totals.CONG + totals.PERM + totals.MAL + totals.REC + totals.NL + totals.NG;
+
+            let html = `<div style="padding:0 0 40px 0;">`;
+
+            html += `<div style="padding:20px 20px 24px;background:linear-gradient(135deg,#1e3a8a,#2563eb,#3b82f6);color:white;">
+                <div style="font-size:1.3rem;font-weight:900;margin-bottom:2px;display:flex;align-items:center;gap:8px">
+                    <span class="material-icons-round" style="font-size:22px;opacity:0.9">drive_eta</span>${driver.name}
+                </div>
+                <div style="font-size:0.72rem;opacity:0.75;margin-bottom:16px;letter-spacing:0.5px">STATISTICHE ANNO 2026</div>
+                <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
+                    <div style="background:rgba(255,255,255,0.18);border-radius:14px;padding:14px 10px;text-align:center">
+                        <div style="font-size:2rem;font-weight:900;line-height:1">${oreAnno.toFixed(0)}</div>
+                        <div style="font-size:0.6rem;opacity:0.85;margin-top:4px;font-weight:600;letter-spacing:0.5px">ORE TOTALI</div>
+                    </div>
+                    <div style="background:rgba(255,255,255,0.18);border-radius:14px;padding:14px 10px;text-align:center">
+                        <div style="font-size:2rem;font-weight:900;line-height:1">${oreSettMedia.toFixed(1)}</div>
+                        <div style="font-size:0.6rem;opacity:0.85;margin-top:4px;font-weight:600;letter-spacing:0.5px">ORE/SETT.</div>
+                    </div>
+                    <div style="background:rgba(255,255,255,0.18);border-radius:14px;padding:14px 10px;text-align:center">
+                        <div style="font-size:2rem;font-weight:900;line-height:1">${turniLavorati}</div>
+                        <div style="font-size:0.6rem;opacity:0.85;margin-top:4px;font-weight:600;letter-spacing:0.5px">TURNI</div>
+                    </div>
+                </div>
+            </div>`;
+
+            html += `<div style="padding:18px 20px 8px;font-size:0.68rem;font-weight:800;color:var(--text-sec);text-transform:uppercase;letter-spacing:1.5px;display:flex;align-items:center;gap:6px"><span class="material-icons-round" style="font-size:16px">wb_sunny</span> Turni Diurni</div>`;
+            html += `<div style="padding:0 16px;display:grid;grid-template-columns:1fr 1fr;gap:10px">`;
+            html += `<div style="background:#dbeafe;border-radius:16px;padding:16px 14px"><div style="display:flex;align-items:center;gap:6px;margin-bottom:8px"><span class="material-icons-round" style="font-size:16px;color:#026bfe">wb_sunny</span><span style="font-size:0.7rem;font-weight:800;color:#026bfe;text-transform:uppercase">Mattina</span></div><div style="font-size:2.2rem;font-weight:900;color:#026bfe;line-height:1">${totals.M}</div><div style="font-size:0.62rem;color:#1e40af;font-weight:600;margin-top:4px">${(totals.M*SHIFT_HOURS.M).toFixed(1)} ore · 6:30-13:15</div></div>`;
+            html += `<div style="background:#e0e7ff;border-radius:16px;padding:16px 14px"><div style="display:flex;align-items:center;gap:6px;margin-bottom:8px"><span class="material-icons-round" style="font-size:16px;color:#3730a3">wb_twilight</span><span style="font-size:0.7rem;font-weight:800;color:#3730a3;text-transform:uppercase">Pomeriggio</span></div><div style="font-size:2.2rem;font-weight:900;color:#3730a3;line-height:1">${totals.P}</div><div style="font-size:0.62rem;color:#3730a3;font-weight:600;margin-top:4px">${(totals.P*SHIFT_HOURS.P).toFixed(1)} ore · 12:45-20:10</div></div>`;
+            html += `</div>`;
+
+            // ── NOTTURNI: Notte + Smonto unificati, poi MN separato ──
+            html += `<div style="padding:16px 20px 8px;font-size:0.68rem;font-weight:800;color:var(--text-sec);text-transform:uppercase;letter-spacing:1.5px;display:flex;align-items:center;gap:6px"><span class="material-icons-round" style="font-size:16px">bedtime</span> Turni Notturni</div>`;
+            html += `<div style="margin:0 16px;background:linear-gradient(135deg,#0f172a,#1e3a8a);border-radius:18px;padding:16px 14px;color:white">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+                    <div style="font-size:0.68rem;font-weight:800;opacity:0.75;text-transform:uppercase;letter-spacing:1px">TOTALE NOTTI</div>
+                    <div style="background:rgba(255,255,255,0.15);border-radius:10px;padding:4px 10px;font-size:0.72rem;font-weight:700">${oreNotti.toFixed(1)} ore</div>
+                </div>
+                <div style="font-size:3rem;font-weight:900;line-height:1;margin-bottom:14px">${nottiTot}</div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+                    <div style="background:rgba(255,255,255,0.12);border-radius:10px;padding:12px;text-align:center">
+                        <div style="font-size:0.58rem;font-weight:700;opacity:0.7;text-transform:uppercase;margin-bottom:6px;letter-spacing:0.5px">🌙 Notte / Smonto</div>
+                        <div style="font-size:2rem;font-weight:900;line-height:1">${nottiNS}</div>
+                        <div style="font-size:0.6rem;opacity:0.65;margin-top:4px">${oreNottiNS.toFixed(1)}h totali</div>
+                        ${totals.N > 0 && totals.SM > 0 ? `<div style="font-size:0.55rem;opacity:0.5;margin-top:3px">${totals.N} notti · ${totals.SM} smonti</div>` : ''}
+                    </div>
+                    <div style="background:rgba(255,255,255,0.12);border-radius:10px;padding:12px;text-align:center">
+                        <div style="font-size:0.58rem;font-weight:700;opacity:0.7;text-transform:uppercase;margin-bottom:6px;letter-spacing:0.5px">⚡ Mat + Notte</div>
+                        <div style="font-size:2rem;font-weight:900;line-height:1">${totals.MN}</div>
+                        <div style="font-size:0.6rem;opacity:0.65;margin-top:4px">${(totals.MN*SHIFT_HOURS.MN).toFixed(1)}h totali</div>
+                    </div>
+                </div>
+            </div>`;
+
+            if (totals.R > 0) {
+                html += `<div style="padding:16px 20px 8px;font-size:0.68rem;font-weight:800;color:var(--text-sec);text-transform:uppercase;letter-spacing:1.5px;display:flex;align-items:center;gap:6px"><span class="material-icons-round" style="font-size:16px">weekend</span> Riposi</div>`;
+                html += `<div style="margin:0 16px 4px;background:#dcfce7;border-radius:16px;padding:14px;display:flex;align-items:center;gap:14px"><span class="material-icons-round" style="font-size:28px;color:#15803d">weekend</span><div><div style="font-size:2rem;font-weight:900;color:#15803d;line-height:1">${totals.R}</div><div style="font-size:0.62rem;color:#166534;font-weight:600;margin-top:3px">giorni di riposo programmati</div></div></div>`;
+            }
+
+            const absenceList = [
+                {k:"FERIE",label:"Ferie",color:"#c2410c",bg:"#fff7ed",icon:"beach_access"},
+                {k:"CONG",label:"Congedo",color:"#854d0e",bg:"#fefce8",icon:"event_available"},
+                {k:"PERM",label:"Permesso",color:"#166534",bg:"#f0fdf4",icon:"timer"},
+                {k:"MAL",label:"Malattia",color:"#b91c1c",bg:"#fee2e2",icon:"local_hospital"},
+                {k:"REC",label:"Recupero",color:"#9d174d",bg:"#fdf2f8",icon:"replay"},
+                {k:"NG",label:"Fest. non goduto",color:"#0369a1",bg:"#e0f2fe",icon:"event_busy"},
+                {k:"NL",label:"Fest. non lavorato",color:"#0f766e",bg:"#f0fdfa",icon:"celebration"},
+            ];
+            let hasAbsences = absenceList.some(a => totals[a.k] > 0);
+            if (hasAbsences) {
+                html += `<div style="padding:16px 20px 8px;font-size:0.68rem;font-weight:800;color:var(--text-sec);text-transform:uppercase;letter-spacing:1.5px;display:flex;align-items:center;gap:6px"><span class="material-icons-round" style="font-size:16px">event_busy</span> Assenze e Permessi · ${totalAssenze} giorni</div>`;
+                html += `<div style="padding:0 16px;display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:6px">`;
+                absenceList.forEach(a => {
+                    if (totals[a.k] === 0) return;
+                    html += `<div style="background:${a.bg};border-radius:14px;padding:14px 12px;display:flex;align-items:center;gap:10px"><span class="material-icons-round" style="font-size:22px;color:${a.color}">${a.icon}</span><div><div style="font-size:1.6rem;font-weight:900;color:${a.color};line-height:1">${totals[a.k]}</div><div style="font-size:0.6rem;color:${a.color};opacity:0.85;font-weight:600;margin-top:2px">${a.label}</div></div></div>`;
+                });
+                html += `</div>`;
+            }
+
+            html += `<div style="padding:16px 20px 8px;font-size:0.68rem;font-weight:800;color:var(--text-sec);text-transform:uppercase;letter-spacing:1.5px;display:flex;align-items:center;gap:6px"><span class="material-icons-round" style="font-size:16px">calendar_month</span> Mese per Mese</div>`;
+            Object.entries(stats).forEach(([mName, ms]) => {
+                let oreMese = ms.ORE;
+                let turniMese = ms.M + ms.P + ms.N + ms.SM + ms.MN;
+                let nottiMese = ms.N + ms.SM + ms.MN;
+                let assenzeMese = ms.FERIE + ms.CONG + ms.PERM + ms.MAL + ms.REC + ms.NL + ms.NG;
+                html += `<div style="margin:0 16px 8px;background:var(--bg-card);border:1px solid var(--border);border-radius:16px;overflow:hidden">
+                    <div style="padding:12px 16px;display:flex;justify-content:space-between;align-items:center;background:var(--bg);border-bottom:1px solid var(--border)">
+                        <span style="font-weight:800;font-size:0.95rem">${mName}</span>
+                        <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:flex-end">
+                            ${turniMese > 0 ? `<span style="background:#dbeafe;color:#1e40af;padding:3px 8px;border-radius:8px;font-size:0.65rem;font-weight:700">${turniMese} turni</span>` : ""}
+                            ${nottiMese > 0 ? `<span style="background:#1e293b;color:#93c5fd;padding:3px 8px;border-radius:8px;font-size:0.65rem;font-weight:700">🌙 ${nottiMese} notti</span>` : ""}
+                            ${assenzeMese > 0 ? `<span style="background:#fee2e2;color:#b91c1c;padding:3px 8px;border-radius:8px;font-size:0.65rem;font-weight:700">${assenzeMese} assenze</span>` : ""}
+                            <span style="background:var(--primary);color:white;padding:3px 10px;border-radius:8px;font-size:0.68rem;font-weight:700">${oreMese.toFixed(0)}h</span>
+                        </div>
+                    </div>
+                    <div style="padding:12px 14px;display:flex;flex-wrap:wrap;gap:6px">
+                        ${ms.M>0?`<span style="background:#dbeafe;color:#1e40af;padding:5px 10px;border-radius:8px;font-size:0.68rem;font-weight:700">☀️ Mat ${ms.M}× · ${(ms.M*SHIFT_HOURS.M).toFixed(0)}h</span>`:""}
+                        ${ms.P>0?`<span style="background:#e0e7ff;color:#3730a3;padding:5px 10px;border-radius:8px;font-size:0.68rem;font-weight:700">🏗 Pom ${ms.P}× · ${(ms.P*SHIFT_HOURS.P).toFixed(0)}h</span>`:""}
+                        ${(ms.N+ms.SM)>0?`<span style="background:#1e293b;color:#93c5fd;padding:5px 10px;border-radius:8px;font-size:0.68rem;font-weight:700">🌙 Notte/Smonto ${ms.N+ms.SM}× · ${((ms.N*SHIFT_HOURS.N)+(ms.SM*SHIFT_HOURS.SM)).toFixed(0)}h</span>`:""}
+                        ${ms.MN>0?`<span style="background:#bfdbfe;color:#1e3a8a;padding:5px 10px;border-radius:8px;font-size:0.68rem;font-weight:700">⚡ M+N ${ms.MN}× · ${(ms.MN*SHIFT_HOURS.MN).toFixed(0)}h</span>`:""}
+                        ${ms.R>0?`<span style="background:#dcfce7;color:#15803d;padding:5px 10px;border-radius:8px;font-size:0.68rem;font-weight:700">💤 Riposo ${ms.R}×</span>`:""}
+                        ${ms.FERIE>0?`<span style="background:#fff7ed;color:#c2410c;padding:5px 10px;border-radius:8px;font-size:0.68rem;font-weight:700">🏖 Ferie ${ms.FERIE}</span>`:""}
+                        ${ms.CONG>0?`<span style="background:#fefce8;color:#854d0e;padding:5px 10px;border-radius:8px;font-size:0.68rem;font-weight:700">📋 Congedo ${ms.CONG}</span>`:""}
+                        ${ms.MAL>0?`<span style="background:#fee2e2;color:#b91c1c;padding:5px 10px;border-radius:8px;font-size:0.68rem;font-weight:700">🏥 Malattia ${ms.MAL}</span>`:""}
+                        ${ms.REC>0?`<span style="background:#fdf2f8;color:#9d174d;padding:5px 10px;border-radius:8px;font-size:0.68rem;font-weight:700">🔄 Recupero ${ms.REC}</span>`:""}
+                        ${ms.PERM>0?`<span style="background:#f0fdf4;color:#166534;padding:5px 10px;border-radius:8px;font-size:0.68rem;font-weight:700">⏱ Permesso ${ms.PERM}</span>`:""}
+                        ${ms.NG>0?`<span style="background:#e0f2fe;color:#0369a1;padding:5px 10px;border-radius:8px;font-size:0.68rem;font-weight:700">🎄 NG ${ms.NG}</span>`:""}
+                        ${ms.NL>0?`<span style="background:#f0fdfa;color:#0f766e;padding:5px 10px;border-radius:8px;font-size:0.68rem;font-weight:700">🎉 NL ${ms.NL}</span>`:""}
+                    </div>
+                </div>`;
+            });
+            html += `</div>`;
+            container.innerHTML = html;
+        }
+
+        function getWeekNumber(d) {
+            d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+            d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
+            let yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+            return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+        }
+
         function renderSpecial(text, cssClass) {
             return `<div class="cell ${cssClass}">${text}</div>`;
         }
+        // =========================================================
+        // INTEGRAZIONE FIREBASE - NOTIFICHE NUOVE RICHIESTE
+        // =========================================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyAMX2ycf_6P3AcBvarVX4XNKbdposkuqgE",
+            authDomain: "area-personale-autsocc-118-rsm.firebaseapp.com",
+            projectId: "area-personale-autsocc-118-rsm",
+            storageBucket: "area-personale-autsocc-118-rsm.firebasestorage.app",
+            messagingSenderId: "910283994567",
+            appId: "1:910283994567:web:d9c45b5f4b5a83b92595e2"
+        };
+
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const db = firebase.firestore();
+        let initialLoad = true;
+
+        // Ascolto la cartella 'richieste_turni'
+        db.collection('richieste_turni').onSnapshot((snapshot) => {
+            if (initialLoad) {
+                initialLoad = false; // Evito che suonino notifiche per le richieste vecchie al caricamento pagina
+                return; 
+            }
+
+            snapshot.docChanges().forEach((change) => {
+                if (change.type === "added") { // Se è stata inserita una nuova richiesta
+                    const richiesta = change.doc.data();
+
+                    // Controllo se l'utente che sta guardando l'app è abilitato a vedere l'avviso
+                    let isAmministratoreAttivo = false;
+                    
+                    if (typeof selectedDrivers !== 'undefined') {
+                        if (selectedDrivers.size === 0) {
+                            isAmministratoreAttivo = true; // Modalità "Tutti"
+                        } else {
+                            selectedDrivers.forEach(idx => {
+                                let d = drivers.find(x => x.idx === idx);
+                                if (d && (d.name.includes("PAZZAGLIA") || d.name.includes("BARBIERI"))) {
+                                    isAmministratoreAttivo = true;
+                                }
+                            });
+                        }
+                    }
+
+                    if (isAmministratoreAttivo) {
+                        let nomeRichiedente = richiesta.name || 'N/D';
+                        let tipoRaw = richiesta.type || 'N/D';
+                        let tipoRichiesta = tipoRaw.replace(/_/g, ' ').toUpperCase();
+                        let dataDal = richiesta.dateFrom ? new Date(richiesta.dateFrom).toLocaleDateString('it-IT') : 'N/D';
+                        let dataAl = richiesta.dateTo ? new Date(richiesta.dateTo).toLocaleDateString('it-IT') : dataDal;
+                        let note = richiesta.notes || '-';
+                        let swap = richiesta.swapWith ? `<br><b style="color:#b45309;">Cambio con:</b> ${richiesta.swapWith}` : '';
+
+                        let testoPopup = `
+                            <div style="background:#fffbeb; border:1px solid #fcd34d; border-radius:10px; padding:12px; margin-top:10px;">
+                                <b style="color:#b45309;">Da:</b> ${nomeRichiedente}<br>
+                                <b style="color:#b45309;">Tipo:</b> ${tipoRichiesta} ${swap}<br>
+                                <b style="color:#b45309;">Periodo:</b> dal ${dataDal} al ${dataAl}<br>
+                                <b style="color:#b45309;">Note:</b> ${note}
+                            </div>
+                        `;
+
+                        // Fa apparire il popup di avviso
+                        let alertTitle = document.getElementById('alert-title-text');
+                        let alertMsg = document.getElementById('alert-message-text');
+                        let alertModal = document.getElementById('alert-modal');
+
+                        if (alertTitle && alertMsg && alertModal) {
+                            alertTitle.innerHTML = `⚠️ NUOVA RICHIESTA RICEVUTA`;
+                            alertMsg.innerHTML = `Un operatore ha appena inviato una richiesta: ${testoPopup}`;
+                            alertModal.style.display = 'flex';
+                            setTimeout(() => alertModal.classList.add('open'), 50);
+                        }
+
+                        // Vibrazione telefono
+                        if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
+
+                        // Aggiunge al Centro Notifiche laterale
+                        if (typeof notifHistory !== 'undefined') {
+                            let notifObj = {
+                                id: Date.now() + Math.random(),
+                                text: `<b style="color:#d97706;">NUOVA RICHIESTA (${tipoRichiesta})</b><br>${testoPopup}`,
+                                read: false,
+                                date: new Date().toLocaleString('it-IT')
+                            };
+                            
+                            notifHistory.unshift(notifObj);
+                            if (typeof saveNotifications === 'function') saveNotifications();
+                            if (typeof updateBadge === 'function') updateBadge();
+
+                            let notifModal = document.getElementById('notif-center-modal');
+                            if (notifModal && notifModal.classList.contains('open') && typeof renderNotifList === 'function') {
+                                renderNotifList();
+                            }
+                        }
+                    }
+                }
+            });
+        });
     </script>
+
 </body>
 </html>
