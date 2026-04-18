@@ -15,13 +15,15 @@
     <link rel="apple-touch-icon" href="logo.png">
     <link rel="icon" type="image/png" href="logo.png">
     
-    <title>A.S. 26</title>
+ <title>A.S. 26</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
 
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
     
     <style>
         /* --- RESET E BASE --- */
@@ -426,15 +428,15 @@
         input:checked + .slider:before { transform: translateX(22px); }
         
         /* NOTIFICATION CENTER */
-        .notif-list { padding: 10px; display: flex; flex-direction: column; gap: 10px; }
-        .notif-item { background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 15px; position: relative; transition: all 0.2s; }
-        .notif-item.unread { border-left: 4px solid var(--primary); background: #f0f9ff; }
-        body.dark-mode .notif-item.unread { background: #1e293b; border-color: #334155; border-left-color: var(--primary); }
-        .notif-date { font-size: 0.7rem; color: var(--text-sec); margin-bottom: 4px; font-weight: 600; }
-        .notif-text { font-size: 0.9rem; color: var(--text-main); line-height: 1.4; }
-        .btn-del-notif { position: absolute; top: 10px; right: 10px; color: #ef4444; background: none; border: none; cursor: pointer; padding: 5px; border-radius: 50%; }
-        .btn-del-notif:active { background: rgba(239, 68, 68, 0.1); }
-        .no-notif { text-align: center; padding: 40px 20px; color: var(--text-sec); font-size: 0.9rem; }
+        .notif-list { padding: 12px; display: flex; flex-direction: column; gap: 10px; }
+        .notif-item { background: var(--bg); border: 1px solid var(--border); border-radius: 14px; padding: 16px; position: relative; transition: all 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+        .notif-item.unread { border-left: 4px solid var(--primary); background: linear-gradient(135deg, #eff6ff 0%, #f0f9ff 100%); box-shadow: 0 2px 8px rgba(37,99,235,0.08); }
+        body.dark-mode .notif-item.unread { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border-color: #334155; border-left-color: var(--primary); }
+        .notif-date { font-size: 0.7rem; color: var(--text-sec); margin-bottom: 6px; font-weight: 700; letter-spacing: 0.3px; }
+        .notif-text { font-size: 0.88rem; color: var(--text-main); line-height: 1.4; }
+        .btn-del-notif { position: absolute; top: 10px; right: 10px; color: #ef4444; background: rgba(239,68,68,0.08); border: none; cursor: pointer; padding: 6px; border-radius: 8px; transition: 0.15s; }
+        .btn-del-notif:active { background: rgba(239, 68, 68, 0.15); transform: scale(0.9); }
+        .no-notif { text-align: center; padding: 50px 20px; color: var(--text-sec); font-size: 0.9rem; }
 
         .btn-install { 
             background: var(--text-main); color: var(--bg); border: none; padding: 10px 18px; 
@@ -511,17 +513,17 @@
         .btn-close-secret { position: absolute; top: 20px; right: 20px; color: white; background: rgba(255,255,255,0.2); width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-weight: bold; font-size: 1.2rem; z-index: 6010; }
         
         /* MODALE AVVISI */
-        #alert-modal { display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.7); z-index: 9999; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s; padding: 20px; }
+        #alert-modal { display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.7); z-index: 9999; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s; padding: 20px; backdrop-filter: blur(6px); }
         #alert-modal.open { opacity: 1; }
-        .alert-card { background: var(--bg-card); width: 100%; max-width: 400px; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.4); overflow: hidden; transform: scale(0.9); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); border: 1px solid var(--border); }
+        .alert-card { background: var(--bg-card); width: 100%; max-width: 400px; border-radius: 24px; box-shadow: 0 20px 60px rgba(0,0,0,0.35); overflow: hidden; transform: scale(0.9); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); border: 1px solid var(--border); }
         #alert-modal.open .alert-card { transform: scale(1); }
-        .alert-header { padding: 20px 24px; display: flex; align-items: center; gap: 15px; background: #fff7ed; border-bottom: 1px solid #ffedd5; }
-        .alert-icon-box { width: 45px; height: 45px; border-radius: 12px; background: #fffbeb; display: flex; align-items: center; justify-content: center; color: #d97706; border: 1px solid #fcd34d; flex-shrink: 0; }
-        .alert-title { font-weight: 800; font-size: 1.1rem; color: #92400e; line-height: 1.2; }
-        .alert-body { padding: 24px; font-size: 1rem; color: var(--text-main); line-height: 1.5; }
+        .alert-header { padding: 22px 24px 18px; display: flex; align-items: center; gap: 15px; background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%); border-bottom: 1px solid #fde68a; }
+        .alert-icon-box { width: 48px; height: 48px; border-radius: 14px; background: linear-gradient(135deg, #fbbf24, #f59e0b); display: flex; align-items: center; justify-content: center; color: #ffffff; flex-shrink: 0; box-shadow: 0 4px 10px rgba(245,158,11,0.3); }
+        .alert-title { font-weight: 900; font-size: 1.05rem; color: #78350f; line-height: 1.2; letter-spacing: -0.3px; }
+        .alert-body { padding: 20px 24px; font-size: 0.95rem; color: var(--text-main); line-height: 1.5; max-height: 50vh; overflow-y: auto; }
         .alert-footer { padding: 0 24px 24px; }
-        .btn-alert-ok { width: 100%; padding: 14px; border-radius: 14px; border: none; background: #d97706; color: white; font-weight: 800; font-size: 1rem; cursor: pointer; box-shadow: 0 4px 12px rgba(217, 119, 6, 0.3); display: flex; align-items: center; justify-content: center; gap: 8px; }
-        .btn-alert-ok:active { transform: scale(0.98); }
+        .btn-alert-ok { width: 100%; padding: 14px; border-radius: 14px; border: none; background: linear-gradient(135deg, #f59e0b, #d97706); color: white; font-weight: 800; font-size: 1rem; cursor: pointer; box-shadow: 0 4px 12px rgba(217, 119, 6, 0.3); display: flex; align-items: center; justify-content: center; gap: 8px; transition: transform 0.15s; }
+        .btn-alert-ok:active { transform: scale(0.97); }
 
         /* ==============================================
            POPUP CHANGELOG - PRIMO AVVIO
@@ -974,10 +976,22 @@
             <div class="modal-body" style="padding:0">
                 <div class="option-item" style="display:block">
                     <div style="margin-bottom:10px">
-                        <span style="font-size:1rem; font-weight:700">Monitoraggio Turni</span>
-                        <div style="font-size:0.8rem; color:var(--text-sec)">Seleziona chi seguire. Riceverai un avviso nell'app se il turno cambia.</div>
+                        <span style="font-size:1rem; font-weight:700">Chi sei?</span>
+                        <div style="font-size:0.8rem; color:var(--text-sec)">Seleziona il tuo nome per ricevere notifiche sui tuoi turni e sulle tue richieste.</div>
                     </div>
-                    <div id="notification-driver-list" class="dinner-checkbox-list" style="padding:0; grid-template-columns: 1fr 1fr;"></div>
+                    <select id="turni-user-select" onchange="saveTurniUser(this.value)" style="width:100%;padding:12px;border-radius:10px;border:1px solid var(--border);font-size:0.95rem;font-weight:600;background:var(--bg);color:var(--text-main);">
+                        <option value="">-- Nessuna selezione --</option>
+                        <option value="Barbieri">Barbieri</option>
+                        <option value="Pazzaglia">Pazzaglia</option>
+                        <option value="Bianchi">Bianchi</option>
+                        <option value="Sarti">Sarti</option>
+                        <option value="Ghiotti">Ghiotti</option>
+                        <option value="Berardi">Berardi</option>
+                        <option value="Michelotti">Michelotti</option>
+                        <option value="Volpini">Volpini</option>
+                        <option value="Fabbri">Fabbri</option>
+                    </select>
+                    <div id="turni-user-status" style="margin-top:8px;font-size:0.8rem;font-weight:600;color:var(--text-sec);"></div>
                 </div>
                 <div class="option-item" id="install-container">
                     <div style="display:flex; flex-direction:column">
@@ -1430,7 +1444,7 @@
 
         async function fetchGithubLastUpload() {
             try {
-                const resp = await fetch("https://api.github.com/repos/centrale118rsm-code/Turni-Autisti-2026/commits?path=turni.xlsx&per_page=1");
+                const resp = await fetch("https://api.github.com/repos/centrale118rsm-code/Turni-Autisti-2026-Rsm/commits?path=turni.xlsx&per_page=1");
                 if (resp.ok) {
                     const data = await resp.json();
                     if (data && data.length > 0 && data[0].commit && data[0].commit.committer) {
@@ -1766,39 +1780,34 @@
             }
         }
 
-        let watchedDrivers = new Set();
+        let turniUserName = localStorage.getItem('turni_user_name') || '';
 
         function initNotificationOptions() {
-            const list = document.getElementById('notification-driver-list');
-            if(!list) return;
-            list.innerHTML = "";
-            const saved = localStorage.getItem('watched_drivers_ids');
-            if(saved) {
-                watchedDrivers = new Set(JSON.parse(saved));
-            }
-            drivers.forEach(d => {
-                let isChecked = watchedDrivers.has(d.idx) ? "checked" : "";
-                let item = document.createElement('label');
-                item.className = `dinner-check-item ${isChecked}`;
-                item.innerHTML = `
-                    <input type="checkbox" value="${d.idx}" ${isChecked ? "checked" : ""} onchange="toggleWatchDriver(${d.idx}, this)">
-                    <div class="dinner-check-icon"><span class="material-icons-round" style="font-size:14px">notifications</span></div>
-                    ${d.name}
-                `;
-                list.appendChild(item);
-            });
+            const sel = document.getElementById('turni-user-select');
+            if(!sel) return;
+            sel.value = turniUserName;
+            updateTurniUserStatus();
         }
 
-        function toggleWatchDriver(idx, el) {
+        function saveTurniUser(val) {
             vibrate();
-            if(watchedDrivers.has(idx)) {
-                watchedDrivers.delete(idx);
-                el.parentElement.classList.remove('checked');
+            turniUserName = val;
+            localStorage.setItem('turni_user_name', val);
+            // Reset snapshot quando cambi utente per evitare falsi positivi
+            localStorage.removeItem('schedule_snapshot');
+            updateTurniUserStatus();
+        }
+
+        function updateTurniUserStatus() {
+            const el = document.getElementById('turni-user-status');
+            if(!el) return;
+            if(turniUserName) {
+                const isAdmin = (turniUserName === 'Pazzaglia' || turniUserName === 'Barbieri');
+                el.innerHTML = `<span style="color:#059669;">✓ Notifiche attive per <b>${turniUserName}</b></span>` +
+                    (isAdmin ? `<br><span style="color:#d97706;">⚡ Riceverai anche notifiche nuove richieste</span>` : '');
             } else {
-                watchedDrivers.add(idx);
-                el.parentElement.classList.add('checked');
+                el.innerHTML = `<span style="color:#ef4444;">Nessuna notifica attiva — seleziona il tuo nome</span>`;
             }
-            localStorage.setItem('watched_drivers_ids', JSON.stringify([...watchedDrivers]));
         }
 
         function getShiftReadableName(code) {
@@ -1818,7 +1827,12 @@
         }
 
         function checkForScheduleChanges() {
-            if(watchedDrivers.size === 0) return;
+            if(!turniUserName) return;
+            // Trova l'indice del driver che corrisponde all'utente
+            const myDriver = drivers.find(d => d.name.toLowerCase() === turniUserName.toLowerCase());
+            if(!myDriver) return;
+            const myIdx = myDriver.idx;
+
             let currentSnapshot = {};
             for(let i=1; i<finalData.length; i++) {
                 let row = finalData[i];
@@ -1826,40 +1840,28 @@
                 let day = row[1].v;        
                 if(!day || !month) continue;
                 let dateKey = `${month}-${day}`; 
-                watchedDrivers.forEach(dIdx => {
-                    let cell = row[dIdx];
-                    let val = cell.v ? cell.v.toString().trim() : "";
-                    // Normalizza il valore per confronto stabile
-                    let normalized = normalizeShift(val) || val.toUpperCase();
-                    let uniqueKey = `${dateKey}-DRV${dIdx}`;
-                    currentSnapshot[uniqueKey] = normalized;
-                });
+                let cell = row[myIdx];
+                let val = cell.v ? cell.v.toString().trim() : "";
+                let normalized = normalizeShift(val) || val.toUpperCase();
+                currentSnapshot[dateKey] = normalized;
             }
+
             let oldJson = localStorage.getItem('schedule_snapshot');
             if(oldJson) {
                 let oldSnapshot = JSON.parse(oldJson);
-                // Raggruppa cambi per autista
-                let changesByDriver = {};
-                for (const [key, newVal] of Object.entries(currentSnapshot)) {
-                    let oldVal = oldSnapshot[key];
+                let changes = [];
+                for (const [dateKey, newVal] of Object.entries(currentSnapshot)) {
+                    let oldVal = oldSnapshot[dateKey];
                     if(!oldVal || oldVal === newVal) continue;
-                    // Ignora cambi trascurabili (entrambi vuoti/"-")
                     if((!newVal || newVal === "-" || newVal === "") && (!oldVal || oldVal === "-" || oldVal === "")) continue;
-                    let parts = key.split("-DRV"); 
-                    let datePart = parts[0]; 
-                    let drvIdx = parseInt(parts[1]);
-                    let drvName = drivers.find(d => d.idx === drvIdx)?.name || "Autista";
                     let oldShiftName = getShiftReadableName(oldVal);
                     let newShiftName = getShiftReadableName(newVal);
-                    // Ignora se i nomi leggibili sono identici (es. M → MAT)
                     if(oldShiftName === newShiftName) continue;
-                    if(!changesByDriver[drvName]) changesByDriver[drvName] = [];
-                    changesByDriver[drvName].push({ date: datePart, from: oldShiftName, to: newShiftName });
+                    changes.push({ date: dateKey, from: oldShiftName, to: newShiftName });
                 }
-                let changesFound = [];
-                for(const [drvName, changes] of Object.entries(changesByDriver)) {
-                    // Formato notifica raggruppato per autista
-                    let detailLines = changes.slice(0, 4).map(c =>
+
+                if(changes.length > 0) {
+                    let detailLines = changes.slice(0, 6).map(c =>
                         `<span style="font-size:0.8rem;display:block;margin-top:3px;color:var(--text-sec)">
                             📅 ${c.date} &nbsp;
                             <span style="color:#ef4444;font-weight:700">${c.from}</span>
@@ -1867,21 +1869,21 @@
                             <span style="color:#15803d;font-weight:700">${c.to}</span>
                         </span>`
                     ).join('');
-                    if(changes.length > 4) detailLines += `<span style="font-size:0.75rem;color:var(--text-sec);display:block;margin-top:2px">...e altri ${changes.length-4} cambi</span>`;
-                    let msg = `<b style="font-size:1rem">${drvName}</b> &nbsp;<span style="background:#dbeafe;color:#1e40af;font-size:0.6rem;font-weight:700;padding:2px 6px;border-radius:5px;vertical-align:middle">${changes.length} variaz.</span>${detailLines}`;
-                    changesFound.push(msg);
+                    if(changes.length > 6) detailLines += `<span style="font-size:0.75rem;color:var(--text-sec);display:block;margin-top:2px">...e altre ${changes.length-6} variazioni</span>`;
+                    
+                    let msg = `<b style="font-size:1rem">I tuoi turni sono cambiati</b> &nbsp;<span style="background:#dbeafe;color:#1e40af;font-size:0.6rem;font-weight:700;padding:2px 6px;border-radius:5px;vertical-align:middle">${changes.length} variaz.</span>${detailLines}`;
+                    
                     let notifObj = {
                         id: Date.now() + Math.random(),
                         text: msg,
                         read: false,
-                        date: new Date().toLocaleString('it-IT')
+                        date: new Date().toLocaleString('it-IT'),
+                        type: 'shift_change'
                     };
                     notifHistory.unshift(notifObj);
-                }
-                if(changesFound.length > 0) {
                     saveNotifications(); 
                     updateBadge();        
-                    showChangeAlert(changesFound);
+                    showChangeAlert([msg]);
                 }
             }
             localStorage.setItem('schedule_snapshot', JSON.stringify(currentSnapshot));
@@ -2775,6 +2777,7 @@
             let stats = {};
             let totals = { M:0, P:0, N:0, SM:0, R:0, MN:0, FERIE:0, CONG:0, PERM:0, MAL:0, REC:0, NL:0, NG:0, ORE:0 };
             let weekData = {};
+            let monthOrder = [];
 
             for (let i=1; i<finalData.length; i++) {
                 let row = finalData[i];
@@ -2786,7 +2789,7 @@
                 let color = cellData.c || "";
                 let u = val.toUpperCase();
 
-                if (!stats[mName]) stats[mName] = { M:0,P:0,N:0,SM:0,R:0,MN:0,FERIE:0,CONG:0,PERM:0,MAL:0,REC:0,NL:0,NG:0,ORE:0 };
+                if (!stats[mName]) { stats[mName] = { M:0,P:0,N:0,SM:0,R:0,MN:0,FERIE:0,CONG:0,PERM:0,MAL:0,REC:0,NL:0,NG:0,ORE:0 }; monthOrder.push(mName); }
                 let ms = stats[mName];
                 let st = normalizeShift(val);
                 let isSpecial = false;
@@ -2828,122 +2831,150 @@
             let turniLavorati = totals.M + totals.P + totals.N + totals.SM + totals.MN;
             let weekVals = Object.values(weekData);
             let oreSettMedia = weekVals.length > 0 ? weekVals.reduce((a,b)=>a+b,0)/weekVals.length : 0;
-            // Notte e Smonto unificati + MN
-            let nottiTot = totals.N + totals.SM + totals.MN;
-            let nottiNS  = totals.N + totals.SM;  // Notte+Smonto insieme
-            let oreNottiNS = (totals.N * SHIFT_HOURS.N) + (totals.SM * SHIFT_HOURS.SM);
-            let oreNotti = oreNottiNS + (totals.MN * SHIFT_HOURS.MN);
             let totalAssenze = totals.FERIE + totals.CONG + totals.PERM + totals.MAL + totals.REC + totals.NL + totals.NG;
+            let nottiTot = totals.N + totals.SM + totals.MN;
 
             let html = `<div style="padding:0 0 40px 0;">`;
 
-            html += `<div style="padding:20px 20px 24px;background:linear-gradient(135deg,#1e3a8a,#2563eb,#3b82f6);color:white;">
-                <div style="font-size:1.3rem;font-weight:900;margin-bottom:2px;display:flex;align-items:center;gap:8px">
-                    <span class="material-icons-round" style="font-size:22px;opacity:0.9">drive_eta</span>${driver.name}
-                </div>
-                <div style="font-size:0.72rem;opacity:0.75;margin-bottom:16px;letter-spacing:0.5px">STATISTICHE ANNO 2026</div>
-                <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
-                    <div style="background:rgba(255,255,255,0.18);border-radius:14px;padding:14px 10px;text-align:center">
-                        <div style="font-size:2rem;font-weight:900;line-height:1">${oreAnno.toFixed(0)}</div>
-                        <div style="font-size:0.6rem;opacity:0.85;margin-top:4px;font-weight:600;letter-spacing:0.5px">ORE TOTALI</div>
+            // ═══ HERO HEADER ═══
+            html += `<div style="padding:24px 20px 28px;background:linear-gradient(135deg,#0f172a 0%,#1e3a8a 50%,#2563eb 100%);color:white;position:relative;overflow:hidden;">
+                <div style="position:absolute;inset:0;background:radial-gradient(circle at 80% 20%,rgba(59,130,246,0.3),transparent 60%);"></div>
+                <div style="position:relative;z-index:1">
+                    <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">
+                        <div style="width:48px;height:48px;border-radius:14px;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);border:1px solid rgba(255,255,255,0.2)">
+                            <span class="material-icons-round" style="font-size:24px">drive_eta</span>
+                        </div>
+                        <div>
+                            <div style="font-size:1.3rem;font-weight:900;letter-spacing:-0.5px">${driver.name}</div>
+                            <div style="font-size:0.7rem;opacity:0.6;font-weight:600;letter-spacing:1px;text-transform:uppercase">Riepilogo Anno 2026</div>
+                        </div>
                     </div>
-                    <div style="background:rgba(255,255,255,0.18);border-radius:14px;padding:14px 10px;text-align:center">
-                        <div style="font-size:2rem;font-weight:900;line-height:1">${oreSettMedia.toFixed(1)}</div>
-                        <div style="font-size:0.6rem;opacity:0.85;margin-top:4px;font-weight:600;letter-spacing:0.5px">ORE/SETT.</div>
-                    </div>
-                    <div style="background:rgba(255,255,255,0.18);border-radius:14px;padding:14px 10px;text-align:center">
-                        <div style="font-size:2rem;font-weight:900;line-height:1">${turniLavorati}</div>
-                        <div style="font-size:0.6rem;opacity:0.85;margin-top:4px;font-weight:600;letter-spacing:0.5px">TURNI</div>
+                    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
+                        <div style="background:rgba(255,255,255,0.12);border-radius:16px;padding:16px 10px;text-align:center;backdrop-filter:blur(4px);border:1px solid rgba(255,255,255,0.08)">
+                            <div style="font-size:2.2rem;font-weight:900;line-height:1">${oreAnno.toFixed(0)}</div>
+                            <div style="font-size:0.6rem;opacity:0.7;margin-top:6px;font-weight:700;letter-spacing:0.5px">ORE LAVORATE</div>
+                        </div>
+                        <div style="background:rgba(255,255,255,0.12);border-radius:16px;padding:16px 10px;text-align:center;backdrop-filter:blur(4px);border:1px solid rgba(255,255,255,0.08)">
+                            <div style="font-size:2.2rem;font-weight:900;line-height:1">${turniLavorati}</div>
+                            <div style="font-size:0.6rem;opacity:0.7;margin-top:6px;font-weight:700;letter-spacing:0.5px">TURNI SVOLTI</div>
+                        </div>
+                        <div style="background:rgba(255,255,255,0.12);border-radius:16px;padding:16px 10px;text-align:center;backdrop-filter:blur(4px);border:1px solid rgba(255,255,255,0.08)">
+                            <div style="font-size:2.2rem;font-weight:900;line-height:1">${oreSettMedia.toFixed(1)}</div>
+                            <div style="font-size:0.6rem;opacity:0.7;margin-top:6px;font-weight:700;letter-spacing:0.5px">ORE/SETT.</div>
+                        </div>
                     </div>
                 </div>
             </div>`;
 
-            html += `<div style="padding:18px 20px 8px;font-size:0.68rem;font-weight:800;color:var(--text-sec);text-transform:uppercase;letter-spacing:1.5px;display:flex;align-items:center;gap:6px"><span class="material-icons-round" style="font-size:16px">wb_sunny</span> Turni Diurni</div>`;
-            html += `<div style="padding:0 16px;display:grid;grid-template-columns:1fr 1fr;gap:10px">`;
-            html += `<div style="background:#dbeafe;border-radius:16px;padding:16px 14px"><div style="display:flex;align-items:center;gap:6px;margin-bottom:8px"><span class="material-icons-round" style="font-size:16px;color:#026bfe">wb_sunny</span><span style="font-size:0.7rem;font-weight:800;color:#026bfe;text-transform:uppercase">Mattina</span></div><div style="font-size:2.2rem;font-weight:900;color:#026bfe;line-height:1">${totals.M}</div><div style="font-size:0.62rem;color:#1e40af;font-weight:600;margin-top:4px">${(totals.M*SHIFT_HOURS.M).toFixed(1)} ore · 6:30-13:15</div></div>`;
-            html += `<div style="background:#e0e7ff;border-radius:16px;padding:16px 14px"><div style="display:flex;align-items:center;gap:6px;margin-bottom:8px"><span class="material-icons-round" style="font-size:16px;color:#3730a3">wb_twilight</span><span style="font-size:0.7rem;font-weight:800;color:#3730a3;text-transform:uppercase">Pomeriggio</span></div><div style="font-size:2.2rem;font-weight:900;color:#3730a3;line-height:1">${totals.P}</div><div style="font-size:0.62rem;color:#3730a3;font-weight:600;margin-top:4px">${(totals.P*SHIFT_HOURS.P).toFixed(1)} ore · 12:45-20:10</div></div>`;
+            // ═══ DISTRIBUZIONE TURNI ═══
+            let maxShift = Math.max(totals.M, totals.P, nottiTot, totals.R, 1);
+            const shiftTypes = [
+                { label: 'Mattina', count: totals.M, hours: (totals.M*SHIFT_HOURS.M).toFixed(0), icon: 'wb_sunny', color: '#2563eb', bg: '#dbeafe', time: '6:30-13:15' },
+                { label: 'Pomeriggio', count: totals.P, hours: (totals.P*SHIFT_HOURS.P).toFixed(0), icon: 'wb_twilight', color: '#7c3aed', bg: '#ede9fe', time: '12:45-20:10' },
+                { label: 'Notte', count: nottiTot, hours: ((totals.N*SHIFT_HOURS.N)+(totals.SM*SHIFT_HOURS.SM)+(totals.MN*SHIFT_HOURS.MN)).toFixed(0), icon: 'bedtime', color: '#1e3a8a', bg: '#1e293b', textColor: '#93c5fd', time: '19:45-7:20', sub: totals.MN > 0 ? `incl. ${totals.MN} M+N` : '' },
+                { label: 'Riposo', count: totals.R, hours: null, icon: 'weekend', color: '#059669', bg: '#dcfce7', time: '' },
+            ];
+
+            html += `<div style="padding:18px 20px 6px;font-size:0.72rem;font-weight:800;color:var(--text-sec);text-transform:uppercase;letter-spacing:1.5px;display:flex;align-items:center;gap:6px">
+                <span class="material-icons-round" style="font-size:16px">pie_chart</span> Distribuzione Turni
+            </div>`;
+            html += `<div style="padding:0 16px;display:flex;flex-direction:column;gap:8px;margin-bottom:6px">`;
+            shiftTypes.forEach(s => {
+                if (s.count === 0) return;
+                let pct = Math.round((s.count / maxShift) * 100);
+                let isDark = s.label === 'Notte';
+                html += `<div style="background:${s.bg};border-radius:14px;padding:14px 16px;${isDark ? 'color:'+s.textColor+';' : 'color:'+s.color+';'}">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+                        <div style="display:flex;align-items:center;gap:8px">
+                            <span class="material-icons-round" style="font-size:18px">${s.icon}</span>
+                            <span style="font-weight:800;font-size:0.85rem">${s.label}</span>
+                            ${s.time ? `<span style="font-size:0.65rem;opacity:0.6;font-weight:600">${s.time}</span>` : ''}
+                        </div>
+                        <div style="display:flex;align-items:baseline;gap:4px">
+                            <span style="font-size:1.6rem;font-weight:900;line-height:1">${s.count}</span>
+                            ${s.hours ? `<span style="font-size:0.7rem;opacity:0.7;font-weight:600">${s.hours}h</span>` : ''}
+                        </div>
+                    </div>
+                    <div style="background:${isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.06)'};border-radius:6px;height:6px;overflow:hidden">
+                        <div style="width:${pct}%;height:100%;border-radius:6px;background:${isDark ? s.textColor : s.color};transition:width 0.5s ease"></div>
+                    </div>
+                    ${s.sub ? `<div style="font-size:0.65rem;opacity:0.6;margin-top:6px;font-weight:600">${s.sub}</div>` : ''}
+                </div>`;
+            });
             html += `</div>`;
 
-            // ── NOTTURNI: Notte + Smonto unificati, poi MN separato ──
-            html += `<div style="padding:16px 20px 8px;font-size:0.68rem;font-weight:800;color:var(--text-sec);text-transform:uppercase;letter-spacing:1.5px;display:flex;align-items:center;gap:6px"><span class="material-icons-round" style="font-size:16px">bedtime</span> Turni Notturni</div>`;
-            html += `<div style="margin:0 16px;background:linear-gradient(135deg,#0f172a,#1e3a8a);border-radius:18px;padding:16px 14px;color:white">
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-                    <div style="font-size:0.68rem;font-weight:800;opacity:0.75;text-transform:uppercase;letter-spacing:1px">TOTALE NOTTI</div>
-                    <div style="background:rgba(255,255,255,0.15);border-radius:10px;padding:4px 10px;font-size:0.72rem;font-weight:700">${oreNotti.toFixed(1)} ore</div>
-                </div>
-                <div style="font-size:3rem;font-weight:900;line-height:1;margin-bottom:14px">${nottiTot}</div>
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-                    <div style="background:rgba(255,255,255,0.12);border-radius:10px;padding:12px;text-align:center">
-                        <div style="font-size:0.58rem;font-weight:700;opacity:0.7;text-transform:uppercase;margin-bottom:6px;letter-spacing:0.5px">🌙 Notte / Smonto</div>
-                        <div style="font-size:2rem;font-weight:900;line-height:1">${nottiNS}</div>
-                        <div style="font-size:0.6rem;opacity:0.65;margin-top:4px">${oreNottiNS.toFixed(1)}h totali</div>
-                        ${totals.N > 0 && totals.SM > 0 ? `<div style="font-size:0.55rem;opacity:0.5;margin-top:3px">${totals.N} notti · ${totals.SM} smonti</div>` : ''}
-                    </div>
-                    <div style="background:rgba(255,255,255,0.12);border-radius:10px;padding:12px;text-align:center">
-                        <div style="font-size:0.58rem;font-weight:700;opacity:0.7;text-transform:uppercase;margin-bottom:6px;letter-spacing:0.5px">⚡ Mat + Notte</div>
-                        <div style="font-size:2rem;font-weight:900;line-height:1">${totals.MN}</div>
-                        <div style="font-size:0.6rem;opacity:0.65;margin-top:4px">${(totals.MN*SHIFT_HOURS.MN).toFixed(1)}h totali</div>
-                    </div>
-                </div>
-            </div>`;
-
-            if (totals.R > 0) {
-                html += `<div style="padding:16px 20px 8px;font-size:0.68rem;font-weight:800;color:var(--text-sec);text-transform:uppercase;letter-spacing:1.5px;display:flex;align-items:center;gap:6px"><span class="material-icons-round" style="font-size:16px">weekend</span> Riposi</div>`;
-                html += `<div style="margin:0 16px 4px;background:#dcfce7;border-radius:16px;padding:14px;display:flex;align-items:center;gap:14px"><span class="material-icons-round" style="font-size:28px;color:#15803d">weekend</span><div><div style="font-size:2rem;font-weight:900;color:#15803d;line-height:1">${totals.R}</div><div style="font-size:0.62rem;color:#166534;font-weight:600;margin-top:3px">giorni di riposo programmati</div></div></div>`;
-            }
-
-            const absenceList = [
-                {k:"FERIE",label:"Ferie",color:"#c2410c",bg:"#fff7ed",icon:"beach_access"},
-                {k:"CONG",label:"Congedo",color:"#854d0e",bg:"#fefce8",icon:"event_available"},
-                {k:"PERM",label:"Permesso",color:"#166534",bg:"#f0fdf4",icon:"timer"},
-                {k:"MAL",label:"Malattia",color:"#b91c1c",bg:"#fee2e2",icon:"local_hospital"},
-                {k:"REC",label:"Recupero",color:"#9d174d",bg:"#fdf2f8",icon:"replay"},
-                {k:"NG",label:"Fest. non goduto",color:"#0369a1",bg:"#e0f2fe",icon:"event_busy"},
-                {k:"NL",label:"Fest. non lavorato",color:"#0f766e",bg:"#f0fdfa",icon:"celebration"},
-            ];
-            let hasAbsences = absenceList.some(a => totals[a.k] > 0);
-            if (hasAbsences) {
-                html += `<div style="padding:16px 20px 8px;font-size:0.68rem;font-weight:800;color:var(--text-sec);text-transform:uppercase;letter-spacing:1.5px;display:flex;align-items:center;gap:6px"><span class="material-icons-round" style="font-size:16px">event_busy</span> Assenze e Permessi · ${totalAssenze} giorni</div>`;
+            // ═══ ASSENZE E PERMESSI ═══
+            if (totalAssenze > 0) {
+                const absenceList = [
+                    {k:"FERIE",label:"Ferie",color:"#ea580c",bg:"#fff7ed",icon:"beach_access"},
+                    {k:"CONG",label:"Congedo",color:"#ca8a04",bg:"#fefce8",icon:"event_available"},
+                    {k:"PERM",label:"Permesso",color:"#16a34a",bg:"#f0fdf4",icon:"timer"},
+                    {k:"MAL",label:"Malattia",color:"#dc2626",bg:"#fef2f2",icon:"local_hospital"},
+                    {k:"REC",label:"Recupero",color:"#db2777",bg:"#fdf2f8",icon:"replay"},
+                    {k:"NG",label:"Fest. non goduto",color:"#0284c7",bg:"#f0f9ff",icon:"event_busy"},
+                    {k:"NL",label:"Fest. non lavorato",color:"#0d9488",bg:"#f0fdfa",icon:"celebration"},
+                ];
+                html += `<div style="padding:18px 20px 6px;font-size:0.72rem;font-weight:800;color:var(--text-sec);text-transform:uppercase;letter-spacing:1.5px;display:flex;align-items:center;gap:6px">
+                    <span class="material-icons-round" style="font-size:16px">event_busy</span> Assenze e Permessi 
+                    <span style="background:#fee2e2;color:#dc2626;padding:2px 8px;border-radius:6px;font-size:0.68rem;font-weight:800">${totalAssenze}</span>
+                </div>`;
                 html += `<div style="padding:0 16px;display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:6px">`;
                 absenceList.forEach(a => {
                     if (totals[a.k] === 0) return;
-                    html += `<div style="background:${a.bg};border-radius:14px;padding:14px 12px;display:flex;align-items:center;gap:10px"><span class="material-icons-round" style="font-size:22px;color:${a.color}">${a.icon}</span><div><div style="font-size:1.6rem;font-weight:900;color:${a.color};line-height:1">${totals[a.k]}</div><div style="font-size:0.6rem;color:${a.color};opacity:0.85;font-weight:600;margin-top:2px">${a.label}</div></div></div>`;
+                    html += `<div style="background:${a.bg};border-radius:14px;padding:14px;display:flex;align-items:center;gap:12px;border:1px solid ${a.color}15">
+                        <div style="width:40px;height:40px;border-radius:12px;background:${a.color}18;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                            <span class="material-icons-round" style="font-size:20px;color:${a.color}">${a.icon}</span>
+                        </div>
+                        <div>
+                            <div style="font-size:1.5rem;font-weight:900;color:${a.color};line-height:1">${totals[a.k]}</div>
+                            <div style="font-size:0.65rem;color:${a.color};opacity:0.85;font-weight:700;margin-top:2px">${a.label}</div>
+                        </div>
+                    </div>`;
                 });
                 html += `</div>`;
             }
 
-            html += `<div style="padding:16px 20px 8px;font-size:0.68rem;font-weight:800;color:var(--text-sec);text-transform:uppercase;letter-spacing:1.5px;display:flex;align-items:center;gap:6px"><span class="material-icons-round" style="font-size:16px">calendar_month</span> Mese per Mese</div>`;
-            Object.entries(stats).forEach(([mName, ms]) => {
+            // ═══ DETTAGLIO MESE PER MESE ═══
+            html += `<div style="padding:18px 20px 6px;font-size:0.72rem;font-weight:800;color:var(--text-sec);text-transform:uppercase;letter-spacing:1.5px;display:flex;align-items:center;gap:6px">
+                <span class="material-icons-round" style="font-size:16px">calendar_month</span> Dettaglio Mensile
+            </div>`;
+
+            monthOrder.forEach(mName => {
+                let ms = stats[mName];
                 let oreMese = ms.ORE;
                 let turniMese = ms.M + ms.P + ms.N + ms.SM + ms.MN;
                 let nottiMese = ms.N + ms.SM + ms.MN;
                 let assenzeMese = ms.FERIE + ms.CONG + ms.PERM + ms.MAL + ms.REC + ms.NL + ms.NG;
+                if (turniMese === 0 && ms.R === 0 && assenzeMese === 0) return;
+
+                let chips = [];
+                if (ms.M > 0)  chips.push(`<span style="background:#dbeafe;color:#1e40af;padding:4px 10px;border-radius:8px;font-size:0.68rem;font-weight:700">☀️ ${ms.M} mat · ${(ms.M*SHIFT_HOURS.M).toFixed(0)}h</span>`);
+                if (ms.P > 0)  chips.push(`<span style="background:#ede9fe;color:#5b21b6;padding:4px 10px;border-radius:8px;font-size:0.68rem;font-weight:700">🌇 ${ms.P} pom · ${(ms.P*SHIFT_HOURS.P).toFixed(0)}h</span>`);
+                if ((ms.N+ms.SM) > 0) chips.push(`<span style="background:#1e293b;color:#93c5fd;padding:4px 10px;border-radius:8px;font-size:0.68rem;font-weight:700">🌙 ${ms.N+ms.SM} notti · ${((ms.N*SHIFT_HOURS.N)+(ms.SM*SHIFT_HOURS.SM)).toFixed(0)}h</span>`);
+                if (ms.MN > 0) chips.push(`<span style="background:#bfdbfe;color:#1e3a8a;padding:4px 10px;border-radius:8px;font-size:0.68rem;font-weight:700">⚡ ${ms.MN} M+N · ${(ms.MN*SHIFT_HOURS.MN).toFixed(0)}h</span>`);
+                if (ms.R > 0)  chips.push(`<span style="background:#dcfce7;color:#15803d;padding:4px 10px;border-radius:8px;font-size:0.68rem;font-weight:700">💤 ${ms.R} riposi</span>`);
+                if (ms.FERIE > 0) chips.push(`<span style="background:#fff7ed;color:#ea580c;padding:4px 10px;border-radius:8px;font-size:0.68rem;font-weight:700">🏖 ${ms.FERIE} ferie</span>`);
+                if (ms.CONG > 0) chips.push(`<span style="background:#fefce8;color:#854d0e;padding:4px 10px;border-radius:8px;font-size:0.68rem;font-weight:700">📋 ${ms.CONG} cong.</span>`);
+                if (ms.MAL > 0) chips.push(`<span style="background:#fef2f2;color:#dc2626;padding:4px 10px;border-radius:8px;font-size:0.68rem;font-weight:700">🏥 ${ms.MAL} mal.</span>`);
+                if (ms.REC > 0) chips.push(`<span style="background:#fdf2f8;color:#db2777;padding:4px 10px;border-radius:8px;font-size:0.68rem;font-weight:700">🔄 ${ms.REC} rec.</span>`);
+                if (ms.PERM > 0) chips.push(`<span style="background:#f0fdf4;color:#16a34a;padding:4px 10px;border-radius:8px;font-size:0.68rem;font-weight:700">⏱ ${ms.PERM} perm.</span>`);
+                if (ms.NG > 0) chips.push(`<span style="background:#f0f9ff;color:#0284c7;padding:4px 10px;border-radius:8px;font-size:0.68rem;font-weight:700">🎄 ${ms.NG} NG</span>`);
+                if (ms.NL > 0) chips.push(`<span style="background:#f0fdfa;color:#0d9488;padding:4px 10px;border-radius:8px;font-size:0.68rem;font-weight:700">🎉 ${ms.NL} NL</span>`);
+
                 html += `<div style="margin:0 16px 8px;background:var(--bg-card);border:1px solid var(--border);border-radius:16px;overflow:hidden">
-                    <div style="padding:12px 16px;display:flex;justify-content:space-between;align-items:center;background:var(--bg);border-bottom:1px solid var(--border)">
-                        <span style="font-weight:800;font-size:0.95rem">${mName}</span>
-                        <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:flex-end">
-                            ${turniMese > 0 ? `<span style="background:#dbeafe;color:#1e40af;padding:3px 8px;border-radius:8px;font-size:0.65rem;font-weight:700">${turniMese} turni</span>` : ""}
-                            ${nottiMese > 0 ? `<span style="background:#1e293b;color:#93c5fd;padding:3px 8px;border-radius:8px;font-size:0.65rem;font-weight:700">🌙 ${nottiMese} notti</span>` : ""}
-                            ${assenzeMese > 0 ? `<span style="background:#fee2e2;color:#b91c1c;padding:3px 8px;border-radius:8px;font-size:0.65rem;font-weight:700">${assenzeMese} assenze</span>` : ""}
-                            <span style="background:var(--primary);color:white;padding:3px 10px;border-radius:8px;font-size:0.68rem;font-weight:700">${oreMese.toFixed(0)}h</span>
+                    <div style="padding:12px 16px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border)">
+                        <span style="font-weight:800;font-size:0.95rem;text-transform:capitalize">${mName.toLowerCase()}</span>
+                        <div style="display:flex;gap:6px;align-items:center">
+                            ${turniMese > 0 ? `<span style="font-size:0.72rem;font-weight:800;color:var(--primary)">${turniMese} turni</span><span style="color:var(--text-sec)">·</span>` : ''}
+                            <span style="background:var(--primary);color:white;padding:3px 10px;border-radius:8px;font-size:0.72rem;font-weight:800">${oreMese.toFixed(0)}h</span>
                         </div>
                     </div>
-                    <div style="padding:12px 14px;display:flex;flex-wrap:wrap;gap:6px">
-                        ${ms.M>0?`<span style="background:#dbeafe;color:#1e40af;padding:5px 10px;border-radius:8px;font-size:0.68rem;font-weight:700">☀️ Mat ${ms.M}× · ${(ms.M*SHIFT_HOURS.M).toFixed(0)}h</span>`:""}
-                        ${ms.P>0?`<span style="background:#e0e7ff;color:#3730a3;padding:5px 10px;border-radius:8px;font-size:0.68rem;font-weight:700">🏗 Pom ${ms.P}× · ${(ms.P*SHIFT_HOURS.P).toFixed(0)}h</span>`:""}
-                        ${(ms.N+ms.SM)>0?`<span style="background:#1e293b;color:#93c5fd;padding:5px 10px;border-radius:8px;font-size:0.68rem;font-weight:700">🌙 Notte/Smonto ${ms.N+ms.SM}× · ${((ms.N*SHIFT_HOURS.N)+(ms.SM*SHIFT_HOURS.SM)).toFixed(0)}h</span>`:""}
-                        ${ms.MN>0?`<span style="background:#bfdbfe;color:#1e3a8a;padding:5px 10px;border-radius:8px;font-size:0.68rem;font-weight:700">⚡ M+N ${ms.MN}× · ${(ms.MN*SHIFT_HOURS.MN).toFixed(0)}h</span>`:""}
-                        ${ms.R>0?`<span style="background:#dcfce7;color:#15803d;padding:5px 10px;border-radius:8px;font-size:0.68rem;font-weight:700">💤 Riposo ${ms.R}×</span>`:""}
-                        ${ms.FERIE>0?`<span style="background:#fff7ed;color:#c2410c;padding:5px 10px;border-radius:8px;font-size:0.68rem;font-weight:700">🏖 Ferie ${ms.FERIE}</span>`:""}
-                        ${ms.CONG>0?`<span style="background:#fefce8;color:#854d0e;padding:5px 10px;border-radius:8px;font-size:0.68rem;font-weight:700">📋 Congedo ${ms.CONG}</span>`:""}
-                        ${ms.MAL>0?`<span style="background:#fee2e2;color:#b91c1c;padding:5px 10px;border-radius:8px;font-size:0.68rem;font-weight:700">🏥 Malattia ${ms.MAL}</span>`:""}
-                        ${ms.REC>0?`<span style="background:#fdf2f8;color:#9d174d;padding:5px 10px;border-radius:8px;font-size:0.68rem;font-weight:700">🔄 Recupero ${ms.REC}</span>`:""}
-                        ${ms.PERM>0?`<span style="background:#f0fdf4;color:#166534;padding:5px 10px;border-radius:8px;font-size:0.68rem;font-weight:700">⏱ Permesso ${ms.PERM}</span>`:""}
-                        ${ms.NG>0?`<span style="background:#e0f2fe;color:#0369a1;padding:5px 10px;border-radius:8px;font-size:0.68rem;font-weight:700">🎄 NG ${ms.NG}</span>`:""}
-                        ${ms.NL>0?`<span style="background:#f0fdfa;color:#0f766e;padding:5px 10px;border-radius:8px;font-size:0.68rem;font-weight:700">🎉 NL ${ms.NL}</span>`:""}
+                    <div style="padding:10px 14px;display:flex;flex-wrap:wrap;gap:6px">
+                        ${chips.join('')}
                     </div>
                 </div>`;
             });
+
             html += `</div>`;
             container.innerHTML = html;
         }
@@ -2958,8 +2989,8 @@
         function renderSpecial(text, cssClass) {
             return `<div class="cell ${cssClass}">${text}</div>`;
         }
-        // =========================================================
-        // INTEGRAZIONE FIREBASE - NOTIFICHE NUOVE RICHIESTE
+      // =========================================================
+        // INTEGRAZIONE FIREBASE - SISTEMA NOTIFICHE COMPLETO
         // =========================================================
         const firebaseConfig = {
             apiKey: "AIzaSyAMX2ycf_6P3AcBvarVX4XNKbdposkuqgE",
@@ -2967,7 +2998,8 @@
             projectId: "area-personale-autsocc-118-rsm",
             storageBucket: "area-personale-autsocc-118-rsm.firebasestorage.app",
             messagingSenderId: "910283994567",
-            appId: "1:910283994567:web:d9c45b5f4b5a83b92595e2"
+            appId: "1:910283994567:web:d9c45b5f4b5a83b92595e2",
+            measurementId: "G-9P8X82Y4H5"
         };
 
         if (!firebase.apps.length) {
@@ -2975,90 +3007,179 @@
         }
         const db = firebase.firestore();
         let initialLoad = true;
+        let previousRequestsState = {};
 
-        // Ascolto la cartella 'richieste_turni'
+        const TIPO_LABELS = {
+            "copertura_reperibilita": "Copertura Reperibilità",
+            "ferie": "Ferie", "ferie_anno_prec": "Ferie Anno Prec.",
+            "permesso_ore": "Permesso Ore", "permesso": "Permesso",
+            "cambio_reperibilita": "Cambio Reperibilità", "cambio_turno": "Cambio Turno",
+            "recupero_ore": "Recupero Ore", "permesso_matrimonio": "Permesso Matrimonio",
+            "permesso_studio": "Permesso Studio", "permesso_sportivo": "Permesso Sportivo",
+            "permesso_notte": "Permesso Notte", "aspettativa": "Aspettativa",
+            "permesso_lutto": "Permesso Lutto"
+        };
+
+        const RICHIESTE_APP_URL = "https://centrale118rsm-code.github.io/Richieste-A.S.-118/";
+
+        function buildRequestCard(richiesta, docId) {
+            let nomeRichiedente = richiesta.name || 'N/D';
+            let tipoRaw = richiesta.type || 'N/D';
+            let tipoRichiesta = TIPO_LABELS[tipoRaw] || tipoRaw.replace(/_/g, ' ').toUpperCase();
+            let dataDal = richiesta.dateFrom ? new Date(richiesta.dateFrom).toLocaleDateString('it-IT') : 'N/D';
+            let dataAl = richiesta.dateTo ? new Date(richiesta.dateTo).toLocaleDateString('it-IT') : dataDal;
+            let note = richiesta.notes || '-';
+            let swap = richiesta.swapWith ? `<br><b style="color:#b45309;">Cambio con:</b> ${richiesta.swapWith}` : '';
+            let timeSlot = richiesta.timeSlot ? `<br><b style="color:#b45309;">Fascia:</b> ${richiesta.timeSlot}` : '';
+            let effectiveDays = (richiesta.effectiveDays && richiesta.effectiveDays !== 'N/A') ? `<br><b style="color:#b45309;">Giorni:</b> ${richiesta.effectiveDays}` : '';
+
+            return { nomeRichiedente, tipoRichiesta, html: `
+                <div style="background:#fffbeb; border:1px solid #fcd34d; border-radius:10px; padding:12px; margin-top:8px;">
+                    <b style="color:#b45309;">Da:</b> ${nomeRichiedente}<br>
+                    <b style="color:#b45309;">Tipo:</b> ${tipoRichiesta} ${swap}${timeSlot}<br>
+                    <b style="color:#b45309;">Periodo:</b> dal ${dataDal} al ${dataAl}${effectiveDays}<br>
+                    <b style="color:#b45309;">Note:</b> ${note}
+                    <div style="margin-top:10px;text-align:right">
+                        <a href="${RICHIESTE_APP_URL}" target="_blank" style="display:inline-flex;align-items:center;gap:4px;background:#2563eb;color:white;padding:6px 14px;border-radius:8px;font-size:0.75rem;font-weight:700;text-decoration:none;box-shadow:0 2px 6px rgba(37,99,235,0.3)">
+                            <span class="material-icons-round" style="font-size:16px">open_in_new</span> Apri Richieste
+                        </a>
+                    </div>
+                </div>
+            `};
+        }
+
         db.collection('richieste_turni').onSnapshot((snapshot) => {
-            if (initialLoad) {
-                initialLoad = false; // Evito che suonino notifiche per le richieste vecchie al caricamento pagina
-                return; 
-            }
+            const userName = turniUserName;
+            const isOperatore = (userName === 'Pazzaglia' || userName === 'Barbieri');
+            
+            // Raccolta batch per il primo caricamento
+            let pendingNewRequests = [];
+            let pendingNotifs = [];
 
             snapshot.docChanges().forEach((change) => {
-                if (change.type === "added") { // Se è stata inserita una nuova richiesta
-                    const richiesta = change.doc.data();
+                const richiesta = change.doc.data();
+                const docId = change.doc.id;
 
-                    // Controllo se l'utente che sta guardando l'app è abilitato a vedere l'avviso
-                    let isAmministratoreAttivo = false;
+                // ─── 1. NUOVA RICHIESTA → notifica a Pazzaglia e Barbieri ───
+                if (change.type === "added" && !richiesta.insertedInShifts && !richiesta.obscured && userName && isOperatore) {
                     
-                    if (typeof selectedDrivers !== 'undefined') {
-                        if (selectedDrivers.size === 0) {
-                            isAmministratoreAttivo = true; // Modalità "Tutti"
-                        } else {
-                            selectedDrivers.forEach(idx => {
-                                let d = drivers.find(x => x.idx === idx);
-                                if (d && (d.name.includes("PAZZAGLIA") || d.name.includes("BARBIERI"))) {
-                                    isAmministratoreAttivo = true;
-                                }
-                            });
-                        }
+                    const card = buildRequestCard(richiesta, docId);
+                    
+                    // Aggiungi al centro notifiche (sempre)
+                    if (typeof notifHistory !== 'undefined' && !notifHistory.find(n => n.id === docId)) {
+                        let notifObj = {
+                            id: docId,
+                            text: `<b style="color:#d97706;">${initialLoad ? 'SOSPESA' : 'NUOVA'}: ${card.tipoRichiesta}</b><br>${card.html}`,
+                            read: false,
+                            date: new Date().toLocaleString('it-IT'),
+                            type: 'new_request'
+                        };
+                        pendingNotifs.push(notifObj);
                     }
 
-                    if (isAmministratoreAttivo) {
+                    // Salva per popup
+                    pendingNewRequests.push({ richiesta, docId, card, timestamp: richiesta.timestamp || '' });
+                }
+
+                // ─── 2. RICHIESTA INSERITA NEI TURNI → notifica al richiedente ───
+                if (change.type === "modified" && userName) {
+                    const prevState = previousRequestsState[docId];
+                    const wasInserted = prevState ? prevState.insertedInShifts : false;
+                    const nowInserted = richiesta.insertedInShifts === true;
+
+                    if (!wasInserted && nowInserted) {
                         let nomeRichiedente = richiesta.name || 'N/D';
                         let tipoRaw = richiesta.type || 'N/D';
-                        let tipoRichiesta = tipoRaw.replace(/_/g, ' ').toUpperCase();
+                        let tipoRichiesta = TIPO_LABELS[tipoRaw] || tipoRaw.replace(/_/g, ' ').toUpperCase();
                         let dataDal = richiesta.dateFrom ? new Date(richiesta.dateFrom).toLocaleDateString('it-IT') : 'N/D';
                         let dataAl = richiesta.dateTo ? new Date(richiesta.dateTo).toLocaleDateString('it-IT') : dataDal;
-                        let note = richiesta.notes || '-';
-                        let swap = richiesta.swapWith ? `<br><b style="color:#b45309;">Cambio con:</b> ${richiesta.swapWith}` : '';
+                        let insertedAt = richiesta.insertedAt ? new Date(richiesta.insertedAt).toLocaleDateString('it-IT') : new Date().toLocaleDateString('it-IT');
 
-                        let testoPopup = `
-                            <div style="background:#fffbeb; border:1px solid #fcd34d; border-radius:10px; padding:12px; margin-top:10px;">
-                                <b style="color:#b45309;">Da:</b> ${nomeRichiedente}<br>
-                                <b style="color:#b45309;">Tipo:</b> ${tipoRichiesta} ${swap}<br>
-                                <b style="color:#b45309;">Periodo:</b> dal ${dataDal} al ${dataAl}<br>
-                                <b style="color:#b45309;">Note:</b> ${note}
-                            </div>
-                        `;
+                        if (nomeRichiedente.toLowerCase() === userName.toLowerCase()) {
+                            let testoInserita = `
+                                <div style="background:#dcfce7; border:1px solid #86efac; border-radius:10px; padding:12px; margin-top:8px;">
+                                    <b style="color:#059669;">✓ Inserita nei turni il ${insertedAt}</b><br>
+                                    <b style="color:#166534;">Tipo:</b> ${tipoRichiesta}<br>
+                                    <b style="color:#166534;">Periodo:</b> dal ${dataDal} al ${dataAl}
+                                    <div style="margin-top:10px;text-align:right">
+                                        <a href="${RICHIESTE_APP_URL}" target="_blank" style="display:inline-flex;align-items:center;gap:4px;background:#059669;color:white;padding:6px 14px;border-radius:8px;font-size:0.75rem;font-weight:700;text-decoration:none;box-shadow:0 2px 6px rgba(5,150,105,0.3)">
+                                            <span class="material-icons-round" style="font-size:16px">open_in_new</span> Apri Richieste
+                                        </a>
+                                    </div>
+                                </div>`;
 
-                        // Fa apparire il popup di avviso
-                        let alertTitle = document.getElementById('alert-title-text');
-                        let alertMsg = document.getElementById('alert-message-text');
-                        let alertModal = document.getElementById('alert-modal');
+                            let alertModal = document.getElementById('alert-modal');
+                            if (alertModal) {
+                                document.getElementById('alert-title-text').innerHTML = `✅ RICHIESTA INSERITA NEI TURNI`;
+                                document.getElementById('alert-message-text').innerHTML = `La tua richiesta è stata elaborata:` + testoInserita;
+                                alertModal.style.display = 'flex';
+                                setTimeout(() => alertModal.classList.add('open'), 50);
+                            }
+                            if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
 
-                        if (alertTitle && alertMsg && alertModal) {
-                            alertTitle.innerHTML = `⚠️ NUOVA RICHIESTA RICEVUTA`;
-                            alertMsg.innerHTML = `Un operatore ha appena inviato una richiesta: ${testoPopup}`;
-                            alertModal.style.display = 'flex';
-                            setTimeout(() => alertModal.classList.add('open'), 50);
-                        }
-
-                        // Vibrazione telefono
-                        if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
-
-                        // Aggiunge al Centro Notifiche laterale
-                        if (typeof notifHistory !== 'undefined') {
-                            let notifObj = {
-                                id: Date.now() + Math.random(),
-                                text: `<b style="color:#d97706;">NUOVA RICHIESTA (${tipoRichiesta})</b><br>${testoPopup}`,
-                                read: false,
-                                date: new Date().toLocaleString('it-IT')
-                            };
-                            
-                            notifHistory.unshift(notifObj);
-                            if (typeof saveNotifications === 'function') saveNotifications();
-                            if (typeof updateBadge === 'function') updateBadge();
-
-                            let notifModal = document.getElementById('notif-center-modal');
-                            if (notifModal && notifModal.classList.contains('open') && typeof renderNotifList === 'function') {
-                                renderNotifList();
+                            if (typeof notifHistory !== 'undefined') {
+                                notifHistory.unshift({
+                                    id: 'inserted_' + docId + '_' + Date.now(),
+                                    text: `<b style="color:#059669;">✅ RICHIESTA INSERITA</b><br>${testoInserita}`,
+                                    read: false,
+                                    date: new Date().toLocaleString('it-IT'),
+                                    type: 'request_inserted'
+                                });
+                                if (typeof saveNotifications === 'function') saveNotifications();
+                                if (typeof updateBadge === 'function') updateBadge();
                             }
                         }
                     }
+                    previousRequestsState[docId] = { insertedInShifts: nowInserted };
+                }
+
+                // Traccia stato per confronti futuri
+                if (change.type === "added") {
+                    previousRequestsState[docId] = { insertedInShifts: richiesta.insertedInShifts || false };
                 }
             });
+
+            // ─── MOSTRA POPUP: solo l'ultima richiesta (la più recente) ───
+            if (pendingNewRequests.length > 0 && isOperatore) {
+                // Ordina per timestamp desc, prendi solo l'ultima
+                pendingNewRequests.sort((a,b) => (b.timestamp || '').localeCompare(a.timestamp || ''));
+                const latest = pendingNewRequests[0];
+                const totalPending = pendingNewRequests.length;
+                
+                let alertModal = document.getElementById('alert-modal');
+                if (alertModal) {
+                    let extraMsg = totalPending > 1 
+                        ? `<div style="margin-top:8px;font-size:0.78rem;color:var(--text-sec);text-align:center;font-weight:600">
+                            + altre ${totalPending - 1} richieste in sospeso — vedi il <span style="color:var(--primary);cursor:pointer" onclick="closeAlertAndSave();openNotifCenter()">Centro Notifiche</span>
+                           </div>` 
+                        : '';
+
+                    document.getElementById('alert-title-text').innerHTML = initialLoad 
+                        ? `⏳ ${totalPending} RICHIESTA${totalPending>1?'E':''} IN SOSPESO` 
+                        : `⚠️ NUOVA RICHIESTA RICEVUTA`;
+                    document.getElementById('alert-message-text').innerHTML = 
+                        (initialLoad ? `Ultima richiesta non ancora gestita:` : `Un operatore ha appena inviato una richiesta:`) 
+                        + latest.card.html + extraMsg;
+                    alertModal.style.display = 'flex';
+                    setTimeout(() => alertModal.classList.add('open'), 50);
+                }
+                if (!initialLoad && navigator.vibrate) navigator.vibrate([200, 100, 200]);
+            }
+
+            // Inserisci tutte le notifiche nel centro notifiche
+            if (pendingNotifs.length > 0) {
+                pendingNotifs.forEach(n => notifHistory.unshift(n));
+                if (typeof saveNotifications === 'function') saveNotifications();
+                if (typeof updateBadge === 'function') updateBadge();
+                let notifModal = document.getElementById('notif-center-modal');
+                if (notifModal && notifModal.classList.contains('open') && typeof renderNotifList === 'function') {
+                    renderNotifList();
+                }
+            }
+
+            initialLoad = false;
         });
     </script>
-
+   
 </body>
 </html>
