@@ -825,32 +825,50 @@
         }
 
         // ══════════════════════════════════════════════════════════
-        // PARSING TABELLA REPERIBILITÀ — versione robusta
+        // PARSING TABELLA REPERIBILITÀ — struttura ESATTA dal file Excel
         //
-        // Struttura nel foglio (dalla foto):
-        //   Riga 29: ... | "Tabella Reperibilità" (cella unita o semplice)
-        //   Riga 30: GENNAIO | 00 - 07 | 07 - 13 | 13 - 20 | 20 - 00
-        //   Riga 31: 1 Gio   | GHIOTTI | GHIOTTI  | SARTI   | SARTI
-        //   Riga 32: 2 Ven   | SARTI   | SARTI    | PAZZAGLIA| PAZZAGLIA
+        // Struttura verificata dal file turni.xlsx:
+        //   Row 29: B29 = "Tabella Reperibilità"  (titolo)
+        //   Row 30: B30 = "GENNAIO", C30 = time(0,0), D30 = "00 - 07",
+        //           E30 = "07 - 13", F30 = "13 - 20", G30 = "20 - 00"
+        //   Row 31: B31 = 1 (numero), C31 = "Gio", D31 = nome, E31 = nome, F31 = nome, G31 = nome
+        //   Row 63: B63 = "FEBBRAIO"  (nuovo mese, stessa struttura)
         //   ...
-        //   Riga 63: FEBBRAIO| 00 - 07 | 07 - 13  | 13 - 20 | 20 - 00
-        //   Riga 64: 1 Dom   | PAZZAGLIA| PAZZAGLIA| VOLPINI | VOLPINI
         //
-        // STRATEGIA:
-        //   1. Cerca "Tabella Reperibilità" per trovare la riga approssimativa
-        //   2. Scansiona le righe successive per trovare quella con un MESE + fasce orarie
-        //   3. Dalla riga con MESE, mappa le colonne delle fasce
-        //   4. Leggi i dati giorno per giorno
+        // In rawData di ExcelJS (1-based): col B = indice 2, D=4, E=5, F=6, G=7
+        //
+        // MAPPA FASCE (ordine colonne D→E→F→G):
+        //   D (col 4) = 00:00/07:00
+        //   E (col 5) = 07:00/13:00
+        //   F (col 6) = 13:00/20:00
+        //   G (col 7) = 20:00/00:00
         // ══════════════════════════════════════════════════════════
         function parseRepTable(rawData) {
             repData = {};
 
-            // ── STEP 1: Trova la riga con "Tabella Reperibilità" ──
+            // Mappa fissa colonne→fascia (verificata sul file Excel reale)
+            const REP_COL_MAP = {
+                4: "00:00/07:00",   // colonna D
+                5: "07:00/13:00",   // colonna E
+                6: "13:00/20:00",   // colonna F
+                7: "20:00/00:00"    // colonna G
+            };
+            const DAY_COL   = 2;  // colonna B = numero giorno / nome mese
+            const MESI_VALIDI = new Set(["GENNAIO","FEBBRAIO","MARZO","APRILE","MAGGIO","GIUGNO",
+                                         "LUGLIO","AGOSTO","SETTEMBRE","OTTOBRE","NOVEMBRE","DICEMBRE"]);
+
+            // Trova la riga con "Tabella Reperibilità" per sapere da dove partire
             let titleRow = -1;
-            for(let r=1; r<rawData.length; r++) {
+            for(let r = 1; r < rawData.length; r++) {
                 if(!rawData[r]) continue;
-                for(let c=1; c<50; c++) {
-                    let v = rawData[r][c] ? rawData[r][c].v : "";
+                let b = rawData[r][DAY_COL] ? rawData[r][DAY_COL].v : null;
+                if(b && b.toString().toLowerCase().includes("tabella reperibilit")) {
+                    titleRow = r;
+                    break;
+                }
+                // Controlla anche le altre colonne (per sicurezza)
+                for(let c = 1; c <= 8; c++) {
+                    let v = rawData[r][c] ? rawData[r][c].v : null;
                     if(v && v.toString().toLowerCase().includes("tabella reperibilit")) {
                         titleRow = r;
                         break;
@@ -859,163 +877,68 @@
                 if(titleRow > -1) break;
             }
 
-            // ── STEP 2: Se non trovata per testo, cerca la prima riga
-            //    che contiene un nome di MESE + almeno 2 intestazioni di fasce ──
-            let headerRow = -1;    // riga con "GENNAIO | 00-07 | ..."
-            let dayCol = -1;       // colonna del giorno (es. col 1 = A)
-            let colToFascia = {};  // { colIndex: "13:00/20:00", ... }
-
-            // Cerca dalla riga dopo titleRow (o da riga 20 se non trovato)
-            let scanFrom = titleRow > -1 ? titleRow : 20;
-            let scanTo = Math.min(rawData.length, scanFrom + 10);
-
-            for(let r=scanFrom; r<scanTo; r++) {
-                if(!rawData[r]) continue;
-                let tmpColToFascia = {};
-                let tmpDayCol = -1;
-                let foundMonth = false;
-
-                for(let c=1; c<50; c++) {
-                    let v = rawData[r][c] ? rawData[r][c].v : "";
-                    if(!v) continue;
-                    let vs = v.toString().trim().toUpperCase();
-
-                    // Controlla se è un nome di mese
-                    if(MONTH_MAP[vs] !== undefined) {
-                        foundMonth = true;
-                        tmpDayCol = c;
-                        continue;
-                    }
-
-                    // Controlla se è una fascia oraria
-                    let fascia = normalizeFasciaHeader(vs);
-                    if(fascia) tmpColToFascia[c] = fascia;
-                }
-
-                // Se troviamo mese + almeno 1 fascia (o 4 colonne dopo il mese)
-                if(foundMonth && Object.keys(tmpColToFascia).length >= 1) {
-                    headerRow = r;
-                    dayCol = tmpDayCol;
-                    colToFascia = tmpColToFascia;
-                    break;
-                }
-
-                // Caso speciale: mese trovato ma fasce senza label standard
-                // Usa le 4 colonne immediatamente dopo il mese
-                if(foundMonth && Object.keys(tmpColToFascia).length === 0 && tmpDayCol > -1) {
-                    headerRow = r;
-                    dayCol = tmpDayCol;
-                    const fasciaOrder = ["00:00/07:00","07:00/13:00","13:00/20:00","20:00/00:00"];
-                    for(let i=0; i<4; i++) colToFascia[tmpDayCol+1+i] = fasciaOrder[i];
-                    console.warn("⚠️ Fasce senza label, uso ordine fisso: 00-07, 07-13, 13-20, 20-00");
-                    break;
-                }
+            if(titleRow === -1) {
+                console.warn("⚠️ 'Tabella Reperibilità' non trovata nel file. Il sistema cercherà il primo mese.");
+                titleRow = 25; // fallback: cerca dalla riga 25 in poi
             }
 
-            // ── STEP 3: Se ancora non trovato, scansione estesa ──
-            if(headerRow === -1) {
-                for(let r=1; r<rawData.length; r++) {
-                    if(!rawData[r]) continue;
-                    let tmpCTF = {}, tmpDC = -1, foundM = false;
-                    for(let c=1; c<50; c++) {
-                        let v = rawData[r][c] ? rawData[r][c].v : "";
-                        if(!v) continue;
-                        let vs = v.toString().trim().toUpperCase();
-                        if(MONTH_MAP[vs] !== undefined) { foundM=true; tmpDC=c; }
-                        let fascia = normalizeFasciaHeader(vs);
-                        if(fascia) tmpCTF[c] = fascia;
-                    }
-                    if(foundM && (Object.keys(tmpCTF).length>=2 || Object.keys(tmpCTF).length>=1)) {
-                        headerRow = r; dayCol = tmpDC; colToFascia = tmpCTF;
-                        if(Object.keys(tmpCTF).length===0){
-                            const fo=["00:00/07:00","07:00/13:00","13:00/20:00","20:00/00:00"];
-                            for(let i=0;i<4;i++) colToFascia[tmpDC+1+i]=fo[i];
-                        }
-                        break;
-                    }
-                }
-            }
+            console.log(`✅ Tabella Reperibilità: titleRow=${titleRow}`);
 
-            if(headerRow === -1 || dayCol === -1) {
-                console.error("❌ Tabella Reperibilità: impossibile trovare la struttura. Controlla il file Excel.");
-                console.log("TitleRow trovato:", titleRow, "| ScanFrom:", scanFrom);
-                return;
-            }
-
-            // Se abbiamo trovato solo alcune fasce, aggiungi quelle mancanti in ordine
-            const allFasce = ["00:00/07:00","07:00/13:00","13:00/20:00","20:00/00:00"];
-            const foundFasce = new Set(Object.values(colToFascia));
-            if(foundFasce.size < 4) {
-                // Trova le colonne senza fascia assegnata a partire da dayCol+1
-                let missingFasce = allFasce.filter(f => !foundFasce.has(f));
-                for(let c=dayCol+1; c<dayCol+6; c++) {
-                    if(colToFascia[c]) continue; // già assegnata
-                    if(missingFasce.length === 0) break;
-                    // Controlla se questa colonna ha un'intestazione nella headerRow
-                    let v = rawData[headerRow][c] ? rawData[headerRow][c].v : "";
-                    if(!v || v.toString().trim()==="") continue;
-                    colToFascia[c] = missingFasce.shift();
-                }
-            }
-
-            console.log(`✅ Rep tabella: headerRow=${headerRow}, dayCol=${dayCol}`);
-            console.log("colToFascia:", colToFascia);
-
-            // ── STEP 4: Leggi i dati riga per riga ──
+            // Leggi dalla riga dopo il titolo fino alla fine della tabella
             let currentMonth = "";
-            // Prendi il mese dalla headerRow stessa
-            let firstMonthVal = rawData[headerRow][dayCol] ? rawData[headerRow][dayCol].v : "";
-            if(firstMonthVal && MONTH_MAP[firstMonthVal.toString().trim().toUpperCase()] !== undefined) {
-                currentMonth = firstMonthVal.toString().trim().toUpperCase();
-            }
+            let daysRead = 0;
 
-            for(let r=headerRow+1; r<rawData.length; r++) {
+            for(let r = titleRow + 1; r < Math.min(rawData.length, titleRow + 400); r++) {
                 if(!rawData[r]) continue;
-                let firstCell = rawData[r][dayCol] ? rawData[r][dayCol].v : "";
-                if(firstCell === null || firstCell === undefined || firstCell === "") continue;
 
-                let fs = firstCell.toString().trim().toUpperCase();
+                let bVal = rawData[r][DAY_COL] ? rawData[r][DAY_COL].v : null;
+                if(bVal === null || bVal === undefined) continue;
 
-                // È un mese?
-                if(MONTH_MAP[fs] !== undefined) {
-                    currentMonth = fs;
+                let bStr = bVal.toString().trim().toUpperCase();
+
+                // È un nome di mese? (riga header del mese)
+                if(MESI_VALIDI.has(bStr)) {
+                    currentMonth = bStr;
+                    if(!repData[currentMonth]) repData[currentMonth] = {};
                     continue;
                 }
 
-                // Estrai il numero del giorno: "1 Gio" → 1, "15" → 15
-                // Gestisce anche il formato "1 Gio" dove il testo è "1 Gio"
-                let dayMatch = fs.match(/^(\d{1,2})/);
-                if(!dayMatch) continue;
-                let dayNum = parseInt(dayMatch[1]);
+                // È un numero di giorno?
+                let dayNum = parseInt(bStr);
                 if(isNaN(dayNum) || dayNum < 1 || dayNum > 31) continue;
                 if(!currentMonth) continue;
 
-                if(!repData[currentMonth]) repData[currentMonth] = {};
-                if(!repData[currentMonth][dayNum]) repData[currentMonth][dayNum] = {};
-
-                // Leggi le 4 fasce
-                for(let col in colToFascia) {
-                    let fasciaKey = colToFascia[col];
-                    let cellVal = rawData[r][parseInt(col)] ? rawData[r][parseInt(col)].v : "";
-                    if(cellVal !== null && cellVal !== undefined && cellVal !== "") {
+                // Leggi le 4 fasce dalle colonne D, E, F, G
+                let dayData = {};
+                for(let col in REP_COL_MAP) {
+                    let fasciaKey = REP_COL_MAP[col];
+                    let cellVal = rawData[r][parseInt(col)] ? rawData[r][parseInt(col)].v : null;
+                    if(cellVal !== null && cellVal !== undefined) {
                         let nome = cellVal.toString().trim().toUpperCase();
-                        if(nome && nome !== "-" && nome !== "." && nome !== "0") {
-                            repData[currentMonth][dayNum][fasciaKey] = nome;
+                        if(nome && nome !== "-" && nome !== "." && nome !== "0" && nome !== "") {
+                            dayData[fasciaKey] = nome;
                         }
                     }
                 }
+
+                if(Object.keys(dayData).length > 0) {
+                    repData[currentMonth][dayNum] = dayData;
+                    daysRead++;
+                }
             }
 
-            let totalDays = Object.values(repData).reduce((s,m)=>s+Object.keys(m).length, 0);
-            console.log(`✅ Reperibilità: ${Object.keys(repData).length} mesi, ${totalDays} giorni parsati`);
-            if(totalDays === 0) {
-                console.error("❌ Nessun giorno parsato! Struttura tabella non riconosciuta.");
-                console.log("Prima riga dati (headerRow+1):", JSON.stringify(rawData[headerRow+1]?.slice(0,10)));
+            let mesiLetti = Object.keys(repData).length;
+            console.log(`✅ Rep parsata: ${mesiLetti} mesi, ${daysRead} giorni con dati`);
+
+            if(daysRead === 0) {
+                console.error("❌ Nessun dato reperibilità letto! Controlla titleRow e struttura colonne.");
             } else {
-                // Log di esempio per verifica
-                const firstMonth = Object.keys(repData)[0];
-                const firstDay = Object.keys(repData[firstMonth]||{})[0];
-                if(firstMonth && firstDay) console.log(`Esempio: ${firstMonth} giorno ${firstDay}:`, repData[firstMonth][firstDay]);
+                // Log di verifica
+                const fm = Object.keys(repData)[0];
+                const fd = Object.keys(repData[fm]||{})[0];
+                if(fm && fd) {
+                    console.log(`✅ Esempio: ${fm} g.${fd} →`, repData[fm][fd]);
+                }
             }
         }
 
@@ -1032,16 +955,19 @@
 
         // Ottieni dati reperibilità per un operatore in un giorno
         // Ritorna array di { fasciaKey, fasciaLabel, operatore, isMainDriver }
-        // Confronto nomi flessibile: gestisce abbreviazioni come "MICHELOT." vs "MICHELOTTI"
+        // Confronto nomi flessibile: gestisce abbreviazioni tipo "MICHELOT." = "MICHELOTTI"
         function nameMatchesDriver(cellName, driverName) {
             if(!cellName || !driverName) return false;
-            let cn = cellName.toString().toUpperCase().replace(/\.$/,'').trim();
-            let dn = driverName.toString().toUpperCase().replace(/\.$/,'').trim();
+            // Rimuovi punti finali e spazi, toUpperCase
+            let cn = cellName.toString().toUpperCase().replace(/\.+$/,'').trim();
+            let dn = driverName.toString().toUpperCase().replace(/\.+$/,'').trim();
             if(cn === dn) return true;
-            // Match parziale: uno inizia con l'altro (gestisce troncamenti)
-            if(cn.startsWith(dn) || dn.startsWith(cn)) return true;
-            // Match con i primi 6 caratteri
-            if(cn.length >= 6 && dn.length >= 6 && cn.substring(0,6) === dn.substring(0,6)) return true;
+            // Uno è prefisso dell'altro (es. "MICHELOT" e "MICHELOTTI")
+            if(cn.length >= 5 && dn.length >= 5) {
+                if(cn.startsWith(dn) || dn.startsWith(cn)) return true;
+                // Confronto primi 7 caratteri
+                if(cn.substring(0,7) === dn.substring(0,7)) return true;
+            }
             return false;
         }
 
