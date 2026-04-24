@@ -2195,7 +2195,7 @@
             title.innerHTML = `<span class="material-icons-round">${meta.icon}</span> ${meta.name}`;
             sub.innerText = `${weekDay} ${day} ${month}`;
 
-            // --- INIZIO GESTIONE VEICOLI NEL MODALE ---
+           // --- INIZIO GESTIONE VEICOLI NEL MODALE ---
             let dateKeyForVehicles = `${month}-${day}`;
             let vehicleTasks = appuntamentiVeicoli[dateKeyForVehicles];
 
@@ -2206,24 +2206,45 @@
                 vHeader.style.color = "#92400e";
                 vHeader.style.borderTop = "2px solid #fcd34d";
                 vHeader.style.borderBottom = "1px solid #fde68a";
-                vHeader.innerHTML = `<span class="material-icons-round" style="font-size:17px">directions_car</span> GESTIONE VEICOLI`;
+                
+                // Intestazione con pulsante per aprire il gestionale veicoli
+                vHeader.innerHTML = `
+                    <div style="display:flex; align-items:center; gap:6px; flex:1">
+                        <span class="material-icons-round" style="font-size:17px">directions_car</span> GESTIONE VEICOLI
+                    </div>
+                    <button onclick="window.open('https://centrale118rsm-code.github.io/Veicoli-118/', '_blank')" style="background:#f59e0b; color:white; border:none; border-radius:6px; padding:4px 8px; font-size:0.65rem; font-weight:bold; cursor:pointer; display:flex; align-items:center; gap:4px; box-shadow:0 2px 4px rgba(0,0,0,0.1)">
+                        APRI APP <span class="material-icons-round" style="font-size:12px">open_in_new</span>
+                    </button>
+                `;
                 list.appendChild(vHeader);
 
                 vehicleTasks.forEach(task => {
-                    let op = task.operazione || task.tipo_appuntamento || "Manutenzione"; 
-                    let veicolo = task.veicolo || task.mezzo || "";
-                    let officina = task.officina || task.luogo || "";
+                    let op = task.operazione || "Manutenzione"; 
+                    let veicolo = task.veicolo || "";
+                    let officina = task.officina || "";
+                    let problema = task.problema || "";
+                    let ora = task.ora || "";
+                    
                     let infoExtra = officina ? `presso ${officina}` : '';
+                    // Badge per l'ora dell'appuntamento
+                    let oraBadge = ora ? `<span style="background:#f59e0b; color:white; padding:2px 6px; border-radius:4px; font-size:0.7rem; font-weight:900; margin-left:6px">${ora}</span>` : '';
+                    // Rigo extra per la descrizione del problema
+                    let problemaHtml = problema ? `<div style="font-size:0.75rem; color:#92400e; font-weight:600; margin-top:5px; opacity:0.9; display:flex; align-items:flex-start; gap:4px; line-height:1.2"><span class="material-icons-round" style="font-size:12px; margin-top:1px">build_circle</span>${problema}</div>` : '';
                     
                     let div = document.createElement('div');
                     div.className = "colleague-item";
                     div.style.background = "#fffbeb";
+                    div.style.alignItems = "flex-start"; // Allinea in alto per gestire bene il testo a capo
+                    
                     div.innerHTML = `
-                        <span class="c-name" style="color:#b45309; display:flex; align-items:center; gap:6px;">
-                            <span class="material-icons-round" style="font-size:16px;">build</span>
-                            ${op} ${veicolo}
-                        </span>
-                        <span class="c-time" style="background:#fde68a; color:#92400e;">${infoExtra}</span>`;
+                        <div style="flex:1; padding-right:10px">
+                            <span class="c-name" style="color:#b45309; display:flex; align-items:center; gap:6px; flex-wrap:wrap">
+                                <span class="material-icons-round" style="font-size:16px;">build</span>
+                                ${op} ${veicolo} ${oraBadge}
+                            </span>
+                            ${problemaHtml}
+                        </div>
+                        <span class="c-time" style="background:#fde68a; color:#92400e; align-self:flex-start; margin-top:2px; text-align:right">${infoExtra}</span>`;
                     list.appendChild(div);
                 });
             }
@@ -3230,7 +3251,7 @@
             
             if (docSnapshot.exists) {
                 try {
-                    // Il gestionale salva l'intero array dei ticket come stringa JSON nel campo "data"
+                    // Il gestionale salva l'intero array dei ticket come stringa JSON
                     const activeTickets = JSON.parse(docSnapshot.data().data);
                     
                     activeTickets.forEach(tk => {
@@ -3247,7 +3268,9 @@
                                 appuntamentiVeicoli[dateKey].push({
                                     operazione: "Appuntamento",
                                     veicolo: tk.mezzo,
-                                    officina: tk.officinaAppuntamento || "Officina"
+                                    officina: tk.officinaAppuntamento || "Officina",
+                                    problema: tk.problema || "",
+                                    ora: tk.dataAppuntamentoOra || ""
                                 });
                             }
                         }
@@ -3263,9 +3286,11 @@
                                 if(!appuntamentiVeicoli[dateKey]) appuntamentiVeicoli[dateKey] = [];
                                 
                                 appuntamentiVeicoli[dateKey].push({
-                                    operazione: "Previsto Ritiro",
+                                    operazione: "Ritiro",
                                     veicolo: tk.mezzo,
-                                    officina: tk.officina || "Officina"
+                                    officina: tk.officina || "Officina",
+                                    problema: tk.problema || "",
+                                    ora: tk.dataStimataConsegnaOra || ""
                                 });
                             }
                         }
@@ -3275,7 +3300,7 @@
                 }
             }
 
-            // Se la tabella dei turni è già stata renderizzata, aggiornala per far comparire le icone
+            // Aggiorna se la tabella è già caricata
             if (typeof finalData !== 'undefined' && finalData.length > 0) {
                 renderTable();
             }
