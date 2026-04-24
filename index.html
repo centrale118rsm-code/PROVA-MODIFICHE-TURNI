@@ -3224,32 +3224,59 @@
             initialLoad = false;
         });
 
-        // --- LISTENER APPUNTAMENTI VEICOLI ---
-        // Sostituisci 'appuntamenti_veicoli' con il nome reale della tua collezione se diverso
-        db.collection('appuntamenti_veicoli').onSnapshot((snapshot) => {
+// --- LISTENER APPUNTAMENTI VEICOLI (COLLEGATO AL GESTIONALE REALE) ---
+        db.collection('gestionale_118').doc('tickets').onSnapshot((docSnapshot) => {
             appuntamentiVeicoli = {}; // Resetta l'oggetto
             
-            snapshot.forEach((doc) => {
-                const data = doc.data();
-                
-                // Assumo che tu salvi la data nel formato "YYYY-MM-DD" nel campo 'data'
-                if(data.data) {
-                    let d = new Date(data.data);
-                    // Trova il nome del mese corrispondente al numero
-                    let meseN = d.getMonth();
-                    let meseNome = Object.keys(MONTH_MAP).find(key => MONTH_MAP[key] === meseN);
-                    let giorno = d.getDate();
-                    let dateKey = `${meseNome}-${giorno}`; // Es: "APRILE-23"
+            if (docSnapshot.exists) {
+                try {
+                    // Il gestionale salva l'intero array dei ticket come stringa JSON nel campo "data"
+                    const activeTickets = JSON.parse(docSnapshot.data().data);
                     
-                    if(!appuntamentiVeicoli[dateKey]) {
-                        appuntamentiVeicoli[dateKey] = [];
-                    }
-                    appuntamentiVeicoli[dateKey].push(data);
+                    activeTickets.forEach(tk => {
+                        // 1. Gestione APPUNTAMENTI per veicoli segnalati
+                        if (tk.dataAppuntamento && tk.stato === 'segnalato') {
+                            let d = new Date(tk.dataAppuntamento);
+                            let meseNome = Object.keys(MONTH_MAP).find(key => MONTH_MAP[key] === d.getMonth());
+                            let giorno = d.getDate();
+                            
+                            if (meseNome && giorno) {
+                                let dateKey = `${meseNome}-${giorno}`;
+                                if(!appuntamentiVeicoli[dateKey]) appuntamentiVeicoli[dateKey] = [];
+                                
+                                appuntamentiVeicoli[dateKey].push({
+                                    operazione: "Appuntamento",
+                                    veicolo: tk.mezzo,
+                                    officina: tk.officinaAppuntamento || "Officina"
+                                });
+                            }
+                        }
+                        
+                        // 2. Gestione RITIRI per veicoli attualmente in officina
+                        if (tk.dataStimataConsegna && tk.stato === 'in_officina') {
+                            let d = new Date(tk.dataStimataConsegna);
+                            let meseNome = Object.keys(MONTH_MAP).find(key => MONTH_MAP[key] === d.getMonth());
+                            let giorno = d.getDate();
+                            
+                            if (meseNome && giorno) {
+                                let dateKey = `${meseNome}-${giorno}`;
+                                if(!appuntamentiVeicoli[dateKey]) appuntamentiVeicoli[dateKey] = [];
+                                
+                                appuntamentiVeicoli[dateKey].push({
+                                    operazione: "Previsto Ritiro",
+                                    veicolo: tk.mezzo,
+                                    officina: tk.officina || "Officina"
+                                });
+                            }
+                        }
+                    });
+                } catch (e) {
+                    console.error("Errore nella lettura dei ticket dei veicoli:", e);
                 }
-            });
+            }
 
-            // Se la tabella è già stata renderizzata, aggiornala per mostrare le icone
-            if(finalData && finalData.length > 0) {
+            // Se la tabella dei turni è già stata renderizzata, aggiornala per far comparire le icone
+            if (typeof finalData !== 'undefined' && finalData.length > 0) {
                 renderTable();
             }
         });
