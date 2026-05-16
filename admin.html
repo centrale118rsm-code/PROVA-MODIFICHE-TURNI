@@ -7,6 +7,8 @@
 <title>A.S. 26 — Admin</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; outline: none; }
 :root {
@@ -190,7 +192,13 @@ input:checked + .slider:before { transform: translateX(22px); }
       <div class="hdr-sub">A.S. 26 — San Marino</div>
     </div>
   </div>
-  <button class="btn-back" onclick="history.back()"><span class="material-icons-round">arrow_back</span></button>
+  <div style="display:flex;align-items:center;gap:8px">
+    <div id="fb-status" style="display:flex;align-items:center;gap:5px;background:rgba(255,255,255,0.12);border-radius:8px;padding:4px 10px">
+      <span id="fb-dot" style="width:7px;height:7px;border-radius:50%;background:#94a3b8;flex-shrink:0"></span>
+      <span id="fb-label" style="font-size:0.65rem;font-weight:700;color:rgba(255,255,255,0.7)">Firebase</span>
+    </div>
+    <button class="btn-back" onclick="history.back()"><span class="material-icons-round">arrow_back</span></button>
+  </div>
 </header>
 
 <!-- MAIN PAGE -->
@@ -443,6 +451,43 @@ input:checked + .slider:before { transform: translateX(22px); }
     </div>
   </div>
 
+  <!-- ── FIREBASE ── -->
+  <div class="section-divider">Firebase</div>
+  <div class="card">
+    <div class="card-header">
+      <div class="card-header-icon" style="background:#fff7ed"><span class="material-icons-round" style="color:#f97316">local_fire_department</span></div>
+      <div class="card-header-text"><h3>Firebase</h3><p>Connesso — salvataggio real-time su tutti i dispositivi</p></div>
+    </div>
+    <div style="padding:14px 18px;background:#f0fdf4;border-bottom:1px solid #bbf7d0">
+      <div style="display:flex;gap:10px;align-items:flex-start">
+        <span class="material-icons-round" style="color:#16a34a;font-size:18px;flex-shrink:0;margin-top:2px">check_circle</span>
+        <div style="font-size:0.78rem;color:#14532d;line-height:1.5;font-weight:500">
+          L'admin è collegato a <b>Firestore</b>. Quando premi <b>Salva</b>, la configurazione viene scritta su <code style="background:#bbf7d0;padding:1px 5px;border-radius:4px;font-size:0.72rem">as26_config/settings</code> e applicata in <b>real-time</b> su tutti i cellulari dei colleghi senza ricaricare la pagina.
+        </div>
+      </div>
+    </div>
+    <div class="row" style="flex-direction:column;align-items:stretch;gap:10px">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:8px 10px">
+          <div style="font-size:0.6rem;font-weight:800;color:var(--text-sec);text-transform:uppercase;letter-spacing:0.5px">Progetto</div>
+          <div style="font-size:0.78rem;font-weight:700;color:var(--text);margin-top:2px">area-personale-autsocc-118-rsm</div>
+        </div>
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:8px 10px">
+          <div style="font-size:0.6rem;font-weight:800;color:var(--text-sec);text-transform:uppercase;letter-spacing:0.5px">Documento</div>
+          <div style="font-size:0.78rem;font-weight:700;color:var(--text);margin-top:2px">as26_config/settings</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn-add" style="flex:1" onclick="window.open('https://console.firebase.google.com/project/area-personale-autsocc-118-rsm/firestore','_blank')">
+          <span class="material-icons-round" style="font-size:16px">storage</span> Apri Firestore
+        </button>
+        <button class="btn-add" style="flex:1" onclick="loadFromFirebase()">
+          <span class="material-icons-round" style="font-size:16px">cloud_download</span> Ricarica da DB
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- SALVA -->
   <button class="btn-save" onclick="saveAll()">
     <span class="material-icons-round">save</span> SALVA CONFIGURAZIONE
@@ -453,6 +498,19 @@ input:checked + .slider:before { transform: translateX(22px); }
 <div id="toast">✓ Salvato</div>
 
 <script>
+// ── FIREBASE CONFIG ──
+const firebaseConfig = {
+  apiKey: "AIzaSyAMX2ycf_6P3AcBvarVX4XNKbdposkuqgE",
+  authDomain: "area-personale-autsocc-118-rsm.firebaseapp.com",
+  projectId: "area-personale-autsocc-118-rsm",
+  storageBucket: "area-personale-autsocc-118-rsm.firebasestorage.app",
+  messagingSenderId: "910283994567",
+  appId: "1:910283994567:web:d9c45b5f4b5a83b92595e2"
+};
+if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+const CONFIG_DOC = db.collection('as26_config').doc('settings');
+
 // ── DATI DEFAULT ──
 const DEFAULT_DRIVERS = ["Barbieri","Pazzaglia","Bianchi","Sarti","Ghiotti","Berardi","Michelotti","Volpini","Fabbri"];
 const DEFAULT_HOLIDAYS = [
@@ -464,14 +522,22 @@ const DEFAULT_HOLIDAYS = [
   {key:"11-8",name:"IMMACOLATA"},{key:"11-25",name:"NATALE"},{key:"11-26",name:"S. STEFANO"}
 ];
 
-const STORAGE_KEY = "as26_admin_config";
+// ── STATO FIREBASE ──
+function setFbStatus(ok) {
+  const dot = document.getElementById('fb-dot');
+  const lbl = document.getElementById('fb-label');
+  if (!dot || !lbl) return;
+  dot.style.background = ok ? '#22c55e' : '#ef4444';
+  lbl.textContent = ok ? 'Online' : 'Errore';
+  lbl.style.color = ok ? 'rgba(255,255,255,0.9)' : '#fca5a5';
+}
 
 // ── LOCK ──
 function unlock() {
   const pwd = document.getElementById('pwd-input').value.trim().toLowerCase();
   if (pwd === 'ambulanza') {
     document.getElementById('lock-screen').style.display = 'none';
-    loadConfig();
+    loadFromFirebase();
   } else {
     const err = document.getElementById('lock-error');
     err.textContent = '❌ Password errata. Riprova.';
@@ -481,11 +547,24 @@ function unlock() {
   }
 }
 
-// ── LOAD CONFIG ──
-function loadConfig() {
-  let cfg = {};
-  try { cfg = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); } catch(e) {}
+// ── CARICA DA FIRESTORE ──
+function loadFromFirebase() {
+  showToast('⏳ Caricamento da Firebase...');
+  CONFIG_DOC.get().then(doc => {
+    const cfg = doc.exists ? doc.data() : {};
+    setFbStatus(true);
+    applyConfigToUI(cfg);
+    showToast('✓ Configurazione caricata da Firebase');
+  }).catch(e => {
+    setFbStatus(false);
+    console.error(e);
+    showToast('⚠️ Errore Firebase — carico default');
+    applyConfigToUI({});
+  });
+}
 
+// ── APPLICA CONFIG ALL'UI ──
+function applyConfigToUI(cfg) {
   // toggles
   const togs = ['repbar','timetag','dog','vehicle','dots','changelog','repnotif','infbtn','dinner'];
   togs.forEach(t => {
@@ -494,40 +573,39 @@ function loadConfig() {
   });
 
   // drivers
-  const drivers = cfg.drivers || DEFAULT_DRIVERS;
-  renderDriverList(drivers);
+  renderDriverList(cfg.drivers || DEFAULT_DRIVERS);
 
   // shift colors
   const sc = cfg.shiftColors || {};
-  setColor('c-M-bg', sc['M-bg'] || '#026bfe');
-  setColor('c-M-text', sc['M-text'] || '#ffffff');
-  setColor('c-M-border', sc['M-border'] || '#bae6fd');
-  setColor('c-P-bg', sc['P-bg'] || '#56a2ff');
-  setColor('c-P-text', sc['P-text'] || '#ffffff');
-  setColor('c-P-border', sc['P-border'] || '#c7d2fe');
-  setColor('c-N-bg', sc['N-bg'] || '#003785');
-  setColor('c-N-text', sc['N-text'] || '#ffffff');
-  setColor('c-N-border', sc['N-border'] || '#c7d2fe');
-  setColor('c-SM-bg', sc['SM-bg'] || '#10004f');
+  setColor('c-M-bg',    sc['M-bg']    || '#026bfe');
+  setColor('c-M-text',  sc['M-text']  || '#ffffff');
+  setColor('c-M-border',sc['M-border']|| '#bae6fd');
+  setColor('c-P-bg',    sc['P-bg']    || '#56a2ff');
+  setColor('c-P-text',  sc['P-text']  || '#ffffff');
+  setColor('c-P-border',sc['P-border']|| '#c7d2fe');
+  setColor('c-N-bg',    sc['N-bg']    || '#003785');
+  setColor('c-N-text',  sc['N-text']  || '#ffffff');
+  setColor('c-N-border',sc['N-border']|| '#c7d2fe');
+  setColor('c-SM-bg',   sc['SM-bg']   || '#10004f');
   setColor('c-SM-text', sc['SM-text'] || '#ffffff');
-  setColor('c-SM-border', sc['SM-border'] || '#cbd5e1');
-  setColor('c-R-bg', sc['R-bg'] || '#ecfdf5');
-  setColor('c-R-text', sc['R-text'] || '#059669');
-  setColor('c-R-border', sc['R-border'] || '#6ee7b7');
+  setColor('c-SM-border',sc['SM-border']||'#cbd5e1');
+  setColor('c-R-bg',    sc['R-bg']    || '#ecfdf5');
+  setColor('c-R-text',  sc['R-text']  || '#059669');
+  setColor('c-R-border',sc['R-border']|| '#6ee7b7');
   setColor('c-rep-sub', sc['rep-sub'] || '#dc2626');
-  setColor('c-rep-cover', sc['rep-cover'] || '#ca8a04');
+  setColor('c-rep-cover',sc['rep-cover']||'#ca8a04');
   setColor('c-rep-own', sc['rep-own'] || '#16a34a');
 
   // special colors
   const sp = cfg.specialColors || {};
-  setColor('c-ferie-bg', sp['ferie-bg'] || '#ff782f');
-  setColor('c-ferie-text', sp['ferie-text'] || '#ffffff');
-  setColor('c-perm-bg', sp['perm-bg'] || '#00e749');
+  setColor('c-ferie-bg',  sp['ferie-bg']  || '#ff782f');
+  setColor('c-ferie-text',sp['ferie-text']|| '#ffffff');
+  setColor('c-perm-bg',   sp['perm-bg']   || '#00e749');
   setColor('c-perm-text', sp['perm-text'] || '#000000');
-  setColor('c-cong-bg', sp['cong-bg'] || '#ffea00');
+  setColor('c-cong-bg',   sp['cong-bg']   || '#ffea00');
   setColor('c-cong-text', sp['cong-text'] || '#000000');
-  setColor('c-rec-bg', sp['rec-bg'] || '#d00173');
-  setColor('c-rec-text', sp['rec-text'] || '#ffe8f2');
+  setColor('c-rec-bg',    sp['rec-bg']    || '#d00173');
+  setColor('c-rec-text',  sp['rec-text']  || '#ffe8f2');
 
   // schedules
   const sch = cfg.schedules || {};
@@ -539,8 +617,7 @@ function loadConfig() {
   document.getElementById('sched-pD').value = sch.pD || '13:15-20:27';
 
   // holidays
-  const holidays = cfg.holidays || DEFAULT_HOLIDAYS;
-  renderHolidayList(holidays);
+  renderHolidayList(cfg.holidays || DEFAULT_HOLIDAYS);
 
   // general
   const gen = cfg.general || {};
@@ -550,10 +627,10 @@ function loadConfig() {
   document.getElementById('cfg-cellh').value    = gen.cellH    || '60';
   document.getElementById('cfg-repbarh').value  = gen.repBarH  || '32';
   setColor('cfg-primary', gen.primary || '#2563eb');
-  document.getElementById('cfg-filename').value  = gen.filename || 'turni.xlsx';
-  document.getElementById('cfg-inf-url').value   = gen.infUrl  || 'https://centrale118rsm-code.github.io/Turni-Infermieri-2026/';
+  document.getElementById('cfg-filename').value = gen.filename || 'turni.xlsx';
+  document.getElementById('cfg-inf-url').value  = gen.infUrl  || 'https://centrale118rsm-code.github.io/Turni-Infermieri-2026/';
 
-  // preview all
+  // preview
   ['M','P','N','SM','R','REP'].forEach(previewShift);
   ['ferie','perm','cong','rec'].forEach(previewSpecial);
 }
@@ -598,7 +675,6 @@ function addDriver() {
 function removeDriver(btn) {
   if (!confirm('Rimuovere questo autista?')) return;
   btn.parentElement.remove();
-  // Rinnumera
   document.querySelectorAll('.driver-item').forEach((el, i) => {
     el.querySelector('.driver-num').textContent = i + 1;
   });
@@ -662,22 +738,20 @@ function getHolidays() {
 function previewShift(type) {
   if (type === 'REP') {
     const sub = document.getElementById('c-rep-sub').value;
-    const cover = document.getElementById('c-rep-cover').value;
-    const own = document.getElementById('c-rep-own').value;
     const el = document.getElementById('prev-REP');
     if (el) { el.style.background = sub; el.style.color = '#fff'; }
     return;
   }
-  const bg = document.getElementById(`c-${type}-bg`)?.value;
+  const bg   = document.getElementById(`c-${type}-bg`)?.value;
   const text = document.getElementById(`c-${type}-text`)?.value;
-  const el = document.getElementById(`prev-${type}`);
+  const el   = document.getElementById(`prev-${type}`);
   if (el && bg && text) { el.style.background = bg; el.style.color = text; }
 }
 
 function previewSpecial(type) {
-  const bg = document.getElementById(`c-${type}-bg`)?.value;
+  const bg   = document.getElementById(`c-${type}-bg`)?.value;
   const text = document.getElementById(`c-${type}-text`)?.value;
-  const el = document.getElementById(`prev-${type}`);
+  const el   = document.getElementById(`prev-${type}`);
   if (el && bg && text) { el.style.background = bg; el.style.color = text; }
 }
 
@@ -688,42 +762,54 @@ function collectConfig() {
   togs.forEach(t => { togObj['tog_' + t] = document.getElementById('tog-' + t)?.checked !== false; });
 
   const shiftColors = {
-    'M-bg': gv('c-M-bg'), 'M-text': gv('c-M-text'), 'M-border': gv('c-M-border'),
-    'P-bg': gv('c-P-bg'), 'P-text': gv('c-P-text'), 'P-border': gv('c-P-border'),
-    'N-bg': gv('c-N-bg'), 'N-text': gv('c-N-text'), 'N-border': gv('c-N-border'),
-    'SM-bg': gv('c-SM-bg'), 'SM-text': gv('c-SM-text'), 'SM-border': gv('c-SM-border'),
-    'R-bg': gv('c-R-bg'), 'R-text': gv('c-R-text'), 'R-border': gv('c-R-border'),
-    'rep-sub': gv('c-rep-sub'), 'rep-cover': gv('c-rep-cover'), 'rep-own': gv('c-rep-own'),
+    'M-bg':gv('c-M-bg'),'M-text':gv('c-M-text'),'M-border':gv('c-M-border'),
+    'P-bg':gv('c-P-bg'),'P-text':gv('c-P-text'),'P-border':gv('c-P-border'),
+    'N-bg':gv('c-N-bg'),'N-text':gv('c-N-text'),'N-border':gv('c-N-border'),
+    'SM-bg':gv('c-SM-bg'),'SM-text':gv('c-SM-text'),'SM-border':gv('c-SM-border'),
+    'R-bg':gv('c-R-bg'),'R-text':gv('c-R-text'),'R-border':gv('c-R-border'),
+    'rep-sub':gv('c-rep-sub'),'rep-cover':gv('c-rep-cover'),'rep-own':gv('c-rep-own'),
   };
 
   const specialColors = {
-    'ferie-bg': gv('c-ferie-bg'), 'ferie-text': gv('c-ferie-text'),
-    'perm-bg': gv('c-perm-bg'), 'perm-text': gv('c-perm-text'),
-    'cong-bg': gv('c-cong-bg'), 'cong-text': gv('c-cong-text'),
-    'rec-bg': gv('c-rec-bg'), 'rec-text': gv('c-rec-text'),
+    'ferie-bg':gv('c-ferie-bg'),'ferie-text':gv('c-ferie-text'),
+    'perm-bg':gv('c-perm-bg'),'perm-text':gv('c-perm-text'),
+    'cong-bg':gv('c-cong-bg'),'cong-text':gv('c-cong-text'),
+    'rec-bg':gv('c-rec-bg'),'rec-text':gv('c-rec-text'),
   };
 
   const schedules = {
-    M: gv('sched-M'), P: gv('sched-P'), N: gv('sched-N'), SM: gv('sched-SM'),
-    mD: gv('sched-mD'), pD: gv('sched-pD'),
+    M:gv('sched-M'),P:gv('sched-P'),N:gv('sched-N'),SM:gv('sched-SM'),
+    mD:gv('sched-mD'),pD:gv('sched-pD'),
   };
 
   const general = {
-    year: gv('cfg-year'), title: gv('cfg-title'), subtitle: gv('cfg-subtitle'),
-    cellH: gv('cfg-cellh'), repBarH: gv('cfg-repbarh'), primary: gv('cfg-primary'),
-    filename: gv('cfg-filename'), infUrl: gv('cfg-inf-url'),
+    year:gv('cfg-year'),title:gv('cfg-title'),subtitle:gv('cfg-subtitle'),
+    cellH:gv('cfg-cellh'),repBarH:gv('cfg-repbarh'),primary:gv('cfg-primary'),
+    filename:gv('cfg-filename'),infUrl:gv('cfg-inf-url'),
   };
 
-  return { ...togObj, drivers: getDrivers(), shiftColors, specialColors, schedules, holidays: getHolidays(), general };
+  return { ...togObj, drivers:getDrivers(), shiftColors, specialColors, schedules, holidays:getHolidays(), general,
+           _updatedAt: new Date().toISOString(), _updatedBy: 'Admin' };
 }
 
 function gv(id) { const el = document.getElementById(id); return el ? el.value : ''; }
 
-// ── SAVE ──
+// ── SALVA SU FIREBASE ──
 function saveAll() {
   const cfg = collectConfig();
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(cfg));
-  showToast('✓ Configurazione salvata!');
+  const btnSave = document.querySelector('.btn-save');
+  if (btnSave) { btnSave.disabled = true; btnSave.innerHTML = '<span class="material-icons-round">hourglass_top</span> Salvataggio...'; }
+
+  CONFIG_DOC.set(cfg).then(() => {
+    setFbStatus(true);
+    showToast('✅ Salvato su Firebase — aggiornamento in corso su tutti i dispositivi');
+    if (btnSave) { btnSave.disabled = false; btnSave.innerHTML = '<span class="material-icons-round">save</span> SALVA CONFIGURAZIONE'; }
+  }).catch(e => {
+    setFbStatus(false);
+    console.error(e);
+    showToast('❌ Errore salvataggio: ' + e.message);
+    if (btnSave) { btnSave.disabled = false; btnSave.innerHTML = '<span class="material-icons-round">save</span> SALVA CONFIGURAZIONE'; }
+  });
 }
 
 // ── JSON ──
@@ -741,20 +827,20 @@ function copyJson() {
 
 // ── AZIONI PERICOLOSE ──
 function clearNotifications() {
-  if (!confirm('Eliminare tutte le notifiche dall\'app turni?')) return;
+  if (!confirm(`Eliminare tutte le notifiche dall'app turni?`)) return;
   localStorage.removeItem('notifications_history');
-  showToast('✓ Notifiche eliminate');
+  showToast('✓ Notifiche locali eliminate');
 }
 
 function resetChangelog() {
-  if (!confirm('Resettare il popup changelog? Riapparirà al prossimo avvio.')) return;
+  if (!confirm('Resettare il popup changelog?')) return;
   localStorage.removeItem('changelog_seen_version');
   showToast('✓ Changelog resettato');
 }
 
 function clearAllStorage() {
-  if (!confirm('⚠️ ATTENZIONE!\nQuesto eliminerà TUTTI i dati salvati dell\'app (configurazione admin inclusa).\nSicuro?')) return;
-  if (!confirm('Ultima conferma: vuoi davvero resettare tutto?')) return;
+  if (!confirm('⚠️ ATTENZIONE!\nEliminare TUTTI i dati locali del browser?')) return;
+  if (!confirm('Ultima conferma: sicuro?')) return;
   localStorage.clear();
   showToast('✓ localStorage svuotato');
 }
@@ -764,10 +850,11 @@ function showToast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg;
   t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2500);
+  clearTimeout(window._toastTimer);
+  window._toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
 }
 
-// Focus auto sul campo password
+// ── INIT ──
 window.addEventListener('load', () => {
   document.getElementById('pwd-input').focus();
 });

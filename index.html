@@ -126,15 +126,21 @@
             height: var(--th-h); backdrop-filter: blur(5px);
             white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
         }
-        thead th:first-child, .td-date { width: 60px !important; min-width: 60px !important; max-width: 60px !important; }
+        thead th:first-child, tbody td:first-child { width: 60px !important; min-width: 60px !important; max-width: 60px !important; }
         thead th:first-child { position: -webkit-sticky !important; position: sticky !important; left: 0; z-index: 96 !important; background: var(--bg) !important; }
-        .td-date { position: -webkit-sticky !important; position: sticky !important; left: 0; z-index: 80; }
+        /* MESE STICKY: il td colspan diventa sticky in entrambe le direzioni */
         tr.month-header td {
             background: var(--month-bar-bg); color: white;
-            position: sticky; top: calc(var(--header-h) + var(--th-h)); z-index: 85;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2); padding: 0; border: none; line-height: 1;
+            position: -webkit-sticky !important;
+            position: sticky !important;
+            top: calc(var(--header-h) + var(--th-h));
+            left: 0;
+            z-index: 88;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            padding: 0; border: none; line-height: 1;
+            width: 100vw !important; min-width: 100vw !important; max-width: 100vw !important;
         }
-        .sticky-month-text { position: sticky; left: 0; width: 100vw; text-align: left; padding: 4px 0 4px 16px; display: flex; align-items: center; gap: 12px; min-height: 40px; }
+        .sticky-month-text { display: flex; align-items: center; gap: 12px; min-height: 40px; padding: 4px 0 4px 16px; width: 100vw; }
         .month-label { font-weight: 900; font-size: 1.4rem; text-transform: uppercase; letter-spacing: -0.5px; text-shadow: 0 2px 4px rgba(0,0,0,0.2); }
         .live-clock { font-variant-numeric: tabular-nums; font-weight: 800; font-size: 1rem; background: rgba(0,0,0,0.25); padding: 2px 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); letter-spacing: 0.5px; box-shadow: inset 0 1px 3px rgba(0,0,0,0.1); text-shadow: 0 1px 2px rgba(0,0,0,0.2); }
         tbody td {
@@ -144,18 +150,30 @@
             width: 110px !important; min-width: 110px !important; max-width: 110px !important;
             overflow: hidden;
         }
-        .td-date {
+        /* PRIMA COLONNA (DATA): sticky, padding 0, niente bordo proprio */
+        tbody td.td-date {
+            position: -webkit-sticky !important;
+            position: sticky !important;
+            left: 0; z-index: 80;
+            padding: 0 !important;
+            border-right: 2px solid var(--border) !important;
+            border-bottom: none !important;
+            background: var(--bg);
             text-align: center; font-weight: 800; color: var(--text-main); font-size: 1.1rem;
-            border-right: 2px solid var(--border); background: var(--bg);
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            height: var(--cell-h);
+            vertical-align: middle;
         }
-        .td-date small { display: block; font-weight: 600; font-size: 0.7rem; text-transform: uppercase; color: var(--text-sec); margin-top: 0; line-height: 1; }
-        .td-date.date-red { color: #dc2626; background: #fef2f2; border-right-color: #fca5a5; }
+        .td-date-inner {
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            height: 100%; width: 100%;
+            padding: 4px 0;
+            box-sizing: border-box;
+        }
+        .td-date small { display: block; font-weight: 600; font-size: 0.7rem; text-transform: uppercase; color: var(--text-sec); margin-top: 0; line-height: 1.1; }
+        .td-date.date-red { color: #dc2626 !important; background: #fef2f2 !important; border-right-color: #fca5a5 !important; }
         .td-date.date-red small { color: #ef4444; }
-        body.dark-mode .td-date.date-red { background: #450a0a; color: #fca5a5; border-right-color: #7f1d1d; }
+        body.dark-mode .td-date.date-red { background: #450a0a !important; color: #fca5a5 !important; border-right-color: #7f1d1d !important; }
         body.dark-mode .td-date.date-red small { color: #fecaca; }
-        .holiday-name { font-size: 0.48rem; color: #dc2626; font-weight: 900; line-height: 1; margin-top: 1px; max-width: 54px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .holiday-name { font-size: 0.44rem; color: #dc2626; font-weight: 900; line-height: 1; margin-top: 1px; writing-mode: vertical-rl; transform: rotate(180deg); max-height: 44px; overflow: hidden; white-space: nowrap; letter-spacing: 0.2px; }
         body.dark-mode .holiday-name { color: #f87171; }
         .shift-dots { display: flex; flex-direction: row; gap: 3px; margin-top: 3px; justify-content: center; }
         .sd { width: 17px; height: 17px; border-radius: 5px; display: flex; align-items: center; justify-content: center; font-size: 0.58rem; font-weight: 900; line-height: 1; flex-shrink: 0; }
@@ -188,18 +206,19 @@
             overflow: hidden; padding: 2px 3px; max-width: 100%;
         }
         .rep-bar-seg .rep-time {
-            font-size: 0.58rem;
+            font-size: 0.55rem;
             white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
             max-width: 100%;
         }
         .rep-bar-seg .rep-name {
-            font-size: 0.55rem;
+            font-size: 0.42rem;
             font-weight: 800;
             color: #ffffff;
-            margin-top: 2px;
+            margin-top: 1px;
             white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
             max-width: 100%;
             opacity: 0.95;
+            letter-spacing: -0.2px;
         }
         .rep-bar-seg.green { background: #16a34a; }
         .rep-bar-seg.red   { background: #dc2626; }
@@ -626,7 +645,9 @@
         const MONTH_MAP = { "GENNAIO":0,"FEBBRAIO":1,"MARZO":2,"APRILE":3,"MAGGIO":4,"GIUGNO":5,"LUGLIO":6,"AGOSTO":7,"SETTEMBRE":8,"OTTOBRE":9,"NOVEMBRE":10,"DICEMBRE":11 };
         const MONTH_NUM = { "GENNAIO":1,"FEBBRAIO":2,"MARZO":3,"APRILE":4,"MAGGIO":5,"GIUGNO":6,"LUGLIO":7,"AGOSTO":8,"SETTEMBRE":9,"OTTOBRE":10,"NOVEMBRE":11,"DICEMBRE":12 };
 
-        const REPERIBILITA = {"1_1": ["GHIOTTI", "GHIOTTI", "SARTI", "SARTI"], "1_2": ["SARTI", "SARTI", "PAZZAGLIA", "PAZZAGLIA"], "1_3": ["PAZZAGLIA", "PAZZAGLIA", "FABBRI", "FABBRI"], "1_4": ["FABBRI", "FABBRI", "VOLPINI", "VOLPINI"], "1_5": ["VOLPINI", "VOLPINI", "GHIOTTI", "GHIOTTI"], "1_6": ["GHIOTTI", "GHIOTTI", "MICHELOT.", "MICHELOT."], "1_7": ["MICHELOT.", "MICHELOT.", "BIANCHI", "BIANCHI"], "1_8": ["BIANCHI", "BIANCHI", "BARBIERI", "BARBIERI"], "1_9": ["BARBIERI", "BARBIERI", "BERARDI", "BERARDI"], "1_10": ["BERARDI", "BERARDI", "GHIOTTI", "GHIOTTI"], "1_11": ["GHIOTTI", "GHIOTTI", "MICHELOT.", "MICHELOT."], "1_12": ["MICHELOT.", "MICHELOT.", "PAZZAGLIA", "PAZZAGLIA"], "1_13": ["PAZZAGLIA", "PAZZAGLIA", "BIANCHI", "BIANCHI"], "1_14": ["BIANCHI", "BIANCHI", "BERARDI", "BERARDI"], "1_15": ["BERARDI", "BERARDI", "VOLPINI", "VOLPINI"], "1_16": ["VOLPINI", "VOLPINI", "FABBRI", "FABBRI"], "1_17": ["FABBRI", "FABBRI", "PAZZAGLIA", "PAZZAGLIA"], "1_18": ["PAZZAGLIA", "PAZZAGLIA", "BIANCHI", "BIANCHI"], "1_19": ["BIANCHI", "BIANCHI", "SARTI", "SARTI"], "1_20": ["SARTI", "SARTI", "VOLPINI", "VOLPINI"], "1_21": ["GHIOTTI", "SARTI", "MICHELOT.", "MICHELOT."], "1_22": ["MICHELOT.", "MICHELOT.", "VOLPINI", "VOLPINI"], "1_23": ["VOLPINI", "BERARDI", "BIANCHI", "BIANCHI"], "1_24": ["BIANCHI", "BIANCHI", "BERARDI", "BERARDI"], "1_25": ["BERARDI", "BERARDI", "SARTI", "SARTI"], "1_26": ["SARTI", "SARTI", "MICHELOT.", "MICHELOT."], "1_27": ["MICHELOT.", "MICHELOT.", "VOLPINI", "VOLPINI"], "1_28": ["VOLPINI", "VOLPINI", "GHIOTTI", "GHIOTTI"], "1_29": ["GHIOTTI", "GHIOTTI", "BARBIERI", "BARBIERI"], "1_30": ["BARBIERI", "BARBIERI", "SARTI", "SARTI"], "1_31": ["SARTI", "SARTI", "PAZZAGLIA", "PAZZAGLIA"], "2_1": ["PAZZAGLIA", "PAZZAGLIA", "VOLPINI", "VOLPINI"], "2_2": ["VOLPINI", "VOLPINI", "BERARDI", "BERARDI"], "2_3": ["BERARDI", "BERARDI", "BARBIERI", "BARBIERI"], "2_4": ["BARBIERI", "BARBIERI", "GHIOTTI", "GHIOTTI"], "2_5": ["GHIOTTI", "GHIOTTI", "MICHELOT.", "MICHELOT."], "2_6": ["MICHELOT.", "MICHELOT.", "BERARDI", "BIANCHI"], "2_7": ["BERARDI", "BERARDI", "BARBIERI", "BARBIERI"], "2_8": ["BARBIERI", "BARBIERI", "FABBRI", "FABBRI"], "2_9": ["FABBRI", "FABBRI", "SARTI", "MICHELOT."], "2_10": ["SARTI", "SARTI", "BERARDI", "BERARDI"], "2_11": ["BERARDI", "BERARDI", "GHIOTTI", "GHIOTTI"], "2_12": ["GHIOTTI", "GHIOTTI", "BIANCHI", "BIANCHI"], "2_13": ["BIANCHI", "BIANCHI", "FABBRI", "FABBRI"], "2_14": ["FABBRI", "FABBRI", "MICHELOT.", "MICHELOT."], "2_15": ["MICHELOT.", "MICHELOT.", "BARBIERI", "BARBIERI"], "2_16": ["BARBIERI", "BARBIERI", "VOLPINI", "VOLPINI"], "2_17": ["VOLPINI", "VOLPINI", "PAZZAGLIA", "PAZZAGLIA"], "2_18": ["PAZZAGLIA", "PAZZAGLIA", "BERARDI", "BERARDI"], "2_19": ["BERARDI", "BERARDI", "SARTI", "SARTI"], "2_20": ["SARTI", "SARTI", "BARBIERI", "BARBIERI"], "2_21": ["BARBIERI", "BARBIERI", "VOLPINI", "VOLPINI"], "2_22": ["MICHELOT.", "VOLPINI", "MICHELOT.", "MICHELOT."], "2_23": ["MICHELOT.", "MICHELOT.", "FABBRI", "FABBRI"], "2_24": ["FABBRI", "FABBRI", "BIANCHI", "BIANCHI"], "2_25": ["BIANCHI", "BIANCHI", "BARBIERI", "BARBIERI"], "2_26": ["BARBIERI", "SARTI", "GHIOTTI", "GHIOTTI"], "2_27": ["GHIOTTI", "GHIOTTI", "PAZZAGLIA", "PAZZAGLIA"], "2_28": ["PAZZAGLIA", "PAZZAGLIA", "FABBRI", "FABBRI"], "3_1": ["FABBRI", "FABBRI", "MICHELOT.", "MICHELOT."], "3_2": ["MICHELOT.", "MICHELOT.", "SARTI", "SARTI"], "3_3": ["SARTI", "SARTI", "VOLPINI", "VOLPINI"], "3_4": ["GHIOTTI", "GHIOTTI", "BIANCHI", "BIANCHI"], "3_5": ["BIANCHI", "BIANCHI", "FABBRI", "FABBRI"], "3_6": ["FABBRI", "FABBRI", "BERARDI", "VOLPINI"], "3_7": ["GHIOTTI", "BERARDI", "BARBIERI", "BARBIERI"], "3_8": ["BARBIERI", "BARBIERI", "GHIOTTI", "GHIOTTI"], "3_9": ["GHIOTTI", "GHIOTTI", "PAZZAGLIA", "PAZZAGLIA"], "3_10": ["PAZZAGLIA", "VOLPINI", "BIANCHI", "BIANCHI"], "3_11": ["BIANCHI", "BIANCHI", "FABBRI", "FABBRI"], "3_12": ["FABBRI", "FABBRI", "BARBIERI", "BARBIERI"], "3_13": ["BARBIERI", "BARBIERI", "SARTI", "SARTI"], "3_14": ["SARTI", "BIANCHI", "PAZZAGLIA", "PAZZAGLIA"], "3_15": ["PAZZAGLIA", "MICHELOT.", "BIANCHI", "VOLPINI"], "3_16": ["BIANCHI", "BIANCHI", "BERARDI", "BERARDI"], "3_17": ["BERARDI", "BERARDI", "VOLPINI", "VOLPINI"], "3_18": ["VOLPINI", "VOLPINI", "GHIOTTI", "GHIOTTI"], "3_19": ["GHIOTTI", "GHIOTTI", "PAZZAGLIA", "PAZZAGLIA"], "3_20": ["PAZZAGLIA", "MICHELOT.", "FABBRI", "FABBRI"], "3_21": ["FABBRI", "FABBRI", "SARTI", "SARTI"], "3_22": ["SARTI", "SARTI", "MICHELOT.", "GHIOTTI"], "3_23": ["MICHELOT.", "MICHELOT.", "GHIOTTI", "FABBRI"], "3_24": ["GHIOTTI", "GHIOTTI", "FABBRI", "FABBRI"], "3_25": ["FABBRI", "FABBRI", "BARBIERI", "BARBIERI"], "3_26": ["BARBIERI", "BARBIERI", "BERARDI", "BERARDI"], "3_27": ["BERARDI", "BERARDI", "VOLPINI", "VOLPINI"], "3_28": ["VOLPINI", "VOLPINI", "PAZZAGLIA", "PAZZAGLIA"], "3_29": ["PAZZAGLIA", "VOLPINI", "SARTI", "BIANCHI"], "3_30": ["SARTI", "SARTI", "BIANCHI", "BIANCHI"], "3_31": ["BIANCHI", "BIANCHI", "MICHELOTTI", "MICHELOTTI"], "4_1": ["MICHELOTTI", "MICHELOTTI", "VOLPINI", "VOLPINI"], "4_2": ["VOLPINI", "VOLPINI", "GHIOTTI", "GHIOTTI"], "4_3": ["GHIOTTI", "GHIOTTI", "FABBRI", "FABBRI"], "4_4": ["FABBRI", "FABBRI", "BERARDI", "BERARDI"], "4_5": ["BERARDI", "BERARDI", "BARBIERI", "BARBIERI"], "4_6": ["BARBIERI", "BARBIERI", "VOLPINI", "VOLPINI"], "4_7": ["VOLPINI", "VOLPINI", "PAZZAGLIA", "PAZZAGLIA"], "4_8": ["PAZZAGLIA", "PAZZAGLIA", "SARTI", "SARTI"], "4_9": ["SARTI", "SARTI", "BIANCHI", "BIANCHI"], "4_10": ["BIANCHI", "BIANCHI", "MICHELOT.", "MICHELOT."], "4_11": ["MICHELOT.", "MICHELOT.", "BARBIERI", "BARBIERI"], "4_12": ["BARBIERI", "PAZZAGLIA", "FABBRI", "FABBRI"], "4_13": ["FABBRI", "FABBRI", "GHIOTTI", "GHIOTTI"], "4_14": ["GHIOTTI", "GHIOTTI", "BERARDI", "BERARDI"], "4_15": ["BERARDI", "BERARDI", "PAZZAGLIA", "PAZZAGLIA"], "4_16": ["PAZZAGLIA", "MICHELOT.", "GHIOTTI", "BIANCHI"], "4_17": ["VOLPINI", "VOLPINI", "FABBRI", "FABBRI"], "4_18": ["FABBRI", "FABBRI", "SARTI", "SARTI"], "4_19": ["SARTI", "SARTI", "BARBIERI", "BIANCHI"], "4_20": ["BIANCHI", "BIANCHI", "MICHELOT.", "MICHELOT."], "4_21": ["MICHELOT.", "MICHELOT.", "GHIOTTI", "GHIOTTI"], "4_22": ["GHIOTTI", "GHIOTTI", "BERARDI", "BERARDI"], "4_23": ["BERARDI", "BERARDI", "BIANCHI", "BIANCHI"], "4_24": ["BERARDI", "PAZZAGLIA", "BARBIERI", "BARBIERI"], "4_25": ["BARBIERI", "BARBIERI", "VOLPINI", "VOLPINI"], "4_26": ["VOLPINI", "VOLPINI", "PAZZAGLIA", "PAZZAGLIA"], "4_27": ["PAZZAGLIA", "MICHELOT.", "SARTI", "SARTI"], "4_28": ["SARTI", "SARTI", "BERARDI", "BERARDI"], "4_29": ["BIANCHI", "BIANCHI", "BARBIERI", "BERARDI"], "4_30": ["BARBIERI", "BARBIERI", "MICHELOT.", "MICHELOT."], "5_1": ["MICHELOT.", "MICHELOT.", "PAZZAGLIA", "PAZZAGLIA"], "5_2": ["PAZZAGLIA", "VOLPINI", "FABBRI", "FABBRI"], "5_3": ["FABBRI", "FABBRI", "BERARDI", "BERARDI"], "5_4": ["BERARDI", "BERARDI", "SARTI", "MICHELOT."], "5_5": ["MICHELOT.", "SARTI", "VOLPINI", "VOLPINI"], "5_6": ["VOLPINI", "VOLPINI", "MICHELOT.", "MICHELOT."], "5_7": ["MICHELOT.", "MICHELOT.", "FABBRI", "FABBRI"], "5_8": ["FABBRI", "FABBRI", "GHIOTTI", "BERARDI"], "5_9": ["GHIOTTI", "GHIOTTI", "BARBIERI", "BARBIERI"], "5_10": ["BARBIERI", "BARBIERI", "BIANCHI", "BIANCHI"], "5_11": ["BIANCHI", "BIANCHI", "PAZZAGLIA", "PAZZAGLIA"], "5_12": ["PAZZAGLIA", "BERARDI", "MICHELOT.", "MICHELOT."], "5_13": ["MICHELOT.", "MICHELOT.", "GHIOTTI", "GHIOTTI"], "5_14": ["GHIOTTI", "GHIOTTI", "BARBIERI", "BARBIERI"], "5_15": ["BARBIERI", "BARBIERI", "VOLPINI", "VOLPINI"], "5_16": ["VOLPINI", "VOLPINI", "PAZZAGLIA", "PAZZAGLIA"], "5_17": ["PAZZAGLIA", "PAZZAGLIA", "BERARDI", "BERARDI"], "5_18": ["BERARDI", "BERARDI", "FABBRI", "FABBRI"], "5_19": ["FABBRI", "FABBRI", "BERARDI", "BERARDI"], "5_20": ["BERARDI", "BERARDI", "BIANCHI", "BIANCHI"], "5_21": ["BIANCHI", "BIANCHI", "PAZZAGLIA", "PAZZAGLIA"], "5_22": ["PAZZAGLIA", "BERARDI", "SARTI", "SARTI"], "5_23": ["SARTI", "SARTI", "GHIOTTI", "GHIOTTI"], "5_24": ["GHIOTTI", "FABBRI", "MICHELOT.", "MICHELOT."], "5_25": ["MICHELOT.", "MICHELOT.", "BIANCHI", "BIANCHI"], "5_26": ["BIANCHI", "BIANCHI", "FABBRI", "FABBRI"], "5_27": ["FABBRI", "FABBRI", "SARTI", "SARTI"], "5_28": ["SARTI", "SARTI", "GHIOTTI", "GHIOTTI"], "5_29": ["GHIOTTI", "GHIOTTI", "BARBIERI", "BARBIERI"], "5_30": ["BARBIERI", "BARBIERI", "BIANCHI", "BIANCHI"], "5_31": ["BIANCHI", "BIANCHI", "VOLPINI", "VOLPINI"], "6_1": ["VOLPINI", "VOLPINI", "BERARDI", "BERARDI"], "6_2": ["BERARDI", "BERARDI", "MICHELOT.", "MICHELOT."], "6_3": ["MICHELOT.", "MICHELOT.", "SARTI", "SARTI"], "6_4": ["SARTI", "SARTI", "BARBIERI", "BARBIERI"], "6_5": ["BARBIERI", "BARBIERI", "VOLPINI", "VOLPINI"], "6_6": ["VOLPINI", "VOLPINI", "BERARDI", "BERARDI"], "6_7": ["BERARDI", "BERARDI", "PAZZAGLIA", "PAZZAGLIA"], "6_8": ["PAZZAGLIA", "PAZZAGLIA", "SARTI", "SARTI"], "6_9": ["SARTI", "SARTI", "FABBRI", "FABBRI"], "6_10": ["FABBRI", "FABBRI", "VOLPINI", "VOLPINI"], "6_11": ["VOLPINI", "VOLPINI", "BERARDI", "BERARDI"], "6_12": ["BERARDI", "BERARDI", "PAZZAGLIA", "PAZZAGLIA"], "6_13": ["PAZZAGLIA", "PAZZAGLIA", "SARTI", "SARTI"], "6_14": ["SARTI", "SARTI", "BARBIERI", "BARBIERI"], "6_15": ["BARBIERI", "BARBIERI", "BIANCHI", "BIANCHI"], "6_16": ["BIANCHI", "BIANCHI", "PAZZAGLIA", "PAZZAGLIA"], "6_17": ["PAZZAGLIA", "PAZZAGLIA", "MICHELOT.", "MICHELOT."], "6_18": ["MICHELOT.", "MICHELOT.", "BERARDI", "BERARDI"], "6_19": ["BERARDI", "BERARDI", "BIANCHI", "BIANCHI"], "6_20": ["BIANCHI", "BIANCHI", "MICHELOT.", "MICHELOT."], "6_21": ["MICHELOT.", "MICHELOT.", "BARBIERI", "BARBIERI"], "6_22": ["BARBIERI", "BARBIERI", "BERARDI", "BERARDI"], "6_23": ["BERARDI", "BERARDI", "GHIOTTI", "GHIOTTI"], "6_24": ["GHIOTTI", "GHIOTTI", "FABBRI", "FABBRI"], "6_25": ["FABBRI", "FABBRI", "BIANCHI", "BIANCHI"], "6_26": ["BIANCHI", "BIANCHI", "BARBIERI", "BARBIERI"], "6_27": ["BARBIERI", "BARBIERI", "MICHELOT.", "MICHELOT."], "6_28": ["MICHELOT.", "MICHELOT.", "PAZZAGLIA", "PAZZAGLIA"], "6_29": ["PAZZAGLIA", "PAZZAGLIA", "FABBRI", "FABBRI"], "6_30": ["FABBRI", "FABBRI", "GHIOTTI", "GHIOTTI"], "7_1": ["GHIOTTI", "GHIOTTI", "", ""]};
+        let REPERIBILITA_BASE = {"1_1": ["GHIOTTI", "GHIOTTI", "SARTI", "SARTI"], "1_2": ["SARTI", "SARTI", "PAZZAGLIA", "PAZZAGLIA"], "1_3": ["PAZZAGLIA", "PAZZAGLIA", "FABBRI", "FABBRI"], "1_4": ["FABBRI", "FABBRI", "VOLPINI", "VOLPINI"], "1_5": ["VOLPINI", "VOLPINI", "GHIOTTI", "GHIOTTI"], "1_6": ["GHIOTTI", "GHIOTTI", "MICHELOT.", "MICHELOT."], "1_7": ["MICHELOT.", "MICHELOT.", "BIANCHI", "BIANCHI"], "1_8": ["BIANCHI", "BIANCHI", "BARBIERI", "BARBIERI"], "1_9": ["BARBIERI", "BARBIERI", "BERARDI", "BERARDI"], "1_10": ["BERARDI", "BERARDI", "GHIOTTI", "GHIOTTI"], "1_11": ["GHIOTTI", "GHIOTTI", "MICHELOT.", "MICHELOT."], "1_12": ["MICHELOT.", "MICHELOT.", "PAZZAGLIA", "PAZZAGLIA"], "1_13": ["PAZZAGLIA", "PAZZAGLIA", "BIANCHI", "BIANCHI"], "1_14": ["BIANCHI", "BIANCHI", "BERARDI", "BERARDI"], "1_15": ["BERARDI", "BERARDI", "VOLPINI", "VOLPINI"], "1_16": ["VOLPINI", "VOLPINI", "FABBRI", "FABBRI"], "1_17": ["FABBRI", "FABBRI", "PAZZAGLIA", "PAZZAGLIA"], "1_18": ["PAZZAGLIA", "PAZZAGLIA", "BIANCHI", "BIANCHI"], "1_19": ["BIANCHI", "BIANCHI", "SARTI", "SARTI"], "1_20": ["SARTI", "SARTI", "VOLPINI", "VOLPINI"], "1_21": ["GHIOTTI", "SARTI", "MICHELOT.", "MICHELOT."], "1_22": ["MICHELOT.", "MICHELOT.", "VOLPINI", "VOLPINI"], "1_23": ["VOLPINI", "BERARDI", "BIANCHI", "BIANCHI"], "1_24": ["BIANCHI", "BIANCHI", "BERARDI", "BERARDI"], "1_25": ["BERARDI", "BERARDI", "SARTI", "SARTI"], "1_26": ["SARTI", "SARTI", "MICHELOT.", "MICHELOT."], "1_27": ["MICHELOT.", "MICHELOT.", "VOLPINI", "VOLPINI"], "1_28": ["VOLPINI", "VOLPINI", "GHIOTTI", "GHIOTTI"], "1_29": ["GHIOTTI", "GHIOTTI", "BARBIERI", "BARBIERI"], "1_30": ["BARBIERI", "BARBIERI", "SARTI", "SARTI"], "1_31": ["SARTI", "SARTI", "PAZZAGLIA", "PAZZAGLIA"], "2_1": ["PAZZAGLIA", "PAZZAGLIA", "VOLPINI", "VOLPINI"], "2_2": ["VOLPINI", "VOLPINI", "BERARDI", "BERARDI"], "2_3": ["BERARDI", "BERARDI", "BARBIERI", "BARBIERI"], "2_4": ["BARBIERI", "BARBIERI", "GHIOTTI", "GHIOTTI"], "2_5": ["GHIOTTI", "GHIOTTI", "MICHELOT.", "MICHELOT."], "2_6": ["MICHELOT.", "MICHELOT.", "BERARDI", "BIANCHI"], "2_7": ["BERARDI", "BERARDI", "BARBIERI", "BARBIERI"], "2_8": ["BARBIERI", "BARBIERI", "FABBRI", "FABBRI"], "2_9": ["FABBRI", "FABBRI", "SARTI", "MICHELOT."], "2_10": ["SARTI", "SARTI", "BERARDI", "BERARDI"], "2_11": ["BERARDI", "BERARDI", "GHIOTTI", "GHIOTTI"], "2_12": ["GHIOTTI", "GHIOTTI", "BIANCHI", "BIANCHI"], "2_13": ["BIANCHI", "BIANCHI", "FABBRI", "FABBRI"], "2_14": ["FABBRI", "FABBRI", "MICHELOT.", "MICHELOT."], "2_15": ["MICHELOT.", "MICHELOT.", "BARBIERI", "BARBIERI"], "2_16": ["BARBIERI", "BARBIERI", "VOLPINI", "VOLPINI"], "2_17": ["VOLPINI", "VOLPINI", "PAZZAGLIA", "PAZZAGLIA"], "2_18": ["PAZZAGLIA", "PAZZAGLIA", "BERARDI", "BERARDI"], "2_19": ["BERARDI", "BERARDI", "SARTI", "SARTI"], "2_20": ["SARTI", "SARTI", "BARBIERI", "BARBIERI"], "2_21": ["BARBIERI", "BARBIERI", "VOLPINI", "VOLPINI"], "2_22": ["MICHELOT.", "VOLPINI", "MICHELOT.", "MICHELOT."], "2_23": ["MICHELOT.", "MICHELOT.", "FABBRI", "FABBRI"], "2_24": ["FABBRI", "FABBRI", "BIANCHI", "BIANCHI"], "2_25": ["BIANCHI", "BIANCHI", "BARBIERI", "BARBIERI"], "2_26": ["BARBIERI", "SARTI", "GHIOTTI", "GHIOTTI"], "2_27": ["GHIOTTI", "GHIOTTI", "PAZZAGLIA", "PAZZAGLIA"], "2_28": ["PAZZAGLIA", "PAZZAGLIA", "FABBRI", "FABBRI"], "3_1": ["FABBRI", "FABBRI", "MICHELOT.", "MICHELOT."], "3_2": ["MICHELOT.", "MICHELOT.", "SARTI", "SARTI"], "3_3": ["SARTI", "SARTI", "VOLPINI", "VOLPINI"], "3_4": ["GHIOTTI", "GHIOTTI", "BIANCHI", "BIANCHI"], "3_5": ["BIANCHI", "BIANCHI", "FABBRI", "FABBRI"], "3_6": ["FABBRI", "FABBRI", "BERARDI", "VOLPINI"], "3_7": ["GHIOTTI", "BERARDI", "BARBIERI", "BARBIERI"], "3_8": ["BARBIERI", "BARBIERI", "GHIOTTI", "GHIOTTI"], "3_9": ["GHIOTTI", "GHIOTTI", "PAZZAGLIA", "PAZZAGLIA"], "3_10": ["PAZZAGLIA", "VOLPINI", "BIANCHI", "BIANCHI"], "3_11": ["BIANCHI", "BIANCHI", "FABBRI", "FABBRI"], "3_12": ["FABBRI", "FABBRI", "BARBIERI", "BARBIERI"], "3_13": ["BARBIERI", "BARBIERI", "SARTI", "SARTI"], "3_14": ["SARTI", "BIANCHI", "PAZZAGLIA", "PAZZAGLIA"], "3_15": ["PAZZAGLIA", "MICHELOT.", "BIANCHI", "VOLPINI"], "3_16": ["BIANCHI", "BIANCHI", "BERARDI", "BERARDI"], "3_17": ["BERARDI", "BERARDI", "VOLPINI", "VOLPINI"], "3_18": ["VOLPINI", "VOLPINI", "GHIOTTI", "GHIOTTI"], "3_19": ["GHIOTTI", "GHIOTTI", "PAZZAGLIA", "PAZZAGLIA"], "3_20": ["PAZZAGLIA", "MICHELOT.", "FABBRI", "FABBRI"], "3_21": ["FABBRI", "FABBRI", "SARTI", "SARTI"], "3_22": ["SARTI", "SARTI", "MICHELOT.", "GHIOTTI"], "3_23": ["MICHELOT.", "MICHELOT.", "GHIOTTI", "FABBRI"], "3_24": ["GHIOTTI", "GHIOTTI", "FABBRI", "FABBRI"], "3_25": ["FABBRI", "FABBRI", "BARBIERI", "BARBIERI"], "3_26": ["BARBIERI", "BARBIERI", "BERARDI", "BERARDI"], "3_27": ["BERARDI", "BERARDI", "VOLPINI", "VOLPINI"], "3_28": ["VOLPINI", "VOLPINI", "PAZZAGLIA", "PAZZAGLIA"], "3_29": ["PAZZAGLIA", "VOLPINI", "SARTI", "BIANCHI"], "3_30": ["SARTI", "SARTI", "BIANCHI", "BIANCHI"], "3_31": ["BIANCHI", "BIANCHI", "MICHELOTTI", "MICHELOTTI"], "4_1": ["MICHELOTTI", "MICHELOTTI", "VOLPINI", "VOLPINI"], "4_2": ["VOLPINI", "VOLPINI", "GHIOTTI", "GHIOTTI"], "4_3": ["GHIOTTI", "GHIOTTI", "FABBRI", "FABBRI"], "4_4": ["FABBRI", "FABBRI", "BERARDI", "BERARDI"], "4_5": ["BERARDI", "BERARDI", "BARBIERI", "BARBIERI"], "4_6": ["BARBIERI", "BARBIERI", "VOLPINI", "VOLPINI"], "4_7": ["VOLPINI", "VOLPINI", "PAZZAGLIA", "PAZZAGLIA"], "4_8": ["PAZZAGLIA", "PAZZAGLIA", "SARTI", "SARTI"], "4_9": ["SARTI", "SARTI", "BIANCHI", "BIANCHI"], "4_10": ["BIANCHI", "BIANCHI", "MICHELOT.", "MICHELOT."], "4_11": ["MICHELOT.", "MICHELOT.", "BARBIERI", "BARBIERI"], "4_12": ["BARBIERI", "PAZZAGLIA", "FABBRI", "FABBRI"], "4_13": ["FABBRI", "FABBRI", "GHIOTTI", "GHIOTTI"], "4_14": ["GHIOTTI", "GHIOTTI", "BERARDI", "BERARDI"], "4_15": ["BERARDI", "BERARDI", "PAZZAGLIA", "PAZZAGLIA"], "4_16": ["PAZZAGLIA", "MICHELOT.", "GHIOTTI", "BIANCHI"], "4_17": ["VOLPINI", "VOLPINI", "FABBRI", "FABBRI"], "4_18": ["FABBRI", "FABBRI", "SARTI", "SARTI"], "4_19": ["SARTI", "SARTI", "BARBIERI", "BIANCHI"], "4_20": ["BIANCHI", "BIANCHI", "MICHELOT.", "MICHELOT."], "4_21": ["MICHELOT.", "MICHELOT.", "GHIOTTI", "GHIOTTI"], "4_22": ["GHIOTTI", "GHIOTTI", "BERARDI", "BERARDI"], "4_23": ["BERARDI", "BERARDI", "BIANCHI", "BIANCHI"], "4_24": ["BERARDI", "PAZZAGLIA", "BARBIERI", "BARBIERI"], "4_25": ["BARBIERI", "BARBIERI", "VOLPINI", "VOLPINI"], "4_26": ["VOLPINI", "VOLPINI", "PAZZAGLIA", "PAZZAGLIA"], "4_27": ["PAZZAGLIA", "MICHELOT.", "SARTI", "SARTI"], "4_28": ["SARTI", "SARTI", "BERARDI", "BERARDI"], "4_29": ["BIANCHI", "BIANCHI", "BARBIERI", "BERARDI"], "4_30": ["BARBIERI", "BARBIERI", "MICHELOT.", "MICHELOT."], "5_1": ["MICHELOT.", "MICHELOT.", "PAZZAGLIA", "PAZZAGLIA"], "5_2": ["PAZZAGLIA", "VOLPINI", "FABBRI", "FABBRI"], "5_3": ["FABBRI", "FABBRI", "BERARDI", "BERARDI"], "5_4": ["BERARDI", "BERARDI", "SARTI", "MICHELOT."], "5_5": ["MICHELOT.", "SARTI", "VOLPINI", "VOLPINI"], "5_6": ["VOLPINI", "VOLPINI", "MICHELOT.", "MICHELOT."], "5_7": ["MICHELOT.", "MICHELOT.", "FABBRI", "FABBRI"], "5_8": ["FABBRI", "FABBRI", "GHIOTTI", "BERARDI"], "5_9": ["GHIOTTI", "GHIOTTI", "BARBIERI", "BARBIERI"], "5_10": ["BARBIERI", "BARBIERI", "BIANCHI", "BIANCHI"], "5_11": ["BIANCHI", "BIANCHI", "PAZZAGLIA", "PAZZAGLIA"], "5_12": ["PAZZAGLIA", "BERARDI", "MICHELOT.", "MICHELOT."], "5_13": ["MICHELOT.", "MICHELOT.", "GHIOTTI", "GHIOTTI"], "5_14": ["GHIOTTI", "GHIOTTI", "BARBIERI", "BARBIERI"], "5_15": ["BARBIERI", "BARBIERI", "VOLPINI", "VOLPINI"], "5_16": ["VOLPINI", "VOLPINI", "PAZZAGLIA", "PAZZAGLIA"], "5_17": ["PAZZAGLIA", "PAZZAGLIA", "BERARDI", "BERARDI"], "5_18": ["BERARDI", "BERARDI", "FABBRI", "FABBRI"], "5_19": ["FABBRI", "FABBRI", "BERARDI", "BERARDI"], "5_20": ["BERARDI", "BERARDI", "BIANCHI", "BIANCHI"], "5_21": ["BIANCHI", "BIANCHI", "PAZZAGLIA", "PAZZAGLIA"], "5_22": ["PAZZAGLIA", "BERARDI", "SARTI", "SARTI"], "5_23": ["SARTI", "SARTI", "GHIOTTI", "GHIOTTI"], "5_24": ["GHIOTTI", "FABBRI", "MICHELOT.", "MICHELOT."], "5_25": ["MICHELOT.", "MICHELOT.", "BIANCHI", "BIANCHI"], "5_26": ["BIANCHI", "BIANCHI", "FABBRI", "FABBRI"], "5_27": ["FABBRI", "FABBRI", "SARTI", "SARTI"], "5_28": ["SARTI", "SARTI", "GHIOTTI", "GHIOTTI"], "5_29": ["GHIOTTI", "GHIOTTI", "BARBIERI", "BARBIERI"], "5_30": ["BARBIERI", "BARBIERI", "BIANCHI", "BIANCHI"], "5_31": ["BIANCHI", "BIANCHI", "VOLPINI", "VOLPINI"], "6_1": ["VOLPINI", "VOLPINI", "BERARDI", "BERARDI"], "6_2": ["BERARDI", "BERARDI", "MICHELOT.", "MICHELOT."], "6_3": ["MICHELOT.", "MICHELOT.", "SARTI", "SARTI"], "6_4": ["SARTI", "SARTI", "BARBIERI", "BARBIERI"], "6_5": ["BARBIERI", "BARBIERI", "VOLPINI", "VOLPINI"], "6_6": ["VOLPINI", "VOLPINI", "BERARDI", "BERARDI"], "6_7": ["BERARDI", "BERARDI", "PAZZAGLIA", "PAZZAGLIA"], "6_8": ["PAZZAGLIA", "PAZZAGLIA", "SARTI", "SARTI"], "6_9": ["SARTI", "SARTI", "FABBRI", "FABBRI"], "6_10": ["FABBRI", "FABBRI", "VOLPINI", "VOLPINI"], "6_11": ["VOLPINI", "VOLPINI", "BERARDI", "BERARDI"], "6_12": ["BERARDI", "BERARDI", "PAZZAGLIA", "PAZZAGLIA"], "6_13": ["PAZZAGLIA", "PAZZAGLIA", "SARTI", "SARTI"], "6_14": ["SARTI", "SARTI", "BARBIERI", "BARBIERI"], "6_15": ["BARBIERI", "BARBIERI", "BIANCHI", "BIANCHI"], "6_16": ["BIANCHI", "BIANCHI", "PAZZAGLIA", "PAZZAGLIA"], "6_17": ["PAZZAGLIA", "PAZZAGLIA", "MICHELOT.", "MICHELOT."], "6_18": ["MICHELOT.", "MICHELOT.", "BERARDI", "BERARDI"], "6_19": ["BERARDI", "BERARDI", "BIANCHI", "BIANCHI"], "6_20": ["BIANCHI", "BIANCHI", "MICHELOT.", "MICHELOT."], "6_21": ["MICHELOT.", "MICHELOT.", "BARBIERI", "BARBIERI"], "6_22": ["BARBIERI", "BARBIERI", "BERARDI", "BERARDI"], "6_23": ["BERARDI", "BERARDI", "GHIOTTI", "GHIOTTI"], "6_24": ["GHIOTTI", "GHIOTTI", "FABBRI", "FABBRI"], "6_25": ["FABBRI", "FABBRI", "BIANCHI", "BIANCHI"], "6_26": ["BIANCHI", "BIANCHI", "BARBIERI", "BARBIERI"], "6_27": ["BARBIERI", "BARBIERI", "MICHELOT.", "MICHELOT."], "6_28": ["MICHELOT.", "MICHELOT.", "PAZZAGLIA", "PAZZAGLIA"], "6_29": ["PAZZAGLIA", "PAZZAGLIA", "FABBRI", "FABBRI"], "6_30": ["FABBRI", "FABBRI", "GHIOTTI", "GHIOTTI"], "7_1": ["GHIOTTI", "GHIOTTI", "", ""]};
+        let REPERIBILITA = JSON.parse(JSON.stringify(REPERIBILITA_BASE));
+        let REP_OVERRIDES = {};
 
         function normalizeRepName(name) {
             if (!name) return "";
@@ -795,13 +816,13 @@
             checkDay(tomorrow, "DOMANI");
         }
 
-        const HOLIDAYS = {
+        let HOLIDAYS = {
             "0-1":"CAPODANNO","0-6":"EPIFANIA","1-5":"S. AGATA","2-25":"ARENGO","3-1":"REGGENZA",
             "3-5":"PASQUA","3-6":"LUN. ANGELO","4-1":"1° MAGGIO","5-4":"CORPUS DOM.",
             "6-28":"LIBERAZIONE","7-15":"FERRAGOSTO","8-3":"S. MARINO","9-1":"REGGENZA",
             "10-1":"OGNISSANTI","10-2":"COMM. DEFUNTI","11-8":"IMMACOLATA","11-25":"NATALE","11-26":"S. STEFANO"
         };
-        const SCHEDULE = {
+        let SCHEDULE = {
             "M":"6:30-13:15","MAT":"6:30-13:15","MATTINA":"6:30-13:15",
             "P":"12:45-20:10","POM":"12:45-20:10","POMERIGGIO":"12:45-20:10",
             "N":"19:45-00:00","NOTT":"19:45-00:00","NOTTE":"19:45-00:00",
@@ -978,13 +999,13 @@
                 if(mIdx===curM&&dNum===curD&&today.getFullYear()===year){tr.className="today";tr.id="today-row";}
                 let weekendLabel=(dayIdx===6)?'<div class="holiday-name" style="color:#dc2626;font-size:0.48rem;font-weight:900">SABATO</div>':(dayIdx===0)?'<div class="holiday-name" style="color:#dc2626;font-size:0.48rem;font-weight:900">DOMENICA</div>':'';
                 let dateHtml=`${dNum}<small>${dayWeek}</small>${weekendLabel}${holidayName?`<div class="holiday-name">${holidayName}</div>`:""}`;
-                tr.innerHTML=`<td class="${dateClass}">${dateHtml}</td>`;
+                tr.innerHTML=`<td class="${dateClass}"><div class="td-date-inner">${dateHtml}</div></td>`;
                 let countM=0,countP=0;
                 drivers.forEach(dr=>{let val=(row[dr.idx]?.v||"").toString().trim();let sType=normalizeShift(val);if(sType==="M"||sType==="MN")countM++;if(sType==="P")countP++;});
                 let dotsHtml="";
                 if(countM>0)dotsHtml+=`<div class="sd sd-M${countM===1?' sd-solo':''}">${countM}</div>`;
                 if(countP>0)dotsHtml+=`<div class="sd sd-P${countP===1?' sd-solo':''}">${countP}</div>`;
-                if(dotsHtml)tr.querySelector('td').innerHTML+=`<div class="shift-dots">${dotsHtml}</div>`;
+                if(dotsHtml){const inner=tr.querySelector('.td-date-inner');if(inner)inner.innerHTML+=`<div class="shift-dots">${dotsHtml}</div>`;}
                 cols.forEach(d=>{
                     let cellInfo=row[d.idx],td=document.createElement('td');
                     let val=cellInfo.v?cellInfo.v.toString().trim():"";let sType=normalizeShift(val);
@@ -1155,6 +1176,156 @@
             if(docSnapshot.exists){try{const activeTickets=JSON.parse(docSnapshot.data().data);activeTickets.forEach(tk=>{if(tk.dataAppuntamento&&tk.stato==='segnalato'){let d=new Date(tk.dataAppuntamento);let meseNome=Object.keys(MONTH_MAP).find(key=>MONTH_MAP[key]===d.getMonth());let giorno=d.getDate();if(meseNome&&giorno){let dateKey=`${meseNome}-${giorno}`;if(!appuntamentiVeicoli[dateKey])appuntamentiVeicoli[dateKey]=[];appuntamentiVeicoli[dateKey].push({operazione:"Appuntamento",veicolo:tk.mezzo,officina:tk.officinaAppuntamento||"Officina",problema:tk.problema||"",ora:tk.dataAppuntamentoOra||""});}}if(tk.dataStimataConsegna&&tk.stato==='in_officina'){let d=new Date(tk.dataStimataConsegna);let meseNome=Object.keys(MONTH_MAP).find(key=>MONTH_MAP[key]===d.getMonth());let giorno=d.getDate();if(meseNome&&giorno){let dateKey=`${meseNome}-${giorno}`;if(!appuntamentiVeicoli[dateKey])appuntamentiVeicoli[dateKey]=[];appuntamentiVeicoli[dateKey].push({operazione:"Ritiro",veicolo:tk.mezzo,officina:tk.officina||"Officina",problema:tk.problema||"",ora:tk.dataStimataConsegnaOra||""});}}});}catch(e){console.error("Errore nella lettura dei ticket dei veicoli:",e);}}
             if(typeof finalData!=='undefined'&&finalData.length>0)renderTable();
         });
+
+        // ── OVERRIDE REPERIBILITÀ DA RICHIESTE ──
+        // Quando un autista cede una fascia di reperibilità a un collega tramite il file Richieste
+        // (tipo "copertura_reperibilita"), la const REPERIBILITA viene aggiornata in real-time
+        // sostituendo il nome del titolare con quello di chi copre, nelle fasce indicate.
+        const SLOT_TO_IDX = { "13:00/20:00": 2, "20:00/00:00": 3, "00:00/07:00": 0, "07:00/13:00": 1 };
+
+        function rebuildReperibilita() {
+            // Riparti dai dati base e applica tutti gli override attivi
+            REPERIBILITA = JSON.parse(JSON.stringify(REPERIBILITA_BASE));
+            Object.values(REP_OVERRIDES).forEach(ov => {
+                if (!ov || ov.obscured || !ov.dateFrom || !ov.swapWith || !ov.timeSlot) return;
+                // dateFrom è in formato YYYY-MM-DD
+                const d = new Date(ov.dateFrom);
+                if (isNaN(d.getTime())) return;
+                const mNum = d.getMonth() + 1;
+                const day = d.getDate();
+                const slots = ov.timeSlot.split(", ");
+                slots.forEach(slot => {
+                    const slotKey = slot.trim();
+                    const idx = SLOT_TO_IDX[slotKey];
+                    if (idx === undefined) return;
+                    // Le fasce 00:00-07:00 e 07:00-13:00 appartengono al giorno X
+                    // ma sono la coda della reperibilità iniziata il giorno X-1
+                    // Per coerenza con come è strutturato REPERIBILITA, scriviamo nella chiave del giorno X
+                    const key = mNum + "_" + day;
+                    if (!REPERIBILITA[key]) return;
+                    // Sostituisce solo se il titolare originale corrisponde al richiedente (o se non c'è match, comunque sovrascrive)
+                    REPERIBILITA[key][idx] = ov.swapWith.toUpperCase();
+                });
+            });
+        }
+
+        function applyRepOverrideFromRequest(docId, r) {
+            if (r.type !== 'copertura_reperibilita') return;
+            if (r.obscured) { delete REP_OVERRIDES[docId]; return; }
+            REP_OVERRIDES[docId] = {
+                docId,
+                name: r.name,
+                swapWith: r.swapWith,
+                timeSlot: r.timeSlot,
+                dateFrom: r.dateFrom,
+                obscured: r.obscured || false
+            };
+        }
+
+        db.collection('richieste_turni').onSnapshot((snapshot) => {
+            snapshot.docChanges().forEach(change => {
+                const r = change.doc.data();
+                const docId = change.doc.id;
+                if (change.type === 'removed') {
+                    delete REP_OVERRIDES[docId];
+                } else {
+                    applyRepOverrideFromRequest(docId, r);
+                }
+            });
+            rebuildReperibilita();
+            if (typeof finalData !== 'undefined' && finalData.length > 0) renderTable();
+        });
+
+        // ── CONFIG ADMIN REAL-TIME ──
+        db.collection('as26_config').doc('settings').onSnapshot((doc)=>{
+            if(!doc.exists)return;
+            try{ applyAdminConfig(doc.data()); }catch(e){ console.error('Config admin error:',e); }
+        });
+
+        function applyAdminConfig(cfg){
+            if(!cfg)return;
+            const root=document.documentElement;
+            // Colori turni
+            const sc=cfg.shiftColors||{};
+            if(sc['M-bg'])   root.style.setProperty('--c-M',  sc['M-bg']);
+            if(sc['M-text']) root.style.setProperty('--t-M',  sc['M-text']);
+            if(sc['M-border'])root.style.setProperty('--b-M', sc['M-border']);
+            if(sc['P-bg'])   root.style.setProperty('--c-P',  sc['P-bg']);
+            if(sc['P-text']) root.style.setProperty('--t-P',  sc['P-text']);
+            if(sc['P-border'])root.style.setProperty('--b-P', sc['P-border']);
+            if(sc['N-bg'])   root.style.setProperty('--c-N',  sc['N-bg']);
+            if(sc['N-text']) root.style.setProperty('--t-N',  sc['N-text']);
+            if(sc['N-border'])root.style.setProperty('--b-N', sc['N-border']);
+            if(sc['SM-bg'])  root.style.setProperty('--c-SM', sc['SM-bg']);
+            if(sc['SM-text'])root.style.setProperty('--t-SM', sc['SM-text']);
+            if(sc['SM-border'])root.style.setProperty('--b-SM',sc['SM-border']);
+            if(sc['R-bg'])   root.style.setProperty('--c-R',  sc['R-bg']);
+            if(sc['R-text']) root.style.setProperty('--t-R',  sc['R-text']);
+            if(sc['R-border'])root.style.setProperty('--b-R', sc['R-border']);
+            // Colori barra reperibilità + altezza rep
+            const gen=cfg.general||{};
+            let repCss='';
+            if(sc['rep-sub'])repCss+=`.rep-bar-seg.rep-sub{background:${sc['rep-sub']}!important}`;
+            if(sc['rep-cover'])repCss+=`.rep-bar-seg.rep-cover{background:${sc['rep-cover']}!important}`;
+            if(sc['rep-own'])repCss+=`.rep-bar-seg.green{background:${sc['rep-own']}!important}`;
+            if(gen.repBarH)repCss+=`.rep-bar{height:${gen.repBarH}px!important}`;
+            if(repCss){
+                let styleEl=document.getElementById('admin-rep-style');
+                if(!styleEl){styleEl=document.createElement('style');styleEl.id='admin-rep-style';document.head.appendChild(styleEl);}
+                styleEl.textContent=repCss;
+            }
+            // Colori speciali
+            const sp=cfg.specialColors||{};
+            if(sp['ferie-bg'])  root.style.setProperty('--bg-ferie',sp['ferie-bg']);
+            if(sp['ferie-text'])root.style.setProperty('--t-ferie', sp['ferie-text']);
+            if(sp['perm-bg'])   root.style.setProperty('--bg-perm', sp['perm-bg']);
+            if(sp['perm-text']) root.style.setProperty('--t-perm',  sp['perm-text']);
+            if(sp['cong-bg'])   root.style.setProperty('--bg-cong', sp['cong-bg']);
+            if(sp['cong-text']) root.style.setProperty('--t-cong',  sp['cong-text']);
+            if(sp['rec-bg'])    root.style.setProperty('--bg-rec',  sp['rec-bg']);
+            if(sp['rec-text'])  root.style.setProperty('--t-rec',   sp['rec-text']);
+            // Colore primario + altezza cella
+            if(gen.primary)root.style.setProperty('--primary',gen.primary);
+            if(gen.cellH)root.style.setProperty('--cell-h',gen.cellH+'px');
+            // Titolo app
+            if(gen.title){const lt=document.querySelector('.logo-title');if(lt)lt.textContent=gen.title;}
+            if(gen.subtitle){const ls=document.getElementById('last-update-badge');if(ls)ls.textContent=gen.subtitle;}
+            // Visibilità elementi
+            const tog=(key)=>cfg['tog_'+key]!==false;
+            const applyToggleCss=(id,sel,visible)=>{
+                let s=document.getElementById(id);
+                if(!visible){
+                    if(!s){s=document.createElement('style');s.id=id;document.head.appendChild(s);}
+                    s.textContent=sel+'{display:none!important}';
+                }else if(s){s.remove();}
+            };
+            applyToggleCss('admin-repbar-style','.rep-bar',tog('repbar'));
+            applyToggleCss('admin-timetag-style','.time-tag',tog('timetag'));
+            applyToggleCss('admin-dog-style','.dog-icon',tog('dog'));
+            applyToggleCss('admin-dots-style','.shift-dots',tog('dots'));
+            // Bottone infermieri
+            const infBtn=document.querySelector('.btn-inf');
+            if(infBtn)infBtn.style.display=tog('infbtn')?'':'none';
+            // Voce cena nel menu
+            const dinnerItem=document.querySelector('.menu-item[onclick="openDinnerModal()"]');
+            if(dinnerItem)dinnerItem.style.display=tog('dinner')?'':'none';
+            // URL infermieri
+            if(gen.infUrl)window._infUrl=gen.infUrl;
+            // Festivi (sostituisce mantenendo riferimento alla variabile globale)
+            if(cfg.holidays&&Array.isArray(cfg.holidays)){
+                const newHol={};
+                cfg.holidays.forEach(h=>{if(h.key&&h.name)newHol[h.key]=h.name;});
+                HOLIDAYS=newHol;
+            }
+            // Fasce orarie SCHEDULE
+            const sch=cfg.schedules||{};
+            if(sch.M){SCHEDULE['M']=sch.M;SCHEDULE['MAT']=sch.M;SCHEDULE['MATTINA']=sch.M;}
+            if(sch.P){SCHEDULE['P']=sch.P;SCHEDULE['POM']=sch.P;SCHEDULE['POMERIGGIO']=sch.P;}
+            if(sch.N){SCHEDULE['N']=sch.N;SCHEDULE['NOTT']=sch.N;SCHEDULE['NOTTE']=sch.N;}
+            if(sch.SM){SCHEDULE['SM']=sch.SM;SCHEDULE['SMONTO']=sch.SM;SCHEDULE['S']=sch.SM;}
+            // Ri-renderizza tabella
+            if(typeof finalData!=='undefined'&&finalData.length>0)renderTable();
+        }
     </script>
 </body>
 </html>
