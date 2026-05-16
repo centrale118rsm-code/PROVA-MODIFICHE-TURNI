@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>A.S. 26 — Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; outline: none; }
+:root {
+  --primary: #dc2626;
+  --primary-dark: #b91c1c;
+  --bg: #f8fafc;
+  --card: #ffffff;
+  --text: #0f172a;
+  --text-sec: #64748b;
+  --border: #e2e8f0;
+  --header-h: 64px;
+}
+body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); padding-top: var(--header-h); padding-bottom: 40px; min-height: 100vh; }
+
+/* ── HEADER ── */
+header {
+  position: fixed; top: 0; left: 0; right: 0; height: var(--header-h); z-index: 100;
+  background: linear-gradient(135deg, #7f1d1d 0%, #dc2626 100%);
+  display: flex; align-items: center; justify-content: space-between; padding: 0 16px;
+  box-shadow: 0 2px 20px rgba(0,0,0,0.3);
+}
+.hdr-left { display: flex; align-items: center; gap: 10px; }
+.hdr-icon { width: 36px; height: 36px; background: rgba(255,255,255,0.15); border-radius: 10px;
+  display: flex; align-items: center; justify-content: center; }
+.hdr-title { font-size: 1.1rem; font-weight: 900; color: #fff; letter-spacing: -0.5px; }
+.hdr-sub { font-size: 0.6rem; color: rgba(255,255,255,0.65); font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; margin-top: 1px; }
+.btn-back { background: rgba(255,255,255,0.15); border: none; color: #fff; border-radius: 10px;
+  width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+
+/* ── LOCK SCREEN ── */
+#lock-screen {
+  position: fixed; inset: 0; background: linear-gradient(135deg, #7f1d1d, #dc2626);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999;
+}
+.lock-icon { width: 80px; height: 80px; background: rgba(255,255,255,0.15); border-radius: 24px;
+  display: flex; align-items: center; justify-content: center; margin-bottom: 20px; }
+.lock-icon .material-icons-round { font-size: 40px; color: #fff; }
+.lock-title { font-size: 1.4rem; font-weight: 900; color: #fff; margin-bottom: 6px; }
+.lock-sub { font-size: 0.8rem; color: rgba(255,255,255,0.65); margin-bottom: 30px; }
+.lock-input-wrap { background: rgba(255,255,255,0.12); border: 2px solid rgba(255,255,255,0.2); border-radius: 14px;
+  display: flex; align-items: center; padding: 4px 4px 4px 16px; width: 280px; gap: 8px; }
+.lock-input-wrap .material-icons-round { color: rgba(255,255,255,0.5); }
+#pwd-input { background: transparent; border: none; color: #fff; font-size: 1rem; font-weight: 700;
+  font-family: 'Inter', sans-serif; flex: 1; letter-spacing: 2px; }
+#pwd-input::placeholder { color: rgba(255,255,255,0.35); letter-spacing: 0; font-weight: 500; }
+.btn-unlock { background: rgba(255,255,255,0.2); border: none; color: #fff; border-radius: 10px;
+  width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; }
+.lock-error { color: #fca5a5; font-size: 0.8rem; font-weight: 700; margin-top: 12px; min-height: 20px; }
+
+/* ── LAYOUT ── */
+.page { max-width: 680px; margin: 0 auto; padding: 20px 12px; display: none; flex-direction: column; gap: 16px; }
+.page.active { display: flex; }
+
+/* ── SECTION CARD ── */
+.card { background: var(--card); border-radius: 16px; border: 1px solid var(--border); overflow: hidden;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+.card-header { padding: 14px 18px 10px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; }
+.card-header-icon { width: 32px; height: 32px; border-radius: 9px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.card-header-icon .material-icons-round { font-size: 17px; }
+.card-header-text h3 { font-size: 0.9rem; font-weight: 800; color: var(--text); }
+.card-header-text p { font-size: 0.72rem; color: var(--text-sec); margin-top: 1px; font-weight: 500; }
+
+/* ── FORM ELEMENTS ── */
+.row { display: flex; align-items: center; justify-content: space-between; padding: 12px 18px; border-bottom: 1px solid var(--border); gap: 12px; }
+.row:last-child { border-bottom: none; }
+.row-label { font-size: 0.88rem; font-weight: 700; color: var(--text); flex: 1; }
+.row-sub { font-size: 0.72rem; color: var(--text-sec); font-weight: 500; margin-top: 2px; }
+.row-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+
+input[type="text"], input[type="color"], select, textarea {
+  font-family: 'Inter', sans-serif; font-size: 0.85rem; font-weight: 600;
+  border: 1px solid var(--border); border-radius: 9px; background: var(--bg); color: var(--text);
+  padding: 8px 12px; transition: border-color 0.2s;
+}
+input[type="text"]:focus, select:focus, textarea:focus { border-color: var(--primary); outline: none; }
+input[type="color"] { width: 44px; height: 36px; padding: 2px 4px; cursor: pointer; border-radius: 9px; }
+input[type="text"] { width: 130px; }
+select { cursor: pointer; }
+textarea { width: 100%; resize: vertical; min-height: 80px; }
+
+/* SWITCH */
+.switch { position: relative; display: inline-block; width: 48px; height: 26px; flex-shrink: 0; }
+.switch input { opacity: 0; width: 0; height: 0; }
+.slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+  background: var(--border); transition: .3s; border-radius: 26px; }
+.slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 4px; bottom: 4px;
+  background: white; transition: .3s; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+input:checked + .slider { background: var(--primary); }
+input:checked + .slider:before { transform: translateX(22px); }
+
+/* COLOR PAIR */
+.color-group { display: flex; gap: 6px; align-items: center; }
+.color-label { font-size: 0.65rem; font-weight: 700; color: var(--text-sec); text-align: center; }
+.color-col { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+
+/* DRIVER LIST */
+.driver-list { display: flex; flex-direction: column; }
+.driver-item { display: flex; align-items: center; gap: 10px; padding: 10px 18px; border-bottom: 1px solid var(--border); }
+.driver-item:last-child { border-bottom: none; }
+.driver-num { font-size: 0.72rem; font-weight: 800; color: var(--text-sec); width: 18px; text-align: center; }
+.driver-name-input { flex: 1; }
+.btn-icon { background: var(--bg); border: 1px solid var(--border); border-radius: 8px;
+  width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+.btn-icon .material-icons-round { font-size: 16px; color: var(--text-sec); }
+.btn-icon.danger { border-color: #fca5a5; }
+.btn-icon.danger .material-icons-round { color: #dc2626; }
+
+/* HOLIDAY LIST */
+.holiday-item { display: flex; align-items: center; gap: 8px; padding: 8px 18px; border-bottom: 1px solid var(--border); }
+.holiday-item:last-child { border-bottom: none; }
+.holiday-date-input { width: 90px; }
+.holiday-name-input { flex: 1; }
+
+/* PREVIEW BADGE */
+.color-preview { display: inline-flex; align-items: center; justify-content: center;
+  padding: 4px 10px; border-radius: 7px; font-size: 0.72rem; font-weight: 800; margin-left: 8px; }
+
+/* SAVE BUTTON */
+.btn-save { width: 100%; padding: 15px; border: none; border-radius: 13px; cursor: pointer;
+  background: linear-gradient(135deg, #b91c1c, #dc2626); color: white; font-weight: 800;
+  font-size: 1rem; font-family: 'Inter', sans-serif;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  box-shadow: 0 4px 15px rgba(220,38,38,0.35); transition: transform 0.15s; }
+.btn-save:active { transform: scale(0.97); }
+.btn-add { display: flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 10px 18px; border: 1px dashed var(--border); background: var(--bg);
+  border-radius: 10px; cursor: pointer; font-size: 0.82rem; font-weight: 700; color: var(--text-sec);
+  transition: 0.2s; width: 100%; font-family: 'Inter', sans-serif; }
+.btn-add:active { background: var(--card); }
+
+/* TOAST */
+#toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px);
+  background: #0f172a; color: #fff; padding: 10px 20px; border-radius: 12px;
+  font-size: 0.85rem; font-weight: 700; z-index: 9000;
+  transition: transform 0.35s cubic-bezier(0.16,1,0.3,1), opacity 0.3s;
+  opacity: 0; white-space: nowrap; }
+#toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+/* SECTION DIVIDER */
+.section-divider { font-size: 0.65rem; font-weight: 800; text-transform: uppercase;
+  letter-spacing: 1px; color: var(--text-sec); padding: 4px 2px 2px; }
+
+/* COLOR SHIFT GRID */
+.shift-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 14px 18px; }
+.shift-block { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+.shift-block-header { padding: 8px 12px; font-size: 0.72rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; }
+.shift-block-body { padding: 10px 12px; display: flex; flex-direction: column; gap: 8px; }
+.shift-color-row { display: flex; align-items: center; justify-content: space-between; }
+.shift-color-label { font-size: 0.72rem; font-weight: 600; color: var(--text-sec); }
+
+/* REP TOGGLE */
+.big-toggle-row { display: flex; align-items: center; justify-content: space-between; padding: 16px 18px; gap: 12px; }
+.big-toggle-text h4 { font-size: 0.95rem; font-weight: 800; color: var(--text); }
+.big-toggle-text p { font-size: 0.75rem; color: var(--text-sec); margin-top: 3px; font-weight: 500; }
+
+/* JSON area */
+.json-area { padding: 14px 18px; }
+</style>
+</head>
+<body>
+
+<!-- LOCK SCREEN -->
+<div id="lock-screen">
+  <div class="lock-icon"><span class="material-icons-round">admin_panel_settings</span></div>
+  <div class="lock-title">Area Admin</div>
+  <div class="lock-sub">A.S. 26 — San Marino</div>
+  <div class="lock-input-wrap">
+    <span class="material-icons-round">lock</span>
+    <input id="pwd-input" type="password" placeholder="Password admin..." autocomplete="off" onkeydown="if(event.key==='Enter')unlock()">
+    <button class="btn-unlock" onclick="unlock()"><span class="material-icons-round">arrow_forward</span></button>
+  </div>
+  <div class="lock-error" id="lock-error"></div>
+</div>
+
+<!-- HEADER -->
+<header>
+  <div class="hdr-left">
+    <div class="hdr-icon"><span class="material-icons-round" style="color:#fff;font-size:20px">admin_panel_settings</span></div>
+    <div>
+      <div class="hdr-title">Admin Panel</div>
+      <div class="hdr-sub">A.S. 26 — San Marino</div>
+    </div>
+  </div>
+  <button class="btn-back" onclick="history.back()"><span class="material-icons-round">arrow_back</span></button>
+</header>
+
+<!-- MAIN PAGE -->
+<div class="page active" id="main-page">
+
+  <!-- ── VISIBILITÀ ── -->
+  <div class="section-divider">Visibilità elementi</div>
+  <div class="card">
+    <div class="card-header">
+      <div class="card-header-icon" style="background:#f0fdf4"><span class="material-icons-round" style="color:#16a34a">visibility</span></div>
+      <div class="card-header-text"><h3>Mostra / Nascondi</h3><p>Attiva o disattiva sezioni e funzionalità</p></div>
+    </div>
+
+    <div class="big-toggle-row">
+      <div class="big-toggle-text"><h4>🔴 Barra Reperibilità</h4><p>Mostra la striscia colorata nelle celle turno</p></div>
+      <label class="switch"><input type="checkbox" id="tog-repbar" checked><span class="slider"></span></label>
+    </div>
+    <div class="big-toggle-row" style="border-top:1px solid var(--border)">
+      <div class="big-toggle-text"><h4>🕐 Fasce Orarie</h4><p>Mostra gli orari (6:30-13:15 ecc.) nella cella</p></div>
+      <label class="switch"><input type="checkbox" id="tog-timetag" checked><span class="slider"></span></label>
+    </div>
+    <div class="big-toggle-row" style="border-top:1px solid var(--border)">
+      <div class="big-toggle-text"><h4>🐕 Icona Cane</h4><p>Icona animale sul turno solitario</p></div>
+      <label class="switch"><input type="checkbox" id="tog-dog" checked><span class="slider"></span></label>
+    </div>
+    <div class="big-toggle-row" style="border-top:1px solid var(--border)">
+      <div class="big-toggle-text"><h4>🚗 Icona Veicolo</h4><p>Indicatore appuntamento officina sulla cella</p></div>
+      <label class="switch"><input type="checkbox" id="tog-vehicle" checked><span class="slider"></span></label>
+    </div>
+    <div class="big-toggle-row" style="border-top:1px solid var(--border)">
+      <div class="big-toggle-text"><h4>📊 Contatori Turno</h4><p>Pallini M/P nella colonna data</p></div>
+      <label class="switch"><input type="checkbox" id="tog-dots" checked><span class="slider"></span></label>
+    </div>
+    <div class="big-toggle-row" style="border-top:1px solid var(--border)">
+      <div class="big-toggle-text"><h4>🎉 Popup Changelog</h4><p>Mostra novità al primo avvio nuova versione</p></div>
+      <label class="switch"><input type="checkbox" id="tog-changelog" checked><span class="slider"></span></label>
+    </div>
+    <div class="big-toggle-row" style="border-top:1px solid var(--border)">
+      <div class="big-toggle-text"><h4>🔔 Notifiche Reperibilità</h4><p>Avvisi automatici per chi copre la reperibilità</p></div>
+      <label class="switch"><input type="checkbox" id="tog-repnotif" checked><span class="slider"></span></label>
+    </div>
+    <div class="big-toggle-row" style="border-top:1px solid var(--border)">
+      <div class="big-toggle-text"><h4>🏥 Bottone Infermieri</h4><p>Pulsante verde in header per turni infermieri</p></div>
+      <label class="switch"><input type="checkbox" id="tog-infbtn" checked><span class="slider"></span></label>
+    </div>
+    <div class="big-toggle-row" style="border-top:1px solid var(--border)">
+      <div class="big-toggle-text"><h4>🍽️ Organizza Uscita</h4><p>Voce nel menu tre puntini</p></div>
+      <label class="switch"><input type="checkbox" id="tog-dinner" checked><span class="slider"></span></label>
+    </div>
+  </div>
+
+  <!-- ── NOMI AUTISTI ── -->
+  <div class="section-divider">Nomi autisti</div>
+  <div class="card">
+    <div class="card-header">
+      <div class="card-header-icon" style="background:#eff6ff"><span class="material-icons-round" style="color:#2563eb">group</span></div>
+      <div class="card-header-text"><h3>Lista Autisti</h3><p>Nomi visualizzati nell'intestazione colonne e nelle opzioni</p></div>
+    </div>
+    <div class="driver-list" id="driver-list"></div>
+    <div style="padding:10px 18px 14px">
+      <button class="btn-add" onclick="addDriver()"><span class="material-icons-round" style="font-size:16px">add</span> Aggiungi autista</button>
+    </div>
+  </div>
+
+  <!-- ── COLORI TURNI ── -->
+  <div class="section-divider">Colori turni</div>
+  <div class="card">
+    <div class="card-header">
+      <div class="card-header-icon" style="background:#fef3c7"><span class="material-icons-round" style="color:#d97706">palette</span></div>
+      <div class="card-header-text"><h3>Colori Turni</h3><p>Sfondo, testo e bordo per ogni tipo di turno</p></div>
+    </div>
+    <div class="shift-grid">
+      <!-- MATTINA -->
+      <div class="shift-block">
+        <div class="shift-block-header" id="prev-M" style="background:#026bfe;color:#fff">MATTINA</div>
+        <div class="shift-block-body">
+          <div class="shift-color-row"><span class="shift-color-label">Sfondo</span><input type="color" id="c-M-bg" value="#026bfe" oninput="previewShift('M')"></div>
+          <div class="shift-color-row"><span class="shift-color-label">Testo</span><input type="color" id="c-M-text" value="#ffffff" oninput="previewShift('M')"></div>
+          <div class="shift-color-row"><span class="shift-color-label">Bordo</span><input type="color" id="c-M-border" value="#bae6fd" oninput="previewShift('M')"></div>
+        </div>
+      </div>
+      <!-- POMERIGGIO -->
+      <div class="shift-block">
+        <div class="shift-block-header" id="prev-P" style="background:#56a2ff;color:#fff">POMERIGGIO</div>
+        <div class="shift-block-body">
+          <div class="shift-color-row"><span class="shift-color-label">Sfondo</span><input type="color" id="c-P-bg" value="#56a2ff" oninput="previewShift('P')"></div>
+          <div class="shift-color-row"><span class="shift-color-label">Testo</span><input type="color" id="c-P-text" value="#ffffff" oninput="previewShift('P')"></div>
+          <div class="shift-color-row"><span class="shift-color-label">Bordo</span><input type="color" id="c-P-border" value="#c7d2fe" oninput="previewShift('P')"></div>
+        </div>
+      </div>
+      <!-- NOTTE -->
+      <div class="shift-block">
+        <div class="shift-block-header" id="prev-N" style="background:#003785;color:#fff">NOTTE</div>
+        <div class="shift-block-body">
+          <div class="shift-color-row"><span class="shift-color-label">Sfondo</span><input type="color" id="c-N-bg" value="#003785" oninput="previewShift('N')"></div>
+          <div class="shift-color-row"><span class="shift-color-label">Testo</span><input type="color" id="c-N-text" value="#ffffff" oninput="previewShift('N')"></div>
+          <div class="shift-color-row"><span class="shift-color-label">Bordo</span><input type="color" id="c-N-border" value="#c7d2fe" oninput="previewShift('N')"></div>
+        </div>
+      </div>
+      <!-- SMONTO -->
+      <div class="shift-block">
+        <div class="shift-block-header" id="prev-SM" style="background:#10004f;color:#fff">SMONTO</div>
+        <div class="shift-block-body">
+          <div class="shift-color-row"><span class="shift-color-label">Sfondo</span><input type="color" id="c-SM-bg" value="#10004f" oninput="previewShift('SM')"></div>
+          <div class="shift-color-row"><span class="shift-color-label">Testo</span><input type="color" id="c-SM-text" value="#ffffff" oninput="previewShift('SM')"></div>
+          <div class="shift-color-row"><span class="shift-color-label">Bordo</span><input type="color" id="c-SM-border" value="#cbd5e1" oninput="previewShift('SM')"></div>
+        </div>
+      </div>
+      <!-- RIPOSO -->
+      <div class="shift-block">
+        <div class="shift-block-header" id="prev-R" style="background:#ecfdf5;color:#059669">RIPOSO</div>
+        <div class="shift-block-body">
+          <div class="shift-color-row"><span class="shift-color-label">Sfondo</span><input type="color" id="c-R-bg" value="#ecfdf5" oninput="previewShift('R')"></div>
+          <div class="shift-color-row"><span class="shift-color-label">Testo</span><input type="color" id="c-R-text" value="#059669" oninput="previewShift('R')"></div>
+          <div class="shift-color-row"><span class="shift-color-label">Bordo</span><input type="color" id="c-R-border" value="#6ee7b7" oninput="previewShift('R')"></div>
+        </div>
+      </div>
+      <!-- REPERIBILITA BARRA -->
+      <div class="shift-block">
+        <div class="shift-block-header" id="prev-REP" style="background:#dc2626;color:#fff">REP. BARRA</div>
+        <div class="shift-block-body">
+          <div class="shift-color-row"><span class="shift-color-label">Sub (rosso)</span><input type="color" id="c-rep-sub" value="#dc2626" oninput="previewShift('REP')"></div>
+          <div class="shift-color-row"><span class="shift-color-label">Cover (giallo)</span><input type="color" id="c-rep-cover" value="#ca8a04" oninput="previewShift('REP')"></div>
+          <div class="shift-color-row"><span class="shift-color-label">Own (verde)</span><input type="color" id="c-rep-own" value="#16a34a" oninput="previewShift('REP')"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── COLORI SPECIALI ── -->
+  <div class="section-divider">Colori speciali (assenze)</div>
+  <div class="card">
+    <div class="card-header">
+      <div class="card-header-icon" style="background:#fef2f2"><span class="material-icons-round" style="color:#dc2626">color_lens</span></div>
+      <div class="card-header-text"><h3>Celle speciali</h3><p>Ferie, malattia, permessi, recupero...</p></div>
+    </div>
+    <div class="shift-grid">
+      <div class="shift-block">
+        <div class="shift-block-header" id="prev-ferie" style="background:#ff782f;color:#fff">FERIE</div>
+        <div class="shift-block-body">
+          <div class="shift-color-row"><span class="shift-color-label">Sfondo</span><input type="color" id="c-ferie-bg" value="#ff782f" oninput="previewSpecial('ferie')"></div>
+          <div class="shift-color-row"><span class="shift-color-label">Testo</span><input type="color" id="c-ferie-text" value="#ffffff" oninput="previewSpecial('ferie')"></div>
+        </div>
+      </div>
+      <div class="shift-block">
+        <div class="shift-block-header" id="prev-perm" style="background:#00e749;color:#000">PERMESSO</div>
+        <div class="shift-block-body">
+          <div class="shift-color-row"><span class="shift-color-label">Sfondo</span><input type="color" id="c-perm-bg" value="#00e749" oninput="previewSpecial('perm')"></div>
+          <div class="shift-color-row"><span class="shift-color-label">Testo</span><input type="color" id="c-perm-text" value="#000000" oninput="previewSpecial('perm')"></div>
+        </div>
+      </div>
+      <div class="shift-block">
+        <div class="shift-block-header" id="prev-cong" style="background:#ffea00;color:#000">CONGEDO</div>
+        <div class="shift-block-body">
+          <div class="shift-color-row"><span class="shift-color-label">Sfondo</span><input type="color" id="c-cong-bg" value="#ffea00" oninput="previewSpecial('cong')"></div>
+          <div class="shift-color-row"><span class="shift-color-label">Testo</span><input type="color" id="c-cong-text" value="#000000" oninput="previewSpecial('cong')"></div>
+        </div>
+      </div>
+      <div class="shift-block">
+        <div class="shift-block-header" id="prev-rec" style="background:#d00173;color:#ffe8f2">RECUPERO</div>
+        <div class="shift-block-body">
+          <div class="shift-color-row"><span class="shift-color-label">Sfondo</span><input type="color" id="c-rec-bg" value="#d00173" oninput="previewSpecial('rec')"></div>
+          <div class="shift-color-row"><span class="shift-color-label">Testo</span><input type="color" id="c-rec-text" value="#ffe8f2" oninput="previewSpecial('rec')"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── FASCE ORARIE ── -->
+  <div class="section-divider">Fasce orarie turni</div>
+  <div class="card">
+    <div class="card-header">
+      <div class="card-header-icon" style="background:#f0fdf4"><span class="material-icons-round" style="color:#16a34a">schedule</span></div>
+      <div class="card-header-text"><h3>Orari Turni</h3><p>Orario visualizzato in ogni cella</p></div>
+    </div>
+    <div class="row"><div><div class="row-label">Mattina</div></div><input type="text" id="sched-M" value="6:30-13:15" style="width:120px"></div>
+    <div class="row"><div><div class="row-label">Pomeriggio</div></div><input type="text" id="sched-P" value="12:45-20:10" style="width:120px"></div>
+    <div class="row"><div><div class="row-label">Notte</div></div><input type="text" id="sched-N" value="19:45-00:00" style="width:120px"></div>
+    <div class="row"><div><div class="row-label">Smonto</div></div><input type="text" id="sched-SM" value="00:00-7:20" style="width:120px"></div>
+    <div class="row"><div><div class="row-label">Mattina diurno (m)</div></div><input type="text" id="sched-mD" value="6:30-13:42" style="width:120px"></div>
+    <div class="row"><div><div class="row-label">Pomeriggio diurno (p)</div></div><input type="text" id="sched-pD" value="13:15-20:27" style="width:120px"></div>
+  </div>
+
+  <!-- ── FESTIVI ── -->
+  <div class="section-divider">Festivi Sammarinesi</div>
+  <div class="card">
+    <div class="card-header">
+      <div class="card-header-icon" style="background:#fef2f2"><span class="material-icons-round" style="color:#dc2626">flag</span></div>
+      <div class="card-header-text"><h3>Festività</h3><p>Giorni festivi evidenziati in rosso (mese 0-11, giorno 1-31)</p></div>
+    </div>
+    <div id="holiday-list"></div>
+    <div style="padding:10px 18px 14px">
+      <button class="btn-add" onclick="addHoliday()"><span class="material-icons-round" style="font-size:16px">add</span> Aggiungi festività</button>
+    </div>
+  </div>
+
+  <!-- ── IMPOSTAZIONI GENERALI ── -->
+  <div class="section-divider">Impostazioni generali</div>
+  <div class="card">
+    <div class="card-header">
+      <div class="card-header-icon" style="background:#f0f9ff"><span class="material-icons-round" style="color:#0284c7">tune</span></div>
+      <div class="card-header-text"><h3>Parametri Generali</h3><p>Anno, nome app, altezza celle...</p></div>
+    </div>
+    <div class="row"><div><div class="row-label">Anno turni</div><div class="row-sub">Anno visualizzato nell'intestazione mese</div></div><input type="text" id="cfg-year" value="2026" style="width:80px"></div>
+    <div class="row"><div><div class="row-label">Titolo App</div><div class="row-sub">Nome visualizzato in header</div></div><input type="text" id="cfg-title" value="A.S. 26" style="width:110px"></div>
+    <div class="row"><div><div class="row-label">Sottotitolo</div><div class="row-sub">Riga piccola sotto il titolo</div></div><input type="text" id="cfg-subtitle" value="San Marino" style="width:110px"></div>
+    <div class="row"><div><div class="row-label">Altezza celle (px)</div><div class="row-sub">Altezza righe tabella turni</div></div><input type="text" id="cfg-cellh" value="60" style="width:70px"></div>
+    <div class="row"><div><div class="row-label">Altezza barra rep. (px)</div><div class="row-sub">Altezza striscia reperibilità</div></div><input type="text" id="cfg-repbarh" value="32" style="width:70px"></div>
+    <div class="row"><div><div class="row-label">Colore primario</div><div class="row-sub">Accent colore pulsanti e link</div></div><input type="color" id="cfg-primary" value="#2563eb"></div>
+    <div class="row"><div><div class="row-label">Nome file Excel</div><div class="row-sub">Nome del file turni su GitHub</div></div><input type="text" id="cfg-filename" value="turni.xlsx" style="width:130px"></div>
+    <div class="row"><div><div class="row-label">URL Turni Infermieri</div><div class="row-sub">Link pagina infermieri</div></div></div>
+    <div style="padding:4px 18px 14px"><input type="text" id="cfg-inf-url" value="https://centrale118rsm-code.github.io/Turni-Infermieri-2026/" style="width:100%;font-size:0.75rem"></div>
+  </div>
+
+  <!-- ── ESPORTA CONFIG ── -->
+  <div class="section-divider">Configurazione JSON</div>
+  <div class="card">
+    <div class="card-header">
+      <div class="card-header-icon" style="background:#f8fafc"><span class="material-icons-round" style="color:#475569">code</span></div>
+      <div class="card-header-text"><h3>Esporta / Importa</h3><p>Salva o ripristina tutta la configurazione</p></div>
+    </div>
+    <div class="json-area">
+      <textarea id="json-export" style="font-family:monospace;font-size:0.72rem;background:#0f172a;color:#7dd3fc;border:none;border-radius:10px;padding:12px;min-height:120px;" readonly placeholder="Clicca 'Genera JSON' per vedere la configurazione..."></textarea>
+      <div style="display:flex;gap:8px;margin-top:10px">
+        <button class="btn-add" onclick="generateJson()" style="flex:1"><span class="material-icons-round" style="font-size:16px">data_object</span> Genera JSON</button>
+        <button class="btn-add" onclick="copyJson()" style="flex:1"><span class="material-icons-round" style="font-size:16px">content_copy</span> Copia</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── AZIONI PERICOLOSE ── -->
+  <div class="section-divider">Azioni</div>
+  <div class="card">
+    <div class="card-header">
+      <div class="card-header-icon" style="background:#fef2f2"><span class="material-icons-round" style="color:#dc2626">warning</span></div>
+      <div class="card-header-text"><h3>Azioni pericolose</h3><p>Operazioni irreversibili sul localStorage</p></div>
+    </div>
+    <div class="row" style="flex-wrap:wrap;gap:10px">
+      <button class="btn-add" onclick="clearNotifications()" style="flex:1;border-color:#fca5a5;color:#dc2626">
+        <span class="material-icons-round" style="font-size:16px;color:#dc2626">delete_sweep</span> Cancella notifiche
+      </button>
+      <button class="btn-add" onclick="resetChangelog()" style="flex:1;border-color:#fca5a5;color:#dc2626">
+        <span class="material-icons-round" style="font-size:16px;color:#dc2626">restart_alt</span> Reset changelog
+      </button>
+    </div>
+    <div style="padding:0 18px 14px">
+      <button class="btn-add" onclick="clearAllStorage()" style="border-color:#fca5a5;color:#dc2626">
+        <span class="material-icons-round" style="font-size:16px;color:#dc2626">delete_forever</span> Reset COMPLETO localStorage (tutti i dati app)
+      </button>
+    </div>
+  </div>
+
+  <!-- SALVA -->
+  <button class="btn-save" onclick="saveAll()">
+    <span class="material-icons-round">save</span> SALVA CONFIGURAZIONE
+  </button>
+
+</div>
+
+<div id="toast">✓ Salvato</div>
+
+<script>
+// ── DATI DEFAULT ──
+const DEFAULT_DRIVERS = ["Barbieri","Pazzaglia","Bianchi","Sarti","Ghiotti","Berardi","Michelotti","Volpini","Fabbri"];
+const DEFAULT_HOLIDAYS = [
+  {key:"0-1",name:"CAPODANNO"},{key:"0-6",name:"EPIFANIA"},{key:"1-5",name:"S. AGATA"},
+  {key:"2-25",name:"ARENGO"},{key:"3-1",name:"REGGENZA"},{key:"3-5",name:"PASQUA"},
+  {key:"3-6",name:"LUN. ANGELO"},{key:"4-1",name:"1° MAGGIO"},{key:"5-4",name:"CORPUS DOM."},
+  {key:"6-28",name:"LIBERAZIONE"},{key:"7-15",name:"FERRAGOSTO"},{key:"8-3",name:"S. MARINO"},
+  {key:"9-1",name:"REGGENZA"},{key:"10-1",name:"OGNISSANTI"},{key:"10-2",name:"COMM. DEFUNTI"},
+  {key:"11-8",name:"IMMACOLATA"},{key:"11-25",name:"NATALE"},{key:"11-26",name:"S. STEFANO"}
+];
+
+const STORAGE_KEY = "as26_admin_config";
+
+// ── LOCK ──
+function unlock() {
+  const pwd = document.getElementById('pwd-input').value.trim().toLowerCase();
+  if (pwd === 'ambulanza') {
+    document.getElementById('lock-screen').style.display = 'none';
+    loadConfig();
+  } else {
+    const err = document.getElementById('lock-error');
+    err.textContent = '❌ Password errata. Riprova.';
+    document.getElementById('pwd-input').value = '';
+    document.getElementById('pwd-input').focus();
+    setTimeout(() => err.textContent = '', 3000);
+  }
+}
+
+// ── LOAD CONFIG ──
+function loadConfig() {
+  let cfg = {};
+  try { cfg = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); } catch(e) {}
+
+  // toggles
+  const togs = ['repbar','timetag','dog','vehicle','dots','changelog','repnotif','infbtn','dinner'];
+  togs.forEach(t => {
+    const el = document.getElementById('tog-' + t);
+    if (el) el.checked = cfg['tog_' + t] !== false;
+  });
+
+  // drivers
+  const drivers = cfg.drivers || DEFAULT_DRIVERS;
+  renderDriverList(drivers);
+
+  // shift colors
+  const sc = cfg.shiftColors || {};
+  setColor('c-M-bg', sc['M-bg'] || '#026bfe');
+  setColor('c-M-text', sc['M-text'] || '#ffffff');
+  setColor('c-M-border', sc['M-border'] || '#bae6fd');
+  setColor('c-P-bg', sc['P-bg'] || '#56a2ff');
+  setColor('c-P-text', sc['P-text'] || '#ffffff');
+  setColor('c-P-border', sc['P-border'] || '#c7d2fe');
+  setColor('c-N-bg', sc['N-bg'] || '#003785');
+  setColor('c-N-text', sc['N-text'] || '#ffffff');
+  setColor('c-N-border', sc['N-border'] || '#c7d2fe');
+  setColor('c-SM-bg', sc['SM-bg'] || '#10004f');
+  setColor('c-SM-text', sc['SM-text'] || '#ffffff');
+  setColor('c-SM-border', sc['SM-border'] || '#cbd5e1');
+  setColor('c-R-bg', sc['R-bg'] || '#ecfdf5');
+  setColor('c-R-text', sc['R-text'] || '#059669');
+  setColor('c-R-border', sc['R-border'] || '#6ee7b7');
+  setColor('c-rep-sub', sc['rep-sub'] || '#dc2626');
+  setColor('c-rep-cover', sc['rep-cover'] || '#ca8a04');
+  setColor('c-rep-own', sc['rep-own'] || '#16a34a');
+
+  // special colors
+  const sp = cfg.specialColors || {};
+  setColor('c-ferie-bg', sp['ferie-bg'] || '#ff782f');
+  setColor('c-ferie-text', sp['ferie-text'] || '#ffffff');
+  setColor('c-perm-bg', sp['perm-bg'] || '#00e749');
+  setColor('c-perm-text', sp['perm-text'] || '#000000');
+  setColor('c-cong-bg', sp['cong-bg'] || '#ffea00');
+  setColor('c-cong-text', sp['cong-text'] || '#000000');
+  setColor('c-rec-bg', sp['rec-bg'] || '#d00173');
+  setColor('c-rec-text', sp['rec-text'] || '#ffe8f2');
+
+  // schedules
+  const sch = cfg.schedules || {};
+  document.getElementById('sched-M').value  = sch.M  || '6:30-13:15';
+  document.getElementById('sched-P').value  = sch.P  || '12:45-20:10';
+  document.getElementById('sched-N').value  = sch.N  || '19:45-00:00';
+  document.getElementById('sched-SM').value = sch.SM || '00:00-7:20';
+  document.getElementById('sched-mD').value = sch.mD || '6:30-13:42';
+  document.getElementById('sched-pD').value = sch.pD || '13:15-20:27';
+
+  // holidays
+  const holidays = cfg.holidays || DEFAULT_HOLIDAYS;
+  renderHolidayList(holidays);
+
+  // general
+  const gen = cfg.general || {};
+  document.getElementById('cfg-year').value     = gen.year     || '2026';
+  document.getElementById('cfg-title').value    = gen.title    || 'A.S. 26';
+  document.getElementById('cfg-subtitle').value = gen.subtitle || 'San Marino';
+  document.getElementById('cfg-cellh').value    = gen.cellH    || '60';
+  document.getElementById('cfg-repbarh').value  = gen.repBarH  || '32';
+  setColor('cfg-primary', gen.primary || '#2563eb');
+  document.getElementById('cfg-filename').value  = gen.filename || 'turni.xlsx';
+  document.getElementById('cfg-inf-url').value   = gen.infUrl  || 'https://centrale118rsm-code.github.io/Turni-Infermieri-2026/';
+
+  // preview all
+  ['M','P','N','SM','R','REP'].forEach(previewShift);
+  ['ferie','perm','cong','rec'].forEach(previewSpecial);
+}
+
+function setColor(id, val) {
+  const el = document.getElementById(id);
+  if (el) el.value = val;
+}
+
+// ── DRIVER LIST ──
+function renderDriverList(drivers) {
+  const list = document.getElementById('driver-list');
+  list.innerHTML = '';
+  drivers.forEach((name, i) => {
+    const row = document.createElement('div');
+    row.className = 'driver-item';
+    row.innerHTML = `
+      <span class="driver-num">${i+1}</span>
+      <input type="text" class="driver-name-input" value="${name}" placeholder="Nome autista">
+      <button class="btn-icon danger" onclick="removeDriver(this)" title="Rimuovi">
+        <span class="material-icons-round">close</span>
+      </button>`;
+    list.appendChild(row);
+  });
+}
+
+function addDriver() {
+  const list = document.getElementById('driver-list');
+  const i = list.children.length + 1;
+  const row = document.createElement('div');
+  row.className = 'driver-item';
+  row.innerHTML = `
+    <span class="driver-num">${i}</span>
+    <input type="text" class="driver-name-input" value="" placeholder="Nome autista">
+    <button class="btn-icon danger" onclick="removeDriver(this)">
+      <span class="material-icons-round">close</span>
+    </button>`;
+  list.appendChild(row);
+  row.querySelector('input').focus();
+}
+
+function removeDriver(btn) {
+  if (!confirm('Rimuovere questo autista?')) return;
+  btn.parentElement.remove();
+  // Rinnumera
+  document.querySelectorAll('.driver-item').forEach((el, i) => {
+    el.querySelector('.driver-num').textContent = i + 1;
+  });
+}
+
+function getDrivers() {
+  return [...document.querySelectorAll('.driver-name-input')]
+    .map(i => i.value.trim()).filter(Boolean);
+}
+
+// ── HOLIDAY LIST ──
+function renderHolidayList(holidays) {
+  const list = document.getElementById('holiday-list');
+  list.innerHTML = '';
+  holidays.forEach(h => {
+    const [m, d] = h.key.split('-');
+    const row = document.createElement('div');
+    row.className = 'holiday-item';
+    row.innerHTML = `
+      <input type="text" class="holiday-date-input" value="${parseInt(m)+1}/${d}" placeholder="MM/GG" title="Mese/Giorno (es: 1/1 = 1 Gennaio)">
+      <input type="text" class="holiday-name-input" value="${h.name}" placeholder="Nome festività">
+      <button class="btn-icon danger" onclick="this.parentElement.remove()" title="Rimuovi">
+        <span class="material-icons-round">close</span>
+      </button>`;
+    list.appendChild(row);
+  });
+}
+
+function addHoliday() {
+  const list = document.getElementById('holiday-list');
+  const row = document.createElement('div');
+  row.className = 'holiday-item';
+  row.innerHTML = `
+    <input type="text" class="holiday-date-input" value="" placeholder="MM/GG">
+    <input type="text" class="holiday-name-input" value="" placeholder="Nome festività">
+    <button class="btn-icon danger" onclick="this.parentElement.remove()">
+      <span class="material-icons-round">close</span>
+    </button>`;
+  list.appendChild(row);
+  row.querySelector('input').focus();
+}
+
+function getHolidays() {
+  const rows = document.querySelectorAll('.holiday-item');
+  const result = [];
+  rows.forEach(row => {
+    const dateStr = row.querySelector('.holiday-date-input').value.trim();
+    const name = row.querySelector('.holiday-name-input').value.trim();
+    if (!dateStr || !name) return;
+    const parts = dateStr.split('/');
+    if (parts.length !== 2) return;
+    const m = parseInt(parts[0]) - 1;
+    const d = parseInt(parts[1]);
+    if (isNaN(m) || isNaN(d)) return;
+    result.push({ key: `${m}-${d}`, name });
+  });
+  return result;
+}
+
+// ── PREVIEW COLORS ──
+function previewShift(type) {
+  if (type === 'REP') {
+    const sub = document.getElementById('c-rep-sub').value;
+    const cover = document.getElementById('c-rep-cover').value;
+    const own = document.getElementById('c-rep-own').value;
+    const el = document.getElementById('prev-REP');
+    if (el) { el.style.background = sub; el.style.color = '#fff'; }
+    return;
+  }
+  const bg = document.getElementById(`c-${type}-bg`)?.value;
+  const text = document.getElementById(`c-${type}-text`)?.value;
+  const el = document.getElementById(`prev-${type}`);
+  if (el && bg && text) { el.style.background = bg; el.style.color = text; }
+}
+
+function previewSpecial(type) {
+  const bg = document.getElementById(`c-${type}-bg`)?.value;
+  const text = document.getElementById(`c-${type}-text`)?.value;
+  const el = document.getElementById(`prev-${type}`);
+  if (el && bg && text) { el.style.background = bg; el.style.color = text; }
+}
+
+// ── COLLECT CONFIG ──
+function collectConfig() {
+  const togs = ['repbar','timetag','dog','vehicle','dots','changelog','repnotif','infbtn','dinner'];
+  const togObj = {};
+  togs.forEach(t => { togObj['tog_' + t] = document.getElementById('tog-' + t)?.checked !== false; });
+
+  const shiftColors = {
+    'M-bg': gv('c-M-bg'), 'M-text': gv('c-M-text'), 'M-border': gv('c-M-border'),
+    'P-bg': gv('c-P-bg'), 'P-text': gv('c-P-text'), 'P-border': gv('c-P-border'),
+    'N-bg': gv('c-N-bg'), 'N-text': gv('c-N-text'), 'N-border': gv('c-N-border'),
+    'SM-bg': gv('c-SM-bg'), 'SM-text': gv('c-SM-text'), 'SM-border': gv('c-SM-border'),
+    'R-bg': gv('c-R-bg'), 'R-text': gv('c-R-text'), 'R-border': gv('c-R-border'),
+    'rep-sub': gv('c-rep-sub'), 'rep-cover': gv('c-rep-cover'), 'rep-own': gv('c-rep-own'),
+  };
+
+  const specialColors = {
+    'ferie-bg': gv('c-ferie-bg'), 'ferie-text': gv('c-ferie-text'),
+    'perm-bg': gv('c-perm-bg'), 'perm-text': gv('c-perm-text'),
+    'cong-bg': gv('c-cong-bg'), 'cong-text': gv('c-cong-text'),
+    'rec-bg': gv('c-rec-bg'), 'rec-text': gv('c-rec-text'),
+  };
+
+  const schedules = {
+    M: gv('sched-M'), P: gv('sched-P'), N: gv('sched-N'), SM: gv('sched-SM'),
+    mD: gv('sched-mD'), pD: gv('sched-pD'),
+  };
+
+  const general = {
+    year: gv('cfg-year'), title: gv('cfg-title'), subtitle: gv('cfg-subtitle'),
+    cellH: gv('cfg-cellh'), repBarH: gv('cfg-repbarh'), primary: gv('cfg-primary'),
+    filename: gv('cfg-filename'), infUrl: gv('cfg-inf-url'),
+  };
+
+  return { ...togObj, drivers: getDrivers(), shiftColors, specialColors, schedules, holidays: getHolidays(), general };
+}
+
+function gv(id) { const el = document.getElementById(id); return el ? el.value : ''; }
+
+// ── SAVE ──
+function saveAll() {
+  const cfg = collectConfig();
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(cfg));
+  showToast('✓ Configurazione salvata!');
+}
+
+// ── JSON ──
+function generateJson() {
+  const cfg = collectConfig();
+  document.getElementById('json-export').value = JSON.stringify(cfg, null, 2);
+}
+
+function copyJson() {
+  generateJson();
+  const ta = document.getElementById('json-export');
+  if (!ta.value) return;
+  navigator.clipboard.writeText(ta.value).then(() => showToast('✓ Copiato negli appunti'));
+}
+
+// ── AZIONI PERICOLOSE ──
+function clearNotifications() {
+  if (!confirm('Eliminare tutte le notifiche dall\'app turni?')) return;
+  localStorage.removeItem('notifications_history');
+  showToast('✓ Notifiche eliminate');
+}
+
+function resetChangelog() {
+  if (!confirm('Resettare il popup changelog? Riapparirà al prossimo avvio.')) return;
+  localStorage.removeItem('changelog_seen_version');
+  showToast('✓ Changelog resettato');
+}
+
+function clearAllStorage() {
+  if (!confirm('⚠️ ATTENZIONE!\nQuesto eliminerà TUTTI i dati salvati dell\'app (configurazione admin inclusa).\nSicuro?')) return;
+  if (!confirm('Ultima conferma: vuoi davvero resettare tutto?')) return;
+  localStorage.clear();
+  showToast('✓ localStorage svuotato');
+}
+
+// ── TOAST ──
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// Focus auto sul campo password
+window.addEventListener('load', () => {
+  document.getElementById('pwd-input').focus();
+});
+</script>
+</body>
+</html>
