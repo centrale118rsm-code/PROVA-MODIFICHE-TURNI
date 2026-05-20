@@ -52,58 +52,24 @@
             --bg: #0f172a; --bg-card: #1e293b; --text-main: #f1f5f9;
             --text-sec: #94a3b8; --border: #334155; --header-bg: rgba(15,23,42,0.95);
         }
-        body {
-            font-family: 'Inter', sans-serif;
-            background: var(--bg); margin: 0; padding-top: var(--header-h);
-            color: var(--text-main); transition: background 0.3s ease, color 0.3s ease;
-            overscroll-behavior-y: none;
-        }
-        header {
-            position: fixed; top: 0; left: 0; right: 0;
-            background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 60%, #2563eb 100%);
-            box-shadow: 0 2px 20px rgba(0,0,0,0.25);
-            z-index: 1000; height: var(--header-h);
-            display: flex; flex-direction: column;
-            padding-top: env(safe-area-inset-top);
-            transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
-        }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); margin: 0; padding-top: var(--header-h); color: var(--text-main); transition: background 0.3s ease, color 0.3s ease; overscroll-behavior-y: none; }
+        header { position: fixed; top: 0; left: 0; right: 0; background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 60%, #2563eb 100%); box-shadow: 0 2px 20px rgba(0,0,0,0.25); z-index: 1000; height: var(--header-h); display: flex; flex-direction: column; padding-top: env(safe-area-inset-top); transition: all 0.3s cubic-bezier(0.4,0,0.2,1); }
         body.dark-mode header { background: linear-gradient(135deg, #020617 0%, #0f172a 60%, #1e3a8a 100%); }
-        .top-bar {
-            padding: 0 12px; display: flex; justify-content: space-between;
-            align-items: center; height: 60px; flex-shrink: 0; gap: 10px;
-        }
-        .logo {
-            font-size: 1rem; font-weight: 900; color: #ffffff;
-            display: flex; align-items: center; gap: 9px; letter-spacing: -0.5px;
-            white-space: nowrap; flex-shrink: 1; min-width: 0; overflow: hidden; margin-right: auto;
-        }
+        .top-bar { padding: 0 12px; display: flex; justify-content: space-between; align-items: center; height: 60px; flex-shrink: 0; gap: 10px; }
+        .logo { font-size: 1rem; font-weight: 900; color: #ffffff; display: flex; align-items: center; gap: 9px; letter-spacing: -0.5px; white-space: nowrap; flex-shrink: 1; min-width: 0; overflow: hidden; margin-right: auto; }
         .logo img { filter: drop-shadow(0 2px 6px rgba(0,0,0,0.3)); border-radius: 10px; cursor: pointer; height: 34px; width: auto; border: 2px solid rgba(255,255,255,0.2); }
         .logo-text { display: flex; flex-direction: column; line-height: 1; overflow: hidden; }
         .logo-title { font-size: 1.05rem; font-weight: 900; color: #fff; letter-spacing: -0.5px; text-shadow: 0 1px 3px rgba(0,0,0,0.3); }
         .logo-sub { font-size: 0.6rem; font-weight: 600; color: rgba(255,255,255,0.65); margin-top: 2px; letter-spacing: 0.5px; text-transform: uppercase; }
         .right-controls { display: flex; gap: 5px; position: relative; flex-shrink: 0; align-items: center; }
-        .btn-action {
-            background: rgba(255,255,255,0.12); color: rgba(255,255,255,0.9);
-            border: 1px solid rgba(255,255,255,0.2); width: 38px; height: 38px; padding: 0;
-            border-radius: 11px; cursor: pointer; display: flex; align-items: center; justify-content: center;
-            transition: all 0.2s cubic-bezier(0.4,0,0.2,1); position: relative; backdrop-filter: blur(8px);
-        }
+        .btn-action { background: rgba(255,255,255,0.12); color: rgba(255,255,255,0.9); border: 1px solid rgba(255,255,255,0.2); width: 38px; height: 38px; padding: 0; border-radius: 11px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s cubic-bezier(0.4,0,0.2,1); position: relative; backdrop-filter: blur(8px); }
         .btn-action span.material-icons-round { font-size: 1.2rem; }
         .btn-action:active { transform: scale(0.92); background: rgba(255,255,255,0.22); }
         .btn-action:hover { background: rgba(255,255,255,0.2); }
-        .badge-dot {
-            position: absolute; top: 5px; right: 5px; width: 8px; height: 8px;
-            background: #f97316; border-radius: 50%; border: 2px solid transparent;
-            display: none; box-shadow: 0 0 0 2px rgba(249,115,22,0.4);
-        }
+        .badge-dot { position: absolute; top: 5px; right: 5px; width: 8px; height: 8px; background: #f97316; border-radius: 50%; border: 2px solid transparent; display: none; box-shadow: 0 0 0 2px rgba(249,115,22,0.4); }
         .badge-dot.visible { display: block; animation: pulse-dot 2s infinite; }
         @keyframes pulse-dot { 0%,100% { box-shadow: 0 0 0 2px rgba(249,115,22,0.4); } 50% { box-shadow: 0 0 0 4px rgba(249,115,22,0.2); } }
-        #menu-dropdown {
-            position: absolute; top: 48px; right: 0; background: var(--bg-card);
-            border-radius: 16px; box-shadow: 0 10px 40px -5px rgba(0,0,0,0.3);
-            width: 230px; overflow: hidden; display: none; border: 1px solid var(--border);
-            flex-direction: column; z-index: 5000; transform-origin: top right;
-        }
+        #menu-dropdown { position: absolute; top: 48px; right: 0; background: var(--bg-card); border-radius: 16px; box-shadow: 0 10px 40px -5px rgba(0,0,0,0.3); width: 230px; overflow: hidden; display: none; border: 1px solid var(--border); flex-direction: column; z-index: 5000; transform-origin: top right; }
         #menu-dropdown.open { display: flex; animation: scaleIn 0.2s cubic-bezier(0.175,0.885,0.32,1.275); }
         .menu-item { padding: 15px 18px; display: flex; align-items: center; gap: 12px; font-weight: 600; font-size: 0.9rem; color: var(--text-main); border-bottom: 1px solid var(--border); cursor: pointer; transition: 0.2s; }
         .menu-item:last-child { border-bottom: none; }
@@ -117,57 +83,16 @@
         .chip-driver.active { background: rgba(255,255,255,0.95); color: #1e3a8a; border-color: transparent; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
         .container { padding: 0; max-width: 100%; margin: 0 auto; padding-bottom: 80px; }
         table { width: 100%; border-collapse: separate; border-spacing: 0; }
-        thead th {
-            background: var(--bg); color: var(--text-sec); padding: 5px; font-size: 0.7rem;
-            text-transform: uppercase; font-weight: 800; letter-spacing: 0.5px;
-            position: sticky; top: var(--header-h); z-index: 90;
-            border-bottom: 1px solid var(--border); text-align: center;
-            width: 110px !important; min-width: 110px !important; max-width: 110px !important;
-            height: var(--th-h); backdrop-filter: blur(5px);
-            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-        }
+        thead th { background: var(--bg); color: var(--text-sec); padding: 5px; font-size: 0.7rem; text-transform: uppercase; font-weight: 800; letter-spacing: 0.5px; position: sticky; top: var(--header-h); z-index: 90; border-bottom: 1px solid var(--border); text-align: center; width: 110px !important; min-width: 110px !important; max-width: 110px !important; height: var(--th-h); backdrop-filter: blur(5px); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         thead th:first-child, tbody td:first-child { width: 60px !important; min-width: 60px !important; max-width: 60px !important; }
         thead th:first-child { position: -webkit-sticky !important; position: sticky !important; left: 0; z-index: 96 !important; background: var(--bg) !important; }
-        /* MESE STICKY: il td colspan diventa sticky in entrambe le direzioni */
-        tr.month-header td {
-            background: var(--month-bar-bg); color: white;
-            position: -webkit-sticky !important;
-            position: sticky !important;
-            top: calc(var(--header-h) + var(--th-h));
-            left: 0;
-            z-index: 88;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            padding: 0; border: none; line-height: 1;
-            width: 100vw !important; min-width: 100vw !important; max-width: 100vw !important;
-        }
+        tr.month-header td { background: var(--month-bar-bg); color: white; position: -webkit-sticky !important; position: sticky !important; top: calc(var(--header-h) + var(--th-h)); left: 0; z-index: 88; box-shadow: 0 4px 15px rgba(0,0,0,0.2); padding: 0; border: none; line-height: 1; width: 100vw !important; min-width: 100vw !important; max-width: 100vw !important; }
         .sticky-month-text { display: flex; align-items: center; gap: 12px; min-height: 40px; padding: 4px 0 4px 16px; width: 100vw; }
         .month-label { font-weight: 900; font-size: 1.4rem; text-transform: uppercase; letter-spacing: -0.5px; text-shadow: 0 2px 4px rgba(0,0,0,0.2); }
         .live-clock { font-variant-numeric: tabular-nums; font-weight: 800; font-size: 1rem; background: rgba(0,0,0,0.25); padding: 2px 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); letter-spacing: 0.5px; box-shadow: inset 0 1px 3px rgba(0,0,0,0.1); text-shadow: 0 1px 2px rgba(0,0,0,0.2); }
-        tbody td {
-            padding: 2px; height: var(--cell-h); vertical-align: middle;
-            border-bottom: 1px solid var(--border); border-right: 1px dashed var(--border);
-            transition: height 0.3s ease;
-            width: 110px !important; min-width: 110px !important; max-width: 110px !important;
-            overflow: hidden;
-        }
-        /* PRIMA COLONNA (DATA): sticky, padding 0, niente bordo proprio */
-        tbody td.td-date {
-            position: -webkit-sticky !important;
-            position: sticky !important;
-            left: 0; z-index: 80;
-            padding: 0 !important;
-            border-right: 2px solid var(--border) !important;
-            border-bottom: none !important;
-            background: var(--bg);
-            text-align: center; font-weight: 800; color: var(--text-main); font-size: 1.1rem;
-            vertical-align: middle;
-        }
-        .td-date-inner {
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            height: 100%; width: 100%;
-            padding: 4px 0;
-            box-sizing: border-box;
-        }
+        tbody td { padding: 2px; height: var(--cell-h); vertical-align: middle; border-bottom: 1px solid var(--border); border-right: 1px dashed var(--border); transition: height 0.3s ease; width: 110px !important; min-width: 110px !important; max-width: 110px !important; overflow: hidden; }
+        tbody td.td-date { position: -webkit-sticky !important; position: sticky !important; left: 0; z-index: 80; padding: 0 !important; border-right: 2px solid var(--border) !important; border-bottom: none !important; background: var(--bg); text-align: center; font-weight: 800; color: var(--text-main); font-size: 1.1rem; vertical-align: middle; }
+        .td-date-inner { display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100%; width: 100%; padding: 4px 0; box-sizing: border-box; }
         .td-date small { display: block; font-weight: 600; font-size: 0.7rem; text-transform: uppercase; color: var(--text-sec); margin-top: 0; line-height: 1.1; }
         .td-date.date-red { color: #dc2626 !important; background: #fef2f2 !important; border-right-color: #fca5a5 !important; }
         .td-date.date-red small { color: #ef4444; }
@@ -183,13 +108,7 @@
         body.dark-mode .sd-P { background: #6366f1; }
         @keyframes solo-pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(239,68,68,0.8); transform: scale(1); } 50% { box-shadow: 0 0 0 4px rgba(239,68,68,0); transform: scale(1.1); } }
         .sd.sd-solo { background: #dc2626 !important; color: #fff !important; border-radius: 50% !important; animation: solo-pulse 1.2s ease-in-out infinite; }
-        .cell {
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            height: 100%; width: 100%; border-radius: 10px; font-weight: 800;
-            font-size: var(--font-base); text-transform: uppercase; position: relative;
-            line-height: 1.1; text-align: center; cursor: pointer;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.05); transition: transform 0.1s; padding-bottom: 2px;
-        }
+        .cell { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; width: 100%; border-radius: 10px; font-weight: 800; font-size: var(--font-base); text-transform: uppercase; position: relative; line-height: 1.1; text-align: center; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,0.05); transition: transform 0.1s; padding-bottom: 2px; }
         .cell:active { transform: scale(0.96); }
         body.dark-mode .cell.empty { color: #475569; }
         body.dark-mode .cell { box-shadow: none; border: 1px solid rgba(255,255,255,0.05); }
@@ -198,36 +117,23 @@
 
         /* ── STRISCIA REPERIBILITÀ ── */
         .rep-bar { display: flex; width: 100%; height: 32px; border-radius: 4px; overflow: hidden; margin-top: 3px; gap: 1px; }
-        .rep-bar-seg {
-            flex: 1; border-radius: 2px;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            font-weight: 900; color: rgba(255,255,255,0.97);
-            letter-spacing: -0.3px; line-height: 1; text-align: center;
-            overflow: hidden; padding: 2px 3px; max-width: 100%;
-        }
-        .rep-bar-seg .rep-time {
-            font-size: 0.55rem;
-            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-            max-width: 100%;
-        }
-        .rep-bar-seg .rep-name {
-            font-size: 0.42rem;
-            font-weight: 800;
-            color: #ffffff;
-            margin-top: 1px;
-            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-            max-width: 100%;
-            opacity: 0.95;
-            letter-spacing: -0.2px;
-        }
+        .rep-bar-seg { flex: 1; border-radius: 2px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-weight: 900; color: rgba(255,255,255,0.97); letter-spacing: -0.3px; line-height: 1; text-align: center; overflow: hidden; padding: 2px 3px; max-width: 100%; }
+        .rep-bar-seg .rep-time { font-size: 0.55rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+        .rep-bar-seg .rep-name { font-size: 0.42rem; font-weight: 800; margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; opacity: 0.95; letter-spacing: -0.2px; }
+        /* Titolare — verde: testo bianco di default */
         .rep-bar-seg.green { background: #16a34a; }
-        .rep-bar-seg.red   { background: #dc2626; }
-        .rep-bar-seg.rep-sub { background: #dc2626; color: #ffffff; }
+        .rep-bar-seg.green .rep-time { color: #ffffff; }
+        .rep-bar-seg.green .rep-name { color: #ffffff; }
+        /* Ceduto — rosso: testo bianco */
+        .rep-bar-seg.rep-sub { background: #dc2626; }
+        .rep-bar-seg.rep-sub .rep-time { color: #ffffff; }
         .rep-bar-seg.rep-sub .rep-name { color: #ffffff; }
-        .rep-bar-seg.rep-cover { background: #ca8a04; color: #ffffff; animation: rep-blink 1.1s ease-in-out infinite; }
-        .rep-bar-seg.rep-cover .rep-name { color: #ffffff; }
+        /* Copertura — giallo: nome in giallo chiaro per distinguersi */
+        .rep-bar-seg.rep-cover { background: #ca8a04; animation: rep-blink 1.1s ease-in-out infinite; }
+        .rep-bar-seg.rep-cover .rep-time { color: #ffffff; }
+        .rep-bar-seg.rep-cover .rep-name { color: #fde047; }
         .rep-bar.rep-bar-compact { gap: 2px; }
-        @keyframes rep-blink { 0%,100% { background: #ca8a04; color: #ffffff; } 50% { background: #fde047; color: #78350f; } }
+        @keyframes rep-blink { 0%,100% { background: #ca8a04; } 50% { background: #fde047; color: #78350f; } }
 
         /* ── STILI TURNI ── */
         .t-M { background: var(--c-M); color: var(--t-M); border: 1px solid var(--b-M); }
@@ -282,7 +188,6 @@
         .month-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; padding: 20px; }
         .month-btn { aspect-ratio: 2/1; background: var(--bg); border: 1px solid var(--border); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: 800; color: var(--text-main); font-size: 0.9rem; cursor: pointer; text-transform: uppercase; transition: 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
         .month-btn:active { transform: scale(0.96); background: var(--bg-card); }
-        .month-btn.current { border-color: var(--primary); color: var(--primary); background: #eff6ff; }
         .colleague-item { display: flex; justify-content: space-between; align-items: center; padding: 16px 24px; border-bottom: 1px solid var(--border); transition: background 0.2s; }
         .c-name { font-weight: 700; color: var(--text-main); font-size: 1rem; }
         .c-time { font-size: 0.8rem; font-weight: 600; color: var(--text-sec); background: var(--bg); padding: 6px 12px; border-radius: 8px; font-variant-numeric: tabular-nums; }
@@ -301,10 +206,8 @@
         .notif-date { font-size: 0.7rem; color: var(--text-sec); margin-bottom: 6px; font-weight: 700; letter-spacing: 0.3px; }
         .notif-text { font-size: 0.88rem; color: var(--text-main); line-height: 1.4; }
         .btn-del-notif { position: absolute; top: 10px; right: 10px; color: #ef4444; background: rgba(239,68,68,0.08); border: none; cursor: pointer; padding: 6px; border-radius: 8px; transition: 0.15s; }
-        .btn-del-notif:active { background: rgba(239,68,68,0.15); transform: scale(0.9); }
         .no-notif { text-align: center; padding: 50px 20px; color: var(--text-sec); font-size: 0.9rem; }
-        .btn-install { background: var(--text-main); color: var(--bg); border: none; padding: 10px 18px; border-radius: 12px; font-weight: 700; display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.85rem; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .btn-install:active { transform: scale(0.96); }
+        .btn-install { background: var(--text-main); color: var(--bg); border: none; padding: 10px 18px; border-radius: 12px; font-weight: 700; display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.85rem; }
         .modal-theme-M .modal-header { background: linear-gradient(135deg,#e0f2fe 0%,#f0f9ff 100%); } .modal-theme-M .header-text h3 { color: #0c4a6e; } .modal-theme-M .c-time { background: #e0f2fe; color: #0369a1; }
         .modal-theme-P .modal-header { background: linear-gradient(135deg,#e0e7ff 0%,#eef2ff 100%); } .modal-theme-P .header-text h3 { color: #312e81; } .modal-theme-P .c-time { background: #e0e7ff; color: #4338ca; }
         .modal-theme-N .modal-header { background: linear-gradient(135deg,#1e293b 0%,#0f172a 100%); } .modal-theme-N .header-text h3 { color: white; } .modal-theme-N .header-text span { color: #94a3b8; } .modal-theme-N .btn-close-modal { background: #334155; color: white; } .modal-theme-N .c-time { background: #f1f5f9; color: #0f172a; }
@@ -312,12 +215,12 @@
         .modal-theme-MN .modal-header { background: linear-gradient(135deg,#026bfe 0%,#003785 100%); } .modal-theme-MN .header-text h3 { color: white; } .modal-theme-MN .header-text span { color: #e2e8f0; } .modal-theme-MN .btn-close-modal { background: rgba(255,255,255,0.2); color: white; }
         .dinner-checkbox-list { padding: 16px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .dinner-check-item { background: var(--bg-card); padding: 12px; border-radius: 12px; border: 1px solid var(--border); display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 0.85rem; font-weight: 600; color: var(--text-sec); transition: all 0.2s; }
-        .dinner-check-item.checked { background: var(--bg); border-color: var(--primary); color: var(--primary); box-shadow: 0 2px 4px rgba(37,99,235,0.1); }
+        .dinner-check-item.checked { background: var(--bg); border-color: var(--primary); color: var(--primary); }
         .dinner-check-item input { display: none; }
         .dinner-check-icon { width: 22px; height: 22px; border-radius: 6px; border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; transition: 0.2s; }
         .dinner-check-item.checked .dinner-check-icon { background: var(--primary); border-color: var(--primary); color: white; }
         .dinner-section-title { font-size: 0.72rem; font-weight: 800; color: var(--text-sec); padding: 16px 20px 8px; text-transform: uppercase; letter-spacing: 0.6px; display: flex; align-items: center; gap: 6px; }
-        .month-selector { display: flex; overflow-x: auto; gap: 8px; padding: 0 20px 10px; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+        .month-selector { display: flex; overflow-x: auto; gap: 8px; padding: 0 20px 10px; scrollbar-width: none; }
         .month-selector .chip { background: var(--bg); color: var(--text-sec); border: 1px solid var(--border); }
         .month-selector .chip.active { background: var(--primary); color: white; border-color: var(--primary); }
         .event-type-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 4px 20px 14px; }
@@ -328,28 +231,22 @@
         .event-tile.active { border-color: var(--primary); background: #eff6ff; }
         .event-tile.active .material-icons-round { color: var(--primary); }
         .event-tile.active .event-tile-label { color: var(--primary); }
-        body.dark-mode .event-tile.active { background: #1e3a8a33; }
         .event-tile:active { transform: scale(0.97); }
         .dinner-toggle-all-btn { background: none; border: none; color: var(--primary); font-weight: 700; cursor: pointer; font-size: 0.75rem; padding: 8px 16px 8px 0; }
         .dinner-back-btn { padding: 14px 20px; display: flex; align-items: center; gap: 10px; cursor: pointer; color: var(--primary); font-weight: 700; font-size: 0.9rem; border-bottom: 1px solid var(--border); background: var(--bg-card); }
-        .dinner-back-btn:active { opacity: 0.7; }
         .dinner-result-card { background: var(--bg-card); margin: 10px 20px; padding: 16px; border-radius: 16px; border: 1px solid var(--border); box-shadow: var(--shadow-soft); }
         .d-res-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 12px; margin-bottom: 12px; }
         .d-res-date { font-weight: 800; font-size: 1.1rem; color: var(--text-main); text-transform: capitalize; }
         .d-res-score { background: #dcfce7; color: #15803d; font-weight: 700; padding: 4px 12px; border-radius: 20px; font-size: 0.85rem; }
-        body.dark-mode .d-res-score { background: #064e3b; color: #dcfce7; }
         .missing-list { display: flex; flex-wrap: wrap; gap: 6px; }
         .missing-badge { background: #fee2e2; color: #b91c1c; font-size: 0.75rem; font-weight: 600; padding: 4px 8px; border-radius: 6px; }
-        body.dark-mode .missing-badge { background: #7f1d1d; color: #fca5a5; }
         .warning-badge { background: #fff7ed; color: #c2410c; border: 1px solid #ffedd5; font-size: 0.75rem; font-weight: 700; padding: 4px 8px; border-radius: 6px; display:inline-flex; align-items:center; gap:4px; }
-        body.dark-mode .warning-badge { background: #7c2d12; color: #fdba74; border-color: #9a3412; }
         #stats-modal { display: none; position: fixed; inset: 0; background: var(--bg-card); z-index: 4000; flex-direction: column; overflow: hidden; animation: slideInRight 0.3s ease; }
         #stats-modal.open { display: flex; }
         @keyframes slideInRight { from { transform: translateX(100%); } to { transform: translateX(0); } }
         .stats-header { padding: 18px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); background: var(--bg-card); flex-shrink: 0; }
         .stats-body { flex: 1; overflow-y: auto; background: var(--bg); -webkit-overflow-scrolling: touch; }
         .driver-list-item { padding: 18px; border-bottom: 1px solid var(--border); font-weight: 700; color: var(--text-main); cursor: pointer; display: flex; justify-content: space-between; align-items: center; background: var(--bg-card); margin-bottom: 10px; border-radius: 14px; box-shadow: var(--shadow-soft); transition: 0.2s; }
-        .driver-list-item:active { transform: scale(0.98); background: var(--bg); }
         #secret-gallery { display: none; position: fixed; inset: 0; background: black; z-index: 6000; align-items: center; justify-content: center; }
         #secret-gallery.open { display: flex; }
         #secret-img { max-width: 100%; max-height: 100%; object-fit: contain; cursor: pointer; transition: opacity 0.2s; }
@@ -359,12 +256,11 @@
         .alert-card { background: var(--bg-card); width: 100%; max-width: 400px; border-radius: 24px; box-shadow: 0 20px 60px rgba(0,0,0,0.35); overflow: hidden; transform: scale(0.9); transition: transform 0.3s cubic-bezier(0.175,0.885,0.32,1.275); border: 1px solid var(--border); }
         #alert-modal.open .alert-card { transform: scale(1); }
         .alert-header { padding: 22px 24px 18px; display: flex; align-items: center; gap: 15px; background: linear-gradient(135deg,#fffbeb 0%,#fef3c7 100%); border-bottom: 1px solid #fde68a; }
-        .alert-icon-box { width: 48px; height: 48px; border-radius: 14px; background: linear-gradient(135deg,#fbbf24,#f59e0b); display: flex; align-items: center; justify-content: center; color: #ffffff; flex-shrink: 0; box-shadow: 0 4px 10px rgba(245,158,11,0.3); }
+        .alert-icon-box { width: 48px; height: 48px; border-radius: 14px; background: linear-gradient(135deg,#fbbf24,#f59e0b); display: flex; align-items: center; justify-content: center; color: #ffffff; flex-shrink: 0; }
         .alert-title { font-weight: 900; font-size: 1.05rem; color: #78350f; line-height: 1.2; letter-spacing: -0.3px; }
         .alert-body { padding: 20px 24px; font-size: 0.95rem; color: var(--text-main); line-height: 1.5; max-height: 50vh; overflow-y: auto; }
         .alert-footer { padding: 0 24px 24px; }
-        .btn-alert-ok { width: 100%; padding: 14px; border-radius: 14px; border: none; background: linear-gradient(135deg,#f59e0b,#d97706); color: white; font-weight: 800; font-size: 1rem; cursor: pointer; box-shadow: 0 4px 12px rgba(217,119,6,0.3); display: flex; align-items: center; justify-content: center; gap: 8px; transition: transform 0.15s; }
-        .btn-alert-ok:active { transform: scale(0.97); }
+        .btn-alert-ok { width: 100%; padding: 14px; border-radius: 14px; border: none; background: linear-gradient(135deg,#f59e0b,#d97706); color: white; font-weight: 800; font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
         #changelog-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 9998; align-items: center; justify-content: center; padding: 20px; opacity: 0; transition: opacity 0.4s; backdrop-filter: blur(10px); }
         #changelog-modal.open { opacity: 1; }
         .changelog-card { background: var(--bg-card); width: 100%; max-width: 420px; border-radius: 24px; box-shadow: 0 20px 60px rgba(0,0,0,0.4); overflow: hidden; transform: scale(0.85) translateY(20px); transition: transform 0.4s cubic-bezier(0.175,0.885,0.32,1.275); border: 1px solid var(--border); max-height: 88vh; display: flex; flex-direction: column; }
@@ -373,9 +269,9 @@
         .changelog-icon { width: 48px; height: 48px; border-radius: 14px; background: rgba(255,255,255,0.15); display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.2); flex-shrink: 0; }
         .changelog-icon .material-icons-round { font-size: 26px; color: white; }
         .changelog-title-block { flex: 1; }
-        .changelog-title { font-size: 1.15rem; font-weight: 900; color: white; letter-spacing: -0.3px; }
+        .changelog-title { font-size: 1.15rem; font-weight: 900; color: white; }
         .changelog-version { font-size: 0.65rem; font-weight: 700; color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 1px; margin-top: 2px; }
-        .changelog-body { padding: 18px 20px; overflow-y: auto; -webkit-overflow-scrolling: touch; flex: 1; }
+        .changelog-body { padding: 18px 20px; overflow-y: auto; flex: 1; }
         .changelog-intro { font-size: 0.85rem; color: var(--text-sec); margin-bottom: 16px; line-height: 1.5; font-weight: 500; }
         .changelog-section { margin-bottom: 16px; }
         .changelog-section-title { font-size: 0.62rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: var(--text-sec); margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
@@ -383,35 +279,24 @@
         .changelog-item-icon { width: 30px; height: 30px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
         .changelog-item-icon .material-icons-round { font-size: 16px; }
         .changelog-item-text { flex: 1; }
-        .changelog-item-title { font-size: 0.85rem; font-weight: 700; color: var(--text-main); line-height: 1.2; }
+        .changelog-item-title { font-size: 0.85rem; font-weight: 700; color: var(--text-main); }
         .changelog-item-desc { font-size: 0.72rem; color: var(--text-sec); margin-top: 2px; line-height: 1.4; }
         .ci-new .changelog-item-icon { background: #dcfce7; } .ci-new .changelog-item-icon .material-icons-round { color: #16a34a; }
         .ci-fix .changelog-item-icon { background: #dbeafe; } .ci-fix .changelog-item-icon .material-icons-round { color: #2563eb; }
         .ci-imp .changelog-item-icon { background: #fef3c7; } .ci-imp .changelog-item-icon .material-icons-round { color: #d97706; }
-        .ci-rem .changelog-item-icon { background: #fee2e2; } .ci-rem .changelog-item-icon .material-icons-round { color: #dc2626; }
-        body.dark-mode .ci-new .changelog-item-icon { background: #14532d; }
-        body.dark-mode .ci-fix .changelog-item-icon { background: #1e3a8a; }
-        body.dark-mode .ci-imp .changelog-item-icon { background: #78350f; }
-        body.dark-mode .ci-rem .changelog-item-icon { background: #7f1d1d; }
         .changelog-footer { padding: 14px 20px 20px; flex-shrink: 0; border-top: 1px solid var(--border); }
-        .btn-changelog-ok { width: 100%; padding: 14px; border-radius: 14px; border: none; background: linear-gradient(135deg,#1e3a8a,#2563eb); color: white; font-weight: 800; font-size: 1rem; cursor: pointer; box-shadow: 0 4px 15px rgba(37,99,235,0.35); display: flex; align-items: center; justify-content: center; gap: 8px; transition: transform 0.15s; }
-        .btn-changelog-ok:active { transform: scale(0.97); }
+        .btn-changelog-ok { width: 100%; padding: 14px; border-radius: 14px; border: none; background: linear-gradient(135deg,#1e3a8a,#2563eb); color: white; font-weight: 800; font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
         .changelog-note { text-align: center; font-size: 0.65rem; color: var(--text-sec); margin-top: 8px; }
         .dog-icon { position: absolute; top: -5px; right: -5px; width: 28px; height: 28px; z-index: 5; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.2)); }
-
         .modal-section-header { display: flex; align-items: center; gap: 9px; padding: 10px 20px; font-weight: 800; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.8px; }
         .modal-section-driver { background: linear-gradient(90deg,#eff6ff,#f8fafc); color: #1e3a8a; border-top: 2px solid #bfdbfe; border-bottom: 1px solid #dbeafe; }
         .modal-section-nurse { background: linear-gradient(90deg,#f0fdf4,#f8fafc); color: #064e3b; border-top: 2px solid #6ee7b7; border-bottom: 1px solid #a7f3d0; }
         body.dark-mode .modal-section-driver { background: linear-gradient(90deg,#0f172a,#1e293b); color: #93c5fd; border-color: #1e3a8a; }
         body.dark-mode .modal-section-nurse { background: linear-gradient(90deg,#022c22,#042f23); color: #34d399; border-color: #065f46; }
         .nurse-shift-tag { font-size: 0.78rem; font-weight: 700; color: #059669; background: #d1fae5; padding: 5px 12px; border-radius: 8px; white-space: nowrap; display: flex; align-items: center; gap: 4px; }
-        body.dark-mode .nurse-shift-tag { background: #064e3b; color: #34d399; }
         .nurse-loading { text-align: center; padding: 24px; color: var(--text-sec); font-size: 0.85rem; display: flex; align-items: center; justify-content: center; gap: 10px; font-weight: 500; }
-        .nurse-loading .spinner { border-color: var(--border); border-top-color: #059669; }
         .btn-inf { background: linear-gradient(135deg,#059669,#10b981) !important; color: white !important; border-color: rgba(255,255,255,0.3) !important; font-weight: 900 !important; }
-        .btn-inf:active { background: linear-gradient(135deg,#047857,#059669) !important; }
-        .btn-find-dinner { width: 100%; padding: 16px; border-radius: 14px; border: none; background: linear-gradient(135deg,#92400e,#d97706); color: white; font-weight: 800; font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 15px rgba(217,119,6,0.3); }
-        .btn-find-dinner:active { transform: scale(0.98); }
+        .btn-find-dinner { width: 100%; padding: 16px; border-radius: 14px; border: none; background: linear-gradient(135deg,#92400e,#d97706); color: white; font-weight: 800; font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
     </style>
 </head>
 <body>
@@ -530,7 +415,7 @@
             </div>
             <div class="modal-body" style="padding:0">
                 <div class="option-item" style="display:block">
-                    <div style="margin-bottom:10px"><span style="font-size:1rem;font-weight:700">Chi sei?</span><div style="font-size:0.8rem;color:var(--text-sec)">Seleziona il tuo nome per ricevere notifiche.</div></div>
+                    <div style="margin-bottom:10px"><span style="font-size:1rem;font-weight:700">Chi sei?</span><div style="font-size:0.8rem;color:var(--text-sec)">Seleziona il tuo nome per ricevere notifiche sui tuoi turni.</div></div>
                     <select id="turni-user-select" onchange="saveTurniUser(this.value)" style="width:100%;padding:12px;border-radius:10px;border:1px solid var(--border);font-size:0.95rem;font-weight:600;background:var(--bg);color:var(--text-main);">
                         <option value="">-- Nessuna selezione --</option>
                         <option value="Barbieri">Barbieri</option>
@@ -547,7 +432,7 @@
                 </div>
                 <div class="option-item" id="install-container">
                     <div style="display:flex;flex-direction:column"><span style="font-size:1rem">Installa Applicazione</span><span style="font-size:0.8rem;color:var(--text-sec);font-weight:400">Aggiungi a schermata Home</span></div>
-                    <button class="btn-install" id="btn-install-pwa" onclick="installPWA()"><span class="material-icons-round">install_mobile</span> INSTALLA</button>
+                    <button class="btn-install" onclick="installPWA()"><span class="material-icons-round">install_mobile</span> INSTALLA</button>
                 </div>
                 <div class="option-item">
                     <div style="display:flex;flex-direction:column"><span style="font-size:1rem">Tema Scuro</span><span style="font-size:0.8rem;color:var(--text-sec);font-weight:400">Riduci affaticamento occhi</span></div>
@@ -572,7 +457,7 @@
                     <div class="dinner-section-title"><span class="material-icons-round" style="font-size:14px">calendar_month</span> 1. SELEZIONA MESE</div>
                     <div class="month-selector" id="dinner-month-list"></div>
                     <div class="dinner-section-title"><span class="material-icons-round" style="font-size:14px">schedule</span> 2. TIPO DI EVENTO</div>
-                    <div class="event-type-grid" id="event-type-grid">
+                    <div class="event-type-grid">
                         <div class="event-tile active" data-type="colazione" onclick="setEventType('colazione',this)"><span class="material-icons-round">free_breakfast</span><span class="event-tile-label">COLAZIONE</span><span class="event-tile-sub">Mattina presto</span></div>
                         <div class="event-tile" data-type="pranzo" onclick="setEventType('pranzo',this)"><span class="material-icons-round">wb_sunny</span><span class="event-tile-label">PRANZO</span><span class="event-tile-sub">Mezzogiorno</span></div>
                         <div class="event-tile" data-type="aperitivo" onclick="setEventType('aperitivo',this)"><span class="material-icons-round">local_bar</span><span class="event-tile-label">APERITIVO</span><span class="event-tile-sub">Pomeriggio</span></div>
@@ -645,7 +530,10 @@
         const MONTH_MAP = { "GENNAIO":0,"FEBBRAIO":1,"MARZO":2,"APRILE":3,"MAGGIO":4,"GIUGNO":5,"LUGLIO":6,"AGOSTO":7,"SETTEMBRE":8,"OTTOBRE":9,"NOVEMBRE":10,"DICEMBRE":11 };
         const MONTH_NUM = { "GENNAIO":1,"FEBBRAIO":2,"MARZO":3,"APRILE":4,"MAGGIO":5,"GIUGNO":6,"LUGLIO":7,"AGOSTO":8,"SETTEMBRE":9,"OTTOBRE":10,"NOVEMBRE":11,"DICEMBRE":12 };
 
-        let REPERIBILITA_BASE = {"1_1": ["GHIOTTI", "GHIOTTI", "SARTI", "SARTI"], "1_2": ["SARTI", "SARTI", "PAZZAGLIA", "PAZZAGLIA"], "1_3": ["PAZZAGLIA", "PAZZAGLIA", "FABBRI", "FABBRI"], "1_4": ["FABBRI", "FABBRI", "VOLPINI", "VOLPINI"], "1_5": ["VOLPINI", "VOLPINI", "GHIOTTI", "GHIOTTI"], "1_6": ["GHIOTTI", "GHIOTTI", "MICHELOT.", "MICHELOT."], "1_7": ["MICHELOT.", "MICHELOT.", "BIANCHI", "BIANCHI"], "1_8": ["BIANCHI", "BIANCHI", "BARBIERI", "BARBIERI"], "1_9": ["BARBIERI", "BARBIERI", "BERARDI", "BERARDI"], "1_10": ["BERARDI", "BERARDI", "GHIOTTI", "GHIOTTI"], "1_11": ["GHIOTTI", "GHIOTTI", "MICHELOT.", "MICHELOT."], "1_12": ["MICHELOT.", "MICHELOT.", "PAZZAGLIA", "PAZZAGLIA"], "1_13": ["PAZZAGLIA", "PAZZAGLIA", "BIANCHI", "BIANCHI"], "1_14": ["BIANCHI", "BIANCHI", "BERARDI", "BERARDI"], "1_15": ["BERARDI", "BERARDI", "VOLPINI", "VOLPINI"], "1_16": ["VOLPINI", "VOLPINI", "FABBRI", "FABBRI"], "1_17": ["FABBRI", "FABBRI", "PAZZAGLIA", "PAZZAGLIA"], "1_18": ["PAZZAGLIA", "PAZZAGLIA", "BIANCHI", "BIANCHI"], "1_19": ["BIANCHI", "BIANCHI", "SARTI", "SARTI"], "1_20": ["SARTI", "SARTI", "VOLPINI", "VOLPINI"], "1_21": ["GHIOTTI", "SARTI", "MICHELOT.", "MICHELOT."], "1_22": ["MICHELOT.", "MICHELOT.", "VOLPINI", "VOLPINI"], "1_23": ["VOLPINI", "BERARDI", "BIANCHI", "BIANCHI"], "1_24": ["BIANCHI", "BIANCHI", "BERARDI", "BERARDI"], "1_25": ["BERARDI", "BERARDI", "SARTI", "SARTI"], "1_26": ["SARTI", "SARTI", "MICHELOT.", "MICHELOT."], "1_27": ["MICHELOT.", "MICHELOT.", "VOLPINI", "VOLPINI"], "1_28": ["VOLPINI", "VOLPINI", "GHIOTTI", "GHIOTTI"], "1_29": ["GHIOTTI", "GHIOTTI", "BARBIERI", "BARBIERI"], "1_30": ["BARBIERI", "BARBIERI", "SARTI", "SARTI"], "1_31": ["SARTI", "SARTI", "PAZZAGLIA", "PAZZAGLIA"], "2_1": ["PAZZAGLIA", "PAZZAGLIA", "VOLPINI", "VOLPINI"], "2_2": ["VOLPINI", "VOLPINI", "BERARDI", "BERARDI"], "2_3": ["BERARDI", "BERARDI", "BARBIERI", "BARBIERI"], "2_4": ["BARBIERI", "BARBIERI", "GHIOTTI", "GHIOTTI"], "2_5": ["GHIOTTI", "GHIOTTI", "MICHELOT.", "MICHELOT."], "2_6": ["MICHELOT.", "MICHELOT.", "BERARDI", "BIANCHI"], "2_7": ["BERARDI", "BERARDI", "BARBIERI", "BARBIERI"], "2_8": ["BARBIERI", "BARBIERI", "FABBRI", "FABBRI"], "2_9": ["FABBRI", "FABBRI", "SARTI", "MICHELOT."], "2_10": ["SARTI", "SARTI", "BERARDI", "BERARDI"], "2_11": ["BERARDI", "BERARDI", "GHIOTTI", "GHIOTTI"], "2_12": ["GHIOTTI", "GHIOTTI", "BIANCHI", "BIANCHI"], "2_13": ["BIANCHI", "BIANCHI", "FABBRI", "FABBRI"], "2_14": ["FABBRI", "FABBRI", "MICHELOT.", "MICHELOT."], "2_15": ["MICHELOT.", "MICHELOT.", "BARBIERI", "BARBIERI"], "2_16": ["BARBIERI", "BARBIERI", "VOLPINI", "VOLPINI"], "2_17": ["VOLPINI", "VOLPINI", "PAZZAGLIA", "PAZZAGLIA"], "2_18": ["PAZZAGLIA", "PAZZAGLIA", "BERARDI", "BERARDI"], "2_19": ["BERARDI", "BERARDI", "SARTI", "SARTI"], "2_20": ["SARTI", "SARTI", "BARBIERI", "BARBIERI"], "2_21": ["BARBIERI", "BARBIERI", "VOLPINI", "VOLPINI"], "2_22": ["MICHELOT.", "VOLPINI", "MICHELOT.", "MICHELOT."], "2_23": ["MICHELOT.", "MICHELOT.", "FABBRI", "FABBRI"], "2_24": ["FABBRI", "FABBRI", "BIANCHI", "BIANCHI"], "2_25": ["BIANCHI", "BIANCHI", "BARBIERI", "BARBIERI"], "2_26": ["BARBIERI", "SARTI", "GHIOTTI", "GHIOTTI"], "2_27": ["GHIOTTI", "GHIOTTI", "PAZZAGLIA", "PAZZAGLIA"], "2_28": ["PAZZAGLIA", "PAZZAGLIA", "FABBRI", "FABBRI"], "3_1": ["FABBRI", "FABBRI", "MICHELOT.", "MICHELOT."], "3_2": ["MICHELOT.", "MICHELOT.", "SARTI", "SARTI"], "3_3": ["SARTI", "SARTI", "VOLPINI", "VOLPINI"], "3_4": ["GHIOTTI", "GHIOTTI", "BIANCHI", "BIANCHI"], "3_5": ["BIANCHI", "BIANCHI", "FABBRI", "FABBRI"], "3_6": ["FABBRI", "FABBRI", "BERARDI", "VOLPINI"], "3_7": ["GHIOTTI", "BERARDI", "BARBIERI", "BARBIERI"], "3_8": ["BARBIERI", "BARBIERI", "GHIOTTI", "GHIOTTI"], "3_9": ["GHIOTTI", "GHIOTTI", "PAZZAGLIA", "PAZZAGLIA"], "3_10": ["PAZZAGLIA", "VOLPINI", "BIANCHI", "BIANCHI"], "3_11": ["BIANCHI", "BIANCHI", "FABBRI", "FABBRI"], "3_12": ["FABBRI", "FABBRI", "BARBIERI", "BARBIERI"], "3_13": ["BARBIERI", "BARBIERI", "SARTI", "SARTI"], "3_14": ["SARTI", "BIANCHI", "PAZZAGLIA", "PAZZAGLIA"], "3_15": ["PAZZAGLIA", "MICHELOT.", "BIANCHI", "VOLPINI"], "3_16": ["BIANCHI", "BIANCHI", "BERARDI", "BERARDI"], "3_17": ["BERARDI", "BERARDI", "VOLPINI", "VOLPINI"], "3_18": ["VOLPINI", "VOLPINI", "GHIOTTI", "GHIOTTI"], "3_19": ["GHIOTTI", "GHIOTTI", "PAZZAGLIA", "PAZZAGLIA"], "3_20": ["PAZZAGLIA", "MICHELOT.", "FABBRI", "FABBRI"], "3_21": ["FABBRI", "FABBRI", "SARTI", "SARTI"], "3_22": ["SARTI", "SARTI", "MICHELOT.", "GHIOTTI"], "3_23": ["MICHELOT.", "MICHELOT.", "GHIOTTI", "FABBRI"], "3_24": ["GHIOTTI", "GHIOTTI", "FABBRI", "FABBRI"], "3_25": ["FABBRI", "FABBRI", "BARBIERI", "BARBIERI"], "3_26": ["BARBIERI", "BARBIERI", "BERARDI", "BERARDI"], "3_27": ["BERARDI", "BERARDI", "VOLPINI", "VOLPINI"], "3_28": ["VOLPINI", "VOLPINI", "PAZZAGLIA", "PAZZAGLIA"], "3_29": ["PAZZAGLIA", "VOLPINI", "SARTI", "BIANCHI"], "3_30": ["SARTI", "SARTI", "BIANCHI", "BIANCHI"], "3_31": ["BIANCHI", "BIANCHI", "MICHELOTTI", "MICHELOTTI"], "4_1": ["MICHELOTTI", "MICHELOTTI", "VOLPINI", "VOLPINI"], "4_2": ["VOLPINI", "VOLPINI", "GHIOTTI", "GHIOTTI"], "4_3": ["GHIOTTI", "GHIOTTI", "FABBRI", "FABBRI"], "4_4": ["FABBRI", "FABBRI", "BERARDI", "BERARDI"], "4_5": ["BERARDI", "BERARDI", "BARBIERI", "BARBIERI"], "4_6": ["BARBIERI", "BARBIERI", "VOLPINI", "VOLPINI"], "4_7": ["VOLPINI", "VOLPINI", "PAZZAGLIA", "PAZZAGLIA"], "4_8": ["PAZZAGLIA", "PAZZAGLIA", "SARTI", "SARTI"], "4_9": ["SARTI", "SARTI", "BIANCHI", "BIANCHI"], "4_10": ["BIANCHI", "BIANCHI", "MICHELOT.", "MICHELOT."], "4_11": ["MICHELOT.", "MICHELOT.", "BARBIERI", "BARBIERI"], "4_12": ["BARBIERI", "PAZZAGLIA", "FABBRI", "FABBRI"], "4_13": ["FABBRI", "FABBRI", "GHIOTTI", "GHIOTTI"], "4_14": ["GHIOTTI", "GHIOTTI", "BERARDI", "BERARDI"], "4_15": ["BERARDI", "BERARDI", "PAZZAGLIA", "PAZZAGLIA"], "4_16": ["PAZZAGLIA", "MICHELOT.", "GHIOTTI", "BIANCHI"], "4_17": ["VOLPINI", "VOLPINI", "FABBRI", "FABBRI"], "4_18": ["FABBRI", "FABBRI", "SARTI", "SARTI"], "4_19": ["SARTI", "SARTI", "BARBIERI", "BIANCHI"], "4_20": ["BIANCHI", "BIANCHI", "MICHELOT.", "MICHELOT."], "4_21": ["MICHELOT.", "MICHELOT.", "GHIOTTI", "GHIOTTI"], "4_22": ["GHIOTTI", "GHIOTTI", "BERARDI", "BERARDI"], "4_23": ["BERARDI", "BERARDI", "BIANCHI", "BIANCHI"], "4_24": ["BERARDI", "PAZZAGLIA", "BARBIERI", "BARBIERI"], "4_25": ["BARBIERI", "BARBIERI", "VOLPINI", "VOLPINI"], "4_26": ["VOLPINI", "VOLPINI", "PAZZAGLIA", "PAZZAGLIA"], "4_27": ["PAZZAGLIA", "MICHELOT.", "SARTI", "SARTI"], "4_28": ["SARTI", "SARTI", "BERARDI", "BERARDI"], "4_29": ["BIANCHI", "BIANCHI", "BARBIERI", "BERARDI"], "4_30": ["BARBIERI", "BARBIERI", "MICHELOT.", "MICHELOT."], "5_1": ["MICHELOT.", "MICHELOT.", "PAZZAGLIA", "PAZZAGLIA"], "5_2": ["PAZZAGLIA", "VOLPINI", "FABBRI", "FABBRI"], "5_3": ["FABBRI", "FABBRI", "BERARDI", "BERARDI"], "5_4": ["BERARDI", "BERARDI", "SARTI", "MICHELOT."], "5_5": ["MICHELOT.", "SARTI", "VOLPINI", "VOLPINI"], "5_6": ["VOLPINI", "VOLPINI", "MICHELOT.", "MICHELOT."], "5_7": ["MICHELOT.", "MICHELOT.", "FABBRI", "FABBRI"], "5_8": ["FABBRI", "FABBRI", "GHIOTTI", "BERARDI"], "5_9": ["GHIOTTI", "GHIOTTI", "BARBIERI", "BARBIERI"], "5_10": ["BARBIERI", "BARBIERI", "BIANCHI", "BIANCHI"], "5_11": ["BIANCHI", "BIANCHI", "PAZZAGLIA", "PAZZAGLIA"], "5_12": ["PAZZAGLIA", "BERARDI", "MICHELOT.", "MICHELOT."], "5_13": ["MICHELOT.", "MICHELOT.", "GHIOTTI", "GHIOTTI"], "5_14": ["GHIOTTI", "GHIOTTI", "BARBIERI", "BARBIERI"], "5_15": ["BARBIERI", "BARBIERI", "VOLPINI", "VOLPINI"], "5_16": ["VOLPINI", "VOLPINI", "PAZZAGLIA", "PAZZAGLIA"], "5_17": ["PAZZAGLIA", "PAZZAGLIA", "BERARDI", "BERARDI"], "5_18": ["BERARDI", "BERARDI", "FABBRI", "FABBRI"], "5_19": ["FABBRI", "FABBRI", "BERARDI", "BERARDI"], "5_20": ["BERARDI", "BERARDI", "BIANCHI", "BIANCHI"], "5_21": ["BIANCHI", "BIANCHI", "PAZZAGLIA", "PAZZAGLIA"], "5_22": ["PAZZAGLIA", "BERARDI", "SARTI", "SARTI"], "5_23": ["SARTI", "SARTI", "GHIOTTI", "GHIOTTI"], "5_24": ["GHIOTTI", "FABBRI", "MICHELOT.", "MICHELOT."], "5_25": ["MICHELOT.", "MICHELOT.", "BIANCHI", "BIANCHI"], "5_26": ["BIANCHI", "BIANCHI", "FABBRI", "FABBRI"], "5_27": ["FABBRI", "FABBRI", "SARTI", "SARTI"], "5_28": ["SARTI", "SARTI", "GHIOTTI", "GHIOTTI"], "5_29": ["GHIOTTI", "GHIOTTI", "BARBIERI", "BARBIERI"], "5_30": ["BARBIERI", "BARBIERI", "BIANCHI", "BIANCHI"], "5_31": ["BIANCHI", "BIANCHI", "VOLPINI", "VOLPINI"], "6_1": ["VOLPINI", "VOLPINI", "BERARDI", "BERARDI"], "6_2": ["BERARDI", "BERARDI", "MICHELOT.", "MICHELOT."], "6_3": ["MICHELOT.", "MICHELOT.", "SARTI", "SARTI"], "6_4": ["SARTI", "SARTI", "BARBIERI", "BARBIERI"], "6_5": ["BARBIERI", "BARBIERI", "VOLPINI", "VOLPINI"], "6_6": ["VOLPINI", "VOLPINI", "BERARDI", "BERARDI"], "6_7": ["BERARDI", "BERARDI", "PAZZAGLIA", "PAZZAGLIA"], "6_8": ["PAZZAGLIA", "PAZZAGLIA", "SARTI", "SARTI"], "6_9": ["SARTI", "SARTI", "FABBRI", "FABBRI"], "6_10": ["FABBRI", "FABBRI", "VOLPINI", "VOLPINI"], "6_11": ["VOLPINI", "VOLPINI", "BERARDI", "BERARDI"], "6_12": ["BERARDI", "BERARDI", "PAZZAGLIA", "PAZZAGLIA"], "6_13": ["PAZZAGLIA", "PAZZAGLIA", "SARTI", "SARTI"], "6_14": ["SARTI", "SARTI", "BARBIERI", "BARBIERI"], "6_15": ["BARBIERI", "BARBIERI", "BIANCHI", "BIANCHI"], "6_16": ["BIANCHI", "BIANCHI", "PAZZAGLIA", "PAZZAGLIA"], "6_17": ["PAZZAGLIA", "PAZZAGLIA", "MICHELOT.", "MICHELOT."], "6_18": ["MICHELOT.", "MICHELOT.", "BERARDI", "BERARDI"], "6_19": ["BERARDI", "BERARDI", "BIANCHI", "BIANCHI"], "6_20": ["BIANCHI", "BIANCHI", "MICHELOT.", "MICHELOT."], "6_21": ["MICHELOT.", "MICHELOT.", "BARBIERI", "BARBIERI"], "6_22": ["BARBIERI", "BARBIERI", "BERARDI", "BERARDI"], "6_23": ["BERARDI", "BERARDI", "GHIOTTI", "GHIOTTI"], "6_24": ["GHIOTTI", "GHIOTTI", "FABBRI", "FABBRI"], "6_25": ["FABBRI", "FABBRI", "BIANCHI", "BIANCHI"], "6_26": ["BIANCHI", "BIANCHI", "BARBIERI", "BARBIERI"], "6_27": ["BARBIERI", "BARBIERI", "MICHELOT.", "MICHELOT."], "6_28": ["MICHELOT.", "MICHELOT.", "PAZZAGLIA", "PAZZAGLIA"], "6_29": ["PAZZAGLIA", "PAZZAGLIA", "FABBRI", "FABBRI"], "6_30": ["FABBRI", "FABBRI", "GHIOTTI", "GHIOTTI"], "7_1": ["GHIOTTI", "GHIOTTI", "", ""]};
+        // Lista autisti di default — viene sovrascritta da Firebase se l'admin ha salvato una lista diversa
+        const DEFAULT_DRIVERS = ["Barbieri","Pazzaglia","Bianchi","Sarti","Ghiotti","Berardi","Michelotti","Volpini","Fabbri"];
+
+        let REPERIBILITA_BASE = {"1_1":["GHIOTTI","GHIOTTI","SARTI","SARTI"],"1_2":["SARTI","SARTI","PAZZAGLIA","PAZZAGLIA"],"1_3":["PAZZAGLIA","PAZZAGLIA","FABBRI","FABBRI"],"1_4":["FABBRI","FABBRI","VOLPINI","VOLPINI"],"1_5":["VOLPINI","VOLPINI","GHIOTTI","GHIOTTI"],"1_6":["GHIOTTI","GHIOTTI","MICHELOT.","MICHELOT."],"1_7":["MICHELOT.","MICHELOT.","BIANCHI","BIANCHI"],"1_8":["BIANCHI","BIANCHI","BARBIERI","BARBIERI"],"1_9":["BARBIERI","BARBIERI","BERARDI","BERARDI"],"1_10":["BERARDI","BERARDI","GHIOTTI","GHIOTTI"],"1_11":["GHIOTTI","GHIOTTI","MICHELOT.","MICHELOT."],"1_12":["MICHELOT.","MICHELOT.","PAZZAGLIA","PAZZAGLIA"],"1_13":["PAZZAGLIA","PAZZAGLIA","BIANCHI","BIANCHI"],"1_14":["BIANCHI","BIANCHI","BERARDI","BERARDI"],"1_15":["BERARDI","BERARDI","VOLPINI","VOLPINI"],"1_16":["VOLPINI","VOLPINI","FABBRI","FABBRI"],"1_17":["FABBRI","FABBRI","PAZZAGLIA","PAZZAGLIA"],"1_18":["PAZZAGLIA","PAZZAGLIA","BIANCHI","BIANCHI"],"1_19":["BIANCHI","BIANCHI","SARTI","SARTI"],"1_20":["SARTI","SARTI","VOLPINI","VOLPINI"],"1_21":["GHIOTTI","SARTI","MICHELOT.","MICHELOT."],"1_22":["MICHELOT.","MICHELOT.","VOLPINI","VOLPINI"],"1_23":["VOLPINI","BERARDI","BIANCHI","BIANCHI"],"1_24":["BIANCHI","BIANCHI","BERARDI","BERARDI"],"1_25":["BERARDI","BERARDI","SARTI","SARTI"],"1_26":["SARTI","SARTI","MICHELOT.","MICHELOT."],"1_27":["MICHELOT.","MICHELOT.","VOLPINI","VOLPINI"],"1_28":["VOLPINI","VOLPINI","GHIOTTI","GHIOTTI"],"1_29":["GHIOTTI","GHIOTTI","BARBIERI","BARBIERI"],"1_30":["BARBIERI","BARBIERI","SARTI","SARTI"],"1_31":["SARTI","SARTI","PAZZAGLIA","PAZZAGLIA"],"2_1":["PAZZAGLIA","PAZZAGLIA","VOLPINI","VOLPINI"],"2_2":["VOLPINI","VOLPINI","BERARDI","BERARDI"],"2_3":["BERARDI","BERARDI","BARBIERI","BARBIERI"],"2_4":["BARBIERI","BARBIERI","GHIOTTI","GHIOTTI"],"2_5":["GHIOTTI","GHIOTTI","MICHELOT.","MICHELOT."],"2_6":["MICHELOT.","MICHELOT.","BERARDI","BIANCHI"],"2_7":["BERARDI","BERARDI","BARBIERI","BARBIERI"],"2_8":["BARBIERI","BARBIERI","FABBRI","FABBRI"],"2_9":["FABBRI","FABBRI","SARTI","MICHELOT."],"2_10":["SARTI","SARTI","BERARDI","BERARDI"],"2_11":["BERARDI","BERARDI","GHIOTTI","GHIOTTI"],"2_12":["GHIOTTI","GHIOTTI","BIANCHI","BIANCHI"],"2_13":["BIANCHI","BIANCHI","FABBRI","FABBRI"],"2_14":["FABBRI","FABBRI","MICHELOT.","MICHELOT."],"2_15":["MICHELOT.","MICHELOT.","BARBIERI","BARBIERI"],"2_16":["BARBIERI","BARBIERI","VOLPINI","VOLPINI"],"2_17":["VOLPINI","VOLPINI","PAZZAGLIA","PAZZAGLIA"],"2_18":["PAZZAGLIA","PAZZAGLIA","BERARDI","BERARDI"],"2_19":["BERARDI","BERARDI","SARTI","SARTI"],"2_20":["SARTI","SARTI","BARBIERI","BARBIERI"],"2_21":["BARBIERI","BARBIERI","VOLPINI","VOLPINI"],"2_22":["MICHELOT.","VOLPINI","MICHELOT.","MICHELOT."],"2_23":["MICHELOT.","MICHELOT.","FABBRI","FABBRI"],"2_24":["FABBRI","FABBRI","BIANCHI","BIANCHI"],"2_25":["BIANCHI","BIANCHI","BARBIERI","BARBIERI"],"2_26":["BARBIERI","SARTI","GHIOTTI","GHIOTTI"],"2_27":["GHIOTTI","GHIOTTI","PAZZAGLIA","PAZZAGLIA"],"2_28":["PAZZAGLIA","PAZZAGLIA","FABBRI","FABBRI"],"3_1":["FABBRI","FABBRI","MICHELOT.","MICHELOT."],"3_2":["MICHELOT.","MICHELOT.","SARTI","SARTI"],"3_3":["SARTI","SARTI","VOLPINI","VOLPINI"],"3_4":["GHIOTTI","GHIOTTI","BIANCHI","BIANCHI"],"3_5":["BIANCHI","BIANCHI","FABBRI","FABBRI"],"3_6":["FABBRI","FABBRI","BERARDI","VOLPINI"],"3_7":["GHIOTTI","BERARDI","BARBIERI","BARBIERI"],"3_8":["BARBIERI","BARBIERI","GHIOTTI","GHIOTTI"],"3_9":["GHIOTTI","GHIOTTI","PAZZAGLIA","PAZZAGLIA"],"3_10":["PAZZAGLIA","VOLPINI","BIANCHI","BIANCHI"],"3_11":["BIANCHI","BIANCHI","FABBRI","FABBRI"],"3_12":["FABBRI","FABBRI","BARBIERI","BARBIERI"],"3_13":["BARBIERI","BARBIERI","SARTI","SARTI"],"3_14":["SARTI","BIANCHI","PAZZAGLIA","PAZZAGLIA"],"3_15":["PAZZAGLIA","MICHELOT.","BIANCHI","VOLPINI"],"3_16":["BIANCHI","BIANCHI","BERARDI","BERARDI"],"3_17":["BERARDI","BERARDI","VOLPINI","VOLPINI"],"3_18":["VOLPINI","VOLPINI","GHIOTTI","GHIOTTI"],"3_19":["GHIOTTI","GHIOTTI","PAZZAGLIA","PAZZAGLIA"],"3_20":["PAZZAGLIA","MICHELOT.","FABBRI","FABBRI"],"3_21":["FABBRI","FABBRI","SARTI","SARTI"],"3_22":["SARTI","SARTI","MICHELOT.","GHIOTTI"],"3_23":["MICHELOT.","MICHELOT.","GHIOTTI","FABBRI"],"3_24":["GHIOTTI","GHIOTTI","FABBRI","FABBRI"],"3_25":["FABBRI","FABBRI","BARBIERI","BARBIERI"],"3_26":["BARBIERI","BARBIERI","BERARDI","BERARDI"],"3_27":["BERARDI","BERARDI","VOLPINI","VOLPINI"],"3_28":["VOLPINI","VOLPINI","PAZZAGLIA","PAZZAGLIA"],"3_29":["PAZZAGLIA","VOLPINI","SARTI","BIANCHI"],"3_30":["SARTI","SARTI","BIANCHI","BIANCHI"],"3_31":["BIANCHI","BIANCHI","MICHELOTTI","MICHELOTTI"],"4_1":["MICHELOTTI","MICHELOTTI","VOLPINI","VOLPINI"],"4_2":["VOLPINI","VOLPINI","GHIOTTI","GHIOTTI"],"4_3":["GHIOTTI","GHIOTTI","FABBRI","FABBRI"],"4_4":["FABBRI","FABBRI","BERARDI","BERARDI"],"4_5":["BERARDI","BERARDI","BARBIERI","BARBIERI"],"4_6":["BARBIERI","BARBIERI","VOLPINI","VOLPINI"],"4_7":["VOLPINI","VOLPINI","PAZZAGLIA","PAZZAGLIA"],"4_8":["PAZZAGLIA","PAZZAGLIA","SARTI","SARTI"],"4_9":["SARTI","SARTI","BIANCHI","BIANCHI"],"4_10":["BIANCHI","BIANCHI","MICHELOT.","MICHELOT."],"4_11":["MICHELOT.","MICHELOT.","BARBIERI","BARBIERI"],"4_12":["BARBIERI","PAZZAGLIA","FABBRI","FABBRI"],"4_13":["FABBRI","FABBRI","GHIOTTI","GHIOTTI"],"4_14":["GHIOTTI","GHIOTTI","BERARDI","BERARDI"],"4_15":["BERARDI","BERARDI","PAZZAGLIA","PAZZAGLIA"],"4_16":["PAZZAGLIA","MICHELOT.","GHIOTTI","BIANCHI"],"4_17":["VOLPINI","VOLPINI","FABBRI","FABBRI"],"4_18":["FABBRI","FABBRI","SARTI","SARTI"],"4_19":["SARTI","SARTI","BARBIERI","BIANCHI"],"4_20":["BIANCHI","BIANCHI","MICHELOT.","MICHELOT."],"4_21":["MICHELOT.","MICHELOT.","GHIOTTI","GHIOTTI"],"4_22":["GHIOTTI","GHIOTTI","BERARDI","BERARDI"],"4_23":["BERARDI","BERARDI","BIANCHI","BIANCHI"],"4_24":["BERARDI","PAZZAGLIA","BARBIERI","BARBIERI"],"4_25":["BARBIERI","BARBIERI","VOLPINI","VOLPINI"],"4_26":["VOLPINI","VOLPINI","PAZZAGLIA","PAZZAGLIA"],"4_27":["PAZZAGLIA","MICHELOT.","SARTI","SARTI"],"4_28":["SARTI","SARTI","BERARDI","BERARDI"],"4_29":["BIANCHI","BIANCHI","BARBIERI","BERARDI"],"4_30":["BARBIERI","BARBIERI","MICHELOT.","MICHELOT."],"5_1":["MICHELOT.","MICHELOT.","PAZZAGLIA","PAZZAGLIA"],"5_2":["PAZZAGLIA","VOLPINI","FABBRI","FABBRI"],"5_3":["FABBRI","FABBRI","BERARDI","BERARDI"],"5_4":["BERARDI","BERARDI","SARTI","MICHELOT."],"5_5":["MICHELOT.","SARTI","VOLPINI","VOLPINI"],"5_6":["VOLPINI","VOLPINI","MICHELOT.","MICHELOT."],"5_7":["MICHELOT.","MICHELOT.","FABBRI","FABBRI"],"5_8":["FABBRI","FABBRI","GHIOTTI","BERARDI"],"5_9":["GHIOTTI","GHIOTTI","BARBIERI","BARBIERI"],"5_10":["BARBIERI","BARBIERI","BIANCHI","BIANCHI"],"5_11":["BIANCHI","BIANCHI","PAZZAGLIA","PAZZAGLIA"],"5_12":["PAZZAGLIA","BERARDI","MICHELOT.","MICHELOT."],"5_13":["MICHELOT.","MICHELOT.","GHIOTTI","GHIOTTI"],"5_14":["GHIOTTI","GHIOTTI","BARBIERI","BARBIERI"],"5_15":["BARBIERI","BARBIERI","VOLPINI","VOLPINI"],"5_16":["VOLPINI","VOLPINI","PAZZAGLIA","PAZZAGLIA"],"5_17":["PAZZAGLIA","PAZZAGLIA","BERARDI","BERARDI"],"5_18":["BERARDI","BERARDI","FABBRI","FABBRI"],"5_19":["FABBRI","FABBRI","BERARDI","BERARDI"],"5_20":["BERARDI","BERARDI","BIANCHI","BIANCHI"],"5_21":["BIANCHI","BIANCHI","PAZZAGLIA","PAZZAGLIA"],"5_22":["PAZZAGLIA","BERARDI","SARTI","SARTI"],"5_23":["SARTI","SARTI","GHIOTTI","GHIOTTI"],"5_24":["GHIOTTI","FABBRI","MICHELOT.","MICHELOT."],"5_25":["MICHELOT.","MICHELOT.","BIANCHI","BIANCHI"],"5_26":["BIANCHI","BIANCHI","FABBRI","FABBRI"],"5_27":["FABBRI","FABBRI","SARTI","SARTI"],"5_28":["SARTI","SARTI","GHIOTTI","GHIOTTI"],"5_29":["GHIOTTI","GHIOTTI","BARBIERI","BARBIERI"],"5_30":["BARBIERI","BARBIERI","BIANCHI","BIANCHI"],"5_31":["BIANCHI","BIANCHI","VOLPINI","VOLPINI"],"6_1":["VOLPINI","VOLPINI","BERARDI","BERARDI"],"6_2":["BERARDI","BERARDI","MICHELOT.","MICHELOT."],"6_3":["MICHELOT.","MICHELOT.","SARTI","SARTI"],"6_4":["SARTI","SARTI","BARBIERI","BARBIERI"],"6_5":["BARBIERI","BARBIERI","VOLPINI","VOLPINI"],"6_6":["VOLPINI","VOLPINI","BERARDI","BERARDI"],"6_7":["BERARDI","BERARDI","PAZZAGLIA","PAZZAGLIA"],"6_8":["PAZZAGLIA","PAZZAGLIA","SARTI","SARTI"],"6_9":["SARTI","SARTI","FABBRI","FABBRI"],"6_10":["FABBRI","FABBRI","VOLPINI","VOLPINI"],"6_11":["VOLPINI","VOLPINI","BERARDI","BERARDI"],"6_12":["BERARDI","BERARDI","PAZZAGLIA","PAZZAGLIA"],"6_13":["PAZZAGLIA","PAZZAGLIA","SARTI","SARTI"],"6_14":["SARTI","SARTI","BARBIERI","BARBIERI"],"6_15":["BARBIERI","BARBIERI","BIANCHI","BIANCHI"],"6_16":["BIANCHI","BIANCHI","PAZZAGLIA","PAZZAGLIA"],"6_17":["PAZZAGLIA","PAZZAGLIA","MICHELOT.","MICHELOT."],"6_18":["MICHELOT.","MICHELOT.","BERARDI","BERARDI"],"6_19":["BERARDI","BERARDI","BIANCHI","BIANCHI"],"6_20":["BIANCHI","BIANCHI","MICHELOT.","MICHELOT."],"6_21":["MICHELOT.","MICHELOT.","BARBIERI","BARBIERI"],"6_22":["BARBIERI","BARBIERI","BERARDI","BERARDI"],"6_23":["BERARDI","BERARDI","GHIOTTI","GHIOTTI"],"6_24":["GHIOTTI","GHIOTTI","FABBRI","FABBRI"],"6_25":["FABBRI","FABBRI","BIANCHI","BIANCHI"],"6_26":["BIANCHI","BIANCHI","BARBIERI","BARBIERI"],"6_27":["BARBIERI","BARBIERI","MICHELOT.","MICHELOT."],"6_28":["MICHELOT.","MICHELOT.","PAZZAGLIA","PAZZAGLIA"],"6_29":["PAZZAGLIA","PAZZAGLIA","FABBRI","FABBRI"],"6_30":["FABBRI","FABBRI","GHIOTTI","GHIOTTI"],"7_1":["GHIOTTI","GHIOTTI","",""]};
         let REPERIBILITA = JSON.parse(JSON.stringify(REPERIBILITA_BASE));
         let REP_OVERRIDES = {};
 
@@ -659,10 +547,9 @@
         function getNextDay(monthName, day) {
             let mNum = MONTH_NUM[monthName.toUpperCase().trim()];
             if (!mNum) return null;
-            const daysInMonth = [0,31,28,31,30,31,30,31,31,30,31,30,31];
-            let nextDay = day + 1;
-            let nextMonth = mNum;
-            if (nextDay > daysInMonth[mNum]) { nextDay = 1; nextMonth = mNum + 1; }
+            const dim = [0,31,28,31,30,31,30,31,31,30,31,30,31];
+            let nextDay = day + 1, nextMonth = mNum;
+            if (nextDay > dim[mNum]) { nextDay = 1; nextMonth = mNum + 1; }
             if (nextMonth > 12) return null;
             return { mNum: nextMonth, day: nextDay };
         }
@@ -670,10 +557,9 @@
         function getPrevDay(monthName, day) {
             let mNum = MONTH_NUM[monthName.toUpperCase().trim()];
             if (!mNum) return null;
-            const daysInMonth = [0,31,28,31,30,31,30,31,31,30,31,30,31];
-            let prevDay = day - 1;
-            let prevMonth = mNum;
-            if (prevDay < 1) { prevMonth = mNum - 1; if (prevMonth < 1) return null; prevDay = daysInMonth[prevMonth]; }
+            const dim = [0,31,28,31,30,31,30,31,31,30,31,30,31];
+            let prevDay = day - 1, prevMonth = mNum;
+            if (prevDay < 1) { prevMonth = mNum - 1; if (prevMonth < 1) return null; prevDay = dim[prevMonth]; }
             return { mNum: prevMonth, day: prevDay };
         }
 
@@ -688,47 +574,36 @@
             let dNorm = normalizeRepName(driverName);
             let segs = [];
 
-            // ── CASO A: TITOLARE della rep che INIZIA OGGI (giorno X) ──
             if (fascieX) {
                 let titolare = normalizeRepName(fascieX[2]);
                 if (titolare === dNorm) {
                     let who1320 = normalizeRepName(fascieX[2]);
                     let who2000 = normalizeRepName(fascieX[3]);
-                    if (who1320 === dNorm) {
-                        segs.push(`<div class="rep-bar-seg green"><span class="rep-time">13-20</span></div>`);
-                    } else {
-                        segs.push(`<div class="rep-bar-seg rep-sub"><span class="rep-time">13-20</span><span class="rep-name">${who1320}</span></div>`);
-                    }
-                    if (who2000 === dNorm) {
-                        segs.push(`<div class="rep-bar-seg green"><span class="rep-time">20-00</span></div>`);
-                    } else {
-                        segs.push(`<div class="rep-bar-seg rep-sub"><span class="rep-time">20-00</span><span class="rep-name">${who2000}</span></div>`);
-                    }
+                    segs.push(who1320 === dNorm
+                        ? `<div class="rep-bar-seg green"><span class="rep-time">13-20</span></div>`
+                        : `<div class="rep-bar-seg rep-sub"><span class="rep-time">13-20</span><span class="rep-name">${who1320}</span></div>`);
+                    segs.push(who2000 === dNorm
+                        ? `<div class="rep-bar-seg green"><span class="rep-time">20-00</span></div>`
+                        : `<div class="rep-bar-seg rep-sub"><span class="rep-time">20-00</span><span class="rep-name">${who2000}</span></div>`);
                     return `<div class="rep-bar rep-bar-compact">${segs.join("")}</div>`;
                 }
             }
 
-            // ── CASO B: TITOLARE della rep INIZIATA IERI (giorno X-1) ──
             if (fascieXprev && fascieX) {
                 let titolarePrev = normalizeRepName(fascieXprev[2]);
                 if (titolarePrev === dNorm) {
                     let who0007 = normalizeRepName(fascieX[0]);
                     let who0713 = normalizeRepName(fascieX[1]);
-                    if (who0007 === dNorm) {
-                        segs.push(`<div class="rep-bar-seg green"><span class="rep-time">00-07</span></div>`);
-                    } else {
-                        segs.push(`<div class="rep-bar-seg rep-sub"><span class="rep-time">00-07</span><span class="rep-name">${who0007}</span></div>`);
-                    }
-                    if (who0713 === dNorm) {
-                        segs.push(`<div class="rep-bar-seg green"><span class="rep-time">07-13</span></div>`);
-                    } else {
-                        segs.push(`<div class="rep-bar-seg rep-sub"><span class="rep-time">07-13</span><span class="rep-name">${who0713}</span></div>`);
-                    }
+                    segs.push(who0007 === dNorm
+                        ? `<div class="rep-bar-seg green"><span class="rep-time">00-07</span></div>`
+                        : `<div class="rep-bar-seg rep-sub"><span class="rep-time">00-07</span><span class="rep-name">${who0007}</span></div>`);
+                    segs.push(who0713 === dNorm
+                        ? `<div class="rep-bar-seg green"><span class="rep-time">07-13</span></div>`
+                        : `<div class="rep-bar-seg rep-sub"><span class="rep-time">07-13</span><span class="rep-name">${who0713}</span></div>`);
                     return `<div class="rep-bar rep-bar-compact">${segs.join("")}</div>`;
                 }
             }
 
-            // ── CASO C: SOSTITUTO per fasce 13-20 o 20-00 del giorno X ──
             if (fascieX) {
                 let titolare = normalizeRepName(fascieX[2]);
                 if (titolare !== dNorm && titolare !== "") {
@@ -739,7 +614,6 @@
                 }
             }
 
-            // ── CASO D: SOSTITUTO per fasce 00-07 o 07-13 del giorno X ──
             if (fascieX && fascieXprev) {
                 let titolarePrev = normalizeRepName(fascieXprev[2]);
                 if (titolarePrev !== "" && titolarePrev !== dNorm) {
@@ -759,61 +633,56 @@
             let dNorm = normalizeRepName(turniUserName);
             const today = new Date();
             const tomorrow = new Date(today); tomorrow.setDate(today.getDate() + 1);
-
             function checkDay(dateObj, label) {
-                let mNum = dateObj.getMonth() + 1;
-                let day  = dateObj.getDate();
-                let fascieX    = REPERIBILITA[mNum + "_" + day] || null;
+                let mNum = dateObj.getMonth() + 1, day = dateObj.getDate();
+                let fascieX = REPERIBILITA[mNum + "_" + day] || null;
                 let nextMNum = mNum, nextDay = day + 1;
                 const dim = [0,31,28,31,30,31,30,31,31,30,31,30,31];
                 if (nextDay > dim[mNum]) { nextDay = 1; nextMNum = mNum + 1; }
                 let fascieNext = nextMNum <= 12 ? (REPERIBILITA[nextMNum + "_" + nextDay] || null) : null;
                 if (!fascieX) return;
-                let seg1 = normalizeRepName(fascieX[2]);
-                let seg2 = normalizeRepName(fascieX[3]);
-                let seg3 = fascieNext ? normalizeRepName(fascieNext[0]) : "";
-                let seg4 = fascieNext ? normalizeRepName(fascieNext[1]) : "";
-                if (seg1 === dNorm || seg2 === dNorm) {
-                    let fasceSue = [];
-                    if (seg1 === dNorm) fasceSue.push("13:00–20:00");
-                    if (seg2 === dNorm) fasceSue.push("20:00–00:00");
-                    if (seg3 === dNorm) fasceSue.push("00:00–07:00");
-                    if (seg4 === dNorm) fasceSue.push("07:00–13:00");
-                    let fasceCoperte = [];
-                    if (seg1 !== dNorm && seg1) fasceCoperte.push(`13:00–20:00 → <b>${seg1}</b>`);
-                    if (seg2 !== dNorm && seg2) fasceCoperte.push(`20:00–00:00 → <b>${seg2}</b>`);
-                    if (seg3 !== dNorm && seg3) fasceCoperte.push(`00:00–07:00 → <b>${seg3}</b>`);
-                    if (seg4 !== dNorm && seg4) fasceCoperte.push(`07:00–13:00 → <b>${seg4}</b>`);
-                    let notifId = `rep_titolare_${mNum}_${day}_${dNorm}`;
-                    if (!notifHistory.find(n => n.id === notifId)) {
-                        let testo = `<b>📟 Reperibilità ${label}</b><br>Fasce tue: ${fasceSue.join(", ")}`;
-                        if (fasceCoperte.length > 0) testo += `<br><span style="color:#d97706">⚠️ Coperte da altri: ${fasceCoperte.join(", ")}</span>`;
-                        notifHistory.unshift({ id: notifId, text: testo, read: false, date: new Date().toLocaleString('it-IT'), type: 'rep' });
-                        saveNotifications(); updateBadge();
+                let seg1=normalizeRepName(fascieX[2]),seg2=normalizeRepName(fascieX[3]);
+                let seg3=fascieNext?normalizeRepName(fascieNext[0]):"",seg4=fascieNext?normalizeRepName(fascieNext[1]):"";
+                if (seg1===dNorm||seg2===dNorm) {
+                    let fasceSue=[];
+                    if(seg1===dNorm)fasceSue.push("13:00–20:00");
+                    if(seg2===dNorm)fasceSue.push("20:00–00:00");
+                    if(seg3===dNorm)fasceSue.push("00:00–07:00");
+                    if(seg4===dNorm)fasceSue.push("07:00–13:00");
+                    let fasceCoperte=[];
+                    if(seg1!==dNorm&&seg1)fasceCoperte.push(`13:00–20:00 → <b>${seg1}</b>`);
+                    if(seg2!==dNorm&&seg2)fasceCoperte.push(`20:00–00:00 → <b>${seg2}</b>`);
+                    if(seg3!==dNorm&&seg3)fasceCoperte.push(`00:00–07:00 → <b>${seg3}</b>`);
+                    if(seg4!==dNorm&&seg4)fasceCoperte.push(`07:00–13:00 → <b>${seg4}</b>`);
+                    let notifId=`rep_titolare_${mNum}_${day}_${dNorm}`;
+                    if(!notifHistory.find(n=>n.id===notifId)){
+                        let testo=`<b>📟 Reperibilità ${label}</b><br>Fasce tue: ${fasceSue.join(", ")}`;
+                        if(fasceCoperte.length>0)testo+=`<br><span style="color:#d97706">⚠️ Coperte da altri: ${fasceCoperte.join(", ")}</span>`;
+                        notifHistory.unshift({id:notifId,text:testo,read:false,date:new Date().toLocaleString('it-IT'),type:'rep'});
+                        saveNotifications();updateBadge();
                     }
                 }
-                let prevMNum = mNum, prevDay = day - 1;
-                if (prevDay < 1) { prevMNum = mNum - 1; if (prevMNum >= 1) { const dp=[0,31,28,31,30,31,30,31,31,30,31,30,31]; prevDay = dp[prevMNum]; } }
-                let fascieXprev = prevMNum >= 1 ? (REPERIBILITA[prevMNum + "_" + prevDay] || null) : null;
-                let titolare = fascieXprev ? normalizeRepName(fascieXprev[2]) : "";
-                let f0 = normalizeRepName(fascieX[0]);
-                let f1 = normalizeRepName(fascieX[1]);
-                let isSub0 = f0 === dNorm && titolare !== dNorm && titolare !== "";
-                let isSub1 = f1 === dNorm && titolare !== dNorm && titolare !== "";
-                if (isSub0 || isSub1) {
-                    let notifId = `rep_sostituto_${mNum}_${day}_${dNorm}`;
-                    if (!notifHistory.find(n => n.id === notifId)) {
-                        let fasce = [];
-                        if (isSub0) fasce.push("00:00–07:00");
-                        if (isSub1) fasce.push("07:00–13:00");
-                        let testo = `<b>📟 Copertura reperibilità ${label}</b><br>Copri per <b>${titolare || "?"}</b>: ${fasce.join(", ")}`;
-                        notifHistory.unshift({ id: notifId, text: testo, read: false, date: new Date().toLocaleString('it-IT'), type: 'rep' });
-                        saveNotifications(); updateBadge();
+                let prevMNum=mNum,prevDay=day-1;
+                if(prevDay<1){prevMNum=mNum-1;if(prevMNum>=1){const dp=[0,31,28,31,30,31,30,31,31,30,31,30,31];prevDay=dp[prevMNum];}}
+                let fascieXprev=prevMNum>=1?(REPERIBILITA[prevMNum+"_"+prevDay]||null):null;
+                let titolare=fascieXprev?normalizeRepName(fascieXprev[2]):"";
+                let f0=normalizeRepName(fascieX[0]),f1=normalizeRepName(fascieX[1]);
+                let isSub0=f0===dNorm&&titolare!==dNorm&&titolare!=="";
+                let isSub1=f1===dNorm&&titolare!==dNorm&&titolare!=="";
+                if(isSub0||isSub1){
+                    let notifId=`rep_sostituto_${mNum}_${day}_${dNorm}`;
+                    if(!notifHistory.find(n=>n.id===notifId)){
+                        let fasce=[];
+                        if(isSub0)fasce.push("00:00–07:00");
+                        if(isSub1)fasce.push("07:00–13:00");
+                        let testo=`<b>📟 Copertura reperibilità ${label}</b><br>Copri per <b>${titolare||"?"}</b>: ${fasce.join(", ")}`;
+                        notifHistory.unshift({id:notifId,text:testo,read:false,date:new Date().toLocaleString('it-IT'),type:'rep'});
+                        saveNotifications();updateBadge();
                     }
                 }
             }
-            checkDay(today, "OGGI");
-            checkDay(tomorrow, "DOMANI");
+            checkDay(today,"OGGI");
+            checkDay(tomorrow,"DOMANI");
         }
 
         let HOLIDAYS = {
@@ -830,32 +699,32 @@
             "R":"RIPOSO","RIP":"RIPOSO"
         };
 
-        let finalData = [], drivers = [], selectedDrivers = new Set(), notifHistory = [];
-        let ambulanceMap = {}, globalMonthsList = [], nursesData = [], nurses = [];
-        let nursesLoaded = false, appuntamentiVeicoli = {};
+        let finalData=[], drivers=[], selectedDrivers=new Set(), notifHistory=[];
+        let ambulanceMap={}, globalMonthsList=[], nursesData=[], nurses=[];
+        let nursesLoaded=false, appuntamentiVeicoli={};
 
         const CHANGELOG_VERSION = "v2026-1.4";
-        function checkFirstLaunch() { const seen = localStorage.getItem('changelog_seen_version'); if (seen !== CHANGELOG_VERSION) showChangelog(); }
-        function showChangelog() { const m = document.getElementById('changelog-modal'); m.style.display='flex'; setTimeout(()=>m.classList.add('open'),50); }
-        function closeChangelog() { vibrate(); localStorage.setItem('changelog_seen_version',CHANGELOG_VERSION); const m=document.getElementById('changelog-modal'); m.classList.remove('open'); setTimeout(()=>m.style.display='none',400); }
-        function openChangelog() { closeOptionsModal(); setTimeout(showChangelog,200); }
-        function openInfLink() { vibrate(); window.open("https://centrale118rsm-code.github.io/Turni-Infermieri-2026/","_blank"); }
-        function openPersonalArea() { vibrate(); toggleMenu(); window.open("https://centrale118rsm-code.github.io/Area-riservata-A.S.-118/","_blank"); }
+        function checkFirstLaunch(){const seen=localStorage.getItem('changelog_seen_version');if(seen!==CHANGELOG_VERSION)showChangelog();}
+        function showChangelog(){const m=document.getElementById('changelog-modal');m.style.display='flex';setTimeout(()=>m.classList.add('open'),50);}
+        function closeChangelog(){vibrate();localStorage.setItem('changelog_seen_version',CHANGELOG_VERSION);const m=document.getElementById('changelog-modal');m.classList.remove('open');setTimeout(()=>m.style.display='none',400);}
+        function openChangelog(){closeOptionsModal();setTimeout(showChangelog,200);}
+        function openInfLink(){vibrate();window.open("https://centrale118rsm-code.github.io/Turni-Infermieri-2026/","_blank");}
+        function openPersonalArea(){vibrate();toggleMenu();window.open("https://centrale118rsm-code.github.io/Area-riservata-A.S.-118/","_blank");}
 
-        async function loadNursesData() {
-            try {
-                const resp = await fetch("https://centrale118rsm-code.github.io/Turni-Infermieri-2026/infermieri.xlsx?v="+Date.now());
-                if (!resp.ok) throw new Error("File infermieri non trovato");
-                const buf = await resp.arrayBuffer();
-                const wb = new ExcelJS.Workbook();
+        async function loadNursesData(){
+            try{
+                const resp=await fetch("https://centrale118rsm-code.github.io/Turni-Infermieri-2026/infermieri.xlsx?v="+Date.now());
+                if(!resp.ok)throw new Error("File infermieri non trovato");
+                const buf=await resp.arrayBuffer();
+                const wb=new ExcelJS.Workbook();
                 await wb.xlsx.load(buf);
-                let ws = wb.getWorksheet("Foglio2") || wb.worksheets[0];
-                let rawData = [];
+                let ws=wb.getWorksheet("Foglio2")||wb.worksheets[0];
+                let rawData=[];
                 ws.eachRow({includeEmpty:true},(row,rowNumber)=>{
                     let rowData=[];
                     row.eachCell({includeEmpty:true},(cell,colNumber)=>{
                         let val=cell.value;
-                        if(typeof val==='object'&&val!==null) val=val.result||"";
+                        if(typeof val==='object'&&val!==null)val=val.result||"";
                         let bg=null;
                         if(cell.fill&&cell.fill.fgColor){bg=cell.fill.fgColor.argb;if(!bg&&cell.fill.fgColor.theme!==undefined)bg="THEME_"+cell.fill.fgColor.theme;}
                         rowData[colNumber]={v:val,c:bg};
@@ -863,18 +732,18 @@
                     rawData[rowNumber]=rowData;
                 });
                 nursesData=convertHorizontalToVertical(rawData);
-                let header=nursesData[0]; nurses=[];
+                let header=nursesData[0];nurses=[];
                 for(let i=3;i<header.length;i++){let nm=header[i]?header[i].toString().trim():"";if(nm!=="")nurses.push({name:nm.toUpperCase(),idx:i});}
                 nursesLoaded=true;
-            } catch(e) { console.log("ℹ️ Dati infermieri non disponibili:",e.message); nursesLoaded=false; }
+            }catch(e){console.log("ℹ️ Dati infermieri non disponibili:",e.message);nursesLoaded=false;}
         }
 
-        function openMonthModal() {
+        function openMonthModal(){
             vibrate();
-            const grid=document.getElementById('month-grid-container'); grid.innerHTML="";
+            const grid=document.getElementById('month-grid-container');grid.innerHTML="";
             if(globalMonthsList.length===0){grid.innerHTML="<div style='grid-column:1/-1;text-align:center;'>Nessun mese disponibile</div>";}
             else{globalMonthsList.forEach(m=>{let btn=document.createElement('div');btn.className='month-btn';btn.innerText=m.name.substr(0,3);btn.onclick=()=>{vibrate();closeMonthModal();const el=document.getElementById(m.id);if(el){const hh=100,bodyRect=document.body.getBoundingClientRect().top,elRect=el.getBoundingClientRect().top,elPos=elRect-bodyRect,offset=elPos-hh;window.scrollTo({top:offset,behavior:"smooth"});}};grid.appendChild(btn);});}
-            let m=document.getElementById('month-select-modal'); m.style.display='flex'; setTimeout(()=>m.classList.add('open'),10);
+            let m=document.getElementById('month-select-modal');m.style.display='flex';setTimeout(()=>m.classList.add('open'),10);
         }
         function closeMonthModal(e){if(e&&e.target!==e.currentTarget)return;let m=document.getElementById('month-select-modal');m.classList.remove('open');setTimeout(()=>m.style.display='none',300);}
 
@@ -882,8 +751,6 @@
         window.addEventListener('beforeinstallprompt',(e)=>{e.preventDefault();deferredPrompt=e;});
 
         function playDogSound(event){event.stopPropagation();const a=document.getElementById('dog-audio');if(a){a.currentTime=0;a.play().catch(e=>console.log(e));}if(navigator.vibrate)navigator.vibrate(200);}
-
-
 
         let galleryIdx=1;
         const TOTAL_SECRET_PHOTOS=10, PHOTO_EXT=".jpg";
@@ -905,7 +772,13 @@
 
         function vibrate(){if(navigator.vibrate)navigator.vibrate(10);}
         function toggleMenu(){vibrate();let m=document.getElementById('menu-dropdown');if(m.style.display==='flex'){m.classList.remove('open');setTimeout(()=>m.style.display='none',100);}else{m.style.display='flex';setTimeout(()=>m.classList.add('open'),10);}}
-        function openOptionsModal(){if(document.getElementById('menu-dropdown').style.display==='flex')toggleMenu();let m=document.getElementById('options-modal');m.style.display='flex';setTimeout(()=>m.classList.add('open'),10);const tg=document.getElementById('dark-mode-toggle');if(tg)tg.checked=document.body.classList.contains('dark-mode');}
+        function openOptionsModal(){
+            if(document.getElementById('menu-dropdown').style.display==='flex')toggleMenu();
+            let m=document.getElementById('options-modal');m.style.display='flex';setTimeout(()=>m.classList.add('open'),10);
+            const tg=document.getElementById('dark-mode-toggle');if(tg)tg.checked=document.body.classList.contains('dark-mode');
+            // Risincronizza la selezione corrente
+            const sel=document.getElementById('turni-user-select');if(sel&&turniUserName)sel.value=turniUserName;
+        }
         function closeOptionsModal(e){if(e&&e.target!==e.currentTarget)return;let m=document.getElementById('options-modal');m.classList.remove('open');setTimeout(()=>m.style.display='none',200);}
         function toggleDarkMode(){vibrate();document.body.classList.toggle('dark-mode');const meta=document.querySelector('#theme-color-meta');const isDark=document.body.classList.contains('dark-mode');if(isDark){localStorage.setItem('theme','dark');meta.setAttribute('content','#0f172a');}else{localStorage.setItem('theme','light');meta.setAttribute('content','#ffffff');}}
 
@@ -914,9 +787,9 @@
 
         window.onload = async () => {
             try{const lastUp=new Date(document.lastModified);const dateStr=lastUp.toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit',year:'2-digit'});const timeStr=lastUp.toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'});document.getElementById('last-update-badge').innerText=`Aggiornato ${dateStr} ${timeStr}`;}catch(e){console.log(e);}
-            const tg=document.getElementById('dark-mode-toggle'); if(tg)tg.checked=document.body.classList.contains('dark-mode');
-            const loaderEl=document.getElementById('loader'); if(loaderEl)loaderEl.style.transition='opacity 0.5s ease';
-            loadNursesData(); fetchGithubLastUpload();
+            const tg=document.getElementById('dark-mode-toggle');if(tg)tg.checked=document.body.classList.contains('dark-mode');
+            const loaderEl=document.getElementById('loader');if(loaderEl)loaderEl.style.transition='opacity 0.5s ease';
+            loadNursesData();fetchGithubLastUpload();
             try{const response=await fetch(FILE_NAME);if(!response.ok)throw new Error("File mancante");const buffer=await response.arrayBuffer();loadWorkbook(buffer);}
             catch(e){console.error(e);if(window._stopLoaderAnim)window._stopLoaderAnim();const lt=document.getElementById('loader-text');const mu=document.getElementById('manual-upload');if(lt)lt.style.display='none';if(mu)mu.style.display='block';}
         };
@@ -940,20 +813,45 @@
         }
 
         function initApp(){
-            let header=finalData[0]; drivers=[];
+            let header=finalData[0];drivers=[];
             for(let i=3;i<header.length;i++)drivers.push({name:header[i].toUpperCase(),idx:i});
-            const drvNav=document.getElementById('driver-nav'); drvNav.innerHTML="";
-            let btnAll=document.createElement('div'); btnAll.className="chip chip-driver active"; btnAll.innerText="TUTTI"; btnAll.dataset.idx="all"; btnAll.onclick=()=>filterDriver("all",btnAll); drvNav.appendChild(btnAll);
+            const drvNav=document.getElementById('driver-nav');drvNav.innerHTML="";
+            let btnAll=document.createElement('div');btnAll.className="chip chip-driver active";btnAll.innerText="TUTTI";btnAll.dataset.idx="all";btnAll.onclick=()=>filterDriver("all",btnAll);drvNav.appendChild(btnAll);
             drivers.forEach(d=>{let btn=document.createElement('div');btn.className="chip chip-driver";btn.innerText=d.name;btn.dataset.idx=d.idx;btn.onclick=()=>filterDriver(d.idx,btn);drvNav.appendChild(btn);});
             let savedDr=localStorage.getItem("selected_drivers");
             if(savedDr){try{const savedArr=JSON.parse(savedDr);if(Array.isArray(savedArr)&&savedArr.length>0){selectedDrivers=new Set(savedArr);updateDriverButtons();}}catch(e){}}
-            initNotificationOptions(); loadNotificationHistory(); renderTable(); startLiveClock();
-            setTimeout(scrollToToday,600); setTimeout(checkForScheduleChanges,2000); setTimeout(checkRepNotifications,3000); setTimeout(checkFirstLaunch,800);
+
+            // ── POPOLA SELECT "Chi sei?" CON I DRIVER DALL'EXCEL ──
+            // Questo garantisce che le opzioni esistano sempre, anche senza Firebase
+            populateUserSelect(drivers.map(d=>d.name));
+
+            initNotificationOptions();loadNotificationHistory();renderTable();startLiveClock();
+            setTimeout(scrollToToday,600);setTimeout(checkForScheduleChanges,2000);setTimeout(checkRepNotifications,3000);setTimeout(checkFirstLaunch,800);
+        }
+
+        // ── POPOLA SELECT "Chi sei?" ──
+        // Chiamata da initApp (con nomi dall'Excel) e da applyAdminConfig (con nomi da Firebase)
+        function populateUserSelect(nameList) {
+            const sel = document.getElementById('turni-user-select');
+            if (!sel) return;
+            const cur = sel.value || turniUserName || '';
+            sel.innerHTML = '<option value="">-- Nessuna selezione --</option>' +
+                nameList.map(n => {
+                    // Capitalizza: prima lettera maiuscola, resto minuscolo tranne se tutto maiuscolo dall'Excel
+                    const display = n.charAt(0).toUpperCase() + n.slice(1).toLowerCase();
+                    return `<option value="${display}">${display}</option>`;
+                }).join('');
+            // Ripristina la selezione precedente se il nome è ancora presente
+            if (cur) {
+                // Cerca match case-insensitive
+                const opt = Array.from(sel.options).find(o => o.value.toLowerCase() === cur.toLowerCase());
+                if (opt) sel.value = opt.value;
+            }
         }
 
         function calculateAmbulanceDates(){}
 
-        let turniUserName=localStorage.getItem('turni_user_name')||'';
+        let turniUserName = localStorage.getItem('turni_user_name') || '';
         function initNotificationOptions(){const sel=document.getElementById('turni-user-select');if(!sel)return;sel.value=turniUserName;updateTurniUserStatus();}
         function saveTurniUser(val){vibrate();turniUserName=val;localStorage.setItem('turni_user_name',val);localStorage.removeItem('schedule_snapshot');updateTurniUserStatus();setTimeout(checkRepNotifications,500);}
         function updateTurniUserStatus(){const el=document.getElementById('turni-user-status');if(!el)return;if(turniUserName){const isAdmin=(turniUserName==='Pazzaglia'||turniUserName==='Barbieri');el.innerHTML=`<span style="color:#059669;">✓ Notifiche attive per <b>${turniUserName}</b></span>`+(isAdmin?`<br><span style="color:#d97706;">⚡ Riceverai anche notifiche nuove richieste</span>`:'');}else{el.innerHTML=`<span style="color:#ef4444;">Nessuna notifica attiva — seleziona il tuo nome</span>`;}}
@@ -1020,17 +918,7 @@
             }
         }
 
-        function openAdminPanel(){
-            vibrate();
-            if(document.getElementById('menu-dropdown').classList.contains('open'))toggleMenu();
-            let pwd=prompt("🔐 Password Admin:");
-            if(pwd===null)return;
-            if(pwd.trim().toLowerCase()==="ambulanza"){
-                window.open("admin.html","_blank");
-            }else{
-                alert("❌ Password errata.");
-            }
-        }
+        function openAdminPanel(){vibrate();if(document.getElementById('menu-dropdown').classList.contains('open'))toggleMenu();let pwd=prompt("🔐 Password Admin:");if(pwd===null)return;if(pwd.trim().toLowerCase()==="ambulanza"){window.open("admin.html","_blank");}else{alert("❌ Password errata.");}}
 
         function normalizeShift(val){if(!val)return"";let u=val.toString().toUpperCase().trim();if(u==="M+N"||u==="M + N")return"MN";if(u==="M"||u.startsWith("MAT")||u==="M/R"||u==="m")return"M";if(u==="P"||u.startsWith("POM")||u==="p")return"P";if(u==="N"||u.startsWith("NOT"))return"N";if(u==="R"||u.startsWith("RIP"))return"R";if(u==="SM"||u.startsWith("SMO"))return"SM";return"";}
 
@@ -1158,13 +1046,13 @@
         function isRequestAlreadySeen(docId){return getSeenRequestIds().has(docId);}
         const TIPO_LABELS={"copertura_reperibilita":"Copertura Reperibilità","ferie":"Ferie","ferie_anno_prec":"Ferie Anno Prec.","permesso_ore":"Permesso Ore","permesso":"Permesso","cambio_reperibilita":"Cambio Reperibilità","cambio_turno":"Cambio Turno","recupero_ore":"Recupero Ore","permesso_matrimonio":"Permesso Matrimonio","permesso_studio":"Permesso Studio","permesso_sportivo":"Permesso Sportivo","permesso_notte":"Permesso Notte","aspettativa":"Aspettativa","permesso_lutto":"Permesso Lutto"};
         const RICHIESTE_APP_URL="https://centrale118rsm-code.github.io/Richieste-A.S.-118/";
-        function buildRequestCard(richiesta,docId){let nomeRichiedente=richiesta.name||'N/D';let tipoRaw=richiesta.type||'N/D';let tipoRichiesta=TIPO_LABELS[tipoRaw]||tipoRaw.replace(/_/g,' ').toUpperCase();let dataDal=richiesta.dateFrom?new Date(richiesta.dateFrom).toLocaleDateString('it-IT'):'N/D';let dataAl=richiesta.dateTo?new Date(richiesta.dateTo).toLocaleDateString('it-IT'):dataDal;let note=richiesta.notes||'-';let swap=richiesta.swapWith?`<br><b style="color:#b45309;">Cambio con:</b> ${richiesta.swapWith}`:'';let timeSlot=richiesta.timeSlot?`<br><b style="color:#b45309;">Fascia:</b> ${richiesta.timeSlot}`:'';let effectiveDays=(richiesta.effectiveDays&&richiesta.effectiveDays!=='N/A')?`<br><b style="color:#b45309;">Giorni:</b> ${richiesta.effectiveDays}`:'';return{nomeRichiedente,tipoRichiesta,html:`<div style="background:#fffbeb;border:1px solid #fcd34d;border-radius:10px;padding:12px;margin-top:8px;"><b style="color:#b45309;">Da:</b> ${nomeRichiedente}<br><b style="color:#b45309;">Tipo:</b> ${tipoRichiesta} ${swap}${timeSlot}<br><b style="color:#b45309;">Periodo:</b> dal ${dataDal} al ${dataAl}${effectiveDays}<br><b style="color:#b45309;">Note:</b> ${note}<div style="margin-top:10px;text-align:right"><a href="${RICHIESTE_APP_URL}" target="_blank" style="display:inline-flex;align-items:center;gap:4px;background:#2563eb;color:white;padding:6px 14px;border-radius:8px;font-size:0.75rem;font-weight:700;text-decoration:none;box-shadow:0 2px 6px rgba(37,99,235,0.3)"><span class="material-icons-round" style="font-size:16px">open_in_new</span> Apri Richieste</a></div></div>`};}
+        function buildRequestCard(richiesta,docId){let nomeRichiedente=richiesta.name||'N/D';let tipoRaw=richiesta.type||'N/D';let tipoRichiesta=TIPO_LABELS[tipoRaw]||tipoRaw.replace(/_/g,' ').toUpperCase();let dataDal=richiesta.dateFrom?new Date(richiesta.dateFrom).toLocaleDateString('it-IT'):'N/D';let dataAl=richiesta.dateTo?new Date(richiesta.dateTo).toLocaleDateString('it-IT'):dataDal;let note=richiesta.notes||'-';let swap=richiesta.swapWith?`<br><b style="color:#b45309;">Cambio con:</b> ${richiesta.swapWith}`:'';let timeSlot=richiesta.timeSlot?`<br><b style="color:#b45309;">Fascia:</b> ${richiesta.timeSlot}`:'';let effectiveDays=(richiesta.effectiveDays&&richiesta.effectiveDays!=='N/A')?`<br><b style="color:#b45309;">Giorni:</b> ${richiesta.effectiveDays}`:'';return{nomeRichiedente,tipoRichiesta,html:`<div style="background:#fffbeb;border:1px solid #fcd34d;border-radius:10px;padding:12px;margin-top:8px;"><b style="color:#b45309;">Da:</b> ${nomeRichiedente}<br><b style="color:#b45309;">Tipo:</b> ${tipoRichiesta} ${swap}${timeSlot}<br><b style="color:#b45309;">Periodo:</b> dal ${dataDal} al ${dataAl}${effectiveDays}<br><b style="color:#b45309;">Note:</b> ${note}<div style="margin-top:10px;text-align:right"><a href="${RICHIESTE_APP_URL}" target="_blank" style="display:inline-flex;align-items:center;gap:4px;background:#2563eb;color:white;padding:6px 14px;border-radius:8px;font-size:0.75rem;font-weight:700;text-decoration:none;"><span class="material-icons-round" style="font-size:16px">open_in_new</span> Apri Richieste</a></div></div>`};}
 
         db.collection('richieste_turni').onSnapshot((snapshot)=>{
             const userName=turniUserName;const isOperatore=(userName==='Pazzaglia'||userName==='Barbieri');let pendingNewRequests=[],pendingNotifs=[];
             snapshot.docChanges().forEach((change)=>{const richiesta=change.doc.data();const docId=change.doc.id;
             if(change.type==="added"&&!richiesta.insertedInShifts&&!richiesta.obscured&&userName&&isOperatore){const card=buildRequestCard(richiesta,docId);if(!notifHistory.find(n=>n.id===docId)){let notifObj={id:docId,text:`<b style="color:#d97706;">${initialLoad?'SOSPESA':'NUOVA'}: ${card.tipoRichiesta}</b><br>${card.html}`,read:false,date:new Date().toLocaleString('it-IT'),type:'new_request'};pendingNotifs.push(notifObj);}if(!isRequestAlreadySeen(docId))pendingNewRequests.push({richiesta,docId,card,timestamp:richiesta.timestamp||''});}
-            if(change.type==="modified"&&userName){const prevState=previousRequestsState[docId];const wasInserted=prevState?prevState.insertedInShifts:false;const nowInserted=richiesta.insertedInShifts===true;if(!wasInserted&&nowInserted){let nomeRichiedente=richiesta.name||'N/D';let tipoRaw=richiesta.type||'N/D';let tipoRichiesta=TIPO_LABELS[tipoRaw]||tipoRaw.replace(/_/g,' ').toUpperCase();let dataDal=richiesta.dateFrom?new Date(richiesta.dateFrom).toLocaleDateString('it-IT'):'N/D';let dataAl=richiesta.dateTo?new Date(richiesta.dateTo).toLocaleDateString('it-IT'):dataDal;let insertedAt=richiesta.insertedAt?new Date(richiesta.insertedAt).toLocaleDateString('it-IT'):new Date().toLocaleDateString('it-IT');let insertedKey='inserted_'+docId;if(nomeRichiedente.toLowerCase()===userName.toLowerCase()&&!isRequestAlreadySeen(insertedKey)){let testoInserita=`<div style="background:#dcfce7;border:1px solid #86efac;border-radius:10px;padding:12px;margin-top:8px;"><b style="color:#059669;">✓ Inserita nei turni il ${insertedAt}</b><br><b style="color:#166534;">Tipo:</b> ${tipoRichiesta}<br><b style="color:#166534;">Periodo:</b> dal ${dataDal} al ${dataAl}<div style="margin-top:10px;text-align:right"><a href="${RICHIESTE_APP_URL}" target="_blank" style="display:inline-flex;align-items:center;gap:4px;background:#059669;color:white;padding:6px 14px;border-radius:8px;font-size:0.75rem;font-weight:700;text-decoration:none;box-shadow:0 2px 6px rgba(5,150,105,0.3)"><span class="material-icons-round" style="font-size:16px">open_in_new</span> Apri Richieste</a></div></div>`;let alertModal=document.getElementById('alert-modal');if(alertModal){document.getElementById('alert-title-text').innerHTML=`✅ RICHIESTA INSERITA NEI TURNI`;document.getElementById('alert-message-text').innerHTML=`La tua richiesta è stata elaborata:`+testoInserita;alertModal.style.display='flex';setTimeout(()=>alertModal.classList.add('open'),50);}if(navigator.vibrate)navigator.vibrate([100,50,100]);markRequestAsSeen(insertedKey);if(!notifHistory.find(n=>n.id===insertedKey)){notifHistory.unshift({id:insertedKey,text:`<b style="color:#059669;">✅ RICHIESTA INSERITA</b><br>${testoInserita}`,read:false,date:new Date().toLocaleString('it-IT'),type:'request_inserted'});if(typeof saveNotifications==='function')saveNotifications();if(typeof updateBadge==='function')updateBadge();}}}previousRequestsState[docId]={insertedInShifts:nowInserted};}
+            if(change.type==="modified"&&userName){const prevState=previousRequestsState[docId];const wasInserted=prevState?prevState.insertedInShifts:false;const nowInserted=richiesta.insertedInShifts===true;if(!wasInserted&&nowInserted){let nomeRichiedente=richiesta.name||'N/D';let tipoRaw=richiesta.type||'N/D';let tipoRichiesta=TIPO_LABELS[tipoRaw]||tipoRaw.replace(/_/g,' ').toUpperCase();let dataDal=richiesta.dateFrom?new Date(richiesta.dateFrom).toLocaleDateString('it-IT'):'N/D';let dataAl=richiesta.dateTo?new Date(richiesta.dateTo).toLocaleDateString('it-IT'):dataDal;let insertedAt=richiesta.insertedAt?new Date(richiesta.insertedAt).toLocaleDateString('it-IT'):new Date().toLocaleDateString('it-IT');let insertedKey='inserted_'+docId;if(nomeRichiedente.toLowerCase()===userName.toLowerCase()&&!isRequestAlreadySeen(insertedKey)){let testoInserita=`<div style="background:#dcfce7;border:1px solid #86efac;border-radius:10px;padding:12px;margin-top:8px;"><b style="color:#059669;">✓ Inserita nei turni il ${insertedAt}</b><br><b style="color:#166534;">Tipo:</b> ${tipoRichiesta}<br><b style="color:#166534;">Periodo:</b> dal ${dataDal} al ${dataAl}<div style="margin-top:10px;text-align:right"><a href="${RICHIESTE_APP_URL}" target="_blank" style="display:inline-flex;align-items:center;gap:4px;background:#059669;color:white;padding:6px 14px;border-radius:8px;font-size:0.75rem;font-weight:700;text-decoration:none;"><span class="material-icons-round" style="font-size:16px">open_in_new</span> Apri Richieste</a></div></div>`;let alertModal=document.getElementById('alert-modal');if(alertModal){document.getElementById('alert-title-text').innerHTML=`✅ RICHIESTA INSERITA NEI TURNI`;document.getElementById('alert-message-text').innerHTML=`La tua richiesta è stata elaborata:`+testoInserita;alertModal.style.display='flex';setTimeout(()=>alertModal.classList.add('open'),50);}if(navigator.vibrate)navigator.vibrate([100,50,100]);markRequestAsSeen(insertedKey);if(!notifHistory.find(n=>n.id===insertedKey)){notifHistory.unshift({id:insertedKey,text:`<b style="color:#059669;">✅ RICHIESTA INSERITA</b><br>${testoInserita}`,read:false,date:new Date().toLocaleString('it-IT'),type:'request_inserted'});if(typeof saveNotifications==='function')saveNotifications();if(typeof updateBadge==='function')updateBadge();}}}previousRequestsState[docId]={insertedInShifts:nowInserted};}
             if(change.type==="added")previousRequestsState[docId]={insertedInShifts:richiesta.insertedInShifts||false};});
             if(pendingNewRequests.length>0&&isOperatore){pendingNewRequests.sort((a,b)=>(b.timestamp||'').localeCompare(a.timestamp||''));const latest=pendingNewRequests[0];const totalPending=pendingNewRequests.length;let alertModal=document.getElementById('alert-modal');if(alertModal){let extraMsg=totalPending>1?`<div style="margin-top:8px;font-size:0.78rem;color:var(--text-sec);text-align:center;font-weight:600">+ altre ${totalPending-1} nuov${totalPending-1===1?'a':'e'} — vedi il <span style="color:var(--primary);cursor:pointer" onclick="closeAlertAndSave();openNotifCenter()">Centro Notifiche</span></div>`:'';document.getElementById('alert-title-text').innerHTML=initialLoad?`⏳ ${totalPending} RICHIESTA${totalPending>1?'E':''} IN SOSPESO`:`⚠️ NUOVA RICHIESTA RICEVUTA`;document.getElementById('alert-message-text').innerHTML=(initialLoad?`Ultima richiesta non ancora gestita:`:`Un operatore ha appena inviato una richiesta:`)+latest.card.html+extraMsg;alertModal.style.display='flex';setTimeout(()=>alertModal.classList.add('open'),50);}if(!initialLoad&&navigator.vibrate)navigator.vibrate([200,100,200]);pendingNewRequests.forEach(r=>markRequestAsSeen(r.docId));}
             if(pendingNotifs.length>0){pendingNotifs.forEach(n=>notifHistory.unshift(n));if(typeof saveNotifications==='function')saveNotifications();if(typeof updateBadge==='function')updateBadge();let notifModal=document.getElementById('notif-center-modal');if(notifModal&&notifModal.classList.contains('open')&&typeof renderNotifList==='function')renderNotifList();}
@@ -1173,320 +1061,260 @@
 
         db.collection('gestionale_118').doc('tickets').onSnapshot((docSnapshot)=>{
             appuntamentiVeicoli={};
-            if(docSnapshot.exists){try{const activeTickets=JSON.parse(docSnapshot.data().data);activeTickets.forEach(tk=>{if(tk.dataAppuntamento&&tk.stato==='segnalato'){let d=new Date(tk.dataAppuntamento);let meseNome=Object.keys(MONTH_MAP).find(key=>MONTH_MAP[key]===d.getMonth());let giorno=d.getDate();if(meseNome&&giorno){let dateKey=`${meseNome}-${giorno}`;if(!appuntamentiVeicoli[dateKey])appuntamentiVeicoli[dateKey]=[];appuntamentiVeicoli[dateKey].push({operazione:"Appuntamento",veicolo:tk.mezzo,officina:tk.officinaAppuntamento||"Officina",problema:tk.problema||"",ora:tk.dataAppuntamentoOra||""});}}if(tk.dataStimataConsegna&&tk.stato==='in_officina'){let d=new Date(tk.dataStimataConsegna);let meseNome=Object.keys(MONTH_MAP).find(key=>MONTH_MAP[key]===d.getMonth());let giorno=d.getDate();if(meseNome&&giorno){let dateKey=`${meseNome}-${giorno}`;if(!appuntamentiVeicoli[dateKey])appuntamentiVeicoli[dateKey]=[];appuntamentiVeicoli[dateKey].push({operazione:"Ritiro",veicolo:tk.mezzo,officina:tk.officina||"Officina",problema:tk.problema||"",ora:tk.dataStimataConsegnaOra||""});}}});}catch(e){console.error("Errore nella lettura dei ticket dei veicoli:",e);}}
+            if(docSnapshot.exists){try{const activeTickets=JSON.parse(docSnapshot.data().data);activeTickets.forEach(tk=>{if(tk.dataAppuntamento&&tk.stato==='segnalato'){let d=new Date(tk.dataAppuntamento);let meseNome=Object.keys(MONTH_MAP).find(key=>MONTH_MAP[key]===d.getMonth());let giorno=d.getDate();if(meseNome&&giorno){let dateKey=`${meseNome}-${giorno}`;if(!appuntamentiVeicoli[dateKey])appuntamentiVeicoli[dateKey]=[];appuntamentiVeicoli[dateKey].push({operazione:"Appuntamento",veicolo:tk.mezzo,officina:tk.officinaAppuntamento||"Officina",problema:tk.problema||"",ora:tk.dataAppuntamentoOra||""});}}if(tk.dataStimataConsegna&&tk.stato==='in_officina'){let d=new Date(tk.dataStimataConsegna);let meseNome=Object.keys(MONTH_MAP).find(key=>MONTH_MAP[key]===d.getMonth());let giorno=d.getDate();if(meseNome&&giorno){let dateKey=`${meseNome}-${giorno}`;if(!appuntamentiVeicoli[dateKey])appuntamentiVeicoli[dateKey]=[];appuntamentiVeicoli[dateKey].push({operazione:"Ritiro",veicolo:tk.mezzo,officina:tk.officina||"Officina",problema:tk.problema||"",ora:tk.dataStimataConsegnaOra||""});}}});}catch(e){console.error("Errore ticket veicoli:",e);}}
             if(typeof finalData!=='undefined'&&finalData.length>0)renderTable();
         });
 
         // ── OVERRIDE REPERIBILITÀ DA RICHIESTE ──
-        // Quando un autista cede una fascia di reperibilità a un collega tramite il file Richieste
-        // (tipo "copertura_reperibilita"), la const REPERIBILITA viene aggiornata in real-time
-        // sostituendo il nome del titolare con quello di chi copre, nelle fasce indicate.
-        const SLOT_TO_IDX = { "13:00/20:00": 2, "20:00/00:00": 3, "00:00/07:00": 0, "07:00/13:00": 1 };
-
-        function rebuildReperibilita() {
-            // Riparti dai dati base e applica tutti gli override attivi
-            REPERIBILITA = JSON.parse(JSON.stringify(REPERIBILITA_BASE));
-            Object.values(REP_OVERRIDES).forEach(ov => {
-                if (!ov || ov.obscured || !ov.dateFrom || !ov.swapWith || !ov.timeSlot) return;
-                // dateFrom è in formato YYYY-MM-DD
-                const d = new Date(ov.dateFrom);
-                if (isNaN(d.getTime())) return;
-                const mNum = d.getMonth() + 1;
-                const day = d.getDate();
-                const slots = ov.timeSlot.split(", ");
-                slots.forEach(slot => {
-                    const slotKey = slot.trim();
-                    const idx = SLOT_TO_IDX[slotKey];
-                    if (idx === undefined) return;
-                    // Le fasce 00:00-07:00 e 07:00-13:00 appartengono al giorno X
-                    // ma sono la coda della reperibilità iniziata il giorno X-1
-                    // Per coerenza con come è strutturato REPERIBILITA, scriviamo nella chiave del giorno X
-                    const key = mNum + "_" + day;
-                    if (!REPERIBILITA[key]) return;
-                    // Sostituisce solo se il titolare originale corrisponde al richiedente (o se non c'è match, comunque sovrascrive)
-                    REPERIBILITA[key][idx] = ov.swapWith.toUpperCase();
-                });
+        const SLOT_TO_IDX={"13:00/20:00":2,"20:00/00:00":3,"00:00/07:00":0,"07:00/13:00":1};
+        function rebuildReperibilita(){
+            REPERIBILITA=JSON.parse(JSON.stringify(REPERIBILITA_BASE));
+            Object.values(REP_OVERRIDES).forEach(ov=>{
+                if(!ov||ov.obscured||!ov.dateFrom||!ov.swapWith||!ov.timeSlot)return;
+                const d=new Date(ov.dateFrom);if(isNaN(d.getTime()))return;
+                const mNum=d.getMonth()+1,day=d.getDate();
+                const slots=ov.timeSlot.split(", ");
+                slots.forEach(slot=>{const slotKey=slot.trim();const idx=SLOT_TO_IDX[slotKey];if(idx===undefined)return;const key=mNum+"_"+day;if(!REPERIBILITA[key])return;REPERIBILITA[key][idx]=ov.swapWith.toUpperCase();});
             });
         }
-
-        function applyRepOverrideFromRequest(docId, r) {
-            if (r.type !== 'copertura_reperibilita') return;
-            if (r.obscured) { delete REP_OVERRIDES[docId]; return; }
-            REP_OVERRIDES[docId] = {
-                docId,
-                name: r.name,
-                swapWith: r.swapWith,
-                timeSlot: r.timeSlot,
-                dateFrom: r.dateFrom,
-                obscured: r.obscured || false
-            };
+        function applyRepOverrideFromRequest(docId,r){
+            if(r.type!=='copertura_reperibilita')return;
+            if(r.obscured){delete REP_OVERRIDES[docId];return;}
+            REP_OVERRIDES[docId]={docId,name:r.name,swapWith:r.swapWith,timeSlot:r.timeSlot,dateFrom:r.dateFrom,obscured:r.obscured||false};
         }
-
-        db.collection('richieste_turni').onSnapshot((snapshot) => {
-            snapshot.docChanges().forEach(change => {
-                const r = change.doc.data();
-                const docId = change.doc.id;
-                if (change.type === 'removed') {
-                    delete REP_OVERRIDES[docId];
-                } else {
-                    applyRepOverrideFromRequest(docId, r);
-                }
-            });
+        db.collection('richieste_turni').onSnapshot((snapshot)=>{
+            snapshot.docChanges().forEach(change=>{const r=change.doc.data();const docId=change.doc.id;if(change.type==='removed'){delete REP_OVERRIDES[docId];}else{applyRepOverrideFromRequest(docId,r);}});
             rebuildReperibilita();
-            if (typeof finalData !== 'undefined' && finalData.length > 0) renderTable();
+            if(typeof finalData!=='undefined'&&finalData.length>0)renderTable();
         });
 
         // ── CONFIG ADMIN REAL-TIME ──
         db.collection('as26_config').doc('settings').onSnapshot((doc)=>{
             if(!doc.exists)return;
-            try{ applyAdminConfig(doc.data()); }catch(e){ console.error('Config admin error:',e); }
+            try{applyAdminConfig(doc.data());}catch(e){console.error('Config admin error:',e);}
         });
 
         // ══════════════════════════════════════════════════════════════════
-// applyAdminConfig — VERSIONE COMPLETA
-// Sostituisce la funzione omonima nel file turni.html
-// Ascolta Firebase in real-time e applica TUTTE le modifiche Admin
-// ══════════════════════════════════════════════════════════════════
-function applyAdminConfig(cfg) {
-    if (!cfg) return;
-    const root = document.documentElement;
+        // applyAdminConfig — VERSIONE DEFINITIVA
+        // Una sola funzione, nessun codice orfano
+        // ══════════════════════════════════════════════════════════════════
+        function applyAdminConfig(cfg) {
+            if (!cfg) return;
+            const root = document.documentElement;
 
-    // ── helper: inietta o aggiorna un blocco <style> ──
-    function injectStyle(id, css) {
-        let el = document.getElementById(id);
-        if (!el) { el = document.createElement('style'); el.id = id; document.head.appendChild(el); }
-        el.textContent = css;
-    }
-    function removeStyle(id) {
-        const el = document.getElementById(id);
-        if (el) el.remove();
-    }
+            function injectStyle(id, css) {
+                let el = document.getElementById(id);
+                if (!el) { el = document.createElement('style'); el.id = id; document.head.appendChild(el); }
+                el.textContent = css;
+            }
+            function removeStyle(id) {
+                const el = document.getElementById(id);
+                if (el) el.remove();
+            }
 
-    // ══ 1. CSS VARIABLES (colori turni, assenze, globali) ══
-    const sc = cfg.shiftColors || {};
-    const sp = cfg.specialColors || {};
-    const gen = cfg.general || {};
-    const dc = cfg.dateCol || {};
-    const rep = cfg.repText || {};
+            // ══ 1. CSS VARIABLES ══
+            const sc = cfg.shiftColors || {};
+            const sp = cfg.specialColors || {};
+            const gen = cfg.general || {};
+            const dc = cfg.dateCol || {};
+            const rep = cfg.repText || {};
 
-    if (sc['M-bg'])     root.style.setProperty('--c-M',  sc['M-bg']);
-    if (sc['M-text'])   root.style.setProperty('--t-M',  sc['M-text']);
-    if (sc['M-border']) root.style.setProperty('--b-M',  sc['M-border']);
-    if (sc['P-bg'])     root.style.setProperty('--c-P',  sc['P-bg']);
-    if (sc['P-text'])   root.style.setProperty('--t-P',  sc['P-text']);
-    if (sc['P-border']) root.style.setProperty('--b-P',  sc['P-border']);
-    if (sc['N-bg'])     root.style.setProperty('--c-N',  sc['N-bg']);
-    if (sc['N-text'])   root.style.setProperty('--t-N',  sc['N-text']);
-    if (sc['N-border']) root.style.setProperty('--b-N',  sc['N-border']);
-    if (sc['SM-bg'])    root.style.setProperty('--c-SM', sc['SM-bg']);
-    if (sc['SM-text'])  root.style.setProperty('--t-SM', sc['SM-text']);
-    if (sc['SM-border'])root.style.setProperty('--b-SM', sc['SM-border']);
-    if (sc['R-bg'])     root.style.setProperty('--c-R',  sc['R-bg']);
-    if (sc['R-text'])   root.style.setProperty('--t-R',  sc['R-text']);
-    if (sc['R-border']) root.style.setProperty('--b-R',  sc['R-border']);
+            if (sc['M-bg'])      root.style.setProperty('--c-M',  sc['M-bg']);
+            if (sc['M-text'])    root.style.setProperty('--t-M',  sc['M-text']);
+            if (sc['M-border'])  root.style.setProperty('--b-M',  sc['M-border']);
+            if (sc['P-bg'])      root.style.setProperty('--c-P',  sc['P-bg']);
+            if (sc['P-text'])    root.style.setProperty('--t-P',  sc['P-text']);
+            if (sc['P-border'])  root.style.setProperty('--b-P',  sc['P-border']);
+            if (sc['N-bg'])      root.style.setProperty('--c-N',  sc['N-bg']);
+            if (sc['N-text'])    root.style.setProperty('--t-N',  sc['N-text']);
+            if (sc['N-border'])  root.style.setProperty('--b-N',  sc['N-border']);
+            if (sc['SM-bg'])     root.style.setProperty('--c-SM', sc['SM-bg']);
+            if (sc['SM-text'])   root.style.setProperty('--t-SM', sc['SM-text']);
+            if (sc['SM-border']) root.style.setProperty('--b-SM', sc['SM-border']);
+            if (sc['R-bg'])      root.style.setProperty('--c-R',  sc['R-bg']);
+            if (sc['R-text'])    root.style.setProperty('--t-R',  sc['R-text']);
+            if (sc['R-border'])  root.style.setProperty('--b-R',  sc['R-border']);
+            if (sp['ferie-bg'])  root.style.setProperty('--bg-ferie', sp['ferie-bg']);
+            if (sp['ferie-text'])root.style.setProperty('--t-ferie',  sp['ferie-text']);
+            if (sp['perm-bg'])   root.style.setProperty('--bg-perm',  sp['perm-bg']);
+            if (sp['perm-text']) root.style.setProperty('--t-perm',   sp['perm-text']);
+            if (sp['cong-bg'])   root.style.setProperty('--bg-cong',  sp['cong-bg']);
+            if (sp['cong-text']) root.style.setProperty('--t-cong',   sp['cong-text']);
+            if (sp['rec-bg'])    root.style.setProperty('--bg-rec',   sp['rec-bg']);
+            if (sp['rec-text'])  root.style.setProperty('--t-rec',    sp['rec-text']);
+            if (gen.primary)     root.style.setProperty('--primary', gen.primary);
+            if (gen.appBg)       root.style.setProperty('--bg',      gen.appBg);
+            if (gen.cardBg)      root.style.setProperty('--bg-card', gen.cardBg);
+            if (gen.borderColor) root.style.setProperty('--border',  gen.borderColor);
+            if (gen.cellH)       root.style.setProperty('--cell-h',  gen.cellH + 'px');
+            if (gen.fontCell)    root.style.setProperty('--font-base',  gen.fontCell + 'px');
+            if (gen.fontTime)    root.style.setProperty('--font-small', gen.fontTime + 'px');
+            if (gen.monthBgStart || gen.monthBgEnd) {
+                const s = gen.monthBgStart || '#1e3a8a';
+                const e = gen.monthBgEnd   || '#3b82f6';
+                root.style.setProperty('--month-bar-bg', `linear-gradient(135deg,${s} 0%,${e} 100%)`);
+            }
 
-    if (sp['ferie-bg'])   root.style.setProperty('--bg-ferie', sp['ferie-bg']);
-    if (sp['ferie-text']) root.style.setProperty('--t-ferie',  sp['ferie-text']);
-    if (sp['perm-bg'])    root.style.setProperty('--bg-perm',  sp['perm-bg']);
-    if (sp['perm-text'])  root.style.setProperty('--t-perm',   sp['perm-text']);
-    if (sp['cong-bg'])    root.style.setProperty('--bg-cong',  sp['cong-bg']);
-    if (sp['cong-text'])  root.style.setProperty('--t-cong',   sp['cong-text']);
-    if (sp['rec-bg'])     root.style.setProperty('--bg-rec',   sp['rec-bg']);
-    if (sp['rec-text'])   root.style.setProperty('--t-rec',    sp['rec-text']);
+            // ══ 2. CELLE — dimensioni, tipografia, border-radius ══
+            let cellCss = '';
+            if (gen.colW) {
+                cellCss += `thead th{width:${gen.colW}px!important;min-width:${gen.colW}px!important;max-width:${gen.colW}px!important}`;
+                cellCss += `tbody td{width:${gen.colW}px!important;min-width:${gen.colW}px!important;max-width:${gen.colW}px!important}`;
+            }
+            if (gen.dateColW) {
+                cellCss += `thead th:first-child{width:${gen.dateColW}px!important;min-width:${gen.dateColW}px!important;max-width:${gen.dateColW}px!important}`;
+                cellCss += `tbody td.td-date{width:${gen.dateColW}px!important;min-width:${gen.dateColW}px!important;max-width:${gen.dateColW}px!important}`;
+            }
+            if (gen.cellH) {
+                cellCss += `tbody td{height:${gen.cellH}px!important;min-height:${gen.cellH}px!important;max-height:${gen.cellH}px!important;overflow:hidden!important}`;
+                cellCss += `tbody td.td-date{height:${gen.cellH}px!important;min-height:${gen.cellH}px!important;max-height:${gen.cellH}px!important}`;
+                cellCss += `.td-date-inner{height:${gen.cellH}px!important;max-height:${gen.cellH}px!important;overflow:hidden!important}`;
+            }
+            if (gen.radius !== undefined) cellCss += `.cell{border-radius:${gen.radius}px!important}`;
+            if (gen.fontWeight)  cellCss += `.cell{font-weight:${gen.fontWeight}!important}`;
+            if (gen.fontSpec)    cellCss += `.spec-orange,.spec-green,.spec-yellow,.spec-pink,.spec-blue,.spec-red,.spec-nl,.spec-purple{font-size:${gen.fontSpec}px!important}`;
+            if (gen.uppercase !== undefined) cellCss += `.cell{text-transform:${gen.uppercase?'uppercase':'none'}!important}`;
+            if (cellCss) injectStyle('admin-cell-style', cellCss);
 
-    if (gen.primary)  root.style.setProperty('--primary', gen.primary);
-    if (gen.appBg)    root.style.setProperty('--bg',      gen.appBg);
-    if (gen.cardBg)   root.style.setProperty('--bg-card', gen.cardBg);
-    if (gen.borderColor) root.style.setProperty('--border', gen.borderColor);
-    if (gen.cellH)    root.style.setProperty('--cell-h',  gen.cellH + 'px');
-    if (gen.fontCell) root.style.setProperty('--font-base',  gen.fontCell + 'px');
-    if (gen.fontTime) root.style.setProperty('--font-small', gen.fontTime + 'px');
+            // ══ 3. BARRA REPERIBILITÀ — colori sfondo + colori testo SEPARATI ══
+            let repCss = '';
+            // Sfondi barra
+            if (sc['rep-sub'])   repCss += `.rep-bar-seg.rep-sub{background:${sc['rep-sub']}!important}`;
+            if (sc['rep-cover']) repCss += `.rep-bar-seg.rep-cover{background:${sc['rep-cover']}!important}`;
+            if (sc['rep-own'])   repCss += `.rep-bar-seg.green{background:${sc['rep-own']}!important}`;
+            if (gen.repBarH)     repCss += `.rep-bar{height:${gen.repBarH}px!important}`;
+            if (rep.fontWeight)  repCss += `.rep-bar-seg{font-weight:${rep.fontWeight}!important}`;
 
-    if (gen.monthBgStart || gen.monthBgEnd) {
-        const s = gen.monthBgStart || '#1e3a8a';
-        const e = gen.monthBgEnd   || '#3b82f6';
-        root.style.setProperty('--month-bar-bg', `linear-gradient(135deg,${s} 0%,${e} 100%)`);
-    }
+            // Testo orario — applicato globalmente (tutti e tre i tipi)
+            if (rep.timeSize || rep.timeColor || rep.fontWeight) {
+                let tStyle = '';
+                if (rep.timeSize)   tStyle += `font-size:${rep.timeSize}px!important;`;
+                if (rep.timeColor)  tStyle += `color:${rep.timeColor}!important;`;
+                if (rep.fontWeight) tStyle += `font-weight:${rep.fontWeight}!important;`;
+                repCss += `.rep-bar-seg .rep-time{${tStyle}}`;
+            }
+            // Testo nome — separato per tipo:
+            // rep-sub (ceduto) — usa rep.nameColor o bianco
+            if (rep.nameSize || rep.nameColor) {
+                let nStyle = '';
+                if (rep.nameSize)  nStyle += `font-size:${rep.nameSize}px!important;`;
+                if (rep.nameColor) nStyle += `color:${rep.nameColor}!important;`;
+                repCss += `.rep-bar-seg.rep-sub .rep-name{${nStyle}}`;
+            }
+            // rep-cover (copre) — usa rep.coverNameColor se disponibile, altrimenti #fde047
+            if (rep.nameSize || rep.coverNameColor) {
+                let cnStyle = '';
+                if (rep.nameSize)        cnStyle += `font-size:${rep.nameSize}px!important;`;
+                if (rep.coverNameColor)  cnStyle += `color:${rep.coverNameColor}!important;`;
+                repCss += `.rep-bar-seg.rep-cover .rep-name{${cnStyle}}`;
+            }
+            // Colori testo specifici per sub/cover separati (da admin se salvati)
+            if (rep.subTimeColor)   repCss += `.rep-bar-seg.rep-sub .rep-time{color:${rep.subTimeColor}!important}`;
+            if (rep.subNameColor)   repCss += `.rep-bar-seg.rep-sub .rep-name{color:${rep.subNameColor}!important}`;
+            if (rep.coverTimeColor) repCss += `.rep-bar-seg.rep-cover .rep-time{color:${rep.coverTimeColor}!important}`;
+            if (rep.coverNameColor) repCss += `.rep-bar-seg.rep-cover .rep-name{color:${rep.coverNameColor}!important}`;
 
-    // ══ 2. CELLE — dimensioni uniformi, tipografia, border-radius ══
-    let cellCss = '';
+            if (repCss) injectStyle('admin-rep-style', repCss);
 
-    // Larghezza colonne autista (forza tutte uguali con !important)
-    if (gen.colW) {
-        cellCss += `
-thead th { width:${gen.colW}px!important; min-width:${gen.colW}px!important; max-width:${gen.colW}px!important; }
-tbody td { width:${gen.colW}px!important; min-width:${gen.colW}px!important; max-width:${gen.colW}px!important; }`;
-    }
-    // Larghezza colonna data
-    if (gen.dateColW) {
-        cellCss += `
-thead th:first-child { width:${gen.dateColW}px!important; min-width:${gen.dateColW}px!important; max-width:${gen.dateColW}px!important; }
-tbody td.td-date { width:${gen.dateColW}px!important; min-width:${gen.dateColW}px!important; max-width:${gen.dateColW}px!important; }`;
-    }
-    // Altezza celle (forza min/max per non lasciarla crescere)
-    if (gen.cellH) {
-        cellCss += `
-tbody td { height:${gen.cellH}px!important; min-height:${gen.cellH}px!important; max-height:${gen.cellH}px!important; overflow:hidden!important; }
-tbody td.td-date { height:${gen.cellH}px!important; min-height:${gen.cellH}px!important; max-height:${gen.cellH}px!important; }
-.td-date-inner { height:${gen.cellH}px!important; max-height:${gen.cellH}px!important; overflow:hidden!important; }`;
-    }
-    // Border radius
-    if (gen.radius !== undefined) cellCss += `\n.cell { border-radius:${gen.radius}px!important; }`;
-    // Font peso
-    if (gen.fontWeight) cellCss += `\n.cell { font-weight:${gen.fontWeight}!important; }`;
-    // Font celle speciali
-    if (gen.fontSpec)   cellCss += `\n.spec-orange,.spec-green,.spec-yellow,.spec-pink,.spec-blue,.spec-red,.spec-nl,.spec-purple { font-size:${gen.fontSpec}px!important; }`;
-    // Maiuscolo
-    if (gen.uppercase !== undefined) cellCss += `\n.cell { text-transform:${gen.uppercase ? 'uppercase' : 'none'}!important; }`;
+            // ══ 4. COLONNA DATA ══
+            let dateCss = '';
+            if (dc.bg || dc.text || dc.fontSize || dc.weight || dc.border) {
+                dateCss += `tbody td.td-date{`;
+                if (dc.bg)       dateCss += `background:${dc.bg}!important;`;
+                if (dc.text)     dateCss += `color:${dc.text}!important;`;
+                if (dc.fontSize) dateCss += `font-size:${dc.fontSize}px!important;`;
+                if (dc.weight)   dateCss += `font-weight:${dc.weight}!important;`;
+                if (dc.border)   dateCss += `border-right:2px solid ${dc.border}!important;`;
+                dateCss += `border-bottom:none!important}`;
+            }
+            if (dc.daySize !== undefined || dc.showDayName === false) {
+                dateCss += `.td-date small{`;
+                if (dc.daySize)           dateCss += `font-size:${dc.daySize}px!important;`;
+                if (dc.showDayName===false) dateCss += `display:none!important;`;
+                dateCss += `}`;
+            }
+            if (dc.redBg || dc.redText) {
+                dateCss += `.td-date.date-red{`;
+                if (dc.redBg)   dateCss += `background:${dc.redBg}!important;`;
+                if (dc.redText) dateCss += `color:${dc.redText}!important;border-right-color:${dc.redText}!important;`;
+                dateCss += `}`;
+                if (dc.redText) dateCss += `.td-date.date-red small{color:${dc.redText}!important}`;
+            }
+            if (dc.holidayColor || dc.holidayFontSize || dc.holidayOrient) {
+                dateCss += `.holiday-name{`;
+                if (dc.holidayFontSize) dateCss += `font-size:${dc.holidayFontSize}px!important;`;
+                if (dc.holidayColor)    dateCss += `color:${dc.holidayColor}!important;`;
+                if (dc.holidayOrient==='horizontal') dateCss += `writing-mode:horizontal-tb!important;transform:none!important;max-height:none!important;white-space:normal!important;`;
+                if (dc.holidayOrient==='hidden')     dateCss += `display:none!important;`;
+                dateCss += `}`;
+            }
+            if (dc.showWeekendLabel === false) {
+                dateCss += `.td-date:not(.date-red) .holiday-name{display:none!important}`;
+            }
+            if (dc.todayBg || dc.todayBorder) {
+                if (dc.todayBg)     dateCss += `tr.today td{background:${dc.todayBg}!important}`;
+                if (dc.todayBorder) dateCss += `tr.today td{border-bottom:2px solid ${dc.todayBorder}!important}`;
+                if (dc.todayBg)     dateCss += `tr.today .td-date{background:${dc.todayBg}!important}`;
+                if (dc.todayBorder) dateCss += `tr.today .td-date{border-left:6px solid ${dc.todayBorder}!important;border-right-color:${dc.todayBorder}!important}`;
+            }
+            if (dateCss) injectStyle('admin-date-style', dateCss);
 
-    if (cellCss) injectStyle('admin-cell-style', cellCss);
+            // ══ 5. TITOLO APP ══
+            if (gen.title) {
+                const lt = document.querySelector('.logo-title');
+                if (lt) lt.textContent = gen.title;
+            }
+            if (gen.subtitle) {
+                const ls = document.getElementById('last-update-badge');
+                if (ls) ls.textContent = gen.subtitle;
+            }
 
-    // ══ 3. BARRA REPERIBILITÀ — colori + testo ══
-    let repCss = '';
-    if (sc['rep-sub'])   repCss += `.rep-bar-seg.rep-sub{background:${sc['rep-sub']}!important}`;
-    if (sc['rep-cover']) repCss += `.rep-bar-seg.rep-cover{background:${sc['rep-cover']}!important}`;
-    if (sc['rep-own'])   repCss += `.rep-bar-seg.green{background:${sc['rep-own']}!important}`;
-    if (gen.repBarH)     repCss += `.rep-bar{height:${gen.repBarH}px!important}`;
-    // Testo orario nella fascia
-    if (rep.timeSize || rep.timeColor || rep.fontWeight) {
-        let tStyle = '';
-        if (rep.timeSize)   tStyle += `font-size:${rep.timeSize}px!important;`;
-        if (rep.timeColor)  tStyle += `color:${rep.timeColor}!important;`;
-        if (rep.fontWeight) tStyle += `font-weight:${rep.fontWeight}!important;`;
-        repCss += `.rep-bar-seg .rep-time{${tStyle}}`;
-    }
-    // Testo nome collega nella fascia
-    if (rep.nameSize || rep.nameColor || rep.fontWeight) {
-        let nStyle = '';
-        if (rep.nameSize)   nStyle += `font-size:${rep.nameSize}px!important;`;
-        if (rep.nameColor)  nStyle += `color:${rep.nameColor}!important;`;
-        if (rep.fontWeight) nStyle += `font-weight:${rep.fontWeight}!important;`;
-        repCss += `.rep-bar-seg .rep-name{${nStyle}}`;
-    }
-    if (rep.fontWeight) repCss += `.rep-bar-seg{font-weight:${rep.fontWeight}!important}`;
-    if (repCss) injectStyle('admin-rep-style', repCss);
+            // ══ 6. VISIBILITÀ TOGGLE ══
+            const tog = (key) => cfg['tog_' + key] !== false;
+            function applyToggle(styleId, selector, visible) {
+                if (!visible) injectStyle(styleId, selector + '{display:none!important}');
+                else removeStyle(styleId);
+            }
+            applyToggle('admin-repbar-style',  '.rep-bar',    tog('repbar'));
+            applyToggle('admin-timetag-style', '.time-tag',   tog('timetag'));
+            applyToggle('admin-dog-style',     '.dog-icon',   tog('dog'));
+            applyToggle('admin-dots-style',    '.shift-dots', tog('dots'));
+            const infBtn = document.querySelector('.btn-inf');
+            if (infBtn) infBtn.style.display = tog('infbtn') ? '' : 'none';
+            const dinnerItem = document.querySelector('.menu-item[onclick="openDinnerModal()"]');
+            if (dinnerItem) dinnerItem.style.display = tog('dinner') ? '' : 'none';
 
-    // ══ 4. COLONNA DATA ══
-    let dateCss = '';
-    if (dc.bg || dc.text || dc.fontSize || dc.weight || dc.border) {
-        dateCss += `tbody td.td-date {`;
-        if (dc.bg)       dateCss += `background:${dc.bg}!important;`;
-        if (dc.text)     dateCss += `color:${dc.text}!important;`;
-        if (dc.fontSize) dateCss += `font-size:${dc.fontSize}px!important;`;
-        if (dc.weight)   dateCss += `font-weight:${dc.weight}!important;`;
-        if (dc.border)   dateCss += `border-right:2px solid ${dc.border}!important;`;
-        dateCss += `border-bottom:none!important;}`;
-    }
-    // Giorno settimana piccolo
-    if (dc.daySize !== undefined || dc.showDayName === false) {
-        dateCss += `.td-date small{`;
-        if (dc.daySize)           dateCss += `font-size:${dc.daySize}px!important;`;
-        if (dc.showDayName===false) dateCss += `display:none!important;`;
-        dateCss += `}`;
-    }
-    // Festivo / weekend
-    if (dc.redBg || dc.redText) {
-        dateCss += `.td-date.date-red{`;
-        if (dc.redBg)   dateCss += `background:${dc.redBg}!important;`;
-        if (dc.redText) dateCss += `color:${dc.redText}!important;`;
-        if (dc.redText) dateCss += `border-right-color:${dc.redText}!important;`;
-        dateCss += `}`;
-        dateCss += `.td-date.date-red small{`;
-        if (dc.redText) dateCss += `color:${dc.redText}!important;`;
-        dateCss += `}`;
-    }
-    // Nome festivo (orientamento e colore)
-    if (dc.holidayColor || dc.holidayFontSize || dc.holidayOrient) {
-        dateCss += `.holiday-name{`;
-        if (dc.holidayFontSize) dateCss += `font-size:${dc.holidayFontSize}px!important;`;
-        if (dc.holidayColor)    dateCss += `color:${dc.holidayColor}!important;`;
-        if (dc.holidayOrient === 'horizontal') dateCss += `writing-mode:horizontal-tb!important;transform:none!important;max-height:none!important;white-space:normal!important;`;
-        if (dc.holidayOrient === 'hidden')     dateCss += `display:none!important;`;
-        dateCss += `}`;
-    }
-    // Etichetta SABATO/DOMENICA
-    if (dc.showWeekendLabel === false) {
-        // Le etichette weekend sono holiday-name con testo specifico,
-        // ma nel codice originale non hanno classe diversa — le nascondiamo via :not
-        // La soluzione più affidabile: nascondi holiday-name solo nelle td-date NON festive
-        dateCss += `.td-date:not(.date-red) .holiday-name{display:none!important}`;
-    }
-    // Riga oggi
-    if (dc.todayBg || dc.todayBorder) {
-        if (dc.todayBg)     dateCss += `tr.today td{background:${dc.todayBg}!important;}`;
-        if (dc.todayBorder) dateCss += `tr.today td{border-bottom:2px solid ${dc.todayBorder}!important;}`;
-        if (dc.todayBg)     dateCss += `tr.today .td-date{background:${dc.todayBg}!important;}`;
-        if (dc.todayBorder) dateCss += `tr.today .td-date{border-left:6px solid ${dc.todayBorder}!important;border-right-color:${dc.todayBorder}!important;}`;
-    }
-    if (dateCss) injectStyle('admin-date-style', dateCss);
+            // ══ 7. URL INFERMIERI ══
+            if (gen.infUrl) window._infUrl = gen.infUrl;
 
-    // ══ 5. TITOLO APP ══
-    if (gen.title) {
-        const lt = document.querySelector('.logo-title');
-        if (lt) lt.textContent = gen.title;
-    }
-    if (gen.subtitle) {
-        const ls = document.getElementById('last-update-badge');
-        if (ls) ls.textContent = gen.subtitle;
-    }
+            // ══ 8. FESTIVI ══
+            if (cfg.holidays && Array.isArray(cfg.holidays) && cfg.holidays.length > 0) {
+                const newHol = {};
+                cfg.holidays.forEach(h => { if (h.key && h.name) newHol[h.key] = h.name; });
+                HOLIDAYS = newHol;
+            }
 
-    // ══ 6. VISIBILITÀ TOGGLE ══
-    const tog = (key) => cfg['tog_' + key] !== false;
+            // ══ 9. FASCE ORARIE ══
+            const sch = cfg.schedules || {};
+            if (sch.M)  { SCHEDULE['M']=sch.M;  SCHEDULE['MAT']=sch.M;  SCHEDULE['MATTINA']=sch.M; }
+            if (sch.P)  { SCHEDULE['P']=sch.P;  SCHEDULE['POM']=sch.P;  SCHEDULE['POMERIGGIO']=sch.P; }
+            if (sch.N)  { SCHEDULE['N']=sch.N;  SCHEDULE['NOTT']=sch.N; SCHEDULE['NOTTE']=sch.N; }
+            if (sch.SM) { SCHEDULE['SM']=sch.SM; SCHEDULE['SMONTO']=sch.SM; SCHEDULE['S']=sch.SM; }
+            if (sch.mD) { SCHEDULE['m'] = sch.mD; }
+            if (sch.pD) { SCHEDULE['p'] = sch.pD; }
 
-    function applyToggle(styleId, selector, visible) {
-        if (!visible) injectStyle(styleId, selector + '{display:none!important}');
-        else removeStyle(styleId);
-    }
+            // ══ 10. SELECT "Chi sei?" ══
+            // Aggiorna solo se Firebase ha una lista drivers valida
+            // Mantiene sempre le opzioni anche se Firebase non ha ancora la lista
+            if (cfg.drivers && Array.isArray(cfg.drivers) && cfg.drivers.length > 0) {
+                populateUserSelect(cfg.drivers);
+            }
 
-    applyToggle('admin-repbar-style', '.rep-bar',      tog('repbar'));
-    applyToggle('admin-timetag-style','.time-tag',     tog('timetag'));
-    applyToggle('admin-dog-style',    '.dog-icon',     tog('dog'));
-    applyToggle('admin-dots-style',   '.shift-dots',   tog('dots'));
-
-    // Bottone infermieri
-    const infBtn = document.querySelector('.btn-inf');
-    if (infBtn) infBtn.style.display = tog('infbtn') ? '' : 'none';
-
-    // Voce cena nel menu
-    const dinnerItem = document.querySelector('.menu-item[onclick="openDinnerModal()"]');
-    if (dinnerItem) dinnerItem.style.display = tog('dinner') ? '' : 'none';
-
-    // ══ 7. URL INFERMIERI ══
-    if (gen.infUrl) window._infUrl = gen.infUrl;
-
-    // ══ 8. FESTIVI (HOLIDAYS) ══
-    if (cfg.holidays && Array.isArray(cfg.holidays)) {
-        const newHol = {};
-        cfg.holidays.forEach(h => { if (h.key && h.name) newHol[h.key] = h.name; });
-        HOLIDAYS = newHol;
-    }
-
-    // ══ 9. FASCE ORARIE (SCHEDULE) ══
-    const sch = cfg.schedules || {};
-    if (sch.M)  { SCHEDULE['M'] = sch.M;  SCHEDULE['MAT'] = sch.M;  SCHEDULE['MATTINA'] = sch.M; }
-    if (sch.P)  { SCHEDULE['P'] = sch.P;  SCHEDULE['POM'] = sch.P;  SCHEDULE['POMERIGGIO'] = sch.P; }
-    if (sch.N)  { SCHEDULE['N'] = sch.N;  SCHEDULE['NOTT'] = sch.N; SCHEDULE['NOTTE'] = sch.N; }
-    if (sch.SM) { SCHEDULE['SM'] = sch.SM; SCHEDULE['SMONTO'] = sch.SM; SCHEDULE['S'] = sch.SM; }
-    if (sch.mD) { SCHEDULE['m'] = sch.mD; }
-    if (sch.pD) { SCHEDULE['p'] = sch.pD; }
-
-    // ══ 10. SELECT AUTISTI (opzioni "Chi sei?") ══
-    if (cfg.drivers && Array.isArray(cfg.drivers)) {
-        const sel = document.getElementById('turni-user-select');
-        if (sel) {
-            const cur = sel.value;
-            sel.innerHTML = '<option value="">-- Nessuna selezione --</option>' +
-                cfg.drivers.map(d => `<option value="${d}">${d}</option>`).join('');
-            if (cur) sel.value = cur; // mantieni selezione corrente
+            // ══ 11. RE-RENDER TABELLA ══
+            if (typeof finalData !== 'undefined' && finalData.length > 0) {
+                renderTable();
+            }
         }
-    }
-
-    // ══ 11. RE-RENDER TABELLA ══
-    // Solo se i dati sono già caricati
-    if (typeof finalData !== 'undefined' && finalData.length > 0) {
-        renderTable();
-    }
-}
     </script>
 </body>
 </html>
