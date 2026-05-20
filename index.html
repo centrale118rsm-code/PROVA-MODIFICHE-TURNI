@@ -566,61 +566,90 @@
         function getRepBarHtml(driverName, monthName, day) {
             let mNum = MONTH_NUM[monthName.toUpperCase().trim()];
             if (!mNum) return "";
-            let fascieX     = REPERIBILITA[mNum + "_" + day] || null;
-            let nextInfo    = getNextDay(monthName, day);
-            let fascieNext  = nextInfo ? (REPERIBILITA[nextInfo.mNum + "_" + nextInfo.day] || null) : null;
-            let prevInfo    = getPrevDay(monthName, day);
-            let fascieXprev = prevInfo ? (REPERIBILITA[prevInfo.mNum + "_" + prevInfo.day] || null) : null;
+            let key = mNum + "_" + day;
+
+            // BASE = turni originali (chi è titolare), LIVE = chi sta effettivamente coprendo
+            let baseX     = REPERIBILITA_BASE[key] || null;
+            let liveX     = REPERIBILITA[key] || null;
+
+            let nextInfo  = getNextDay(monthName, day);
+            let nextKey   = nextInfo ? (nextInfo.mNum + "_" + nextInfo.day) : null;
+            let baseNext  = nextKey ? (REPERIBILITA_BASE[nextKey] || null) : null;
+            let liveNext  = nextKey ? (REPERIBILITA[nextKey] || null) : null;
+
+            let prevInfo  = getPrevDay(monthName, day);
+            let prevKey   = prevInfo ? (prevInfo.mNum + "_" + prevInfo.day) : null;
+            let baseXprev = prevKey ? (REPERIBILITA_BASE[prevKey] || null) : null;
+            let liveXprev = prevKey ? (REPERIBILITA[prevKey] || null) : null;
+
             let dNorm = normalizeRepName(driverName);
             let segs = [];
 
-            if (fascieX) {
-                let titolare = normalizeRepName(fascieX[2]);
+            // ── CASO A: questo autista è TITOLARE delle fasce 13-20 e 20-00 di oggi ──
+            // Il titolare si riconosce dal BASE. Le fasce LIVE dicono chi sta coprendo.
+            if (baseX) {
+                let titolare = normalizeRepName(baseX[2]);
                 if (titolare === dNorm) {
-                    let who1320 = normalizeRepName(fascieX[2]);
-                    let who2000 = normalizeRepName(fascieX[3]);
-                    segs.push(who1320 === dNorm
-                        ? `<div class="rep-bar-seg green"><span class="rep-time">13-20</span></div>`
-                        : `<div class="rep-bar-seg rep-sub"><span class="rep-time">13-20</span><span class="rep-name">${who1320}</span></div>`);
-                    segs.push(who2000 === dNorm
-                        ? `<div class="rep-bar-seg green"><span class="rep-time">20-00</span></div>`
-                        : `<div class="rep-bar-seg rep-sub"><span class="rep-time">20-00</span><span class="rep-name">${who2000}</span></div>`);
+                    let live1320 = normalizeRepName(liveX ? liveX[2] : titolare);
+                    let live2000 = normalizeRepName(liveX ? liveX[3] : titolare);
+                    // fascia 13-20
+                    if (live1320 === dNorm) {
+                        segs.push(`<div class="rep-bar-seg green"><span class="rep-time">13-20</span></div>`);
+                    } else {
+                        segs.push(`<div class="rep-bar-seg rep-sub"><span class="rep-time">13-20</span><span class="rep-name">${live1320}</span></div>`);
+                    }
+                    // fascia 20-00
+                    if (live2000 === dNorm) {
+                        segs.push(`<div class="rep-bar-seg green"><span class="rep-time">20-00</span></div>`);
+                    } else {
+                        segs.push(`<div class="rep-bar-seg rep-sub"><span class="rep-time">20-00</span><span class="rep-name">${live2000}</span></div>`);
+                    }
                     return `<div class="rep-bar rep-bar-compact">${segs.join("")}</div>`;
                 }
             }
 
-            if (fascieXprev && fascieX) {
-                let titolarePrev = normalizeRepName(fascieXprev[2]);
+            // ── CASO B: questo autista è TITOLARE delle fasce 00-07 e 07-13 di oggi
+            //    (= titolare della rep iniziata ieri, coda che arriva oggi) ──
+            if (baseXprev && liveX) {
+                let titolarePrev = normalizeRepName(baseXprev[2]);
                 if (titolarePrev === dNorm) {
-                    let who0007 = normalizeRepName(fascieX[0]);
-                    let who0713 = normalizeRepName(fascieX[1]);
-                    segs.push(who0007 === dNorm
-                        ? `<div class="rep-bar-seg green"><span class="rep-time">00-07</span></div>`
-                        : `<div class="rep-bar-seg rep-sub"><span class="rep-time">00-07</span><span class="rep-name">${who0007}</span></div>`);
-                    segs.push(who0713 === dNorm
-                        ? `<div class="rep-bar-seg green"><span class="rep-time">07-13</span></div>`
-                        : `<div class="rep-bar-seg rep-sub"><span class="rep-time">07-13</span><span class="rep-name">${who0713}</span></div>`);
+                    let live0007 = normalizeRepName(liveX[0]);
+                    let live0713 = normalizeRepName(liveX[1]);
+                    if (live0007 === dNorm) {
+                        segs.push(`<div class="rep-bar-seg green"><span class="rep-time">00-07</span></div>`);
+                    } else {
+                        segs.push(`<div class="rep-bar-seg rep-sub"><span class="rep-time">00-07</span><span class="rep-name">${live0007}</span></div>`);
+                    }
+                    if (live0713 === dNorm) {
+                        segs.push(`<div class="rep-bar-seg green"><span class="rep-time">07-13</span></div>`);
+                    } else {
+                        segs.push(`<div class="rep-bar-seg rep-sub"><span class="rep-time">07-13</span><span class="rep-name">${live0713}</span></div>`);
+                    }
                     return `<div class="rep-bar rep-bar-compact">${segs.join("")}</div>`;
                 }
             }
 
-            if (fascieX) {
-                let titolare = normalizeRepName(fascieX[2]);
-                if (titolare !== dNorm && titolare !== "") {
-                    let who1320 = normalizeRepName(fascieX[2]);
-                    let who2000 = normalizeRepName(fascieX[3]);
-                    if (who1320 === dNorm) segs.push(`<div class="rep-bar-seg rep-cover"><span class="rep-time">13-20</span><span class="rep-name">${titolare}</span></div>`);
-                    if (who2000 === dNorm) segs.push(`<div class="rep-bar-seg rep-cover"><span class="rep-time">20-00</span><span class="rep-name">${titolare}</span></div>`);
+            // ── CASO C: questo autista è SOSTITUTO per fasce 13-20 o 20-00 di oggi
+            //    (= appare nel LIVE ma non nel BASE per quelle fasce) ──
+            if (liveX && baseX) {
+                let titolareBase = normalizeRepName(baseX[2]);
+                if (titolareBase !== dNorm && titolareBase !== "") {
+                    let live1320 = normalizeRepName(liveX[2]);
+                    let live2000 = normalizeRepName(liveX[3]);
+                    if (live1320 === dNorm) segs.push(`<div class="rep-bar-seg rep-cover"><span class="rep-time">13-20</span><span class="rep-name">${titolareBase}</span></div>`);
+                    if (live2000 === dNorm) segs.push(`<div class="rep-bar-seg rep-cover"><span class="rep-time">20-00</span><span class="rep-name">${titolareBase}</span></div>`);
                 }
             }
 
-            if (fascieX && fascieXprev) {
-                let titolarePrev = normalizeRepName(fascieXprev[2]);
-                if (titolarePrev !== "" && titolarePrev !== dNorm) {
-                    let who0007 = normalizeRepName(fascieX[0]);
-                    let who0713 = normalizeRepName(fascieX[1]);
-                    if (who0007 === dNorm) segs.push(`<div class="rep-bar-seg rep-cover"><span class="rep-time">00-07</span><span class="rep-name">${titolarePrev}</span></div>`);
-                    if (who0713 === dNorm) segs.push(`<div class="rep-bar-seg rep-cover"><span class="rep-time">07-13</span><span class="rep-name">${titolarePrev}</span></div>`);
+            // ── CASO D: questo autista è SOSTITUTO per fasce 00-07 o 07-13 di oggi
+            //    (= coda della rep iniziata ieri) ──
+            if (liveX && baseXprev) {
+                let titolareBasePrev = normalizeRepName(baseXprev[2]);
+                if (titolareBasePrev !== "" && titolareBasePrev !== dNorm) {
+                    let live0007 = normalizeRepName(liveX[0]);
+                    let live0713 = normalizeRepName(liveX[1]);
+                    if (live0007 === dNorm) segs.push(`<div class="rep-bar-seg rep-cover"><span class="rep-time">00-07</span><span class="rep-name">${titolareBasePrev}</span></div>`);
+                    if (live0713 === dNorm) segs.push(`<div class="rep-bar-seg rep-cover"><span class="rep-time">07-13</span><span class="rep-name">${titolareBasePrev}</span></div>`);
                 }
             }
 
@@ -633,56 +662,120 @@
             let dNorm = normalizeRepName(turniUserName);
             const today = new Date();
             const tomorrow = new Date(today); tomorrow.setDate(today.getDate() + 1);
+            const dim = [0,31,28,31,30,31,30,31,31,30,31,30,31];
+
             function checkDay(dateObj, label) {
                 let mNum = dateObj.getMonth() + 1, day = dateObj.getDate();
-                let fascieX = REPERIBILITA[mNum + "_" + day] || null;
+                const key = mNum + "_" + day;
+                // BASE = turni originali (titolare), LIVE = chi sta effettivamente coprendo
+                let baseX = REPERIBILITA_BASE[key] || null;
+                let liveX = REPERIBILITA[key] || null;
+                if (!baseX) return;
+
                 let nextMNum = mNum, nextDay = day + 1;
-                const dim = [0,31,28,31,30,31,30,31,31,30,31,30,31];
                 if (nextDay > dim[mNum]) { nextDay = 1; nextMNum = mNum + 1; }
-                let fascieNext = nextMNum <= 12 ? (REPERIBILITA[nextMNum + "_" + nextDay] || null) : null;
-                if (!fascieX) return;
-                let seg1=normalizeRepName(fascieX[2]),seg2=normalizeRepName(fascieX[3]);
-                let seg3=fascieNext?normalizeRepName(fascieNext[0]):"",seg4=fascieNext?normalizeRepName(fascieNext[1]):"";
-                if (seg1===dNorm||seg2===dNorm) {
-                    let fasceSue=[];
-                    if(seg1===dNorm)fasceSue.push("13:00–20:00");
-                    if(seg2===dNorm)fasceSue.push("20:00–00:00");
-                    if(seg3===dNorm)fasceSue.push("00:00–07:00");
-                    if(seg4===dNorm)fasceSue.push("07:00–13:00");
-                    let fasceCoperte=[];
-                    if(seg1!==dNorm&&seg1)fasceCoperte.push(`13:00–20:00 → <b>${seg1}</b>`);
-                    if(seg2!==dNorm&&seg2)fasceCoperte.push(`20:00–00:00 → <b>${seg2}</b>`);
-                    if(seg3!==dNorm&&seg3)fasceCoperte.push(`00:00–07:00 → <b>${seg3}</b>`);
-                    if(seg4!==dNorm&&seg4)fasceCoperte.push(`07:00–13:00 → <b>${seg4}</b>`);
-                    let notifId=`rep_titolare_${mNum}_${day}_${dNorm}`;
-                    if(!notifHistory.find(n=>n.id===notifId)){
-                        let testo=`<b>📟 Reperibilità ${label}</b><br>Fasce tue: ${fasceSue.join(", ")}`;
-                        if(fasceCoperte.length>0)testo+=`<br><span style="color:#d97706">⚠️ Coperte da altri: ${fasceCoperte.join(", ")}</span>`;
-                        notifHistory.unshift({id:notifId,text:testo,read:false,date:new Date().toLocaleString('it-IT'),type:'rep'});
-                        saveNotifications();updateBadge();
+                const nextKey = nextMNum <= 12 ? (nextMNum + "_" + nextDay) : null;
+                let baseNext = nextKey ? (REPERIBILITA_BASE[nextKey] || null) : null;
+                let liveNext = nextKey ? (REPERIBILITA[nextKey] || null) : null;
+
+                let prevMNum = mNum, prevDay = day - 1;
+                if (prevDay < 1) { prevMNum = mNum - 1; if (prevMNum >= 1) prevDay = dim[prevMNum]; }
+                const prevKey = prevMNum >= 1 ? (prevMNum + "_" + prevDay) : null;
+                let baseXprev = prevKey ? (REPERIBILITA_BASE[prevKey] || null) : null;
+                let liveXprev = prevKey ? (REPERIBILITA[prevKey] || null) : null;
+
+                // ── SONO TITOLARE BASE delle fasce 13-20 / 20-00 di oggi ──
+                let titolareBase = normalizeRepName(baseX[2]);
+                if (titolareBase === dNorm) {
+                    let live1320 = normalizeRepName(liveX ? liveX[2] : dNorm);
+                    let live2000 = normalizeRepName(liveX ? liveX[3] : dNorm);
+                    // coda (00-07 / 07-13 del giorno dopo) — solo se nel BASE successivo il titolare precedente sono io
+                    let live0007_next = liveNext ? normalizeRepName(liveNext[0]) : dNorm;
+                    let live0713_next = liveNext ? normalizeRepName(liveNext[1]) : dNorm;
+
+                    let fasceSue = [], fasceCoperte = [];
+                    if (live1320 === dNorm) fasceSue.push("13:00–20:00");
+                    else fasceCoperte.push(`13:00–20:00 → <b>${live1320}</b>`);
+                    if (live2000 === dNorm) fasceSue.push("20:00–00:00");
+                    else fasceCoperte.push(`20:00–00:00 → <b>${live2000}</b>`);
+                    // coda del giorno dopo
+                    if (live0007_next === dNorm) fasceSue.push("00:00–07:00");
+                    else if (live0007_next) fasceCoperte.push(`00:00–07:00 → <b>${live0007_next}</b>`);
+                    if (live0713_next === dNorm) fasceSue.push("07:00–13:00");
+                    else if (live0713_next) fasceCoperte.push(`07:00–13:00 → <b>${live0713_next}</b>`);
+
+                    // ID include conteggio cessioni così ri-notifica se ne vengono aggiunte/rimosse
+                    let notifId = `rep_tit_${mNum}_${day}_${dNorm}_c${fasceCoperte.length}`;
+                    if (!notifHistory.find(n => n.id === notifId)) {
+                        let testo = `<b>📟 Sei in reperibilità ${label}</b>`;
+                        if (fasceSue.length > 0) testo += `<br>Fasce tue: ${fasceSue.join(", ")}`;
+                        if (fasceCoperte.length > 0) testo += `<br><span style="color:#d97706">⚠️ Cedute: ${fasceCoperte.join(", ")}</span>`;
+                        notifHistory.unshift({id: notifId, text: testo, read: false, date: new Date().toLocaleString('it-IT'), type: 'rep'});
+                        saveNotifications(); updateBadge();
+                    }
+                    return;
+                }
+
+                // ── SONO TITOLARE BASE della coda 00-07 / 07-13 di oggi (rep iniziata ieri) ──
+                if (baseXprev) {
+                    let titolaPrev = normalizeRepName(baseXprev[2]);
+                    if (titolaPrev === dNorm) {
+                        let live0007 = normalizeRepName(liveX ? liveX[0] : dNorm);
+                        let live0713 = normalizeRepName(liveX ? liveX[1] : dNorm);
+                        let fasceSue = [], fasceCoperte = [];
+                        if (live0007 === dNorm) fasceSue.push("00:00–07:00");
+                        else fasceCoperte.push(`00:00–07:00 → <b>${live0007}</b>`);
+                        if (live0713 === dNorm) fasceSue.push("07:00–13:00");
+                        else fasceCoperte.push(`07:00–13:00 → <b>${live0713}</b>`);
+                        let notifId = `rep_tit2_${mNum}_${day}_${dNorm}_c${fasceCoperte.length}`;
+                        if (!notifHistory.find(n => n.id === notifId)) {
+                            let testo = `<b>📟 Sei in reperibilità (coda) ${label}</b>`;
+                            if (fasceSue.length > 0) testo += `<br>Fasce tue: ${fasceSue.join(", ")}`;
+                            if (fasceCoperte.length > 0) testo += `<br><span style="color:#d97706">⚠️ Cedute: ${fasceCoperte.join(", ")}</span>`;
+                            notifHistory.unshift({id: notifId, text: testo, read: false, date: new Date().toLocaleString('it-IT'), type: 'rep'});
+                            saveNotifications(); updateBadge();
+                        }
+                        return;
                     }
                 }
-                let prevMNum=mNum,prevDay=day-1;
-                if(prevDay<1){prevMNum=mNum-1;if(prevMNum>=1){const dp=[0,31,28,31,30,31,30,31,31,30,31,30,31];prevDay=dp[prevMNum];}}
-                let fascieXprev=prevMNum>=1?(REPERIBILITA[prevMNum+"_"+prevDay]||null):null;
-                let titolare=fascieXprev?normalizeRepName(fascieXprev[2]):"";
-                let f0=normalizeRepName(fascieX[0]),f1=normalizeRepName(fascieX[1]);
-                let isSub0=f0===dNorm&&titolare!==dNorm&&titolare!=="";
-                let isSub1=f1===dNorm&&titolare!==dNorm&&titolare!=="";
-                if(isSub0||isSub1){
-                    let notifId=`rep_sostituto_${mNum}_${day}_${dNorm}`;
-                    if(!notifHistory.find(n=>n.id===notifId)){
-                        let fasce=[];
-                        if(isSub0)fasce.push("00:00–07:00");
-                        if(isSub1)fasce.push("07:00–13:00");
-                        let testo=`<b>📟 Copertura reperibilità ${label}</b><br>Copri per <b>${titolare||"?"}</b>: ${fasce.join(", ")}`;
-                        notifHistory.unshift({id:notifId,text:testo,read:false,date:new Date().toLocaleString('it-IT'),type:'rep'});
-                        saveNotifications();updateBadge();
+
+                // ── SONO COPRENTE per fasce 13-20 / 20-00 di oggi (LIVE mi nomina, BASE no) ──
+                if (liveX && baseX) {
+                    let titBase = normalizeRepName(baseX[2]);
+                    let live1320 = normalizeRepName(liveX[2]);
+                    let live2000 = normalizeRepName(liveX[3]);
+                    let fasce = [];
+                    if (live1320 === dNorm && titBase !== dNorm) fasce.push(`13:00–20:00 (per <b>${titBase}</b>)`);
+                    if (live2000 === dNorm && titBase !== dNorm) fasce.push(`20:00–00:00 (per <b>${titBase}</b>)`);
+                    if (fasce.length > 0) {
+                        let notifId = `rep_cop13_${mNum}_${day}_${dNorm}`;
+                        if (!notifHistory.find(n => n.id === notifId)) {
+                            notifHistory.unshift({id: notifId, text: `<b>📟 Copri reperibilità ${label}</b><br>${fasce.join("<br>")}`, read: false, date: new Date().toLocaleString('it-IT'), type: 'rep_cover'});
+                            saveNotifications(); updateBadge();
+                        }
+                    }
+                }
+
+                // ── SONO COPRENTE per fasce 00-07 / 07-13 di oggi (coda della rep di ieri) ──
+                if (liveX && baseXprev) {
+                    let titBasePrev = normalizeRepName(baseXprev[2]);
+                    let live0007 = normalizeRepName(liveX[0]);
+                    let live0713 = normalizeRepName(liveX[1]);
+                    let fasce = [];
+                    if (live0007 === dNorm && titBasePrev !== dNorm) fasce.push(`00:00–07:00 (per <b>${titBasePrev}</b>)`);
+                    if (live0713 === dNorm && titBasePrev !== dNorm) fasce.push(`07:00–13:00 (per <b>${titBasePrev}</b>)`);
+                    if (fasce.length > 0) {
+                        let notifId = `rep_cop00_${mNum}_${day}_${dNorm}`;
+                        if (!notifHistory.find(n => n.id === notifId)) {
+                            notifHistory.unshift({id: notifId, text: `<b>📟 Copri reperibilità (coda) ${label}</b><br>${fasce.join("<br>")}`, read: false, date: new Date().toLocaleString('it-IT'), type: 'rep_cover'});
+                            saveNotifications(); updateBadge();
+                        }
                     }
                 }
             }
-            checkDay(today,"OGGI");
-            checkDay(tomorrow,"DOMANI");
+
+            checkDay(today, "OGGI");
+            checkDay(tomorrow, "DOMANI");
         }
 
         let HOLIDAYS = {
@@ -1086,6 +1179,8 @@
             snapshot.docChanges().forEach(change=>{const r=change.doc.data();const docId=change.doc.id;if(change.type==='removed'){delete REP_OVERRIDES[docId];}else{applyRepOverrideFromRequest(docId,r);}});
             rebuildReperibilita();
             if(typeof finalData!=='undefined'&&finalData.length>0)renderTable();
+            // Ricontrolla notifiche reperibilità ogni volta che le cessioni cambiano in real-time
+            if(typeof turniUserName!=='undefined'&&turniUserName)checkRepNotifications();
         });
 
         // ── CONFIG ADMIN REAL-TIME ──
