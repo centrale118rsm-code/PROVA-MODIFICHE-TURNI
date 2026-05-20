@@ -712,250 +712,58 @@ function toggleSub(id){document.getElementById(id).classList.toggle('open');}
 function loadFromFirebase(){showToast('⏳ Caricamento...');CONFIG_DOC.get().then(doc=>{applyConfigToUI(doc.exists?doc.data():{});setSaveStatus('saved','Online');showToast('✓ Configurazione caricata','success');}).catch(e=>{setSaveStatus('error','Errore');showToast('⚠️ Errore Firebase','error');applyConfigToUI({});});}
 
 // ── APPLY CONFIG ──
-// ══════════════════════════════════════════════════════════════════
-// applyAdminConfig — VERSIONE COMPLETA
-// Sostituisce la funzione omonima nel file turni.html
-// Ascolta Firebase in real-time e applica TUTTE le modifiche Admin
-// ══════════════════════════════════════════════════════════════════
-function applyAdminConfig(cfg) {
-    if (!cfg) return;
-    const root = document.documentElement;
-
-    // ── helper: inietta o aggiorna un blocco <style> ──
-    function injectStyle(id, css) {
-        let el = document.getElementById(id);
-        if (!el) { el = document.createElement('style'); el.id = id; document.head.appendChild(el); }
-        el.textContent = css;
-    }
-    function removeStyle(id) {
-        const el = document.getElementById(id);
-        if (el) el.remove();
-    }
-
-    // ══ 1. CSS VARIABLES (colori turni, assenze, globali) ══
-    const sc = cfg.shiftColors || {};
-    const sp = cfg.specialColors || {};
-    const gen = cfg.general || {};
-    const dc = cfg.dateCol || {};
-    const rep = cfg.repText || {};
-
-    if (sc['M-bg'])     root.style.setProperty('--c-M',  sc['M-bg']);
-    if (sc['M-text'])   root.style.setProperty('--t-M',  sc['M-text']);
-    if (sc['M-border']) root.style.setProperty('--b-M',  sc['M-border']);
-    if (sc['P-bg'])     root.style.setProperty('--c-P',  sc['P-bg']);
-    if (sc['P-text'])   root.style.setProperty('--t-P',  sc['P-text']);
-    if (sc['P-border']) root.style.setProperty('--b-P',  sc['P-border']);
-    if (sc['N-bg'])     root.style.setProperty('--c-N',  sc['N-bg']);
-    if (sc['N-text'])   root.style.setProperty('--t-N',  sc['N-text']);
-    if (sc['N-border']) root.style.setProperty('--b-N',  sc['N-border']);
-    if (sc['SM-bg'])    root.style.setProperty('--c-SM', sc['SM-bg']);
-    if (sc['SM-text'])  root.style.setProperty('--t-SM', sc['SM-text']);
-    if (sc['SM-border'])root.style.setProperty('--b-SM', sc['SM-border']);
-    if (sc['R-bg'])     root.style.setProperty('--c-R',  sc['R-bg']);
-    if (sc['R-text'])   root.style.setProperty('--t-R',  sc['R-text']);
-    if (sc['R-border']) root.style.setProperty('--b-R',  sc['R-border']);
-
-    if (sp['ferie-bg'])   root.style.setProperty('--bg-ferie', sp['ferie-bg']);
-    if (sp['ferie-text']) root.style.setProperty('--t-ferie',  sp['ferie-text']);
-    if (sp['perm-bg'])    root.style.setProperty('--bg-perm',  sp['perm-bg']);
-    if (sp['perm-text'])  root.style.setProperty('--t-perm',   sp['perm-text']);
-    if (sp['cong-bg'])    root.style.setProperty('--bg-cong',  sp['cong-bg']);
-    if (sp['cong-text'])  root.style.setProperty('--t-cong',   sp['cong-text']);
-    if (sp['rec-bg'])     root.style.setProperty('--bg-rec',   sp['rec-bg']);
-    if (sp['rec-text'])   root.style.setProperty('--t-rec',    sp['rec-text']);
-
-    if (gen.primary)  root.style.setProperty('--primary', gen.primary);
-    if (gen.appBg)    root.style.setProperty('--bg',      gen.appBg);
-    if (gen.cardBg)   root.style.setProperty('--bg-card', gen.cardBg);
-    if (gen.borderColor) root.style.setProperty('--border', gen.borderColor);
-    if (gen.cellH)    root.style.setProperty('--cell-h',  gen.cellH + 'px');
-    if (gen.fontCell) root.style.setProperty('--font-base',  gen.fontCell + 'px');
-    if (gen.fontTime) root.style.setProperty('--font-small', gen.fontTime + 'px');
-
-    if (gen.monthBgStart || gen.monthBgEnd) {
-        const s = gen.monthBgStart || '#1e3a8a';
-        const e = gen.monthBgEnd   || '#3b82f6';
-        root.style.setProperty('--month-bar-bg', `linear-gradient(135deg,${s} 0%,${e} 100%)`);
-    }
-
-    // ══ 2. CELLE — dimensioni uniformi, tipografia, border-radius ══
-    let cellCss = '';
-
-    // Larghezza colonne autista (forza tutte uguali con !important)
-    if (gen.colW) {
-        cellCss += `
-thead th { width:${gen.colW}px!important; min-width:${gen.colW}px!important; max-width:${gen.colW}px!important; }
-tbody td { width:${gen.colW}px!important; min-width:${gen.colW}px!important; max-width:${gen.colW}px!important; }`;
-    }
-    // Larghezza colonna data
-    if (gen.dateColW) {
-        cellCss += `
-thead th:first-child { width:${gen.dateColW}px!important; min-width:${gen.dateColW}px!important; max-width:${gen.dateColW}px!important; }
-tbody td.td-date { width:${gen.dateColW}px!important; min-width:${gen.dateColW}px!important; max-width:${gen.dateColW}px!important; }`;
-    }
-    // Altezza celle (forza min/max per non lasciarla crescere)
-    if (gen.cellH) {
-        cellCss += `
-tbody td { height:${gen.cellH}px!important; min-height:${gen.cellH}px!important; max-height:${gen.cellH}px!important; overflow:hidden!important; }
-tbody td.td-date { height:${gen.cellH}px!important; min-height:${gen.cellH}px!important; max-height:${gen.cellH}px!important; }
-.td-date-inner { height:${gen.cellH}px!important; max-height:${gen.cellH}px!important; overflow:hidden!important; }`;
-    }
-    // Border radius
-    if (gen.radius !== undefined) cellCss += `\n.cell { border-radius:${gen.radius}px!important; }`;
-    // Font peso
-    if (gen.fontWeight) cellCss += `\n.cell { font-weight:${gen.fontWeight}!important; }`;
-    // Font celle speciali
-    if (gen.fontSpec)   cellCss += `\n.spec-orange,.spec-green,.spec-yellow,.spec-pink,.spec-blue,.spec-red,.spec-nl,.spec-purple { font-size:${gen.fontSpec}px!important; }`;
-    // Maiuscolo
-    if (gen.uppercase !== undefined) cellCss += `\n.cell { text-transform:${gen.uppercase ? 'uppercase' : 'none'}!important; }`;
-
-    if (cellCss) injectStyle('admin-cell-style', cellCss);
-
-    // ══ 3. BARRA REPERIBILITÀ — colori + testo ══
-    let repCss = '';
-    if (sc['rep-sub'])   repCss += `.rep-bar-seg.rep-sub{background:${sc['rep-sub']}!important}`;
-    if (sc['rep-cover']) repCss += `.rep-bar-seg.rep-cover{background:${sc['rep-cover']}!important}`;
-    if (sc['rep-own'])   repCss += `.rep-bar-seg.green{background:${sc['rep-own']}!important}`;
-    if (gen.repBarH)     repCss += `.rep-bar{height:${gen.repBarH}px!important}`;
-    // Testo orario nella fascia
-    if (rep.timeSize || rep.timeColor || rep.fontWeight) {
-        let tStyle = '';
-        if (rep.timeSize)   tStyle += `font-size:${rep.timeSize}px!important;`;
-        if (rep.timeColor)  tStyle += `color:${rep.timeColor}!important;`;
-        if (rep.fontWeight) tStyle += `font-weight:${rep.fontWeight}!important;`;
-        repCss += `.rep-bar-seg .rep-time{${tStyle}}`;
-    }
-    // Testo nome collega nella fascia
-    if (rep.nameSize || rep.nameColor || rep.fontWeight) {
-        let nStyle = '';
-        if (rep.nameSize)   nStyle += `font-size:${rep.nameSize}px!important;`;
-        if (rep.nameColor)  nStyle += `color:${rep.nameColor}!important;`;
-        if (rep.fontWeight) nStyle += `font-weight:${rep.fontWeight}!important;`;
-        repCss += `.rep-bar-seg .rep-name{${nStyle}}`;
-    }
-    if (rep.fontWeight) repCss += `.rep-bar-seg{font-weight:${rep.fontWeight}!important}`;
-    if (repCss) injectStyle('admin-rep-style', repCss);
-
-    // ══ 4. COLONNA DATA ══
-    let dateCss = '';
-    if (dc.bg || dc.text || dc.fontSize || dc.weight || dc.border) {
-        dateCss += `tbody td.td-date {`;
-        if (dc.bg)       dateCss += `background:${dc.bg}!important;`;
-        if (dc.text)     dateCss += `color:${dc.text}!important;`;
-        if (dc.fontSize) dateCss += `font-size:${dc.fontSize}px!important;`;
-        if (dc.weight)   dateCss += `font-weight:${dc.weight}!important;`;
-        if (dc.border)   dateCss += `border-right:2px solid ${dc.border}!important;`;
-        dateCss += `border-bottom:none!important;}`;
-    }
-    // Giorno settimana piccolo
-    if (dc.daySize !== undefined || dc.showDayName === false) {
-        dateCss += `.td-date small{`;
-        if (dc.daySize)           dateCss += `font-size:${dc.daySize}px!important;`;
-        if (dc.showDayName===false) dateCss += `display:none!important;`;
-        dateCss += `}`;
-    }
-    // Festivo / weekend
-    if (dc.redBg || dc.redText) {
-        dateCss += `.td-date.date-red{`;
-        if (dc.redBg)   dateCss += `background:${dc.redBg}!important;`;
-        if (dc.redText) dateCss += `color:${dc.redText}!important;`;
-        if (dc.redText) dateCss += `border-right-color:${dc.redText}!important;`;
-        dateCss += `}`;
-        dateCss += `.td-date.date-red small{`;
-        if (dc.redText) dateCss += `color:${dc.redText}!important;`;
-        dateCss += `}`;
-    }
-    // Nome festivo (orientamento e colore)
-    if (dc.holidayColor || dc.holidayFontSize || dc.holidayOrient) {
-        dateCss += `.holiday-name{`;
-        if (dc.holidayFontSize) dateCss += `font-size:${dc.holidayFontSize}px!important;`;
-        if (dc.holidayColor)    dateCss += `color:${dc.holidayColor}!important;`;
-        if (dc.holidayOrient === 'horizontal') dateCss += `writing-mode:horizontal-tb!important;transform:none!important;max-height:none!important;white-space:normal!important;`;
-        if (dc.holidayOrient === 'hidden')     dateCss += `display:none!important;`;
-        dateCss += `}`;
-    }
-    // Etichetta SABATO/DOMENICA
-    if (dc.showWeekendLabel === false) {
-        // Le etichette weekend sono holiday-name con testo specifico,
-        // ma nel codice originale non hanno classe diversa — le nascondiamo via :not
-        // La soluzione più affidabile: nascondi holiday-name solo nelle td-date NON festive
-        dateCss += `.td-date:not(.date-red) .holiday-name{display:none!important}`;
-    }
-    // Riga oggi
-    if (dc.todayBg || dc.todayBorder) {
-        if (dc.todayBg)     dateCss += `tr.today td{background:${dc.todayBg}!important;}`;
-        if (dc.todayBorder) dateCss += `tr.today td{border-bottom:2px solid ${dc.todayBorder}!important;}`;
-        if (dc.todayBg)     dateCss += `tr.today .td-date{background:${dc.todayBg}!important;}`;
-        if (dc.todayBorder) dateCss += `tr.today .td-date{border-left:6px solid ${dc.todayBorder}!important;border-right-color:${dc.todayBorder}!important;}`;
-    }
-    if (dateCss) injectStyle('admin-date-style', dateCss);
-
-    // ══ 5. TITOLO APP ══
-    if (gen.title) {
-        const lt = document.querySelector('.logo-title');
-        if (lt) lt.textContent = gen.title;
-    }
-    if (gen.subtitle) {
-        const ls = document.getElementById('last-update-badge');
-        if (ls) ls.textContent = gen.subtitle;
-    }
-
-    // ══ 6. VISIBILITÀ TOGGLE ══
-    const tog = (key) => cfg['tog_' + key] !== false;
-
-    function applyToggle(styleId, selector, visible) {
-        if (!visible) injectStyle(styleId, selector + '{display:none!important}');
-        else removeStyle(styleId);
-    }
-
-    applyToggle('admin-repbar-style', '.rep-bar',      tog('repbar'));
-    applyToggle('admin-timetag-style','.time-tag',     tog('timetag'));
-    applyToggle('admin-dog-style',    '.dog-icon',     tog('dog'));
-    applyToggle('admin-dots-style',   '.shift-dots',   tog('dots'));
-
-    // Bottone infermieri
-    const infBtn = document.querySelector('.btn-inf');
-    if (infBtn) infBtn.style.display = tog('infbtn') ? '' : 'none';
-
-    // Voce cena nel menu
-    const dinnerItem = document.querySelector('.menu-item[onclick="openDinnerModal()"]');
-    if (dinnerItem) dinnerItem.style.display = tog('dinner') ? '' : 'none';
-
-    // ══ 7. URL INFERMIERI ══
-    if (gen.infUrl) window._infUrl = gen.infUrl;
-
-    // ══ 8. FESTIVI (HOLIDAYS) ══
-    if (cfg.holidays && Array.isArray(cfg.holidays)) {
-        const newHol = {};
-        cfg.holidays.forEach(h => { if (h.key && h.name) newHol[h.key] = h.name; });
-        HOLIDAYS = newHol;
-    }
-
-    // ══ 9. FASCE ORARIE (SCHEDULE) ══
-    const sch = cfg.schedules || {};
-    if (sch.M)  { SCHEDULE['M'] = sch.M;  SCHEDULE['MAT'] = sch.M;  SCHEDULE['MATTINA'] = sch.M; }
-    if (sch.P)  { SCHEDULE['P'] = sch.P;  SCHEDULE['POM'] = sch.P;  SCHEDULE['POMERIGGIO'] = sch.P; }
-    if (sch.N)  { SCHEDULE['N'] = sch.N;  SCHEDULE['NOTT'] = sch.N; SCHEDULE['NOTTE'] = sch.N; }
-    if (sch.SM) { SCHEDULE['SM'] = sch.SM; SCHEDULE['SMONTO'] = sch.SM; SCHEDULE['S'] = sch.SM; }
-    if (sch.mD) { SCHEDULE['m'] = sch.mD; }
-    if (sch.pD) { SCHEDULE['p'] = sch.pD; }
-
-    // ══ 10. SELECT AUTISTI (opzioni "Chi sei?") ══
-    if (cfg.drivers && Array.isArray(cfg.drivers)) {
-        const sel = document.getElementById('turni-user-select');
-        if (sel) {
-            const cur = sel.value;
-            sel.innerHTML = '<option value="">-- Nessuna selezione --</option>' +
-                cfg.drivers.map(d => `<option value="${d}">${d}</option>`).join('');
-            if (cur) sel.value = cur; // mantieni selezione corrente
-        }
-    }
-
-    // ══ 11. RE-RENDER TABELLA ══
-    // Solo se i dati sono già caricati
-    if (typeof finalData !== 'undefined' && finalData.length > 0) {
-        renderTable();
-    }
+function applyConfigToUI(cfg){
+  ['repbar','timetag','dog','vehicle','dots','changelog','repnotif','infbtn','dinner'].forEach(t=>{const el=document.getElementById('tog-'+t);if(el)el.checked=cfg['tog_'+t]!==false;});
+  renderDriverList(cfg.drivers||DEFAULT_DRIVERS);
+  const sc=cfg.shiftColors||{};
+  setV('c-M-bg',sc['M-bg']||'#026bfe');setV('c-M-text',sc['M-text']||'#ffffff');setV('c-M-border',sc['M-border']||'#bae6fd');
+  setV('c-P-bg',sc['P-bg']||'#56a2ff');setV('c-P-text',sc['P-text']||'#ffffff');setV('c-P-border',sc['P-border']||'#c7d2fe');
+  setV('c-N-bg',sc['N-bg']||'#003785');setV('c-N-text',sc['N-text']||'#ffffff');setV('c-N-border',sc['N-border']||'#c7d2fe');
+  setV('c-SM-bg',sc['SM-bg']||'#10004f');setV('c-SM-text',sc['SM-text']||'#ffffff');setV('c-SM-border',sc['SM-border']||'#cbd5e1');
+  setV('c-R-bg',sc['R-bg']||'#ecfdf5');setV('c-R-text',sc['R-text']||'#059669');setV('c-R-border',sc['R-border']||'#6ee7b7');
+  setV('c-rep-sub',sc['rep-sub']||'#dc2626');setV('c-rep-cover',sc['rep-cover']||'#ca8a04');setV('c-rep-own',sc['rep-own']||'#16a34a');
+  const sp=cfg.specialColors||{};
+  setV('c-ferie-bg',sp['ferie-bg']||'#ff782f');setV('c-ferie-text',sp['ferie-text']||'#ffffff');
+  setV('c-perm-bg',sp['perm-bg']||'#00e749');setV('c-perm-text',sp['perm-text']||'#000000');
+  setV('c-cong-bg',sp['cong-bg']||'#ffea00');setV('c-cong-text',sp['cong-text']||'#000000');
+  setV('c-rec-bg',sp['rec-bg']||'#d00173');setV('c-rec-text',sp['rec-text']||'#ffe8f2');
+  const sch=cfg.schedules||{};
+  setV('sched-M',sch.M||'6:30-13:15');setV('sched-P',sch.P||'12:45-20:10');
+  setV('sched-N',sch.N||'19:45-00:00');setV('sched-SM',sch.SM||'00:00-7:20');
+  setV('sched-mD',sch.mD||'6:30-13:42');setV('sched-pD',sch.pD||'13:15-20:27');
+  renderHolidayList(cfg.holidays||DEFAULT_HOLIDAYS);
+  const gen=cfg.general||{};
+  setV('cfg-year',gen.year||'2026');setV('cfg-title',gen.title||'A.S. 26');
+  setV('cfg-subtitle',gen.subtitle||'San Marino');
+  setV('cfg-cellh',gen.cellH||'60');setV('cfg-colw',gen.colW||'110');
+  setV('cfg-datecol-w',gen.dateColW||'60');setV('cfg-repbarh',gen.repBarH||'32');
+  setV('cfg-radius',gen.radius||'10');
+  setV('cfg-font-cell',gen.fontCell||'13');setV('cfg-font-time',gen.fontTime||'11');
+  setV('cfg-font-spec',gen.fontSpec||'10');setV('cfg-font-weight',gen.fontWeight||'800');
+  if(document.getElementById('cfg-uppercase'))document.getElementById('cfg-uppercase').checked=gen.uppercase!==false;
+  setV('cfg-primary',gen.primary||'#2563eb');setV('cfg-filename',gen.filename||'turni.xlsx');
+  setV('cfg-inf-url',gen.infUrl||'https://centrale118rsm-code.github.io/Turni-Infermieri-2026/');
+  setV('cfg-month-bg-start',gen.monthBgStart||'#1e3a8a');setV('cfg-month-bg-end',gen.monthBgEnd||'#3b82f6');
+  setV('cfg-app-bg',gen.appBg||'#f8fafc');setV('cfg-card-bg',gen.cardBg||'#ffffff');
+  setV('cfg-border-color',gen.borderColor||'#e2e8f0');
+  const rep=cfg.repText||{};
+  setV('cfg-rep-time-size',rep.timeSize||'9');setV('cfg-rep-time-color',rep.timeColor||'#ffffff');
+  setV('cfg-rep-name-size',rep.nameSize||'7');setV('cfg-rep-name-color',rep.nameColor||'#ffffff');
+  setV('cfg-rep-font-weight',rep.fontWeight||'900');
+  const dc=cfg.dateCol||{};
+  setV('cfg-date-fontsize',dc.fontSize||'17');setV('cfg-date-daysize',dc.daySize||'11');
+  setV('cfg-date-weight',dc.weight||'800');setV('cfg-date-bg',dc.bg||'#f8fafc');
+  setV('cfg-date-text',dc.text||'#0f172a');setV('cfg-date-red-bg',dc.redBg||'#fef2f2');
+  setV('cfg-date-red-text',dc.redText||'#dc2626');setV('cfg-date-border',dc.border||'#e2e8f0');
+  setV('cfg-today-bg',dc.todayBg||'#fff7ed');setV('cfg-today-border',dc.todayBorder||'#f97316');
+  setV('cfg-holiday-orient',dc.holidayOrient||'vertical');
+  setV('cfg-holiday-color',dc.holidayColor||'#dc2626');setV('cfg-holiday-fontsize',dc.holidayFontSize||'7');
+  if(document.getElementById('cfg-show-dayname'))document.getElementById('cfg-show-dayname').checked=dc.showDayName!==false;
+  if(document.getElementById('cfg-show-weekend-label'))document.getElementById('cfg-show-weekend-label').checked=dc.showWeekendLabel!==false;
+  // sync uniforma
+  setV('unif-h',gen.cellH||'60');setV('unif-w',gen.colW||'110');
+  ['M','P','N','SM','R'].forEach(previewShift);
+  ['ferie','perm','cong','rec'].forEach(previewSpecial);
 }
 
 function setV(id,val){const el=document.getElementById(id);if(el)el.value=val;}
