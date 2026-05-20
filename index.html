@@ -1487,58 +1487,6 @@ tbody td.td-date { height:${gen.cellH}px!important; min-height:${gen.cellH}px!im
         renderTable();
     }
 }
-            // Colori speciali
-            const sp=cfg.specialColors||{};
-            if(sp['ferie-bg'])  root.style.setProperty('--bg-ferie',sp['ferie-bg']);
-            if(sp['ferie-text'])root.style.setProperty('--t-ferie', sp['ferie-text']);
-            if(sp['perm-bg'])   root.style.setProperty('--bg-perm', sp['perm-bg']);
-            if(sp['perm-text']) root.style.setProperty('--t-perm',  sp['perm-text']);
-            if(sp['cong-bg'])   root.style.setProperty('--bg-cong', sp['cong-bg']);
-            if(sp['cong-text']) root.style.setProperty('--t-cong',  sp['cong-text']);
-            if(sp['rec-bg'])    root.style.setProperty('--bg-rec',  sp['rec-bg']);
-            if(sp['rec-text'])  root.style.setProperty('--t-rec',   sp['rec-text']);
-            // Colore primario + altezza cella
-            if(gen.primary)root.style.setProperty('--primary',gen.primary);
-            if(gen.cellH)root.style.setProperty('--cell-h',gen.cellH+'px');
-            // Titolo app
-            if(gen.title){const lt=document.querySelector('.logo-title');if(lt)lt.textContent=gen.title;}
-            if(gen.subtitle){const ls=document.getElementById('last-update-badge');if(ls)ls.textContent=gen.subtitle;}
-            // Visibilità elementi
-            const tog=(key)=>cfg['tog_'+key]!==false;
-            const applyToggleCss=(id,sel,visible)=>{
-                let s=document.getElementById(id);
-                if(!visible){
-                    if(!s){s=document.createElement('style');s.id=id;document.head.appendChild(s);}
-                    s.textContent=sel+'{display:none!important}';
-                }else if(s){s.remove();}
-            };
-            applyToggleCss('admin-repbar-style','.rep-bar',tog('repbar'));
-            applyToggleCss('admin-timetag-style','.time-tag',tog('timetag'));
-            applyToggleCss('admin-dog-style','.dog-icon',tog('dog'));
-            applyToggleCss('admin-dots-style','.shift-dots',tog('dots'));
-            // Bottone infermieri
-            const infBtn=document.querySelector('.btn-inf');
-            if(infBtn)infBtn.style.display=tog('infbtn')?'':'none';
-            // Voce cena nel menu
-            const dinnerItem=document.querySelector('.menu-item[onclick="openDinnerModal()"]');
-            if(dinnerItem)dinnerItem.style.display=tog('dinner')?'':'none';
-            // URL infermieri
-            if(gen.infUrl)window._infUrl=gen.infUrl;
-            // Festivi (sostituisce mantenendo riferimento alla variabile globale)
-            if(cfg.holidays&&Array.isArray(cfg.holidays)){
-                const newHol={};
-                cfg.holidays.forEach(h=>{if(h.key&&h.name)newHol[h.key]=h.name;});
-                HOLIDAYS=newHol;
-            }
-            // Fasce orarie SCHEDULE
-            const sch=cfg.schedules||{};
-            if(sch.M){SCHEDULE['M']=sch.M;SCHEDULE['MAT']=sch.M;SCHEDULE['MATTINA']=sch.M;}
-            if(sch.P){SCHEDULE['P']=sch.P;SCHEDULE['POM']=sch.P;SCHEDULE['POMERIGGIO']=sch.P;}
-            if(sch.N){SCHEDULE['N']=sch.N;SCHEDULE['NOTT']=sch.N;SCHEDULE['NOTTE']=sch.N;}
-            if(sch.SM){SCHEDULE['SM']=sch.SM;SCHEDULE['SMONTO']=sch.SM;SCHEDULE['S']=sch.SM;}
-            // Ri-renderizza tabella
-            if(typeof finalData!=='undefined'&&finalData.length>0)renderTable();
-        }
     </script>
 </body>
 </html>
