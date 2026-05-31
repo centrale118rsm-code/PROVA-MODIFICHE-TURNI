@@ -13,6 +13,61 @@
     <link rel="apple-touch-icon" href="logo.png">
     <link rel="icon" type="image/png" href="logo.png">
     <title>A.S. 26</title>
+<style id="admin-baked-css">
+/* ═══ CONFIG BAKED-IN DALL'ADMIN — 31/05/2026, 07:58:50 ═══ */
+:root {
+  --primary: #2563eb;
+  --bg: #f8fafc;
+  --bg-card: #ffffff;
+  --border: #e2e8f0;
+  --cell-h: 60px;
+  --font-base: 13px;
+  --font-small: 11px;
+  --c-M: #026bfe; --t-M: #ffffff; --b-M: #bae6fd;
+  --c-P: #56a2ff; --t-P: #ffffff; --b-P: #c7d2fe;
+  --c-N: #003785; --t-N: #ffffff; --b-N: #c7d2fe;
+  --c-SM: #10004f; --t-SM: #ffffff; --b-SM: #cbd5e1;
+  --c-R: #ecfdf5; --t-R: #059669; --b-R: #6ee7b7;
+  --bg-ferie: #ff782f; --t-ferie: #ffffff;
+  --bg-perm: #00e749; --t-perm: #000000;
+  --bg-cong: #ffea00; --t-cong: #000000;
+  --bg-rec: #d00173; --t-rec: #ffe8f2;
+  --month-bar-bg: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+  --header-h: 100px;
+  --th-h: 40px;
+}
+/* Forza dimensioni uniformi su tutte le celle */
+thead th { width: 110px !important; min-width: 110px !important; max-width: 110px !important; height: var(--th-h) !important; }
+thead th:first-child { width: 60px !important; min-width: 60px !important; max-width: 60px !important; }
+tbody td { width: 110px !important; min-width: 110px !important; max-width: 110px !important; height: 60px !important; min-height: 60px !important; max-height: 60px !important; overflow: hidden !important; }
+tbody td.td-date { width: 60px !important; min-width: 60px !important; max-width: 60px !important; }
+/* Tipografia celle */
+.cell { border-radius: 10px !important; font-size: 13px !important; font-weight: 800 !important; text-transform:uppercase!important; }
+.time-tag { font-size: 11px !important; }
+.spec-orange,.spec-green,.spec-yellow,.spec-pink,.spec-blue,.spec-red,.spec-nl,.spec-purple { font-size: 10px !important; }
+/* Barra reperibilità */
+.rep-bar { height: 23px !important; }
+.rep-bar-seg { font-weight: 900 !important; }
+.rep-bar-seg .rep-time { font-size: 11px !important; color: #ffffff !important; }
+.rep-bar-seg .rep-name { font-size: 8px !important; color: #ffffff !important; }
+.rep-bar-seg.rep-sub { background: #e60000 !important; }
+.rep-bar-seg.rep-cover { background: #e60000 !important; }
+.rep-bar-seg.green { background: #16a34a !important; }
+/* Colonna data */
+tbody td.td-date { background: #ffffff !important; color: #0f172a !important; font-size: 17px !important; font-weight: 800 !important; border-right: 2px solid #006eff !important; border-bottom: none !important; }
+.td-date small { font-size: 11px !important;  }
+.td-date.date-red { color: #ff0000 !important; background: #ffebeb !important; border-right-color: #ff0000 !important; }
+.holiday-name { font-size: 7px !important; color: #dc2626 !important; writing-mode:horizontal-tb!important;transform:none!important;max-height:none!important; }
+.holiday-name[style*="SABATO"],.holiday-name[style*="DOMENICA"]{display:none!important}
+/* Oggi */
+tr.today td { background: #ffd6d6 !important; border-bottom: 2px solid #ff0000 !important; }
+tr.today .td-date { border-left: 6px solid #ff0000 !important; background: #ffd6d6 !important; border-right-color: #ff0000 !important; }
+/* Visibilità toggle */
+
+
+
+
+</style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
@@ -1251,5 +1306,66 @@
             if (typeof finalData !== 'undefined' && finalData.length > 0) { renderTable(); }
         }
     </script>
+<script id="admin-config-baked">
+// ═══ CONFIG BAKED-IN DALL'ADMIN (31/05/2026, 07:58:50) ═══
+window._BAKED_CFG = {"tog_repbar":true,"tog_timetag":true,"tog_dog":true,"tog_vehicle":true,"tog_dots":true,"tog_changelog":true,"tog_repnotif":true,"tog_infbtn":true,"tog_dinner":true,"drivers":[],"shiftColors":{"M-bg":"#026bfe","M-text":"#ffffff","M-border":"#bae6fd","P-bg":"#56a2ff","P-text":"#ffffff","P-border":"#c7d2fe","N-bg":"#003785","N-text":"#ffffff","N-border":"#c7d2fe","SM-bg":"#10004f","SM-text":"#ffffff","SM-border":"#cbd5e1","R-bg":"#ecfdf5","R-text":"#059669","R-border":"#6ee7b7","rep-sub":"#e60000","rep-cover":"#e60000","rep-own":"#16a34a"},"specialColors":{"ferie-bg":"#ff782f","ferie-text":"#ffffff","perm-bg":"#00e749","perm-text":"#000000","cong-bg":"#ffea00","cong-text":"#000000","rec-bg":"#d00173","rec-text":"#ffe8f2"},"schedules":{"M":"6:30-13:15","P":"12:45-20:10","N":"19:45-00:00","SM":"00:00-7:20","mD":"6:30-13:42","pD":"13:15-20:27"},"holidays":[{"key":"11-25","name":"Natale"}],"repText":{"timeSize":"11","timeColor":"#ffffff","nameSize":"8","nameColor":"#ffffff","fontWeight":"900"},"dateCol":{"fontSize":"17","daySize":"11","weight":"800","bg":"#ffffff","text":"#0f172a","redBg":"#ffebeb","redText":"#ff0000","border":"#006eff","todayBg":"#ffd6d6","todayBorder":"#ff0000","holidayOrient":"horizontal","holidayColor":"#dc2626","holidayFontSize":"7","showDayName":true,"showWeekendLabel":false},"general":{"year":"2026","title":"A.S. 26","subtitle":"San Marino","cellH":"60","colW":"110","dateColW":"60","repBarH":"23","radius":"10","fontCell":"13","fontTime":"11","fontSpec":"10","fontWeight":"800","uppercase":true,"primary":"#2563eb","filename":"turni.xlsx","infUrl":"https://centrale118rsm-code.github.io/Turni-Infermieri-2026/","monthBgStart":"#1e3a8a","monthBgEnd":"#3b82f6","appBg":"#f8fafc","cardBg":"#ffffff","borderColor":"#e2e8f0"},"_updatedAt":"2026-05-31T05:58:50.382Z","_updatedBy":"Admin"};
+(function(){
+  // Applica subito via CSS vars
+  const r = document.documentElement;
+  const sc = window._BAKED_CFG.shiftColors||{};
+  const sp = window._BAKED_CFG.specialColors||{};
+  const gen = window._BAKED_CFG.general||{};
+  const dc = window._BAKED_CFG.dateCol||{};
+  const rep = window._BAKED_CFG.repText||{};
+  if(gen.primary) r.style.setProperty('--primary', gen.primary);
+  if(gen.cellH) r.style.setProperty('--cell-h', gen.cellH+'px');
+  if(gen.fontCell) r.style.setProperty('--font-base', gen.fontCell+'px');
+  if(gen.fontTime) r.style.setProperty('--font-small', gen.fontTime+'px');
+})();
+document.addEventListener('DOMContentLoaded', function(){
+  // Aggiorna titolo
+  const gen = window._BAKED_CFG.general||{};
+  if(gen.title){const lt=document.querySelector('.logo-title');if(lt)lt.textContent=gen.title;}
+  if(gen.subtitle){const ls=document.getElementById('last-update-badge');if(ls)ls.textContent=gen.subtitle;}
+  // Aggiorna select autisti
+  const sel=document.getElementById('turni-user-select');
+  if(sel){sel.innerHTML='<option value="">-- Nessuna selezione --</option>';}
+  // Aggiorna HOLIDAYS
+  const newHol={};
+  (window._BAKED_CFG.holidays||[]).forEach(function(h){if(h.key&&h.name)newHol[h.key]=h.name;});
+  try{if(typeof HOLIDAYS!=='undefined')HOLIDAYS=newHol;}catch(e){}
+  // Aggiorna SCHEDULE
+  const sch=window._BAKED_CFG.schedules||{};
+  try{
+    if(typeof SCHEDULE!=='undefined'){
+      if(sch.M){SCHEDULE['M']=sch.M;SCHEDULE['MAT']=sch.M;SCHEDULE['MATTINA']=sch.M;}
+      if(sch.P){SCHEDULE['P']=sch.P;SCHEDULE['POM']=sch.P;SCHEDULE['POMERIGGIO']=sch.P;}
+      if(sch.N){SCHEDULE['N']=sch.N;SCHEDULE['NOTT']=sch.N;SCHEDULE['NOTTE']=sch.N;}
+      if(sch.SM){SCHEDULE['SM']=sch.SM;SCHEDULE['SMONTO']=sch.SM;SCHEDULE['S']=sch.SM;}
+    }
+  }catch(e){}
+  // Chiama applyAdminConfig se disponibile (override Firebase con i valori baked)
+  if(typeof applyAdminConfig==='function'){
+    setTimeout(function(){applyAdminConfig(window._BAKED_CFG);},200);
+  }
+  // Visibilità toggle
+  const tog=function(key){return window._BAKED_CFG['tog_'+key]!==false;};
+  const applyCSS=function(id,sel,show){
+    let s=document.getElementById(id);
+    if(!show){if(!s){s=document.createElement('style');s.id=id;document.head.appendChild(s);}s.textContent=sel+'{display:none!important}';}
+    else if(s)s.remove();
+  };
+  applyCSS('baked-repbar','.rep-bar',tog('repbar'));
+  applyCSS('baked-timetag','.time-tag',tog('timetag'));
+  applyCSS('baked-dog','.dog-icon',tog('dog'));
+  applyCSS('baked-dots','.shift-dots',tog('dots'));
+  const infBtn=document.querySelector('.btn-inf');
+  if(infBtn)infBtn.style.display=tog('infbtn')?'':'none';
+  const dinnerItem=document.querySelector('.menu-item[onclick="openDinnerModal()"]');
+  if(dinnerItem)dinnerItem.style.display=tog('dinner')?'':'none';
+  // URL infermieri
+  if(gen.infUrl)window._infUrl=gen.infUrl;
+});
+</script>
 </body>
 </html>
