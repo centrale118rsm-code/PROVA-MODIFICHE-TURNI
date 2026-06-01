@@ -353,6 +353,299 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
         tr.today.today-flash td { animation: today-flash-pulse 1.2s ease-in-out !important; }
         tr.today.today-flash .td-date { animation: today-flash-date 1.2s ease-in-out !important; }
         tr.today.today-flash { outline: 3px solid #f97316 !important; outline-offset: -1px; }
+
+        /* ════════════════════════════════════════════════════════
+           ✨ MIGLIORAMENTI v22 — grafica, iOS fix, header, panorama
+           ════════════════════════════════════════════════════════ */
+
+        /* ── TICKER più veloce ── */
+        .ticker-inner { animation-duration: 18s !important; }
+
+        /* ── FIX iOS: colonna data sticky robusta ── */
+        body.ios-mode tbody td.td-date,
+        body.ios-mode thead th:first-child {
+            position: -webkit-sticky !important;
+            position: sticky !important;
+            left: 0 !important;
+            z-index: 85 !important;
+            transform: translateZ(0);
+            -webkit-transform: translateZ(0);
+            will-change: transform;
+            isolation: isolate;
+        }
+        body.ios-mode tbody td.td-date { background: var(--bg-card) !important; box-shadow: 2px 0 5px rgba(0,0,0,0.08); }
+        body.ios-mode .container { -webkit-overflow-scrolling: touch; }
+        body.ios-mode table { -webkit-transform: translateZ(0); }
+        body.ios-mode #main-table { position: relative; }
+        /* iOS: forza header sticky a non sparire */
+        body.ios-mode thead th { position: -webkit-sticky !important; position: sticky !important; }
+
+        /* ── MONTH BAR snella e bella ── */
+        tr.month-header td { box-shadow: 0 2px 12px rgba(0,0,0,0.18) !important; }
+        .sticky-month-text {
+            min-height: 32px !important;
+            padding: 3px 0 3px 14px !important;
+            backdrop-filter: blur(4px);
+            justify-content: space-between !important;
+            padding-right: 14px !important;
+        }
+        .month-label {
+            font-size: 1.05rem !important;
+            font-weight: 800 !important;
+            letter-spacing: 0.3px !important;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .month-label::before {
+            content: '';
+            width: 4px; height: 18px;
+            background: rgba(255,255,255,0.7);
+            border-radius: 2px;
+            box-shadow: 0 0 8px rgba(255,255,255,0.4);
+        }
+        .live-clock {
+            font-size: 0.78rem !important;
+            font-weight: 700 !important;
+            padding: 3px 12px !important;
+            border-radius: 20px !important;
+            background: rgba(0,0,0,0.28) !important;
+            border: 1px solid rgba(255,255,255,0.15) !important;
+            letter-spacing: 0.3px !important;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .live-clock::before {
+            content: '';
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            background: #4ade80;
+            box-shadow: 0 0 6px #4ade80;
+            animation: clock-pulse 2s ease-in-out infinite;
+        }
+        @keyframes clock-pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+        /* ── REP-BAR: nome di chi copre sempre leggibile ── */
+        .rep-bar { height: 26px !important; gap: 1px !important; }
+        .rep-bar-seg { padding: 1px 2px !important; overflow: visible !important; }
+        .rep-bar-seg .rep-name {
+            font-size: 0.46rem !important;
+            font-weight: 800 !important;
+            line-height: 1 !important;
+            white-space: nowrap !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+            max-width: 100% !important;
+            letter-spacing: -0.3px !important;
+        }
+        .rep-bar-seg .rep-time { font-size: 0.5rem !important; line-height: 1 !important; }
+        /* Tooltip al tap sul nome troncato */
+        .rep-bar-seg[data-fullname]:active::after {
+            content: attr(data-fullname);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #0f172a;
+            color: #fff;
+            font-size: 0.7rem;
+            padding: 4px 10px;
+            border-radius: 6px;
+            white-space: nowrap;
+            z-index: 9999;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+            pointer-events: none;
+        }
+        .rep-cover-inner { max-width: calc(100% - 18px) !important; }
+
+        /* ── HEADER collapsible + maniglia pull-down ── */
+        header { transition: transform 0.35s cubic-bezier(0.4,0,0.2,1), opacity 0.3s ease; }
+        body.header-hidden header { transform: translateY(-100%); opacity: 0; pointer-events: none; }
+        body.header-hidden { padding-top: 0 !important; }
+        body.header-hidden #pull-handle { opacity: 1; pointer-events: all; transform: translateX(-50%) translateY(0); }
+
+        #pull-handle {
+            position: fixed;
+            top: env(safe-area-inset-top, 0px);
+            left: 50%;
+            transform: translateX(-50%) translateY(-4px);
+            z-index: 1500;
+            width: 64px;
+            height: 26px;
+            background: linear-gradient(180deg, #1e3a8a, #2563eb);
+            border-radius: 0 0 16px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease, transform 0.2s ease, background 0.2s;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.35);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-top: none;
+        }
+        #pull-handle:active { transform: translateX(-50%) translateY(0) scale(0.94); }
+        #pull-handle .material-icons-round {
+            color: #fff;
+            font-size: 1.3rem;
+            animation: pull-bounce 1.6s ease-in-out infinite;
+        }
+        @keyframes pull-bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(3px)} }
+
+        /* Pulsante per nascondere header (freccia su) dentro la top-bar */
+        .btn-hide-header { background: rgba(255,255,255,0.08) !important; }
+
+        /* ── PANORAMA — vista orizzontale ampia ── */
+        #panorama-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 5000;
+            background: var(--bg);
+            flex-direction: column;
+            animation: panoIn 0.3s ease;
+        }
+        #panorama-modal.open { display: flex; }
+        @keyframes panoIn { from{opacity:0;transform:scale(0.98)} to{opacity:1;transform:scale(1)} }
+        .pano-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 18px;
+            padding-top: calc(14px + env(safe-area-inset-top));
+            background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 60%, #2563eb 100%);
+            color: #fff;
+            flex-shrink: 0;
+            box-shadow: 0 2px 16px rgba(0,0,0,0.3);
+        }
+        .pano-header h3 { font-size: 1.1rem; font-weight: 800; display: flex; align-items: center; gap: 9px; flex: 1; }
+        .pano-month-nav { display: flex; gap: 6px; align-items: center; }
+        .pano-nav-btn {
+            background: rgba(255,255,255,0.12);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: #fff;
+            width: 34px; height: 34px;
+            border-radius: 9px;
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            transition: background 0.2s;
+        }
+        .pano-nav-btn:active { background: rgba(255,255,255,0.25); transform: scale(0.93); }
+        .pano-month-label { font-weight: 800; font-size: 0.95rem; min-width: 130px; text-align: center; }
+        .pano-close {
+            background: rgba(255,255,255,0.12);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: #fff;
+            width: 38px; height: 38px;
+            border-radius: 10px;
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+        }
+        .pano-close:active { transform: scale(0.92); }
+        .pano-body {
+            flex: 1;
+            overflow: auto;
+            -webkit-overflow-scrolling: touch;
+            padding: 0;
+            background: var(--bg);
+        }
+        .pano-table { border-collapse: separate; border-spacing: 0; }
+        .pano-table th, .pano-table td {
+            border-right: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+            text-align: center;
+            white-space: nowrap;
+        }
+        .pano-table thead th {
+            position: sticky;
+            top: 0;
+            z-index: 30;
+            background: var(--bg-card);
+            color: var(--text-main);
+            font-size: 0.72rem;
+            font-weight: 800;
+            padding: 8px 6px;
+            min-width: 78px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+        }
+        .pano-table thead th:first-child {
+            left: 0;
+            z-index: 40;
+            min-width: 54px;
+            width: 54px;
+            border-right: 2px solid var(--primary);
+        }
+        .pano-table tbody td.pano-date {
+            position: sticky;
+            left: 0;
+            z-index: 20;
+            background: var(--bg-card);
+            font-weight: 800;
+            font-size: 0.82rem;
+            min-width: 54px;
+            width: 54px;
+            color: var(--text-main);
+            border-right: 2px solid var(--primary);
+            padding: 2px;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.06);
+        }
+        .pano-date small { display: block; font-size: 0.6rem; color: var(--text-sec); font-weight: 600; text-transform: uppercase; }
+        .pano-date.red { color: #dc2626; background: #fef2f2; }
+        body.dark-mode .pano-date.red { background: #450a0a; color: #fca5a5; }
+        .pano-cell {
+            padding: 3px 2px;
+            font-size: 0.66rem;
+            font-weight: 800;
+            height: 38px;
+            line-height: 1.1;
+        }
+        .pano-cell .pc-time { font-size: 0.54rem; font-weight: 600; opacity: 0.8; display: block; margin-top: 1px; }
+        .pano-cell.c-M  { background: var(--c-M);  color: var(--t-M); }
+        .pano-cell.c-P  { background: var(--c-P);  color: var(--t-P); }
+        .pano-cell.c-N  { background: var(--c-N);  color: var(--t-N); }
+        .pano-cell.c-SM { background: var(--c-SM); color: var(--t-SM); }
+        .pano-cell.c-R  { background: var(--c-R);  color: var(--t-R); }
+        .pano-cell.c-MN { background: linear-gradient(135deg,var(--c-M) 0%,var(--c-M) 45%,var(--c-N) 55%,var(--c-N) 100%); color:#fff; }
+        .pano-cell.c-spec { background: var(--bg); color: var(--text-sec); font-size: 0.56rem; }
+        .pano-cell.c-empty { background: transparent; color: var(--border); }
+        .pano-row-today td { background: #fff7ed; }
+        .pano-row-today .pano-date { background: #fff7ed; border-left: 4px solid #ea580c; }
+        body.dark-mode .pano-row-today td { background: #431407; }
+        .pano-legend {
+            display: flex;
+            gap: 10px;
+            padding: 8px 14px;
+            background: var(--bg-card);
+            border-top: 1px solid var(--border);
+            flex-wrap: wrap;
+            font-size: 0.66rem;
+            font-weight: 700;
+            flex-shrink: 0;
+            justify-content: center;
+        }
+        .pano-leg-item { display: flex; align-items: center; gap: 5px; color: var(--text-sec); }
+        .pano-leg-dot { width: 12px; height: 12px; border-radius: 3px; }
+
+        /* ── Abbellimenti generali ── */
+        .btn-action { transition: all 0.2s cubic-bezier(0.4,0,0.2,1), box-shadow 0.2s; }
+        .btn-action:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+        header { background: linear-gradient(135deg, #0b1220 0%, #1e3a8a 55%, #2563eb 100%); }
+        .cell { transition: transform 0.12s, box-shadow 0.2s; }
+        .cell:hover { box-shadow: 0 3px 10px rgba(0,0,0,0.15); }
+        thead th { box-shadow: inset 0 -1px 0 var(--border); }
+
+        /* Platform switch active state */
+        #plat-ios.plat-active, #plat-android.plat-active {
+            border-color: var(--primary) !important;
+            background: var(--primary) !important;
+            color: #fff !important;
+            box-shadow: 0 4px 14px rgba(37,99,235,0.35);
+        }
     </style>
 </head>
 <body>
@@ -469,6 +762,13 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
                     <div style="display:flex;flex-direction:column"><span style="font-size:1rem">Tema Scuro</span><span style="font-size:0.8rem;color:var(--text-sec);font-weight:400">Riduci affaticamento occhi</span></div>
                     <label class="switch"><input type="checkbox" id="dark-mode-toggle" onchange="toggleDarkMode()"><span class="slider"></span></label>
                 </div>
+                <div class="option-item" style="display:block">
+                    <div style="margin-bottom:10px"><span style="font-size:1rem;font-weight:700">Dispositivo</span><div style="font-size:0.8rem;color:var(--text-sec)">Se la colonna data scorre via o l'header sparisce, scegli iPhone per la modalità ottimizzata.</div></div>
+                    <div style="display:flex;gap:8px">
+                        <button id="plat-android" onclick="setPlatformMode('android')" style="flex:1;padding:12px;border-radius:12px;border:2px solid var(--border);background:var(--bg);color:var(--text-main);font-weight:700;font-size:0.9rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:all 0.2s"><span class="material-icons-round" style="font-size:1.1rem">android</span> Android</button>
+                        <button id="plat-ios" onclick="setPlatformMode('ios')" style="flex:1;padding:12px;border-radius:12px;border:2px solid var(--border);background:var(--bg);color:var(--text-main);font-weight:700;font-size:0.9rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:all 0.2s"><span class="material-icons-round" style="font-size:1.1rem">phone_iphone</span> iPhone</button>
+                    </div>
+                </div>
                 <div class="option-item" style="cursor:pointer" onclick="openChangelog()">
                     <div style="display:flex;flex-direction:column"><span style="font-size:1rem">Note di Rilascio</span><span style="font-size:0.8rem;color:var(--text-sec);font-weight:400">Vedi gli ultimi aggiornamenti</span></div>
                     <span class="material-icons-round" style="color:var(--text-sec)">info_outline</span>
@@ -546,9 +846,11 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
             </div>
             <div class="right-controls">
                 <button class="btn-action" onclick="vibrate();scrollToToday()"><span class="material-icons-round">home</span></button>
+                <button class="btn-action" onclick="openPanorama()" title="Vista panoramica turni"><span class="material-icons-round">grid_view</span></button>
                 <button class="btn-action" onclick="openMonthModal()"><span class="material-icons-round">calendar_month</span></button>
                 <button class="btn-action btn-inf" onclick="openInfLink()" title="Turni Infermieri 2026"><span class="material-icons-round" style="font-size:1.1rem">medical_services</span></button>
                 <button class="btn-action" onclick="openNotifCenter()" style="position:relative"><span class="material-icons-round">notifications</span><span id="notif-badge" class="badge-dot"></span></button>
+                <button class="btn-action btn-hide-header" onclick="hideHeader()" title="Nascondi barra per più spazio"><span class="material-icons-round">keyboard_arrow_up</span></button>
                 <button class="btn-action" onclick="toggleMenu()"><span class="material-icons-round">more_vert</span></button>
                 <div id="menu-dropdown">
                     <div class="menu-item" onclick="openPersonalArea()"><span class="material-icons-round">badge</span> Area Personale</div>
@@ -562,6 +864,32 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
         </div>
         <div class="driver-scroller" id="driver-nav"></div>
     </header>
+
+    <!-- Maniglia per riaprire header (visibile solo quando header nascosto) -->
+    <div id="pull-handle" onclick="showHeader()" title="Mostra barra">
+        <span class="material-icons-round">keyboard_arrow_down</span>
+    </div>
+
+    <!-- PANORAMA: vista orizzontale ampia di tutti i turni -->
+    <div id="panorama-modal">
+        <div class="pano-header">
+            <h3><span class="material-icons-round">grid_view</span> Vista Panoramica</h3>
+            <div class="pano-month-nav">
+                <button class="pano-nav-btn" onclick="panoPrevMonth()"><span class="material-icons-round">chevron_left</span></button>
+                <span class="pano-month-label" id="pano-month-label">—</span>
+                <button class="pano-nav-btn" onclick="panoNextMonth()"><span class="material-icons-round">chevron_right</span></button>
+            </div>
+            <button class="pano-close" onclick="closePanorama()"><span class="material-icons-round">close</span></button>
+        </div>
+        <div class="pano-body" id="pano-body"></div>
+        <div class="pano-legend">
+            <div class="pano-leg-item"><span class="pano-leg-dot" style="background:var(--c-M)"></span> Mattina</div>
+            <div class="pano-leg-item"><span class="pano-leg-dot" style="background:var(--c-P)"></span> Pomeriggio</div>
+            <div class="pano-leg-item"><span class="pano-leg-dot" style="background:var(--c-N)"></span> Notte</div>
+            <div class="pano-leg-item"><span class="pano-leg-dot" style="background:var(--c-SM)"></span> Smonto</div>
+            <div class="pano-leg-item"><span class="pano-leg-dot" style="background:var(--c-R)"></span> Riposo</div>
+        </div>
+    </div>
 
     <div class="container">
         <table id="main-table">
@@ -618,7 +946,7 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
 
             // Funzione helper per costruire un seg rep-cover CON icone ⚠️
             function makeCoverSeg(time,name){
-                return '<div class="rep-bar-seg rep-cover">'
+                return '<div class="rep-bar-seg rep-cover" data-fullname="'+(name||'')+' • '+time+'">'
                     +'<span class="rep-cover-warn">⚠️</span>'
                     +'<div class="rep-cover-inner">'
                     +'<span class="rep-time">'+time+'</span>'
@@ -673,7 +1001,7 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
 
         function vibrate(){if(navigator.vibrate)navigator.vibrate(10);}
         function toggleMenu(){vibrate();let m=document.getElementById('menu-dropdown');if(m.style.display==='flex'){m.classList.remove('open');setTimeout(()=>m.style.display='none',100);}else{m.style.display='flex';setTimeout(()=>m.classList.add('open'),10);}}
-        function openOptionsModal(){if(document.getElementById('menu-dropdown').style.display==='flex')toggleMenu();let m=document.getElementById('options-modal');m.style.display='flex';setTimeout(()=>m.classList.add('open'),10);const tg=document.getElementById('dark-mode-toggle');if(tg)tg.checked=document.body.classList.contains('dark-mode');const sel=document.getElementById('turni-user-select');if(sel&&turniUserName)sel.value=turniUserName;}
+        function openOptionsModal(){if(document.getElementById('menu-dropdown').style.display==='flex')toggleMenu();let m=document.getElementById('options-modal');m.style.display='flex';setTimeout(()=>m.classList.add('open'),10);const tg=document.getElementById('dark-mode-toggle');if(tg)tg.checked=document.body.classList.contains('dark-mode');const sel=document.getElementById('turni-user-select');if(sel&&turniUserName)sel.value=turniUserName;updatePlatformUI();}
         function closeOptionsModal(e){if(e&&e.target!==e.currentTarget)return;let m=document.getElementById('options-modal');m.classList.remove('open');setTimeout(()=>m.style.display='none',200);}
         function toggleDarkMode(){vibrate();document.body.classList.toggle('dark-mode');const meta=document.querySelector('#theme-color-meta');const isDark=document.body.classList.contains('dark-mode');if(isDark){localStorage.setItem('theme','dark');meta.setAttribute('content','#0f172a');}else{localStorage.setItem('theme','light');meta.setAttribute('content','#ffffff');}}
 
@@ -982,8 +1310,9 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
         function calculateDinner() {
             if (!dinnerMonth) { alert("Seleziona un mese!"); return; }
             const meta = EVENT_META[dinnerEventType] || EVENT_META.cena;
+            // Autisti: se nessuno selezionato → tutti. Infermieri: SOLO quelli selezionati (mai tutti di default)
             const targetDriverIdxs = selectedDinnerDrivers.size > 0 ? [...selectedDinnerDrivers] : drivers.map(d => d.idx);
-            const targetNurseIdxs  = selectedDinnerNurses.size  > 0 ? [...selectedDinnerNurses]  : (nursesLoaded ? nurses.map(n => n.idx) : []);
+            const targetNurseIdxs  = selectedDinnerNurses.size  > 0 ? [...selectedDinnerNurses]  : [];
             const results = [];
             finalData.forEach((row, i) => {
                 if (i === 0) return;
@@ -1208,7 +1537,156 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
         })();
 
         // ══════════════════════════════════════════════════════════════
-        // FIREBASE — sync real-time
+        // ══════════════════════════════════════════════════════════════
+        // ✨ v22 — PANORAMA, HEADER COLLAPSE, iOS PLATFORM
+        // ══════════════════════════════════════════════════════════════
+
+        // ── Rilevamento / switch piattaforma (iOS sticky fix) ──
+        function detectPlatform(){
+            const saved = localStorage.getItem('platform_mode');
+            if(saved === 'ios'){ document.body.classList.add('ios-mode'); return; }
+            if(saved === 'android'){ document.body.classList.remove('ios-mode'); return; }
+            // Auto-detect
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+                          (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+            if(isIOS) document.body.classList.add('ios-mode');
+        }
+        function setPlatformMode(mode){
+            vibrate();
+            localStorage.setItem('platform_mode', mode);
+            if(mode === 'ios') document.body.classList.add('ios-mode');
+            else document.body.classList.remove('ios-mode');
+            updatePlatformUI();
+        }
+        function updatePlatformUI(){
+            const mode = localStorage.getItem('platform_mode') ||
+                (document.body.classList.contains('ios-mode') ? 'ios' : 'android');
+            const iBtn = document.getElementById('plat-ios');
+            const aBtn = document.getElementById('plat-android');
+            if(iBtn && aBtn){
+                const isIos = document.body.classList.contains('ios-mode');
+                iBtn.classList.toggle('plat-active', isIos);
+                aBtn.classList.toggle('plat-active', !isIos);
+            }
+        }
+
+        // ── Header collapse / pull-down ──
+        function hideHeader(){
+            vibrate();
+            if(document.getElementById('menu-dropdown').style.display==='flex')toggleMenu();
+            document.body.classList.add('header-hidden');
+            localStorage.setItem('header_hidden','1');
+        }
+        function showHeader(){
+            vibrate();
+            document.body.classList.remove('header-hidden');
+            localStorage.setItem('header_hidden','0');
+        }
+        // Swipe-down sul pull handle
+        (function(){
+            let startY = null;
+            const handle = document.getElementById('pull-handle');
+            if(handle){
+                handle.addEventListener('touchstart', e=>{ startY = e.touches[0].clientY; }, {passive:true});
+                handle.addEventListener('touchmove', e=>{
+                    if(startY!==null && e.touches[0].clientY - startY > 30){ showHeader(); startY=null; }
+                }, {passive:true});
+            }
+        })();
+
+        // ── PANORAMA ──
+        let panoMonthIdx = 0;
+        function openPanorama(){
+            vibrate();
+            if(document.getElementById('menu-dropdown').style.display==='flex')toggleMenu();
+            if(!finalData || finalData.length < 2){ alert('Carica prima i turni.'); return; }
+            // Parti dal mese corrente se presente
+            const today = new Date();
+            const curMonthName = ['GENNAIO','FEBBRAIO','MARZO','APRILE','MAGGIO','GIUGNO','LUGLIO','AGOSTO','SETTEMBRE','OTTOBRE','NOVEMBRE','DICEMBRE'][today.getMonth()];
+            const found = globalMonthsList.findIndex(m => m.name === curMonthName);
+            panoMonthIdx = found >= 0 ? found : 0;
+            renderPanorama();
+            const modal = document.getElementById('panorama-modal');
+            modal.classList.add('open');
+        }
+        function closePanorama(){ vibrate(); document.getElementById('panorama-modal').classList.remove('open'); }
+        function panoPrevMonth(){ if(panoMonthIdx>0){ panoMonthIdx--; vibrate(); renderPanorama(); } }
+        function panoNextMonth(){ if(panoMonthIdx<globalMonthsList.length-1){ panoMonthIdx++; vibrate(); renderPanorama(); } }
+
+        function renderPanorama(){
+            const monthObj = globalMonthsList[panoMonthIdx];
+            if(!monthObj) return;
+            const monthName = monthObj.name;
+            document.getElementById('pano-month-label').innerText = monthName + ' 2026';
+
+            const today = new Date();
+            const curM = today.getMonth(), curD = today.getDate();
+            const mIdx = MONTH_MAP[monthName];
+
+            // Header colonne: DATA + tutti gli autisti
+            let html = '<table class="pano-table"><thead><tr><th>DATA</th>';
+            drivers.forEach(d => { html += '<th>'+d.name+'</th>'; });
+            html += '</tr></thead><tbody>';
+
+            for(let i=1;i<finalData.length;i++){
+                let row = finalData[i];
+                let rowMonth = (row[0].v||'').toString().toUpperCase().trim();
+                if(rowMonth !== monthName) continue;
+                let dNum = parseInt(row[1].v);
+                if(!dNum) continue;
+                let dateObj = new Date(2026, mIdx, dNum);
+                let dayWeek = dateObj.toLocaleDateString('it-IT',{weekday:'short'}).toUpperCase();
+                let dayIdx = dateObj.getDay();
+                let holKey = mIdx+'-'+dNum;
+                let isRed = (dayIdx===0||dayIdx===6||HOLIDAYS[holKey]);
+                let isToday = (mIdx===curM && dNum===curD);
+                html += '<tr class="'+(isToday?'pano-row-today':'')+'">';
+                html += '<td class="pano-date'+(isRed?' red':'')+'">'+dNum+'<small>'+dayWeek+'</small></td>';
+                drivers.forEach(d => {
+                    let val = (row[d.idx]?.v||'').toString().trim();
+                    let st = normalizeShift(val);
+                    let cls = 'pano-cell ', label = '', time = '';
+                    if(st==='M'){ cls+='c-M'; label='MAT'; time='6:30-13:15'; }
+                    else if(st==='P'){ cls+='c-P'; label='POM'; time='12:45-20:10'; }
+                    else if(st==='N'){ cls+='c-N'; label='NOT'; time='19:45-00'; }
+                    else if(st==='SM'){ cls+='c-SM'; label='SM'; time='00-7:20'; }
+                    else if(st==='MN'){ cls+='c-MN'; label='M+N'; }
+                    else if(st==='R'){ cls+='c-R'; label='RIP'; }
+                    else {
+                        let u = val.toUpperCase();
+                        if(u.includes('FER')){ cls+='c-spec'; label='FERIE'; }
+                        else if(u.includes('CONG')||u==='F'){ cls+='c-spec'; label='CONG'; }
+                        else if(u.includes('PERM')||u==='P'){ cls+='c-spec'; label='PERM'; }
+                        else if(u.includes('MAL')){ cls+='c-spec'; label='MAL'; }
+                        else if(u.includes('REC')){ cls+='c-spec'; label='REC'; }
+                        else if(val==='' || val==='-' || val==='.'){ cls+='c-empty'; label='·'; }
+                        else { cls+='c-spec'; label=u.substring(0,4); }
+                    }
+                    html += '<td class="'+cls+'">'+label+(time?'<span class="pc-time">'+time+'</span>':'')+'</td>';
+                });
+                html += '</tr>';
+            }
+            html += '</tbody></table>';
+            document.getElementById('pano-body').innerHTML = html;
+
+            // Scroll a oggi se nel mese corrente
+            if(mIdx===curM){
+                setTimeout(()=>{
+                    const tr = document.querySelector('.pano-row-today');
+                    if(tr) tr.scrollIntoView({block:'center',behavior:'smooth'});
+                },100);
+            } else {
+                document.getElementById('pano-body').scrollTop = 0;
+            }
+        }
+
+        // Init platform + header state al load
+        detectPlatform();
+        if(localStorage.getItem('header_hidden')==='1'){
+            window.addEventListener('load',()=>document.body.classList.add('header-hidden'));
+        }
+
+
         // ══════════════════════════════════════════════════════════════
         const firebaseConfig={apiKey:"AIzaSyAMX2ycf_6P3AcBvarVX4XNKbdposkuqgE",authDomain:"area-personale-autsocc-118-rsm.firebaseapp.com",projectId:"area-personale-autsocc-118-rsm",storageBucket:"area-personale-autsocc-118-rsm.firebasestorage.app",messagingSenderId:"910283994567",appId:"1:910283994567:web:d9c45b5f4b5a83b92595e2",measurementId:"G-9P8X82Y4H5"};
         if(!firebase.apps.length)firebase.initializeApp(firebaseConfig);
