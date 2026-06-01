@@ -380,35 +380,34 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
         /* iOS: forza header sticky a non sparire */
         body.ios-mode thead th { position: -webkit-sticky !important; position: sticky !important; }
 
-        /* ── MONTH BAR snella e bella ── */
-        tr.month-header td { box-shadow: 0 2px 12px rgba(0,0,0,0.18) !important; }
+        /* ── MONTH BAR sottile (poco più del nome) ── */
+        tr.month-header td { box-shadow: 0 2px 10px rgba(0,0,0,0.16) !important; }
         .sticky-month-text {
-            min-height: 32px !important;
-            padding: 3px 0 3px 14px !important;
+            min-height: 26px !important;
+            padding: 2px 0 2px 14px !important;
             backdrop-filter: blur(4px);
             justify-content: space-between !important;
             padding-right: 14px !important;
         }
         .month-label {
-            font-size: 1.05rem !important;
+            font-size: 0.92rem !important;
             font-weight: 800 !important;
             letter-spacing: 0.3px !important;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 7px;
         }
         .month-label::before {
             content: '';
-            width: 4px; height: 18px;
+            width: 3px; height: 14px;
             background: rgba(255,255,255,0.7);
             border-radius: 2px;
             box-shadow: 0 0 8px rgba(255,255,255,0.4);
         }
-        /* ── OROLOGIO: badge flottante fisso in basso a destra, sempre leggibile ── */
+
+        /* ── OROLOGIO/DATA: badge flottante TRASCINABILE ── */
         .live-clock {
             position: fixed !important;
-            bottom: calc(env(safe-area-inset-bottom, 0px) + 14px);
-            right: 12px;
             z-index: 1600 !important;
             font-size: 0.8rem !important;
             font-weight: 800 !important;
@@ -424,8 +423,13 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
             box-shadow: 0 6px 20px rgba(0,0,0,0.4);
             backdrop-filter: blur(10px);
             font-variant-numeric: tabular-nums;
-            pointer-events: none;
+            cursor: grab;
+            touch-action: none;
+            user-select: none;
+            transition: box-shadow 0.2s, transform 0.1s;
         }
+        .live-clock:active { cursor: grabbing; transform: scale(1.05); box-shadow: 0 8px 26px rgba(0,0,0,0.5); }
+        .live-clock.dragging { transition: none; }
         .live-clock::before {
             content: '';
             width: 7px; height: 7px;
@@ -433,6 +437,13 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
             background: #4ade80;
             box-shadow: 0 0 8px #4ade80;
             animation: clock-pulse 2s ease-in-out infinite;
+            flex-shrink: 0;
+        }
+        .live-clock .clock-grip {
+            font-size: 0.85rem;
+            opacity: 0.55;
+            margin-left: 2px;
+            margin-right: -4px;
         }
         /* L'orologio dentro la month-bar viene nascosto (ne mostriamo solo uno fisso) */
         tr.month-header .live-clock { display: none !important; }
@@ -474,6 +485,18 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
 
         /* ── HEADER collapsible + maniglia pull-down ── */
         header { transition: transform 0.35s cubic-bezier(0.4,0,0.2,1), opacity 0.25s ease; }
+
+        /* Fondale fisso dietro l'header che copre la status-bar area:
+           evita che si veda un pezzo di calendario/colonna data nell'angolo */
+        #header-backdrop {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            height: calc(env(safe-area-inset-top, 0px));
+            background: var(--bg);
+            z-index: 999;
+            pointer-events: none;
+        }
+        body.dark-mode #header-backdrop { background: var(--bg); }
 
         /* Quando l'header è nascosto: scompare e la riga colonne sale in cima */
         body.header-hidden header {
@@ -720,6 +743,27 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
         .cell { transition: transform 0.12s, box-shadow 0.2s; }
         .cell:hover { box-shadow: 0 3px 10px rgba(0,0,0,0.15); }
         thead th { box-shadow: inset 0 -1px 0 var(--border); }
+        /* Nomi operatori colonne più visibili */
+        thead th { font-size: 0.82rem !important; font-weight: 900 !important; color: var(--text-main) !important; letter-spacing: 0.3px !important; background: var(--bg-card) !important; }
+        thead th:first-child { color: var(--text-sec) !important; }
+        body.dark-mode thead th { color: #f1f5f9 !important; }
+
+        /* ── OPZIONI per categoria ── */
+        .opt-cat-title {
+            display: flex; align-items: center; gap: 9px;
+            padding: 16px 20px 8px;
+            font-size: 0.72rem; font-weight: 800;
+            text-transform: uppercase; letter-spacing: 1px;
+            color: var(--primary);
+        }
+        .opt-cat-title .material-icons-round { font-size: 1.05rem; }
+        .opt-cat-title::after { content:''; flex:1; height:1px; background:var(--border); margin-left:4px; }
+        .opt-toggle-row {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 13px 20px; border-bottom: 1px solid var(--border);
+        }
+        .opt-toggle-row .otr-label { font-size: 0.95rem; font-weight: 600; color: var(--text-main); }
+        .opt-toggle-row .otr-desc { font-size: 0.76rem; color: var(--text-sec); font-weight: 400; margin-top: 2px; }
 
         /* Platform switch active state */
         #plat-ios.plat-active, #plat-android.plat-active {
@@ -732,6 +776,7 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
 </head>
 <body>
     <audio id="dog-audio" src="cane.mp3" preload="auto"></audio>
+    <div id="header-backdrop"></div>
 
     <!-- CHANGELOG MODAL -->
     <div id="changelog-modal">
@@ -829,6 +874,9 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
                 <button class="btn-close-modal" onclick="closeOptionsModal()"><span class="material-icons-round">close</span></button>
             </div>
             <div class="modal-body" style="padding:0">
+
+                <!-- CATEGORIA: PROFILO -->
+                <div class="opt-cat-title"><span class="material-icons-round">person</span> Profilo</div>
                 <div class="option-item" style="display:block">
                     <div style="margin-bottom:10px"><span style="font-size:1rem;font-weight:700">Chi sei?</span><div style="font-size:0.8rem;color:var(--text-sec)">Seleziona il tuo nome per ricevere notifiche sui tuoi turni.</div></div>
                     <select id="turni-user-select" onchange="saveTurniUser(this.value)" style="width:100%;padding:12px;border-radius:10px;border:1px solid var(--border);font-size:0.95rem;font-weight:600;background:var(--bg);color:var(--text-main);">
@@ -836,24 +884,55 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
                     </select>
                     <div id="turni-user-status" style="margin-top:8px;font-size:0.8rem;font-weight:600;color:var(--text-sec);"></div>
                 </div>
-                <div class="option-item" id="install-container">
-                    <div style="display:flex;flex-direction:column"><span style="font-size:1rem">Installa Applicazione</span><span style="font-size:0.8rem;color:var(--text-sec);font-weight:400">Aggiungi a schermata Home</span></div>
-                    <button class="btn-install" onclick="installPWA()"><span class="material-icons-round">install_mobile</span> INSTALLA</button>
-                </div>
-                <div class="option-item">
-                    <div style="display:flex;flex-direction:column"><span style="font-size:1rem">Tema Scuro</span><span style="font-size:0.8rem;color:var(--text-sec);font-weight:400">Riduci affaticamento occhi</span></div>
+
+                <!-- CATEGORIA: ASPETTO -->
+                <div class="opt-cat-title"><span class="material-icons-round">palette</span> Aspetto</div>
+                <div class="opt-toggle-row">
+                    <div><div class="otr-label">Tema Scuro</div><div class="otr-desc">Riduci l'affaticamento degli occhi</div></div>
                     <label class="switch"><input type="checkbox" id="dark-mode-toggle" onchange="toggleDarkMode()"><span class="slider"></span></label>
                 </div>
+                <div class="opt-toggle-row">
+                    <div><div class="otr-label">Testo scorrevole in alto</div><div class="otr-desc">Mostra avvisi, reperibilità e turni del giorno</div></div>
+                    <label class="switch"><input type="checkbox" id="opt-ticker" onchange="toggleOption('ticker',this.checked)"><span class="slider"></span></label>
+                </div>
+                <div class="opt-toggle-row">
+                    <div><div class="otr-label">Mostra il cagnolino 🐕</div><div class="otr-desc">Icona animata sui turni in solitaria</div></div>
+                    <label class="switch"><input type="checkbox" id="opt-dog" onchange="toggleOption('dog',this.checked)"><span class="slider"></span></label>
+                </div>
+
+                <!-- CATEGORIA: VISUALIZZAZIONE -->
+                <div class="opt-cat-title"><span class="material-icons-round">view_agenda</span> Visualizzazione</div>
+                <div class="opt-toggle-row">
+                    <div><div class="otr-label">Dettagli al tocco</div><div class="otr-desc">Apri la scheda con colleghi e infermieri toccando una casella</div></div>
+                    <label class="switch"><input type="checkbox" id="opt-cellinfo" onchange="toggleOption('cellinfo',this.checked)"><span class="slider"></span></label>
+                </div>
                 <div class="option-item" style="display:block">
-                    <div style="margin-bottom:10px"><span style="font-size:1rem;font-weight:700">Dispositivo</span><div style="font-size:0.8rem;color:var(--text-sec)">Se la colonna data scorre via o l'header sparisce, scegli iPhone per la modalità ottimizzata.</div></div>
+                    <div style="margin-bottom:10px"><span style="font-size:1rem;font-weight:700">Modalità calendario</span><div style="font-size:0.8rem;color:var(--text-sec)">Scegli come visualizzare i turni</div></div>
+                    <div style="display:flex;gap:8px">
+                        <button id="vmode-vertical" onclick="setViewMode('vertical')" style="flex:1;padding:12px;border-radius:12px;border:2px solid var(--border);background:var(--bg);color:var(--text-main);font-weight:700;font-size:0.85rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:all 0.2s"><span class="material-icons-round" style="font-size:1.1rem">view_day</span> Verticale</button>
+                        <button id="vmode-week" onclick="setViewMode('week')" style="flex:1;padding:12px;border-radius:12px;border:2px solid var(--border);background:var(--bg);color:var(--text-main);font-weight:700;font-size:0.85rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:all 0.2s"><span class="material-icons-round" style="font-size:1.1rem">view_week</span> Settimanale</button>
+                    </div>
+                </div>
+
+                <!-- CATEGORIA: DISPOSITIVO -->
+                <div class="opt-cat-title"><span class="material-icons-round">devices</span> Dispositivo</div>
+                <div class="option-item" style="display:block">
+                    <div style="margin-bottom:10px"><span style="font-size:1rem;font-weight:700">Tipo di telefono</span><div style="font-size:0.8rem;color:var(--text-sec)">Se la colonna data scorre via o l'header sparisce, scegli iPhone.</div></div>
                     <div style="display:flex;gap:8px">
                         <button id="plat-android" onclick="setPlatformMode('android')" style="flex:1;padding:12px;border-radius:12px;border:2px solid var(--border);background:var(--bg);color:var(--text-main);font-weight:700;font-size:0.9rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:all 0.2s"><span class="material-icons-round" style="font-size:1.1rem">android</span> Android</button>
                         <button id="plat-ios" onclick="setPlatformMode('ios')" style="flex:1;padding:12px;border-radius:12px;border:2px solid var(--border);background:var(--bg);color:var(--text-main);font-weight:700;font-size:0.9rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:all 0.2s"><span class="material-icons-round" style="font-size:1.1rem">phone_iphone</span> iPhone</button>
                     </div>
                 </div>
+                <div class="opt-toggle-row" id="install-container">
+                    <div><div class="otr-label">Installa Applicazione</div><div class="otr-desc">Aggiungi alla schermata Home</div></div>
+                    <button class="btn-install" onclick="installPWA()"><span class="material-icons-round">install_mobile</span> INSTALLA</button>
+                </div>
+
+                <!-- CATEGORIA: INFO -->
+                <div class="opt-cat-title"><span class="material-icons-round">info</span> Informazioni</div>
                 <div class="option-item" style="cursor:pointer" onclick="openChangelog()">
                     <div style="display:flex;flex-direction:column"><span style="font-size:1rem">Note di Rilascio</span><span style="font-size:0.8rem;color:var(--text-sec);font-weight:400">Vedi gli ultimi aggiornamenti</span></div>
-                    <span class="material-icons-round" style="color:var(--text-sec)">info_outline</span>
+                    <span class="material-icons-round" style="color:var(--text-sec)">chevron_right</span>
                 </div>
             </div>
         </div>
@@ -927,12 +1006,12 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
                 <div class="logo-text"><span class="logo-title">A.S. 26</span><span class="logo-sub" id="last-update-badge">San Marino</span></div>
             </div>
             <div class="right-controls">
-                <button class="btn-action" onclick="vibrate();scrollToToday()"><span class="material-icons-round">home</span></button>
-                <button class="btn-action" onclick="openPanorama()" title="Vista panoramica turni"><span class="material-icons-round">grid_view</span></button>
-                <button class="btn-action" onclick="openMonthModal()"><span class="material-icons-round">calendar_month</span></button>
-                <button class="btn-action btn-inf" onclick="openInfLink()" title="Turni Infermieri 2026"><span class="material-icons-round" style="font-size:1.1rem">medical_services</span></button>
-                <button class="btn-action" onclick="openNotifCenter()" style="position:relative"><span class="material-icons-round">notifications</span><span id="notif-badge" class="badge-dot"></span></button>
-                <button class="btn-action" onclick="toggleMenu()"><span class="material-icons-round">more_vert</span></button>
+                <button class="btn-action" onclick="vibrate();scrollToToday()" title="Vai a oggi"><span class="material-icons-round">my_location</span></button>
+                <button class="btn-action" onclick="openPanorama()" title="Vista panoramica completa"><span class="material-icons-round">calendar_view_month</span></button>
+                <button class="btn-action" onclick="openMonthModal()" title="Salta al mese"><span class="material-icons-round">event</span></button>
+                <button class="btn-action btn-inf" onclick="openInfLink()" title="Turni Infermieri 2026"><span class="material-icons-round" style="font-size:1.1rem">vaccines</span></button>
+                <button class="btn-action" onclick="openNotifCenter()" style="position:relative" title="Notifiche"><span class="material-icons-round">notifications</span><span id="notif-badge" class="badge-dot"></span></button>
+                <button class="btn-action" onclick="toggleMenu()" title="Menu"><span class="material-icons-round">menu</span></button>
                 <div id="menu-dropdown">
                     <div class="menu-item" onclick="openPersonalArea()"><span class="material-icons-round">badge</span> Area Personale</div>
                     <div class="menu-item" onclick="openDinnerModal()"><span class="material-icons-round">restaurant</span> Organizza Uscita</div>
@@ -1871,6 +1950,222 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
         if(localStorage.getItem('header_hidden')==='1'){
             window.addEventListener('load',()=>document.body.classList.add('header-hidden'));
         }
+
+        // ══════════════════════════════════════════════════════════════
+        // ✨ v25 — TOGGLE OPZIONI, OROLOGIO TRASCINABILE, SCROLL MEMO, VISTA SETTIMANALE
+        // ══════════════════════════════════════════════════════════════
+
+        // ── Toggle opzioni generiche (ticker, cane, info-casella) ──
+        const OPT_DEFAULTS = { ticker:true, dog:true, cellinfo:true };
+        function getOpt(key){
+            const v = localStorage.getItem('opt_'+key);
+            if(v===null) return OPT_DEFAULTS[key];
+            return v==='1';
+        }
+        function toggleOption(key,val){
+            vibrate();
+            localStorage.setItem('opt_'+key, val?'1':'0');
+            applyOption(key,val);
+        }
+        function applyOption(key,val){
+            if(key==='ticker'){
+                const t=document.getElementById('top-ticker');
+                if(t){ if(val){ t.style.display=''; if(typeof buildTicker==='function')buildTicker(); } else { t.style.display='none'; t.classList.add('no-content'); } }
+                if(typeof syncHeaderHeight==='function') setTimeout(syncHeaderHeight,50);
+            } else if(key==='dog'){
+                let s=document.getElementById('opt-dog-style');
+                if(!val){ if(!s){s=document.createElement('style');s.id='opt-dog-style';document.head.appendChild(s);} s.textContent='.dog-icon{display:none!important}'; }
+                else if(s){ s.remove(); }
+            } else if(key==='cellinfo'){
+                // gestito in renderTable: se off, le celle non hanno onclick
+                if(typeof finalData!=='undefined' && finalData.length>0 && typeof renderTable==='function') renderTable();
+            }
+        }
+        function initOptions(){
+            ['ticker','dog','cellinfo'].forEach(k=>{
+                const val=getOpt(k);
+                const cb=document.getElementById('opt-'+k);
+                if(cb)cb.checked=val;
+                applyOption(k,val);
+            });
+            updateViewModeUI();
+        }
+
+        // ── Vista calendario: verticale / settimanale ──
+        function getViewMode(){ return localStorage.getItem('view_mode')||'vertical'; }
+        function setViewMode(mode){
+            vibrate();
+            localStorage.setItem('view_mode',mode);
+            updateViewModeUI();
+            if(mode==='week'){ closeOptionsModal(); setTimeout(openWeekView,250); }
+        }
+        function updateViewModeUI(){
+            const m=getViewMode();
+            const v=document.getElementById('vmode-vertical'), w=document.getElementById('vmode-week');
+            if(v&&w){
+                v.classList.toggle('vmode-active', m==='vertical');
+                w.classList.toggle('vmode-active', m==='week');
+            }
+        }
+
+        // ── OROLOGIO/DATA trascinabile con posizione memorizzata ──
+        (function(){
+            const clock=document.getElementById('fixed-clock');
+            if(!clock) return;
+            // Aggiungi maniglia visiva
+            // Posizione salvata
+            function applyPos(){
+                const saved=localStorage.getItem('clock_pos');
+                if(saved){
+                    try{ const p=JSON.parse(saved); clock.style.left=p.x+'px'; clock.style.top=p.y+'px'; clock.style.right='auto'; clock.style.bottom='auto'; return; }catch(e){}
+                }
+                // default: basso a destra
+                clock.style.right='12px';
+                clock.style.bottom='calc(env(safe-area-inset-bottom, 0px) + 14px)';
+                clock.style.left='auto'; clock.style.top='auto';
+            }
+            let dragging=false, offX=0, offY=0, moved=false;
+            function start(cx,cy){
+                const r=clock.getBoundingClientRect();
+                offX=cx-r.left; offY=cy-r.top; dragging=true; moved=false;
+                clock.classList.add('dragging');
+            }
+            function move(cx,cy){
+                if(!dragging) return;
+                moved=true;
+                let x=cx-offX, y=cy-offY;
+                const maxX=window.innerWidth-clock.offsetWidth-4;
+                const maxY=window.innerHeight-clock.offsetHeight-4;
+                x=Math.max(4,Math.min(x,maxX));
+                y=Math.max(4,Math.min(y,maxY));
+                clock.style.left=x+'px'; clock.style.top=y+'px';
+                clock.style.right='auto'; clock.style.bottom='auto';
+            }
+            function end(){
+                if(!dragging) return;
+                dragging=false; clock.classList.remove('dragging');
+                if(moved){
+                    const r=clock.getBoundingClientRect();
+                    localStorage.setItem('clock_pos',JSON.stringify({x:Math.round(r.left),y:Math.round(r.top)}));
+                }
+            }
+            clock.addEventListener('touchstart',e=>{ start(e.touches[0].clientX,e.touches[0].clientY); },{passive:true});
+            clock.addEventListener('touchmove',e=>{ move(e.touches[0].clientX,e.touches[0].clientY); },{passive:true});
+            clock.addEventListener('touchend',end,{passive:true});
+            clock.addEventListener('mousedown',e=>{ e.preventDefault(); start(e.clientX,e.clientY); });
+            window.addEventListener('mousemove',e=>move(e.clientX,e.clientY));
+            window.addEventListener('mouseup',end);
+            window.addEventListener('load',applyPos);
+            applyPos();
+        })();
+
+        // ── MEMORIZZA scroll orizzontale del calendario ──
+        (function(){
+            let saveTmo=null;
+            function saveScroll(){
+                clearTimeout(saveTmo);
+                saveTmo=setTimeout(()=>{
+                    const c=document.querySelector('.container');
+                    if(c) localStorage.setItem('hscroll', c.scrollLeft);
+                },300);
+            }
+            window.addEventListener('load',()=>{
+                const c=document.querySelector('.container');
+                if(c) c.addEventListener('scroll',saveScroll,{passive:true});
+            });
+        })();
+        function restoreHScroll(){
+            const saved=localStorage.getItem('hscroll');
+            if(saved!==null){
+                const c=document.querySelector('.container');
+                if(c) c.scrollLeft=parseInt(saved)||0;
+            }
+        }
+
+        // ── VISTA SETTIMANALE (swipe laterale, una settimana per schermata) ──
+        let weekOffset=0; // settimane dal lunedì corrente
+        function openWeekView(){
+            vibrate();
+            if(document.getElementById('menu-dropdown').style.display==='flex')toggleMenu();
+            if(!finalData||finalData.length<2){ alert('Carica prima i turni.'); return; }
+            weekOffset=0;
+            renderWeekView();
+            const m=document.getElementById('weekview-modal');
+            m.classList.add('open');
+        }
+        function closeWeekView(){ vibrate(); document.getElementById('weekview-modal').classList.remove('open'); }
+        function weekPrev(){ weekOffset--; vibrate(); renderWeekView(); }
+        function weekNext(){ weekOffset++; vibrate(); renderWeekView(); }
+        function renderWeekView(){
+            const today=new Date();
+            // Lunedì della settimana target
+            const monday=new Date(today);
+            const dow=(today.getDay()+6)%7; // 0=lun
+            monday.setDate(today.getDate()-dow+weekOffset*7);
+            const MN=['GENNAIO','FEBBRAIO','MARZO','APRILE','MAGGIO','GIUGNO','LUGLIO','AGOSTO','SETTEMBRE','OTTOBRE','NOVEMBRE','DICEMBRE'];
+            const dayNames=['LUN','MAR','MER','GIO','VEN','SAB','DOM'];
+            let days=[];
+            for(let i=0;i<7;i++){ const d=new Date(monday); d.setDate(monday.getDate()+i); days.push(d); }
+            const first=days[0], last=days[6];
+            document.getElementById('week-label').innerText =
+                first.getDate()+' '+MN[first.getMonth()].substr(0,3)+' – '+last.getDate()+' '+MN[last.getMonth()].substr(0,3);
+
+            // Per ogni giorno costruisci una card con tutti gli operatori
+            let html='';
+            days.forEach(d=>{
+                const mName=MN[d.getMonth()];
+                const dNum=d.getDate();
+                const isToday=(d.toDateString()===today.toDateString());
+                const dowIdx=d.getDay();
+                const isRed=(dowIdx===0||dowIdx===6||HOLIDAYS[d.getMonth()+'-'+dNum]);
+                // Trova riga dati
+                let row=null;
+                for(let i=1;i<finalData.length;i++){
+                    if((finalData[i][0].v||'').toString().toUpperCase().trim()===mName && parseInt(finalData[i][1].v)===dNum){ row=finalData[i]; break; }
+                }
+                html+='<div class="wv-day'+(isToday?' wv-today':'')+'">';
+                html+='<div class="wv-day-head'+(isRed?' red':'')+'">'+dayNames[(dowIdx+6)%7]+' '+dNum+' '+mName.substr(0,3)+(isToday?' • OGGI':'')+'</div>';
+                if(row){
+                    html+='<div class="wv-grid">';
+                    drivers.forEach(dr=>{
+                        const val=(row[dr.idx]?.v||'').toString().trim();
+                        const st=normalizeShift(val);
+                        let cls='wv-cell ', lab='';
+                        if(st==='M'){cls+='c-M';lab='M';}
+                        else if(st==='P'){cls+='c-P';lab='P';}
+                        else if(st==='N'){cls+='c-N';lab='N';}
+                        else if(st==='SM'){cls+='c-SM';lab='SM';}
+                        else if(st==='MN'){cls+='c-MN';lab='M+N';}
+                        else if(st==='R'){cls+='c-R';lab='R';}
+                        else { const u=val.toUpperCase(); if(u.includes('FER')){cls+='c-spec';lab='FE';} else if(u.includes('CONG')||u==='F'){cls+='c-spec';lab='CO';} else if(u.includes('PERM')){cls+='c-spec';lab='PE';} else if(u.includes('MAL')){cls+='c-spec';lab='MA';} else if(u.includes('REC')){cls+='c-spec';lab='RE';} else { cls+='c-empty';lab='·'; } }
+                        html+='<div class="wv-op"><span class="wv-op-name">'+dr.name+'</span><span class="'+cls+'">'+lab+'</span></div>';
+                    });
+                    html+='</div>';
+                } else {
+                    html+='<div style="padding:16px;text-align:center;color:var(--text-sec);font-size:0.8rem">Nessun dato</div>';
+                }
+                html+='</div>';
+            });
+            document.getElementById('week-body').innerHTML=html;
+        }
+        // Swipe per cambiare settimana
+        (function(){
+            let sx=null;
+            const body=()=>document.getElementById('week-body');
+            document.addEventListener('touchstart',e=>{
+                const wm=document.getElementById('weekview-modal');
+                if(wm&&wm.classList.contains('open')) sx=e.touches[0].clientX;
+            },{passive:true});
+            document.addEventListener('touchend',e=>{
+                const wm=document.getElementById('weekview-modal');
+                if(wm&&wm.classList.contains('open')&&sx!==null){
+                    const dx=e.changedTouches[0].clientX-sx;
+                    if(dx>60) weekPrev();
+                    else if(dx<-60) weekNext();
+                    sx=null;
+                }
+            },{passive:true});
+        })();
 
 
         // ══════════════════════════════════════════════════════════════
