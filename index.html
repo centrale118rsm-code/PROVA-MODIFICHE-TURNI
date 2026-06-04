@@ -1076,6 +1076,44 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
         .notif-card .nc-unread-dot { position:absolute; top:14px; right:34px; width:8px; height:8px; border-radius:50%; background:#2563eb; }
         .notif-empty { text-align:center; padding:50px 20px; color:var(--text-sec); }
         .notif-empty .material-icons-round { font-size:48px; opacity:0.3; display:block; margin-bottom:10px; }
+
+        /* ── Chi sei?: nascosto quando operatore loggato ── */
+        body.operator-session #chi-sei-block { display:none !important; }
+
+        /* ── Data mode toggle (singolo / intervallo) ── */
+        .na-date-mode { display:flex; gap:6px; margin-bottom:10px; }
+        .na-mode-btn { flex:1; padding:9px; border-radius:9px; border:1.5px solid var(--border); background:var(--bg); color:var(--text-sec); font-weight:700; font-size:0.82rem; cursor:pointer; transition:0.15s; }
+        .na-mode-btn.active { background:var(--primary); color:#fff; border-color:var(--primary); }
+        .na-range-row { display:flex; gap:10px; }
+        .na-range-row > div { flex:1; }
+        .na-range-row label { font-size:0.7rem; font-weight:800; color:var(--text-sec); display:block; margin-bottom:4px; }
+        .na-add-range { width:100%; margin-top:8px; height:44px; border:none; border-radius:11px; background:var(--primary); color:#fff; font-weight:800; font-size:0.88rem; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:7px; }
+
+        /* ── Icona: pulsante toggle ── */
+        .na-icon-toggle-btn { width:100%; display:flex; align-items:center; gap:9px; padding:11px 13px; border-radius:11px; border:1.5px solid var(--border); background:var(--bg); color:var(--text-main); font-weight:700; font-size:0.88rem; cursor:pointer; text-align:left; }
+        .na-icon-toggle-btn:active { transform:scale(0.98); }
+        .na-icon-preview { width:30px; height:30px; border-radius:9px; display:flex; align-items:center; justify-content:center; color:#fff; flex-shrink:0; }
+        .na-icon-preview .material-icons-round { font-size:18px; }
+        .na-icon-toggle-btn .na-icon-spacer { flex:1; }
+
+        /* ── Cella data: sfondo + bordo pulsante viola ── */
+        @keyframes appt-pulse {
+            0%,100% { box-shadow: inset 0 0 0 3px #7c3aed, inset 0 0 12px rgba(124,58,237,0.25); }
+            50%     { box-shadow: inset 0 0 0 3px rgba(124,58,237,0.2),  inset 0 0 4px rgba(124,58,237,0.05); }
+        }
+        .td-date.has-my-appt { background: #f3e8ff !important; animation: appt-pulse 1.8s ease-in-out infinite; }
+        body.dark-mode .td-date.has-my-appt { background: #2e1065 !important; }
+        .td-date.has-my-appt.date-red { background: #fce7ff !important; }
+
+        /* ── Titolo impegno inline nella cella ── */
+        .appt-title-cell { font-size:0.5rem; font-weight:900; line-height:1.1; margin-top:2px; max-width:44px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; text-align:center; }
+
+        /* ── FAB trascinabile + docking in header ── */
+        #fab-appt { touch-action: none; }
+        #fab-appt.fab-dragging { opacity:.85; transform:scale(1.08) !important; transition:none; box-shadow:0 16px 35px rgba(8,145,178,0.6); }
+        #fab-in-header { display:none; background:rgba(255,255,255,0.18); color:#fff; border:1px solid rgba(255,255,255,0.25); width:36px; height:36px; border-radius:10px; cursor:pointer; align-items:center; justify-content:center; flex-shrink:0; }
+        body.fab-docked #fab-in-header { display:flex; }
+        body.fab-docked #fab-appt { display:none !important; }
     </style>
 </head>
 <body>
@@ -1142,12 +1180,23 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
             </div>
             <div class="modal-body" style="overflow-y:auto;padding:16px">
                 <div class="na-field">
-                    <label>📅 Date dell'impegno</label>
-                    <div class="af-row">
-                        <input type="date" id="na-date" min="2026-01-01" max="2026-12-31" value="2026-01-01" style="flex:2">
+                    <label>📅 Data dell'impegno</label>
+                    <div class="na-date-mode">
+                        <button class="na-mode-btn active" id="na-mode-single" onclick="setNaDateMode('single')">Giorno singolo</button>
+                        <button class="na-mode-btn" id="na-mode-range" onclick="setNaDateMode('range')">Intervallo di date</button>
+                    </div>
+                    <div id="na-single-wrap" class="af-row">
+                        <input type="date" id="na-date" min="2026-01-01" max="2026-12-31" style="flex:2">
                         <button class="na-add-date" onclick="addNaDate()"><span class="material-icons-round">add</span></button>
                     </div>
-                    <div id="na-dates-chips" class="na-chips"></div>
+                    <div id="na-range-wrap" style="display:none">
+                        <div class="na-range-row">
+                            <div><label>Dal</label><input type="date" id="na-date-from" min="2026-01-01" max="2026-12-31"></div>
+                            <div><label>Al</label><input type="date" id="na-date-to" min="2026-01-01" max="2026-12-31"></div>
+                        </div>
+                        <button class="na-add-range" onclick="addNaDateRange()"><span class="material-icons-round">date_range</span> Aggiungi intervallo</button>
+                    </div>
+                    <div id="na-dates-chips" class="na-chips" style="margin-top:9px"></div>
                 </div>
                 <div class="na-field">
                     <label>🏷️ Tipo di impegno</label>
@@ -1158,12 +1207,19 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
                     <input type="time" id="na-time">
                 </div>
                 <div class="na-field">
-                    <label>🎨 Colore sul calendario</label>
+                    <label>🎨 Colore</label>
                     <div id="na-colors" class="na-colors"></div>
                 </div>
                 <div class="na-field">
-                    <label>✨ Icona</label>
-                    <div id="na-icons" class="na-icons"></div>
+                    <button class="na-icon-toggle-btn" onclick="toggleNaIcons()" id="na-icon-toggle-btn">
+                        <div class="na-icon-preview" id="na-icon-preview" style="background:#7c3aed"><span class="material-icons-round">event</span></div>
+                        <span id="na-icon-label">Scegli icona</span>
+                        <span class="na-icon-spacer"></span>
+                        <span class="material-icons-round" id="na-icon-chevron">expand_more</span>
+                    </button>
+                    <div id="na-icons-wrap" style="display:none; margin-top:9px">
+                        <div id="na-icons" class="na-icons"></div>
+                    </div>
                 </div>
                 <div class="appt-remind-row"><span>📝 Mostra il titolo sul calendario</span><label class="switch"><input type="checkbox" id="na-showtitle"><span class="slider"></span></label></div>
                 <div class="appt-remind-row"><span>👥 Visibile agli altri operatori</span><label class="switch"><input type="checkbox" id="na-shared"><span class="slider"></span></label></div>
@@ -1431,6 +1487,7 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
                 <span class="logo-title" id="last-update-badge" style="display:none"></span>
             </div>
             <div class="right-controls">
+                <button id="fab-in-header" onclick="openNewAppt()" title="Nuovo impegno"><span class="material-icons-round">add</span></button>
                 <button class="btn-action" onclick="vibrate();scrollToToday()" title="Vai a oggi"><span class="material-icons-round">my_location</span></button>
                 <button class="btn-action" onclick="openPanorama()" title="Vista panoramica completa"><span class="material-icons-round">calendar_view_month</span></button>
                 <button class="btn-action" onclick="openMonthModal()" title="Salta al mese"><span class="material-icons-round">event</span></button>
@@ -1832,12 +1889,16 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
                 if(mIdx===curM&&dNum===curD&&today.getFullYear()===year){tr.className="today";tr.id="today-row";}
                 let apptKey=mName+'-'+dNum;
                 let apptList=(typeof myAppointments!=='undefined'&&myAppointments[apptKey])?myAppointments[apptKey]:null;
+                // Cella viola se ho miei impegni
+                let hasMyAppt=apptList&&apptList.some(a=>a._own===true);
+                if(hasMyAppt)dateClass+=' has-my-appt';
+                // Badge icone + titolo
                 let apptBadge='';
                 if(apptList&&apptList.length>0){
                     let iconsHtml=apptList.slice(0,3).map(a=>'<span class="appt-ico" style="background:'+(a.color||'#7c3aed')+'"><span class="material-icons-round">'+(a.icon||'event')+'</span></span>').join('');
                     if(apptList.length>3)iconsHtml+='<span class="appt-more">+'+(apptList.length-3)+'</span>';
-                    let titled=apptList.find(a=>a.showTitle&&(a.type||a.title));
-                    let titleHtml=titled?'<div class="appt-title-cal" style="color:'+(titled.color||'#7c3aed')+'">'+escapeHtml(titled.type||titled.title)+'</div>':'';
+                    let titled=apptList.find(a=>a.showTitle&&(a.type||a.title)&&a._own===true);
+                    let titleHtml=titled?'<div class="appt-title-cell" style="color:'+(titled.color||'#7c3aed')+'">'+escapeHtml(titled.type||titled.title)+'</div>':'';
                     apptBadge='<div class="appt-icons">'+iconsHtml+'</div>'+titleHtml;
                 }
                 let dateHtml=dNum+'<small>'+dayWeek+'</small>'+(holidayName?'<div class="holiday-name">'+holidayName+'</div>':'')+apptBadge;
@@ -2858,7 +2919,13 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
         }
         function applySession(s){
             session=s;
-            if(s.role==='operator' && s.operatorName){ turniUserName=s.operatorName; localStorage.setItem('turni_user_name',s.operatorName); }
+            if(s.role==='operator' && s.operatorName){
+                turniUserName=s.operatorName;
+                localStorage.setItem('turni_user_name',s.operatorName);
+                document.body.classList.add('operator-session');
+            } else {
+                document.body.classList.remove('operator-session');
+            }
             updateAccountUI();
         }
         function postLogin(){
@@ -2987,7 +3054,6 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
         function openNewAppt(prefillIso){
             if(!session){ alert('Devi prima effettuare l\'accesso.'); return; }
             vibrate();
-            // chiudi eventuale modal-giorno
             const dm=document.getElementById('appt-modal'); if(dm&&dm.classList.contains('open')){ dm.classList.remove('open'); setTimeout(()=>dm.style.display='none',200); }
             naDates = prefillIso ? [prefillIso] : [];
             naColor=APPT_COLORS[0]; naIcon=APPT_ICONS[0];
@@ -2996,27 +3062,72 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
             document.getElementById('na-showtitle').checked=false;
             document.getElementById('na-shared').checked=false;
             document.getElementById('na-remind').value='none';
-            const today=new Date(); const di=document.getElementById('na-date');
-            di.value = prefillIso || ('2026-'+String(today.getMonth()+1).padStart(2,'0')+'-'+String(today.getDate()).padStart(2,'0'));
-            buildColorPicker(); buildIconPicker(); renderNaChips();
+            // Reset date mode to single
+            setNaDateMode('single');
+            const today=new Date();
+            const todayIso='2026-'+String(today.getMonth()+1).padStart(2,'0')+'-'+String(today.getDate()).padStart(2,'0');
+            const di=document.getElementById('na-date'); if(di)di.value=prefillIso||todayIso;
+            const df=document.getElementById('na-date-from'); if(df)df.value=prefillIso||todayIso;
+            const dt=document.getElementById('na-date-to'); if(dt)dt.value=prefillIso||todayIso;
+            // Reset icon section (collapsed)
+            const wrap=document.getElementById('na-icons-wrap'); if(wrap)wrap.style.display='none';
+            const chev=document.getElementById('na-icon-chevron'); if(chev)chev.textContent='expand_more';
+            buildColorPicker(); updateIconPreview(); renderNaChips();
             const m=document.getElementById('newappt-modal'); m.style.display='flex'; setTimeout(()=>m.classList.add('open'),10);
+        }
+        function setNaDateMode(mode){
+            const sw=document.getElementById('na-single-wrap'); const rw=document.getElementById('na-range-wrap');
+            const ms=document.getElementById('na-mode-single'); const mr=document.getElementById('na-mode-range');
+            if(sw)sw.style.display=mode==='single'?'flex':'none';
+            if(rw)rw.style.display=mode==='range'?'block':'none';
+            if(ms)ms.classList.toggle('active',mode==='single');
+            if(mr)mr.classList.toggle('active',mode==='range');
         }
         function closeNewAppt(e){ if(e&&e.target!==e.currentTarget)return; const m=document.getElementById('newappt-modal'); m.classList.remove('open'); setTimeout(()=>m.style.display='none',250); }
         function addNaDate(){ const v=document.getElementById('na-date').value; if(!v)return; if(!naDates.includes(v))naDates.push(v); naDates.sort(); renderNaChips(); }
+        function addNaDateRange(){
+            const from=(document.getElementById('na-date-from').value||'');
+            const to=(document.getElementById('na-date-to').value||'');
+            if(!from||!to){ alert('Seleziona sia la data di inizio che di fine.'); return; }
+            if(from>to){ alert('La data di inizio deve essere prima della data di fine.'); return; }
+            const d=new Date(from+'T12:00'); const end=new Date(to+'T12:00');
+            let count=0;
+            while(d<=end&&count<366){ const iso=d.toISOString().slice(0,10); if(!naDates.includes(iso))naDates.push(iso); d.setDate(d.getDate()+1); count++; }
+            naDates.sort(); renderNaChips();
+        }
+        function toggleNaIcons(){
+            const wrap=document.getElementById('na-icons-wrap');
+            const chev=document.getElementById('na-icon-chevron');
+            const open=wrap.style.display==='none';
+            wrap.style.display=open?'block':'none';
+            if(chev)chev.textContent=open?'expand_less':'expand_more';
+            if(open)buildIconPicker();
+        }
+        function updateIconPreview(){
+            const prev=document.getElementById('na-icon-preview'); if(!prev)return;
+            prev.style.background=naColor;
+            prev.innerHTML='<span class="material-icons-round">'+naIcon+'</span>';
+            const lbl=document.getElementById('na-icon-label'); if(lbl)lbl.textContent=naIcon.replace(/_/g,' ');
+        }
         function removeNaDate(iso){ naDates=naDates.filter(d=>d!==iso); renderNaChips(); }
         function renderNaChips(){
             const el=document.getElementById('na-dates-chips');
-            if(naDates.length===0){ el.innerHTML='<span style="font-size:0.76rem;color:var(--text-sec)">Aggiungi una o più date con il tasto +</span>'; return; }
+            if(naDates.length===0){ el.innerHTML='<span style="font-size:0.76rem;color:var(--text-sec)">Aggiungi una o più date 👆</span>'; return; }
             el.innerHTML=naDates.map(iso=>{ const dk=isoToDateKey(iso); const lbl=dk.dNum+' '+(dk.mName?dk.mName.substr(0,3).toLowerCase():iso); return '<span class="na-chip">'+lbl+'<button onclick="removeNaDate(\''+iso+'\')"><span class="material-icons-round">close</span></button></span>'; }).join('');
         }
         function buildColorPicker(){
             document.getElementById('na-colors').innerHTML=APPT_COLORS.map(c=>'<div class="na-color'+(c===naColor?' sel':'')+'" style="background:'+c+'" onclick="selectNaColor(\''+c+'\')"></div>').join('');
         }
-        function selectNaColor(c){ naColor=c; buildColorPicker(); }
+        function selectNaColor(c){ naColor=c; buildColorPicker(); updateIconPreview(); }
         function buildIconPicker(){
             document.getElementById('na-icons').innerHTML=APPT_ICONS.map(ic=>'<div class="na-icon'+(ic===naIcon?' sel':'')+'" onclick="selectNaIcon(\''+ic+'\')"><span class="material-icons-round">'+ic+'</span></div>').join('');
         }
-        function selectNaIcon(ic){ naIcon=ic; buildIconPicker(); }
+        function selectNaIcon(ic){
+            naIcon=ic; buildIconPicker(); updateIconPreview();
+            // chiudi la griglia dopo la selezione
+            const wrap=document.getElementById('na-icons-wrap'); if(wrap)wrap.style.display='none';
+            const chev=document.getElementById('na-icon-chevron'); if(chev)chev.textContent='expand_more';
+        }
         async function saveNewAppt(){
             if(naDates.length===0){ alert('Aggiungi almeno una data.'); return; }
             const type=(document.getElementById('na-type').value||'').trim();
@@ -3158,6 +3269,91 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
             try{applyAdminConfig(doc.data());}catch(e){console.error('Config admin error:',e);}
         });
         } // fine startFirestoreListeners
+
+        // ══════════════════════════════════════════════════════════════
+        // 🔘 FAB TRASCINABILE  (docking in header quando va in cima)
+        // ══════════════════════════════════════════════════════════════
+        (function(){
+            const FAB_KEY='fab_pos', DOCK_KEY='fab_docked';
+            const DOCK_ZONE=90; // px dal top → aggancia all'header
+
+            function setFabPos(x,y){
+                const fab=document.getElementById('fab-appt');
+                if(!fab)return;
+                fab.style.left=x+'px'; fab.style.top=y+'px';
+                fab.style.bottom='auto'; fab.style.right='auto';
+                try{ localStorage.setItem(FAB_KEY,JSON.stringify({x,y})); }catch(e){}
+            }
+            function dockFab(){
+                document.body.classList.add('fab-docked');
+                try{ localStorage.setItem(DOCK_KEY,'1'); }catch(e){}
+            }
+            function undockFab(){
+                document.body.classList.remove('fab-docked');
+                try{ localStorage.setItem(DOCK_KEY,'0'); }catch(e){}
+                // Ripristina posizione di default
+                const fab=document.getElementById('fab-appt');
+                if(fab){ fab.style.left='18px'; fab.style.top=''; fab.style.bottom='calc(20px + env(safe-area-inset-bottom))'; fab.style.right='auto'; }
+            }
+
+            window.addEventListener('load',()=>{
+                const fab=document.getElementById('fab-appt');
+                if(!fab)return;
+
+                // Ripristina stato salvato
+                try{
+                    if(localStorage.getItem(DOCK_KEY)==='1'){ dockFab(); }
+                    else {
+                        const saved=JSON.parse(localStorage.getItem(FAB_KEY)||'null');
+                        if(saved){ setFabPos(saved.x,saved.y); }
+                    }
+                }catch(e){}
+
+                // Tasto inline nell'header: un doppio tap lo riporta floating
+                const fbh=document.getElementById('fab-in-header');
+                if(fbh){ fbh.addEventListener('dblclick',()=>{ undockFab(); }); }
+
+                let dragging=false, ox=0,oy=0, fx=0,fy=0, moved=false;
+
+                function onStart(px,py){
+                    const r=fab.getBoundingClientRect();
+                    fx=r.left; fy=r.top;
+                    ox=px-r.left; oy=py-r.top;
+                    dragging=true; moved=false;
+                    fab.classList.add('fab-dragging');
+                }
+                function onMove(px,py){
+                    if(!dragging)return;
+                    moved=true;
+                    const nx=px-ox, ny=py-oy;
+                    const maxX=window.innerWidth-fab.offsetWidth-4;
+                    const maxY=window.innerHeight-fab.offsetHeight-4;
+                    fx=Math.max(4,Math.min(nx,maxX));
+                    fy=Math.max(4,Math.min(ny,maxY));
+                    fab.style.left=fx+'px'; fab.style.top=fy+'px';
+                    fab.style.bottom='auto'; fab.style.right='auto';
+                    // Evidenzia zona header
+                    fab.style.opacity = fy < DOCK_ZONE ? '0.7' : '0.85';
+                }
+                function onEnd(){
+                    if(!dragging)return; dragging=false;
+                    fab.classList.remove('fab-dragging');
+                    fab.style.opacity='';
+                    if(!moved)return; // era un click, non drag
+                    if(fy<DOCK_ZONE){ dockFab(); }
+                    else { setFabPos(fx,fy); }
+                }
+                // Touch
+                fab.addEventListener('touchstart',e=>{ const t=e.touches[0]; onStart(t.clientX,t.clientY); },{passive:true});
+                fab.addEventListener('touchmove',e=>{ const t=e.touches[0]; onMove(t.clientX,t.clientY); },{passive:true});
+                fab.addEventListener('touchend',onEnd,{passive:true});
+                // Mouse
+                fab.addEventListener('mousedown',e=>{ onStart(e.clientX,e.clientY); e.preventDefault(); });
+                window.addEventListener('mousemove',e=>{ if(dragging)onMove(e.clientX,e.clientY); });
+                window.addEventListener('mouseup',onEnd);
+            });
+        })();
+
 
         function applyAdminConfig(cfg) {
             if (!cfg) return;
