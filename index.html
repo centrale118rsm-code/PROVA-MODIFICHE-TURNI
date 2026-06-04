@@ -1116,7 +1116,7 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
         .na-section-body { padding: 13px 15px; }
         .na-section-header .material-icons-round { color: var(--primary); font-size: 1.05rem; }
         .na-share-select { width:100%; padding:12px; border-radius:11px; border:1.5px solid var(--border); font-size:0.92rem; background:var(--bg); color:var(--text-main); box-sizing:border-box; font-weight:600; }
-        .na-share-ops { display:none; margin-top:10px; display: grid; grid-template-columns: repeat(2,1fr); gap: 7px; }
+        .na-share-ops { display: grid; grid-template-columns: repeat(2,1fr); gap: 7px; margin-top:8px; }
         .na-op-chip { display:flex; align-items:center; gap:7px; padding:8px 11px; border-radius:10px; border:1.5px solid var(--border); background:var(--bg); cursor:pointer; font-size:0.8rem; font-weight:700; color:var(--text-main); transition:0.15s; }
         .na-op-chip input[type=checkbox] { accent-color:var(--primary); width:16px; height:16px; cursor:pointer; }
         .na-op-chip.checked { border-color:var(--primary); background:var(--primary); color:#fff; }
@@ -2049,6 +2049,7 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
                 tbody.appendChild(tr);
             }
             if(typeof updateMonthFixed==='function')setTimeout(updateMonthFixed,30);
+            if(typeof syncHeaderHeight==='function')setTimeout(syncHeaderHeight,60);
         }
 
         // ── PASSWORD ADMIN CON SESSIONSTORAGE (patch v21 integrata nativamente) ──
@@ -2390,29 +2391,47 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
         function syncHeaderHeight(){
             const header=document.querySelector('header');
             if(!header)return;
-            // Misura sempre l'altezza reale del thead
-            const thEl=document.querySelector('thead tr:first-child th');
-            if(thEl){
-                const thH=thEl.offsetHeight;
-                if(thH>0)document.documentElement.style.setProperty('--th-h',thH+'px');
-            }
-            if(document.body.classList.contains('header-hidden')){
+
+            const headerHidden=document.body.classList.contains('header-hidden');
+            let headerH=0;
+
+            if(!headerHidden){
+                headerH=header.offsetHeight||0;
+                if(headerH>0){
+                    document.documentElement.style.setProperty('--header-h',headerH+'px');
+                    document.body.style.paddingTop=headerH+'px';
+                }
+            } else {
                 document.body.style.paddingTop='0px';
-                if(typeof updateMonthFixed==='function')updateMonthFixed();
-                return;
+                headerH=0;
             }
-            const h=header.offsetHeight;
-            if(h>0){
-                document.documentElement.style.setProperty('--header-h',h+'px');
-                document.body.style.paddingTop=h+'px';
-            }
+
+            // Setta top direttamente su ogni <th> sticky (più affidabile di CSS var su iOS)
+            const ths=document.querySelectorAll('thead th');
+            ths.forEach(th=>{ th.style.top=headerH+'px'; });
+
+            // Aggiorna --th-h dalla misura reale
+            const firstTh=document.querySelector('thead tr:first-child th');
+            const thH=firstTh?(firstTh.offsetHeight||40):40;
+            document.documentElement.style.setProperty('--th-h',thH+'px');
+
+            // Posizione barra mese fissa: headerH + thH
+            const mf=document.getElementById('month-fixed');
+            if(mf) mf.style.top=(headerH+thH)+'px';
+
+            // tr.month-header td sticky top (se ancora in uso)
+            document.querySelectorAll('tr.month-header td').forEach(td=>{
+                if(getComputedStyle(td).position==='sticky')td.style.top=(headerH+thH)+'px';
+            });
+
             if(typeof updateMonthFixed==='function')updateMonthFixed();
         }
         window.addEventListener('resize',syncHeaderHeight);
         window.addEventListener('load',()=>{
             setTimeout(syncHeaderHeight,100);
-            setTimeout(syncHeaderHeight,350);
-            setTimeout(syncHeaderHeight,800);
+            setTimeout(syncHeaderHeight,400);
+            setTimeout(syncHeaderHeight,900);
+            setTimeout(syncHeaderHeight,2000); // dopo che exceljs ha finito il render
         });
         setInterval(()=>{if(typeof finalData!=='undefined'&&finalData.length>0)buildTicker();},5*60*1000);
 
@@ -2503,6 +2522,7 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
             localStorage.setItem('header_hidden','1');
             document.body.style.paddingTop='0px';
             if(navigator.vibrate)navigator.vibrate(12);
+            setTimeout(syncHeaderHeight,50);
         }
         function showHeader(){
             document.body.classList.remove('header-hidden');
@@ -3122,30 +3142,6 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
                 alert('✉️ Email di reset password inviata a '+session.email+'. Controlla la casella di posta.');
             }catch(e){ console.error(e); alert('Errore: '+(e.message||e.code||'sconosciuto')); }
         }
-        function updateNaShareType(){
-            const st=document.getElementById('na-share-type').value;
-            const wrap=document.getElementById('na-share-ops-wrap');
-            if(wrap){ wrap.style.display=st==='specific'?'block':'none'; }
-            if(st==='specific') buildNaShareOps();
-        }
-        function buildNaShareOps(){
-            const ops=(typeof drivers!=='undefined'&&drivers.length)?drivers.map(d=>d.name):KNOWN_OPERATORS.map(n=>n.charAt(0)+n.slice(1).toLowerCase());
-            const myName=(session&&session.operatorName)||'';
-            const filtered=ops.filter(n=>n.toLowerCase()!==myName.toLowerCase());
-            const el=document.getElementById('na-share-ops');
-            if(!el)return;
-            const current=getCheckedShareOps();
-            el.innerHTML=filtered.map(n=>{
-                const checked=current.has(n);
-                return '<label class="na-op-chip'+(checked?' checked':'')+'" onclick="toggleNaOpChip(this,\''+n+'\')" id="naop-'+n+'"><input type="checkbox"'+(checked?' checked':'')+' style="display:none"> '+n+'</label>';
-            }).join('');
-        }
-        function getCheckedShareOps(){
-            const s=new Set();
-            document.querySelectorAll('#na-share-ops .na-op-chip.checked').forEach(el=>s.add(el.textContent.trim()));
-            return s;
-        }
-        function toggleNaOpChip(el,name){ el.classList.toggle('checked'); }
         // Cambia il nome operatore associato all'account (dal menu Opzioni)
         async function updateAccountOperator(name){
             if(session && session.role==='operator' && session.uid && db){
@@ -3165,153 +3161,216 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
         }
 
         // ── APPUNTAMENTI ──
-        // ── COSTANTI IMPEGNI ──
+        // ══════════════════════════════════════════════════════════════
+        // 📅 SISTEMA IMPEGNI — riscritto da zero (versione robusta)
+        // ══════════════════════════════════════════════════════════════
         const APPT_COLORS=['#7c3aed','#2563eb','#0891b2','#059669','#d97706','#dc2626','#db2777','#475569'];
         const APPT_ICONS=['event','medical_services','local_hospital','fitness_center','school','work','restaurant','flight','directions_car','cake','favorite','sports_soccer','shopping_cart','build','celebration','payments','groups','beach_access','pets','home_repair_service'];
-        const REMIND_MIN={none:null,'10m':10,'1h':60,'2h':120,'1d':1440};
-        const MONTH_NAMES_BY_IDX=(function(){const o={};Object.keys(MONTH_MAP).forEach(k=>o[MONTH_MAP[k]]=k);return o;})();
-        function isoToDateKey(iso){ const p=iso.split('-'); const mi=parseInt(p[1])-1; const d=parseInt(p[2]); const mName=MONTH_NAMES_BY_IDX[mi]; return {mName, dNum:d}; }
+        const REMIND_MIN={'none':null,'10m':10,'1h':60,'2h':120,'1d':1440};
 
-        // ── CARICAMENTO (privati + condivisi) ──
+        // Converte 'YYYY-MM-DD' in {mName, dNum}
+        function isoToDateKey(iso){
+            try{
+                const p=iso.split('-');
+                const mi=parseInt(p[1],10)-1;
+                const dn=parseInt(p[2],10);
+                const mName=Object.keys(MONTH_MAP).find(k=>MONTH_MAP[k]===mi);
+                return {mName:mName||'', dNum:dn};
+            }catch(e){ return {mName:'',dNum:0}; }
+        }
+
+        // Collezioni Firestore
         function apptCol(){ return (db&&session&&session.uid)?db.collection('users').doc(session.uid).collection('appointments'):null; }
         function sharedCol(){ return db?db.collection('shared_appointments'):null; }
-        function isLocalMode(){ return session && !session.uid; }
-        function loadLocalAppts(){ try{ const a=JSON.parse(localStorage.getItem('as26_local_appts')||'[]'); return Array.isArray(a)?a:[]; }catch(e){ return []; } }
+        function isLocalMode(){ return !!(session&&!session.uid); }
+        function loadLocalAppts(){ try{ return JSON.parse(localStorage.getItem('as26_local_appts')||'[]'); }catch(e){ return []; } }
         function saveLocalAppts(arr){ try{ localStorage.setItem('as26_local_appts',JSON.stringify(arr)); }catch(e){} }
+
+        // ── CARICA IMPEGNI ──
         async function loadAppointments(){
             myAppointments={};
-            if(!session){ if(typeof renderTable==='function'&&finalData&&finalData.length)renderTable(); return; }
+            if(!session){ if(finalData&&finalData.length)renderTable(); return; }
+
             if(isLocalMode()){
-                loadLocalAppts().forEach(a=>{ a._scope='local'; a._own=true; (myAppointments[a.dateKey]=myAppointments[a.dateKey]||[]).push(a); });
-                Object.keys(myAppointments).forEach(k=>myAppointments[k].sort((x,y)=>(x.time||'').localeCompare(y.time||'')));
-                if(typeof renderTable==='function'&&finalData&&finalData.length)renderTable();
-                checkApptReminders();
-                return;
+                loadLocalAppts().forEach(a=>{
+                    a._scope='local'; a._own=true;
+                    if(a.dateKey)(myAppointments[a.dateKey]=myAppointments[a.dateKey]||[]).push(a);
+                });
+            } else {
+                // Privati
+                try{
+                    const col=apptCol();
+                    if(col){
+                        const snap=await col.get();
+                        snap.forEach(doc=>{
+                            const a=Object.assign({},doc.data(),{_id:doc.id,_scope:'private',_own:true});
+                            if(a.dateKey)(myAppointments[a.dateKey]=myAppointments[a.dateKey]||[]).push(a);
+                        });
+                    }
+                }catch(e){ console.warn('Impegni privati:',e); }
+                // Condivisi
+                try{
+                    const sc=sharedCol();
+                    if(sc){
+                        const snap=await sc.get();
+                        const myName=(session.operatorName||'').toLowerCase();
+                        snap.forEach(doc=>{
+                            const a=Object.assign({},doc.data(),{_id:doc.id,_scope:'shared',_own:(doc.data().ownerUid===session.uid)});
+                            const sw=a.sharedWith;
+                            const canSee=!sw||sw==='all'||(Array.isArray(sw)&&(sw.some(n=>n.toLowerCase()===myName)))||a._own;
+                            if(canSee&&a.dateKey)(myAppointments[a.dateKey]=myAppointments[a.dateKey]||[]).push(a);
+                        });
+                    }
+                }catch(e){ console.warn('Impegni condivisi:',e); }
             }
-            try{
-                const col=apptCol();
-                if(col){ const snap=await col.get(); snap.forEach(doc=>{ const a=doc.data(); a._id=doc.id; a._scope='private'; a._own=true; (myAppointments[a.dateKey]=myAppointments[a.dateKey]||[]).push(a); }); }
-            }catch(e){ console.warn('Privati non caricati:',e); }
-            try{
-                const sc=sharedCol();
-                if(sc){ const snap=await sc.get(); snap.forEach(doc=>{
-                    const a=doc.data(); a._id=doc.id; a._scope='shared'; a._own=(a.ownerUid===session.uid);
-                    // Filtra: sharedWith='all' → visibile a tutti; array → solo chi è incluso; null → visibile a tutti (retro-compat)
-                    const sw=a.sharedWith;
-                    const myName=(session.operatorName||'').toLowerCase();
-                    const canSee=!sw||sw==='all'||(Array.isArray(sw)&&sw.some(n=>n.toLowerCase()===myName))||a._own;
-                    if(canSee)(myAppointments[a.dateKey]=myAppointments[a.dateKey]||[]).push(a);
-                }); }
-            }catch(e){ console.warn('Condivisi non caricati:',e); }
-            Object.keys(myAppointments).forEach(k=>myAppointments[k].sort((x,y)=>(x.time||'').localeCompare(y.time||'')));
-            if(typeof renderTable==='function'&&finalData&&finalData.length)renderTable();
+
+            Object.keys(myAppointments).forEach(k=>myAppointments[k].sort((a,b)=>(a.time||'').localeCompare(b.time||'')));
+            if(finalData&&finalData.length)renderTable();
             checkApptReminders();
         }
 
-        // ── MODAL GIORNO (lista appuntamenti del giorno) ──
+        // ── MODAL GIORNO (tap su data) ──
         function openDayAppointments(mName,dNum){
             vibrate();
-            const mIdx=MONTH_MAP[mName]; const iso='2026-'+String((mIdx||0)+1).padStart(2,'0')+'-'+String(dNum).padStart(2,'0');
-            apptContext={mName:mName, dNum:dNum, iso:iso};
-            document.getElementById('appt-date-sub').innerText=dNum+' '+mName.charAt(0)+mName.slice(1).toLowerCase()+' 2026';
+            const mIdx=MONTH_MAP[mName]||0;
+            const iso='2026-'+String(mIdx+1).padStart(2,'0')+'-'+String(dNum).padStart(2,'0');
+            apptContext={mName,dNum,iso};
+            const sub=document.getElementById('appt-date-sub');
+            if(sub)sub.innerText=dNum+' '+mName.charAt(0)+mName.slice(1).toLowerCase()+' 2026';
             renderApptList();
-            // Nascondi pulsante "aggiungi" per ospiti
             const addBtn=document.querySelector('#appt-modal .btn-appt-save');
             if(addBtn)addBtn.style.display=(session&&session.role==='guest')?'none':'flex';
-            const m=document.getElementById('appt-modal'); m.style.display='flex'; setTimeout(()=>m.classList.add('open'),10);
+            const m=document.getElementById('appt-modal');
+            m.style.display='flex'; setTimeout(()=>m.classList.add('open'),10);
         }
         function closeApptModal(e){ if(e&&e.target!==e.currentTarget)return; const m=document.getElementById('appt-modal'); m.classList.remove('open'); setTimeout(()=>m.style.display='none',250); }
         function renderApptList(){
             const k=apptContext.mName+'-'+apptContext.dNum;
             const list=myAppointments[k]||[];
             const el=document.getElementById('appt-list');
-            if(list.length===0){ el.innerHTML='<div class="appt-empty">Nessun impegno per questo giorno.<br>Aggiungine uno qui sotto 👇</div>'; return; }
+            if(!el)return;
+            if(!list.length){ el.innerHTML='<div class="appt-empty">Nessun impegno per questo giorno.<br>Usa il + per aggiungerne uno.</div>'; return; }
             el.innerHTML=list.map(a=>{
-                const color=a.color||'#7c3aed'; const icon=a.icon||'event'; const title=a.type||a.title||'Impegno';
-                const remTxt=(a.remind&&a.remind!=='none')?({'10m':'10 min prima','1h':'1 ora prima','2h':'2 ore prima','1d':'1 giorno prima'}[a.remind]||(a.remind===true?'attivo':'')):'';
+                const col=a.color||'#7c3aed', ico=a.icon||'event', title=a.type||a.title||'Impegno';
+                const remLabels={'10m':'10 min prima','1h':'1 ora prima','2h':'2 ore prima','1d':'1 giorno prima'};
+                const remTxt=(a.remind&&a.remind!=='none'&&typeof a.remind==='string')?(remLabels[a.remind]||''):
+                              (a.remind===true?'attivo':'');
+                const sharedTxt=a._scope==='shared'?'<div class="ai-shared"><span class="material-icons-round" style="font-size:12px">people</span>'+(a._own?'Condiviso (tuo)':('Da: '+(a.ownerName||'altro')))+'</div>':'';
+                const delBtn=a._own!==false?'<button class="ai-del" onclick="deleteAppointment(\''+a._id+'\')"><span class="material-icons-round">delete_outline</span></button>':'';
                 return '<div class="appt-item">'
-                +'<span class="ai-time" style="background:'+color+'22;color:'+color+'">'+(a.time||'<span class="material-icons-round" style="font-size:15px">'+icon+'</span>')+'</span>'
-                +'<div class="ai-body"><div class="ai-title"><span class="material-icons-round" style="font-size:14px;color:'+color+';vertical-align:-2px">'+icon+'</span> '+escapeHtml(title)+'</div>'
-                +(a.note?'<div class="ai-note">'+escapeHtml(a.note)+'</div>':'')
-                +(remTxt?'<div class="ai-remind"><span class="material-icons-round" style="font-size:12px">notifications_active</span> '+remTxt+'</div>':'')
-                +(a._scope==='shared'?'<div class="ai-shared"><span class="material-icons-round" style="font-size:12px">groups</span> Condiviso'+(a._own?' (tuo)':' · '+escapeHtml(a.ownerName||'altro operatore'))+'</div>':'')
-                +'</div>'
-                +(a._own!==false?'<button class="ai-del" onclick="deleteAppointment(\''+a._id+'\')"><span class="material-icons-round">delete_outline</span></button>':'')
-                +'</div>';
+                    +'<span class="ai-time" style="background:'+col+'22;color:'+col+'">'
+                    +(a.time?a.time:'<span class="material-icons-round" style="font-size:15px">'+ico+'</span>')
+                    +'</span>'
+                    +'<div class="ai-body"><div class="ai-title"><span class="material-icons-round" style="font-size:14px;color:'+col+';vertical-align:-2px">'+ico+'</span> '+escapeHtml(title)+'</div>'
+                    +(remTxt?'<div class="ai-remind"><span class="material-icons-round" style="font-size:11px">notifications_active</span> '+remTxt+'</div>':'')
+                    +sharedTxt+'</div>'+delBtn+'</div>';
             }).join('');
         }
-        function escapeHtml(s){ return (s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+        function escapeHtml(s){ return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
-        // ── MODAL NUOVO IMPEGNO (completo) ──
-        let naDates=[]; let naColor=APPT_COLORS[0]; let naIcon=APPT_ICONS[0];
+        // ── MODAL NUOVO IMPEGNO ──
+        let naDates=[], naColor=APPT_COLORS[0], naIcon=APPT_ICONS[0];
+
         function openNewAppt(prefillIso){
-            if(!session){ alert('Devi prima effettuare l\'accesso.'); return; }
+            if(!session){ alert('Effettua prima il login.'); return; }
             if(session.role==='guest'){ alert('In modalità ospite non puoi creare impegni.'); return; }
             vibrate();
-            const dm=document.getElementById('appt-modal'); if(dm&&dm.classList.contains('open')){ dm.classList.remove('open'); setTimeout(()=>dm.style.display='none',200); }
-            naDates = prefillIso ? [prefillIso] : [];
+            // Chiudi modal giorno se aperto
+            const dm=document.getElementById('appt-modal');
+            if(dm&&dm.classList.contains('open')){ dm.classList.remove('open'); setTimeout(()=>dm.style.display='none',200); }
+
+            naDates=prefillIso?[prefillIso]:[];
             naColor=APPT_COLORS[0]; naIcon=APPT_ICONS[0];
-            document.getElementById('na-type').value='';
-            document.getElementById('na-time').value='';
-            document.getElementById('na-showtitle').checked=false;
-            document.getElementById('na-remind').value='none';
-            // Reset data semplice
+
+            // Reset campi
+            const fields=['na-type','na-time'];
+            fields.forEach(id=>{ const el=document.getElementById(id); if(el)el.value=''; });
+            const st=document.getElementById('na-showtitle'); if(st)st.checked=false;
+            const rem=document.getElementById('na-remind'); if(rem)rem.value='none';
+
+            // Data default
             const today=new Date();
             const todayIso='2026-'+String(today.getMonth()+1).padStart(2,'0')+'-'+String(today.getDate()).padStart(2,'0');
             const di=document.getElementById('na-date'); if(di)di.value=prefillIso||todayIso;
-            const dto=document.getElementById('na-date-to'); if(dto){dto.value='';dto.style.display='none';}
+            const dto=document.getElementById('na-date-to'); if(dto){ dto.value=''; dto.style.display='none'; }
             const uchk=document.getElementById('na-until-check'); if(uchk)uchk.checked=false;
-            // Condivisione: Centrale → sempre "tutti" e bloccato; altri → libero
-            const shareTypeEl=document.getElementById('na-share-type');
-            if(shareTypeEl){
+
+            // Condivisione: Centrale → all forzato
+            const shareEl=document.getElementById('na-share-type');
+            if(shareEl){
                 const isCentrale=(session.role==='centrale');
-                shareTypeEl.value=isCentrale?'all':'private';
-                shareTypeEl.disabled=isCentrale;
+                shareEl.value=isCentrale?'all':'private';
+                shareEl.disabled=isCentrale;
                 updateNaShareType();
             }
-            // Reset icone (collassate)
-            const wrap=document.getElementById('na-icons-wrap'); if(wrap)wrap.style.display='none';
-            const chev=document.getElementById('na-icon-chevron'); if(chev)chev.textContent='expand_more';
+            // Icone collassate
+            const iw=document.getElementById('na-icons-wrap'); if(iw)iw.style.display='none';
+            const ic=document.getElementById('na-icon-chevron'); if(ic)ic.textContent='expand_more';
+
             buildColorPicker(); updateIconPreview(); renderNaChips();
-            const m=document.getElementById('newappt-modal'); m.style.display='flex'; setTimeout(()=>m.classList.add('open'),10);
+
+            const m=document.getElementById('newappt-modal');
+            m.style.display='flex'; setTimeout(()=>m.classList.add('open'),10);
         }
+        function closeNewAppt(e){ if(e&&e.target!==e.currentTarget)return; const m=document.getElementById('newappt-modal'); if(!m)return; m.classList.remove('open'); setTimeout(()=>m.style.display='none',250); }
+
+        // Data
         function toggleNaUntil(){
             const chk=document.getElementById('na-until-check');
             const dto=document.getElementById('na-date-to');
-            if(dto)dto.style.display=chk.checked?'block':'none';
+            if(dto)dto.style.display=chk&&chk.checked?'block':'none';
         }
         function addNaDates(){
-            const from=(document.getElementById('na-date').value||'');
-            if(!from){alert('Seleziona una data.');return;}
+            const di=document.getElementById('na-date');
+            const from=di?di.value:'';
+            if(!from){ alert('Seleziona una data.'); return; }
             const uchk=document.getElementById('na-until-check');
-            const to=uchk&&uchk.checked?(document.getElementById('na-date-to').value||''):'';
+            const dto=document.getElementById('na-date-to');
+            const to=(uchk&&uchk.checked&&dto)?dto.value:'';
             if(to&&from<=to){
-                const d=new Date(from+'T12:00'); const end=new Date(to+'T12:00');
-                let count=0;
-                while(d<=end&&count<366){ const iso=d.toISOString().slice(0,10); if(!naDates.includes(iso))naDates.push(iso); d.setDate(d.getDate()+1); count++; }
+                const cur=new Date(from+'T12:00'), end=new Date(to+'T12:00');
+                let cnt=0;
+                while(cur<=end&&cnt<366){ const iso=cur.toISOString().slice(0,10); if(!naDates.includes(iso))naDates.push(iso); cur.setDate(cur.getDate()+1); cnt++; }
             } else {
                 if(!naDates.includes(from))naDates.push(from);
             }
             naDates.sort(); renderNaChips();
         }
-        function closeNewAppt(e){ if(e&&e.target!==e.currentTarget)return; const m=document.getElementById('newappt-modal'); m.classList.remove('open'); setTimeout(()=>m.style.display='none',250); }
-        function addNaDate(){ addNaDates(); } // backward compat
-        function addNaDateRange(){
-            const from=(document.getElementById('na-date-from').value||'');
-            const to=(document.getElementById('na-date-to').value||'');
-            if(!from||!to){ alert('Seleziona sia la data di inizio che di fine.'); return; }
-            if(from>to){ alert('La data di inizio deve essere prima della data di fine.'); return; }
-            const d=new Date(from+'T12:00'); const end=new Date(to+'T12:00');
-            let count=0;
-            while(d<=end&&count<366){ const iso=d.toISOString().slice(0,10); if(!naDates.includes(iso))naDates.push(iso); d.setDate(d.getDate()+1); count++; }
-            naDates.sort(); renderNaChips();
+        function addNaDate(){ addNaDates(); }
+        function removeNaDate(iso){ naDates=naDates.filter(d=>d!==iso); renderNaChips(); }
+        function renderNaChips(){
+            const el=document.getElementById('na-dates-chips');
+            if(!el)return;
+            if(!naDates.length){ el.innerHTML='<span style="font-size:0.76rem;color:var(--text-sec)">Nessuna data selezionata</span>'; return; }
+            el.innerHTML=naDates.map(iso=>{
+                const dk=isoToDateKey(iso);
+                const lbl=dk.dNum+(dk.mName?' '+dk.mName.substr(0,3).toLowerCase():'');
+                return '<span class="na-chip">'+lbl+'<button type="button" onclick="removeNaDate(\''+iso+'\')"><span class="material-icons-round">close</span></button></span>';
+            }).join('');
+        }
+
+        // Colori e icone
+        function buildColorPicker(){
+            const el=document.getElementById('na-colors'); if(!el)return;
+            el.innerHTML=APPT_COLORS.map(c=>'<div class="na-color'+(c===naColor?' sel':'')+'" style="background:'+c+'" onclick="selectNaColor(\''+c+'\')"></div>').join('');
+        }
+        function selectNaColor(c){ naColor=c; buildColorPicker(); updateIconPreview(); }
+        function buildIconPicker(){
+            const el=document.getElementById('na-icons'); if(!el)return;
+            el.innerHTML=APPT_ICONS.map(ic=>'<div class="na-icon'+(ic===naIcon?' sel':'')+'" onclick="selectNaIcon(\''+ic+'\')"><span class="material-icons-round">'+ic+'</span></div>').join('');
+        }
+        function selectNaIcon(ic){
+            naIcon=ic; buildIconPicker(); updateIconPreview();
+            const iw=document.getElementById('na-icons-wrap'); if(iw)iw.style.display='none';
+            const ic2=document.getElementById('na-icon-chevron'); if(ic2)ic2.textContent='expand_more';
         }
         function toggleNaIcons(){
-            const wrap=document.getElementById('na-icons-wrap');
-            const chev=document.getElementById('na-icon-chevron');
-            const open=wrap.style.display==='none';
-            wrap.style.display=open?'block':'none';
-            if(chev)chev.textContent=open?'expand_less':'expand_more';
+            const iw=document.getElementById('na-icons-wrap');
+            const ic=document.getElementById('na-icon-chevron');
+            if(!iw)return;
+            const open=iw.style.display==='none';
+            iw.style.display=open?'block':'none';
+            if(ic)ic.textContent=open?'expand_less':'expand_more';
             if(open)buildIconPicker();
         }
         function updateIconPreview(){
@@ -3320,57 +3379,98 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
             prev.innerHTML='<span class="material-icons-round">'+naIcon+'</span>';
             const lbl=document.getElementById('na-icon-label'); if(lbl)lbl.textContent=naIcon.replace(/_/g,' ');
         }
-        function removeNaDate(iso){ naDates=naDates.filter(d=>d!==iso); renderNaChips(); }
-        function renderNaChips(){
-            const el=document.getElementById('na-dates-chips');
-            if(naDates.length===0){ el.innerHTML='<span style="font-size:0.76rem;color:var(--text-sec)">Aggiungi una o più date 👆</span>'; return; }
-            el.innerHTML=naDates.map(iso=>{ const dk=isoToDateKey(iso); const lbl=dk.dNum+' '+(dk.mName?dk.mName.substr(0,3).toLowerCase():iso); return '<span class="na-chip">'+lbl+'<button onclick="removeNaDate(\''+iso+'\')"><span class="material-icons-round">close</span></button></span>'; }).join('');
+
+        // Condivisione
+        function updateNaShareType(){
+            const st=document.getElementById('na-share-type'); if(!st)return;
+            const wrap=document.getElementById('na-share-ops-wrap'); if(!wrap)return;
+            wrap.style.display=st.value==='specific'?'block':'none';
+            if(st.value==='specific')buildNaShareOps();
         }
-        function buildColorPicker(){
-            document.getElementById('na-colors').innerHTML=APPT_COLORS.map(c=>'<div class="na-color'+(c===naColor?' sel':'')+'" style="background:'+c+'" onclick="selectNaColor(\''+c+'\')"></div>').join('');
+        function buildNaShareOps(){
+            const el=document.getElementById('na-share-ops'); if(!el)return;
+            const ops=(typeof drivers!=='undefined'&&drivers.length)?drivers.map(d=>d.name):KNOWN_OPERATORS.map(n=>n.charAt(0)+n.slice(1).toLowerCase());
+            const myName=(session&&session.operatorName)||'';
+            el.innerHTML=ops.filter(n=>n.toLowerCase()!==myName.toLowerCase()).map(n=>{
+                const id='naop-cb-'+n.replace(/\s/g,'_');
+                return '<label class="na-op-chip" id="naop-'+n+'">'
+                    +'<input type="checkbox" id="'+id+'" value="'+n+'"> '+escapeHtml(n)+'</label>';
+            }).join('');
+            // Toggle visual state on click
+            el.querySelectorAll('.na-op-chip').forEach(lbl=>{
+                lbl.addEventListener('click',function(e){
+                    if(e.target.tagName==='INPUT')return;
+                    const cb=lbl.querySelector('input[type=checkbox]');
+                    if(cb){ cb.checked=!cb.checked; lbl.classList.toggle('checked',cb.checked); }
+                });
+                const cb=lbl.querySelector('input[type=checkbox]');
+                if(cb)cb.addEventListener('change',()=>lbl.classList.toggle('checked',cb.checked));
+            });
         }
-        function selectNaColor(c){ naColor=c; buildColorPicker(); updateIconPreview(); }
-        function buildIconPicker(){
-            document.getElementById('na-icons').innerHTML=APPT_ICONS.map(ic=>'<div class="na-icon'+(ic===naIcon?' sel':'')+'" onclick="selectNaIcon(\''+ic+'\')"><span class="material-icons-round">'+ic+'</span></div>').join('');
+        function getSelectedOps(){
+            const ops=[];
+            document.querySelectorAll('#na-share-ops input[type=checkbox]:checked').forEach(cb=>ops.push(cb.value));
+            return ops;
         }
-        function selectNaIcon(ic){
-            naIcon=ic; buildIconPicker(); updateIconPreview();
-            // chiudi la griglia dopo la selezione
-            const wrap=document.getElementById('na-icons-wrap'); if(wrap)wrap.style.display='none';
-            const chev=document.getElementById('na-icon-chevron'); if(chev)chev.textContent='expand_more';
-        }
+
+        // ── SALVA IMPEGNO ──
         async function saveNewAppt(){
-            if(naDates.length===0){ alert('Aggiungi almeno una data.'); return; }
-            const type=(document.getElementById('na-type').value||'').trim();
+            if(!naDates.length){ alert('Aggiungi almeno una data.'); return; }
+            const typeEl=document.getElementById('na-type');
+            const type=(typeEl?typeEl.value:'').trim();
             if(!type){ alert('Inserisci il tipo di impegno.'); return; }
-            const time=document.getElementById('na-time').value||'';
-            const showTitle=document.getElementById('na-showtitle').checked;
-            const shareType=(document.getElementById('na-share-type').value)||'private';
-            let shared=(shareType!=='private');
-            let sharedWith=shareType==='all'?'all':shareType==='specific'?[...getCheckedShareOps()]:null;
-            const remind=document.getElementById('na-remind').value||'none';
+            const timeEl=document.getElementById('na-time'); const time=timeEl?timeEl.value:'';
+            const stEl=document.getElementById('na-showtitle'); const showTitle=stEl?stEl.checked:false;
+            const remEl=document.getElementById('na-remind'); const remind=remEl?remEl.value:'none';
+            const shareTypeEl=document.getElementById('na-share-type');
+            const shareType=shareTypeEl?shareTypeEl.value:'private';
+            const shared=(shareType!=='private');
+            const sharedWith=shareType==='all'?'all':shareType==='specific'?getSelectedOps():null;
+
+            const btn=document.querySelector('#newappt-modal .btn-appt-save');
+            if(btn)btn.disabled=true;
             try{
                 for(const iso of naDates){
                     const dk=isoToDateKey(iso);
-                    const appt={ dateKey:dk.mName+'-'+dk.dNum, mName:dk.mName, dNum:dk.dNum, iso, type, title:type, time, color:naColor, icon:naIcon, showTitle, shared, sharedWith:sharedWith||null, remind, ownerUid:session.uid||null, ownerName:(session.operatorName||session.email||'Operatore'), createdAt:new Date().toISOString() };
-                    let newId='local_'+Date.now()+'_'+Math.random().toString(36).slice(2,6);
+                    if(!dk.mName)continue; // data fuori dall'anno
+                    const appt={
+                        dateKey:dk.mName+'-'+dk.dNum, mName:dk.mName, dNum:dk.dNum, iso,
+                        type, title:type, time, color:naColor, icon:naIcon, showTitle,
+                        shared, sharedWith:sharedWith||null, remind,
+                        ownerUid:session.uid||null,
+                        ownerName:session.operatorName||session.email||'Operatore',
+                        createdAt:new Date().toISOString()
+                    };
+                    let savedId='local_'+Date.now()+'_'+Math.random().toString(36).slice(2,5);
                     if(isLocalMode()){
-                        appt._id=newId; appt._scope='local'; appt._own=true;
+                        appt._id=savedId; appt._scope='local'; appt._own=true;
                         const arr=loadLocalAppts(); arr.push(appt); saveLocalAppts(arr);
                     } else if(shared){
-                        const sc=sharedCol(); if(sc){ const ref=await sc.add(appt); newId=ref.id; } appt._scope='shared'; appt._id=newId; appt._own=true;
+                        const sc=sharedCol();
+                        if(sc){ const ref=await sc.add(appt); savedId=ref.id; }
+                        appt._id=savedId; appt._scope='shared'; appt._own=true;
                     } else {
-                        const col=apptCol(); if(col){ const ref=await col.add(appt); newId=ref.id; } appt._scope='private'; appt._id=newId; appt._own=true;
+                        const col=apptCol();
+                        if(col){ const ref=await col.add(appt); savedId=ref.id; }
+                        appt._id=savedId; appt._scope='private'; appt._own=true;
                     }
-                    (myAppointments[appt.dateKey]=myAppointments[appt.dateKey]||[]).push(appt);
-                    myAppointments[appt.dateKey].sort((x,y)=>(x.time||'').localeCompare(y.time||''));
+                    const k=appt.dateKey;
+                    (myAppointments[k]=myAppointments[k]||[]).push(appt);
+                    myAppointments[k].sort((a,b)=>(a.time||'').localeCompare(b.time||''));
                 }
                 if(navigator.vibrate)navigator.vibrate(25);
                 closeNewAppt();
-                if(typeof renderTable==='function'&&finalData&&finalData.length)renderTable();
+                if(finalData&&finalData.length)renderTable();
                 checkApptReminders();
-            }catch(e){ console.error(e); alert('Errore nel salvataggio. Controlla la connessione.'); }
+            }catch(err){
+                console.error('saveNewAppt error:',err);
+                alert('Errore nel salvataggio: '+(err.message||err.code||'sconosciuto'));
+            }finally{
+                if(btn)btn.disabled=false;
+            }
         }
+
+        // ── ELIMINA IMPEGNO ──
         async function deleteAppointment(id){
             if(!confirm('Eliminare questo impegno?'))return;
             let scope='private';
@@ -3378,46 +3478,51 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
             try{
                 if(scope==='local'){
                     saveLocalAppts(loadLocalAppts().filter(a=>a._id!==id));
-                } else if(!id.startsWith('local_')){
-                    const col = scope==='shared' ? sharedCol() : apptCol();
+                } else if(id&&!id.startsWith('local_')){
+                    const col=(scope==='shared')?sharedCol():apptCol();
                     if(col)await col.doc(id).delete();
                 }
-            }catch(e){ console.warn(e); }
-            Object.keys(myAppointments).forEach(k=>{ myAppointments[k]=myAppointments[k].filter(a=>a._id!==id); if(myAppointments[k].length===0)delete myAppointments[k]; });
+            }catch(e){ console.warn('Delete appt:',e); }
+            Object.keys(myAppointments).forEach(k=>{
+                myAppointments[k]=myAppointments[k].filter(a=>a._id!==id);
+                if(!myAppointments[k].length)delete myAppointments[k];
+            });
             renderApptList();
-            if(typeof renderTable==='function'&&finalData&&finalData.length)renderTable();
+            if(finalData&&finalData.length)renderTable();
         }
 
-        // ── PROMEMORIA IMPEGNI (con anticipo) ──
-        function requestNotifPermission(){ try{ if('Notification' in window && Notification.permission==='default')Notification.requestPermission(); }catch(e){} }
+        // ── PROMEMORIA ──
+        function requestNotifPermission(){ try{ if('Notification' in window&&Notification.permission==='default')Notification.requestPermission(); }catch(e){} }
         function getNotifiedAppts(){ try{ return new Set(JSON.parse(localStorage.getItem('notified_appts')||'[]')); }catch(e){ return new Set(); } }
         function markApptNotified(id){ try{ const s=getNotifiedAppts(); s.add(id); localStorage.setItem('notified_appts',JSON.stringify([...s].slice(-400))); }catch(e){} }
         function fireApptNotif(a,msg){
-            try{ if('Notification' in window && Notification.permission==='granted')new Notification('Promemoria A.S. 26',{body:msg}); }catch(e){}
-            if(typeof notifHistory!=='undefined'){ notifHistory.unshift({id:'appt_'+a._id+'_'+Date.now(),text:'<b>📅 Promemoria impegno</b><br>'+escapeHtml(msg),read:false,date:new Date().toLocaleString('it-IT'),type:'appt'}); if(typeof saveNotifications==='function')saveNotifications(); if(typeof updateBadge==='function')updateBadge(); }
+            try{ if('Notification' in window&&Notification.permission==='granted')new Notification('Promemoria A.S. 26',{body:msg}); }catch(e){}
+            if(typeof notifHistory!=='undefined'){
+                notifHistory.unshift({id:'appt_'+a._id+'_'+Date.now(),text:'<b>📅 Promemoria impegno</b><br>'+escapeHtml(msg),read:false,date:new Date().toLocaleString('it-IT'),type:'appt'});
+                if(typeof saveNotifications==='function')saveNotifications();
+                if(typeof updateBadge==='function')updateBadge();
+            }
             if(navigator.vibrate)navigator.vibrate([120,60,120]);
         }
         function checkApptReminders(){
             const now=new Date(); const notified=getNotifiedAppts();
             Object.values(myAppointments).forEach(list=>list.forEach(a=>{
                 if(!a._id||notified.has(a._id))return;
-                const rem=a.remind;
-                if(!rem||rem==='none')return;
-                const title=a.type||a.title||'Impegno';
-                // appuntamento datetime
-                const dt=new Date(a.iso+'T'+((a.time&&/^\d{2}:\d{2}/.test(a.time))?a.time:'09:00')+':00');
+                const rem=a.remind; if(!rem||rem==='none')return;
+                const timeStr=(a.time&&/^\d{2}:\d{2}/.test(a.time))?a.time:'09:00';
+                const dt=new Date(a.iso+'T'+timeStr+':00');
                 if(isNaN(dt.getTime()))return;
-                let offMin = (rem===true)?0:(REMIND_MIN[rem]||0); // retrocompat: vecchio bool = al momento
-                const notifyTime=new Date(dt.getTime()-offMin*60000);
-                // notifica se siamo nella finestra [notifyTime, dt+30min]
-                if(now>=notifyTime && now<=new Date(dt.getTime()+30*60000)){
-                    const when = offMin>=1440?'domani':(offMin>=60?('tra '+(offMin/60)+(offMin/60===1?' ora':' ore')):(offMin>0?('tra '+offMin+' min'):'ora'));
-                    fireApptNotif(a,'📅 '+title+(a.time?' alle '+a.time:'')+' — '+when);
+                const offMin=typeof rem==='boolean'?0:(REMIND_MIN[rem]||0);
+                const notifyAt=new Date(dt.getTime()-offMin*60000);
+                if(now>=notifyAt&&now<=new Date(dt.getTime()+30*60000)){
+                    const when=offMin>=1440?'domani':offMin>=60?('tra '+(offMin/60)+(offMin/60===1?' ora':' ore')):offMin>0?('tra '+offMin+' min'):'ora';
+                    fireApptNotif(a,'📅 '+(a.type||a.title||'Impegno')+(a.time?' alle '+a.time:'')+' — '+when);
                     markApptNotified(a._id);
                 }
             }));
         }
         setInterval(()=>{ if(session)checkApptReminders(); }, 60*1000);
+
 
         // Avvio sistema account dopo che il DOM è pronto
         if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initAuth);
