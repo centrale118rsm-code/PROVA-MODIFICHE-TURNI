@@ -120,6 +120,7 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
 </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
@@ -180,7 +181,7 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
         thead th:first-child, tbody td:first-child { width: 60px !important; min-width: 60px !important; max-width: 60px !important; }
         thead th:first-child { position: -webkit-sticky !important; position: sticky !important; left: 0; z-index: 96 !important; background: var(--bg) !important; }
         tr.month-header td { background: var(--month-bar-bg); color: white; position: -webkit-sticky !important; position: sticky !important; top: calc(var(--header-h) + var(--th-h)); z-index: 88; box-shadow: 0 4px 15px rgba(0,0,0,0.2); padding: 0; border: none; line-height: 1; }
-        .sticky-month-text { display: flex; align-items: center; gap: 12px; min-height: 40px; padding: 4px 0 4px 16px; position: -webkit-sticky; position: sticky; left: 0; width: 100vw; box-sizing: border-box; }
+        .sticky-month-text { display: flex; align-items: center; gap: 12px; min-height: 40px; padding: 4px 0 4px 16px; box-sizing: border-box; }
         .month-label { font-weight: 900; font-size: 1.4rem; text-transform: uppercase; letter-spacing: -0.5px; text-shadow: 0 2px 4px rgba(0,0,0,0.2); }
         .live-clock { font-variant-numeric: tabular-nums; font-weight: 800; font-size: 1rem; background: rgba(0,0,0,0.25); padding: 2px 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); letter-spacing: 0.5px; box-shadow: inset 0 1px 3px rgba(0,0,0,0.1); text-shadow: 0 1px 2px rgba(0,0,0,0.2); }
         tbody td { padding: 2px; height: var(--cell-h); vertical-align: middle; border-bottom: 1px solid var(--border); border-right: 1px dashed var(--border); transition: height 0.3s ease; width: 110px !important; min-width: 110px !important; max-width: 110px !important; overflow: hidden; }
@@ -381,34 +382,32 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
         body.ios-mode thead th { position: -webkit-sticky !important; position: sticky !important; }
 
         /* ── MONTH BAR sottile (poco più del nome) ── */
-        tr.month-header td { box-shadow: 0 2px 10px rgba(0,0,0,0.16) !important; }
+        tr.month-header td { box-shadow: 0 2px 8px rgba(0,0,0,0.16) !important; overflow: hidden; }
         .sticky-month-text {
-            min-height: 26px !important;
-            padding: 3px 16px !important;
+            min-height: 21px !important;
+            padding: 1px 14px !important;
             backdrop-filter: blur(4px);
             display: flex !important;
             align-items: center !important;
             justify-content: flex-start !important;
             gap: 8px !important;
-            position: -webkit-sticky !important;
-            position: sticky !important;
-            left: 0 !important;
-            width: 100vw !important;
-            box-sizing: border-box !important;
+            width: max-content !important;
+            min-width: 160px;
+            will-change: transform;
         }
         .month-label {
-            font-size: 0.98rem !important;
+            font-size: 0.86rem !important;
             font-weight: 800 !important;
             letter-spacing: 0.3px !important;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 7px;
             white-space: nowrap;
             flex: 0 0 auto;
         }
         .month-label::before {
             content: '';
-            width: 3px; height: 15px;
+            width: 3px; height: 13px;
             background: rgba(255,255,255,0.75);
             border-radius: 2px;
             box-shadow: 0 0 8px rgba(255,255,255,0.4);
@@ -901,11 +900,156 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
         .wv-abs .material-icons-round { color: #dc2626; }
         .wv-empty { padding: 18px; text-align: center; color: var(--text-sec); font-size: 0.82rem; }
         .wv-hint { text-align: center; font-size: 0.72rem; color: var(--text-sec); padding: 4px 0 12px; }
+
+        /* ════════════ LOGIN ════════════ */
+        #login-overlay {
+            position: fixed; inset: 0; z-index: 8000;
+            background: linear-gradient(160deg, #0b1220 0%, #1e3a8a 60%, #2563eb 100%);
+            display: none; align-items: center; justify-content: center;
+            padding: 24px; overflow-y: auto;
+        }
+        #login-overlay.open { display: flex; }
+        .login-card {
+            width: 100%; max-width: 380px; background: var(--bg-card);
+            border-radius: 24px; padding: 28px 24px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            animation: panoIn 0.35s ease;
+        }
+        .login-logo { width: 84px; height: 84px; border-radius: 20px; object-fit: cover; display: block; margin: 0 auto 14px; box-shadow: 0 6px 20px rgba(0,0,0,0.3); }
+        .login-title { text-align: center; font-size: 1.35rem; font-weight: 900; color: var(--text-main); letter-spacing: -0.5px; }
+        .login-sub { text-align: center; font-size: 0.82rem; color: var(--text-sec); margin: 4px 0 20px; }
+        .login-tabs { display: flex; background: var(--bg); border-radius: 12px; padding: 4px; margin-bottom: 18px; }
+        .login-tab { flex: 1; text-align: center; padding: 9px; border-radius: 9px; font-weight: 800; font-size: 0.85rem; color: var(--text-sec); cursor: pointer; transition: 0.2s; }
+        .login-tab.active { background: var(--primary); color: #fff; box-shadow: 0 3px 10px rgba(37,99,235,0.3); }
+        .login-field { margin-bottom: 13px; }
+        .login-field label { display: block; font-size: 0.72rem; font-weight: 800; color: var(--text-sec); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+        .login-field input, .login-field select {
+            width: 100%; padding: 13px 14px; border-radius: 12px; border: 1.5px solid var(--border);
+            font-size: 0.95rem; font-weight: 600; background: var(--bg); color: var(--text-main); box-sizing: border-box;
+        }
+        .login-field input:focus, .login-field select:focus { border-color: var(--primary); }
+        .login-btn {
+            width: 100%; padding: 15px; border-radius: 14px; border: none;
+            background: linear-gradient(135deg, #1e3a8a, #2563eb); color: #fff;
+            font-weight: 800; font-size: 1rem; cursor: pointer; margin-top: 6px;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+        }
+        .login-btn:active { transform: scale(0.98); }
+        .login-divider { text-align: center; font-size: 0.72rem; color: var(--text-sec); margin: 18px 0; position: relative; }
+        .login-divider::before, .login-divider::after { content: ''; position: absolute; top: 50%; width: 38%; height: 1px; background: var(--border); }
+        .login-divider::before { left: 0; } .login-divider::after { right: 0; }
+        .login-btn-ghost {
+            width: 100%; padding: 14px; border-radius: 14px; border: 1.5px solid var(--border);
+            background: var(--bg); color: var(--text-main); font-weight: 800; font-size: 0.92rem; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+        }
+        .login-btn-ghost:active { transform: scale(0.98); }
+        .login-error { background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; border-radius: 10px; padding: 10px 12px; font-size: 0.8rem; font-weight: 600; margin-bottom: 13px; display: none; }
+        .login-error.show { display: block; }
+        body.dark-mode .login-error { background: #450a0a; color: #fca5a5; border-color: #7f1d1d; }
+        .account-badge { display: flex; align-items: center; gap: 10px; padding: 14px 16px; background: var(--bg); border-radius: 12px; margin-bottom: 4px; }
+        .account-badge .material-icons-round { color: var(--primary); }
+        .account-badge .ab-info { flex: 1; min-width: 0; }
+        .account-badge .ab-email { font-weight: 800; font-size: 0.9rem; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .account-badge .ab-role { font-size: 0.74rem; color: var(--text-sec); }
+        .btn-logout { background: #fee2e2; color: #b91c1c; border: none; padding: 9px 14px; border-radius: 10px; font-weight: 800; font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; gap: 5px; }
+
+        /* ════════════ APPUNTAMENTI ════════════ */
+        .appt-badge {
+            display: inline-flex; align-items: center; justify-content: center;
+            min-width: 16px; height: 16px; padding: 0 4px; margin-top: 2px;
+            background: #7c3aed; color: #fff; border-radius: 8px;
+            font-size: 0.58rem; font-weight: 900; line-height: 1;
+            box-shadow: 0 1px 3px rgba(124,58,237,0.5);
+        }
+        #appt-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 3500; backdrop-filter: blur(8px); align-items: flex-end; justify-content: center; opacity: 0; transition: opacity 0.3s; }
+        #appt-modal.open { opacity: 1; }
+        #appt-modal .modal-content { transform: translateY(100%); transition: transform 0.35s cubic-bezier(0.16,1,0.3,1); }
+        #appt-modal.open .modal-content { transform: translateY(0); }
+        .appt-header { background: linear-gradient(135deg,#5b21b6,#7c3aed); color:#fff; padding: 16px 20px; display:flex; justify-content:space-between; align-items:center; }
+        .appt-header h3 { margin:0; font-size:1.1rem; font-weight:800; display:flex; align-items:center; gap:9px; }
+        .appt-header .appt-date-sub { font-size:0.78rem; opacity:0.85; font-weight:600; margin-top:2px; }
+        .appt-list { padding: 12px 16px; }
+        .appt-item { display:flex; align-items:flex-start; gap:11px; padding:12px; background:var(--bg); border:1px solid var(--border); border-radius:14px; margin-bottom:8px; }
+        .appt-item .ai-time { font-weight:900; font-size:0.82rem; color:#7c3aed; background:#ede9fe; padding:4px 8px; border-radius:8px; white-space:nowrap; flex-shrink:0; }
+        body.dark-mode .appt-item .ai-time { background:#2e1065; color:#c4b5fd; }
+        .appt-item .ai-body { flex:1; min-width:0; }
+        .appt-item .ai-title { font-weight:800; font-size:0.92rem; color:var(--text-main); }
+        .appt-item .ai-note { font-size:0.78rem; color:var(--text-sec); margin-top:2px; }
+        .appt-item .ai-remind { font-size:0.66rem; color:#7c3aed; font-weight:700; margin-top:4px; display:inline-flex; align-items:center; gap:3px; }
+        .appt-item .ai-del { background:none; border:none; color:#ef4444; cursor:pointer; flex-shrink:0; padding:4px; }
+        .appt-empty { text-align:center; color:var(--text-sec); font-size:0.85rem; padding:18px; }
+        .appt-form { padding: 12px 16px 24px; border-top: 1px solid var(--border); }
+        .appt-form .af-row { display:flex; gap:8px; margin-bottom:10px; }
+        .appt-form input[type=text], .appt-form input[type=time], .appt-form textarea {
+            width:100%; padding:12px; border-radius:11px; border:1.5px solid var(--border);
+            font-size:0.92rem; background:var(--bg); color:var(--text-main); box-sizing:border-box; font-family:inherit;
+        }
+        .appt-form textarea { resize:vertical; min-height:48px; }
+        .appt-remind-row { display:flex; align-items:center; justify-content:space-between; padding:6px 2px 12px; }
+        .appt-remind-row span { font-size:0.88rem; font-weight:600; color:var(--text-main); }
+        .btn-appt-save { width:100%; padding:14px; border-radius:13px; border:none; background:linear-gradient(135deg,#5b21b6,#7c3aed); color:#fff; font-weight:800; font-size:0.95rem; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; }
     </style>
 </head>
 <body>
     <audio id="dog-audio" src="cane.mp3" preload="auto"></audio>
     <div id="header-backdrop"></div>
+
+    <!-- LOGIN OVERLAY -->
+    <div id="login-overlay">
+        <div class="login-card">
+            <img src="foto1.png" class="login-logo" alt="118" onerror="this.onerror=null;this.src='logo.png'">
+            <div class="login-title">A.S. 26</div>
+            <div class="login-sub">Gestione Turni 118 · San Marino</div>
+            <div class="login-tabs">
+                <div class="login-tab active" id="tab-login" onclick="switchLoginTab('login')">Accedi</div>
+                <div class="login-tab" id="tab-register" onclick="switchLoginTab('register')">Registrati</div>
+            </div>
+            <div class="login-error" id="login-error"></div>
+            <div class="login-field">
+                <label>Email</label>
+                <input type="email" id="login-email" autocomplete="email" placeholder="nome@esempio.com">
+            </div>
+            <div class="login-field">
+                <label>Password</label>
+                <input type="password" id="login-password" autocomplete="current-password" placeholder="••••••••">
+            </div>
+            <div class="login-field" id="register-operator-field" style="display:none">
+                <label>Sei un operatore?</label>
+                <select id="login-operator">
+                    <option value="">-- Seleziona il tuo nome --</option>
+                </select>
+            </div>
+            <button class="login-btn" id="login-submit" onclick="doLoginSubmit()"><span class="material-icons-round">login</span> <span id="login-submit-label">Accedi</span></button>
+            <div class="login-divider">oppure</div>
+            <button class="login-btn-ghost" onclick="loginAsCentrale()"><span class="material-icons-round">headset_mic</span> Entra come Centrale Operativa</button>
+        </div>
+    </div>
+
+    <!-- MODAL APPUNTAMENTI -->
+    <div id="appt-modal" onclick="closeApptModal(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="appt-header">
+                <div><h3><span class="material-icons-round">event_note</span> Appuntamenti</h3><div class="appt-date-sub" id="appt-date-sub">—</div></div>
+                <button class="btn-close-modal" style="background:rgba(255,255,255,0.18);color:#fff" onclick="closeApptModal()"><span class="material-icons-round">close</span></button>
+            </div>
+            <div class="modal-body" style="padding:0;overflow-y:auto">
+                <div class="appt-list" id="appt-list"></div>
+                <div class="appt-form">
+                    <div class="af-row">
+                        <input type="text" id="appt-title" placeholder="Titolo appuntamento" style="flex:2">
+                        <input type="time" id="appt-time" style="flex:1">
+                    </div>
+                    <textarea id="appt-note" placeholder="Note (facoltativo)"></textarea>
+                    <div class="appt-remind-row">
+                        <span>🔔 Ricordamelo con una notifica</span>
+                        <label class="switch"><input type="checkbox" id="appt-remind" checked><span class="slider"></span></label>
+                    </div>
+                    <button class="btn-appt-save" onclick="saveAppointment()"><span class="material-icons-round">add</span> Aggiungi appuntamento</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- CHANGELOG MODAL -->
     <div id="changelog-modal">
@@ -1006,6 +1150,13 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
 
                 <!-- CATEGORIA: PROFILO -->
                 <div class="opt-cat-title"><span class="material-icons-round">person</span> Profilo</div>
+                <div style="padding:14px 20px 4px">
+                    <div class="account-badge" id="account-badge">
+                        <span class="material-icons-round">account_circle</span>
+                        <div class="ab-info"><div class="ab-email">—</div><div class="ab-role">—</div></div>
+                        <button class="btn-logout" onclick="logoutAccount()"><span class="material-icons-round" style="font-size:15px">logout</span> Esci</button>
+                    </div>
+                </div>
                 <div class="option-item" style="display:block">
                     <div style="margin-bottom:10px"><span style="font-size:1rem;font-weight:700">Chi sei?</span><div style="font-size:0.8rem;color:var(--text-sec)">Seleziona il tuo nome per ricevere notifiche sui tuoi turni.</div></div>
                     <select id="turni-user-select" onchange="saveTurniUser(this.value)" style="width:100%;padding:12px;border-radius:10px;border:1px solid var(--border);font-size:0.95rem;font-weight:600;background:var(--bg);color:var(--text-main);">
@@ -1312,7 +1463,7 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
 
         function vibrate(){if(navigator.vibrate)navigator.vibrate(10);}
         function toggleMenu(){vibrate();let m=document.getElementById('menu-dropdown');if(m.style.display==='flex'){m.classList.remove('open');setTimeout(()=>m.style.display='none',100);}else{m.style.display='flex';setTimeout(()=>m.classList.add('open'),10);}}
-        function openOptionsModal(){if(document.getElementById('menu-dropdown').style.display==='flex')toggleMenu();let m=document.getElementById('options-modal');m.style.display='flex';setTimeout(()=>m.classList.add('open'),10);const tg=document.getElementById('dark-mode-toggle');if(tg)tg.checked=document.body.classList.contains('dark-mode');const sel=document.getElementById('turni-user-select');if(sel&&turniUserName)sel.value=turniUserName;updatePlatformUI();['ticker','dog','cellinfo'].forEach(k=>{const cb=document.getElementById('opt-'+k);if(cb&&typeof getOpt==='function')cb.checked=getOpt(k);});if(typeof updateViewModeUI==='function')updateViewModeUI();}
+        function openOptionsModal(){if(document.getElementById('menu-dropdown').style.display==='flex')toggleMenu();let m=document.getElementById('options-modal');m.style.display='flex';setTimeout(()=>m.classList.add('open'),10);const tg=document.getElementById('dark-mode-toggle');if(tg)tg.checked=document.body.classList.contains('dark-mode');const sel=document.getElementById('turni-user-select');if(sel&&turniUserName)sel.value=turniUserName;updatePlatformUI();['ticker','dog','cellinfo'].forEach(k=>{const cb=document.getElementById('opt-'+k);if(cb&&typeof getOpt==='function')cb.checked=getOpt(k);});if(typeof updateViewModeUI==='function')updateViewModeUI();if(typeof updateAccountUI==='function')updateAccountUI();}
         function closeOptionsModal(e){if(e&&e.target!==e.currentTarget)return;let m=document.getElementById('options-modal');m.classList.remove('open');setTimeout(()=>m.style.display='none',200);}
         function toggleDarkMode(){vibrate();document.body.classList.toggle('dark-mode');const meta=document.querySelector('#theme-color-meta');const isDark=document.body.classList.contains('dark-mode');if(isDark){localStorage.setItem('theme','dark');meta.setAttribute('content','#0f172a');}else{localStorage.setItem('theme','light');meta.setAttribute('content','#ffffff');}}
 
@@ -1429,7 +1580,7 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
 
         let turniUserName=localStorage.getItem('turni_user_name')||'';
         function initNotificationOptions(){const sel=document.getElementById('turni-user-select');if(!sel)return;sel.value=turniUserName;updateTurniUserStatus();}
-        function saveTurniUser(val){vibrate();turniUserName=val;localStorage.setItem('turni_user_name',val);localStorage.removeItem('schedule_snapshot');updateTurniUserStatus();setTimeout(checkRepNotifications,500);}
+        function saveTurniUser(val){vibrate();turniUserName=val;localStorage.setItem('turni_user_name',val);localStorage.removeItem('schedule_snapshot');updateTurniUserStatus();if(typeof updateAccountOperator==='function')updateAccountOperator(val);setTimeout(checkRepNotifications,500);}
         function updateTurniUserStatus(){const el=document.getElementById('turni-user-status');if(!el)return;if(turniUserName){const isAdmin=(turniUserName==='Pazzaglia'||turniUserName==='Barbieri');el.innerHTML='<span style="color:#059669;">✓ Notifiche attive per <b>'+turniUserName+'</b></span>'+(isAdmin?'<br><span style="color:#d97706;">⚡ Riceverai anche notifiche nuove richieste</span>':'');}else{el.innerHTML='<span style="color:#ef4444;">Nessuna notifica attiva — seleziona il tuo nome</span>';}}
 
         function getShiftReadableName(code){code=code?code.toString().trim().toUpperCase():"";if(!code)return"Vuoto";if(code==="M"||code.startsWith("MAT"))return"Mattina";if(code==="P"||code.startsWith("POM"))return"Pomeriggio";if(code==="N"||code.startsWith("NOT"))return"Notte";if(code==="R"||code.startsWith("RIP"))return"Riposo";if(code==="SM"||code.startsWith("SMO"))return"Smonto";if(code==="M+N"||code==="MN")return"Mattina+Notte";if(code.includes("FER"))return"Ferie";if(code.includes("MAL"))return"Malattia";if(code.includes("REC"))return"Recupero";if(code.includes("CONG"))return"Congedo";return code;}
@@ -1446,7 +1597,20 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
         function closeAlertAndSave(){vibrate();let modal=document.getElementById('alert-modal');modal.classList.remove('open');setTimeout(()=>{modal.style.display='none';},300);}
 
         function scrollToToday(){const el=document.getElementById('today-row');if(el){const hh=parseInt(getComputedStyle(document.documentElement).getPropertyValue('--header-h'))||126;const extra=100;const bodyRect=document.body.getBoundingClientRect().top,elRect=el.getBoundingClientRect().top,elPos=elRect-bodyRect,offsetPos=elPos-hh-extra;window.scrollTo({top:offsetPos,behavior:'smooth'});setTimeout(()=>{el.classList.add('today-flash');setTimeout(()=>el.classList.remove('today-flash'),1300);},400);}}
-        function scrollToTodayInstant(){const el=document.getElementById('today-row');if(el){const c=document.querySelector('.container');const savedX=c?c.scrollLeft:0;el.scrollIntoView({block:'center',behavior:'instant'});window.scrollBy(0,-126);if(c)c.scrollLeft=savedX;}}
+        function scrollToTodayInstant(){
+            const el=document.getElementById('today-row');
+            if(!el)return;
+            const c=document.querySelector('.container');
+            const savedX=c?c.scrollLeft:0;
+            // Altezza totale degli elementi sticky in cima: header + riga nomi + barra mese
+            const hh=parseInt(getComputedStyle(document.documentElement).getPropertyValue('--header-h'))||126;
+            const thH=parseInt(getComputedStyle(document.documentElement).getPropertyValue('--th-h'))||40;
+            const monthBar=document.querySelector('.month-header td');
+            const mH=monthBar?monthBar.offsetHeight:24;
+            const y=el.getBoundingClientRect().top+window.pageYOffset-(hh+thH+mH+14);
+            window.scrollTo({top:Math.max(0,y),behavior:'instant'});
+            if(c)c.scrollLeft=savedX;
+        }
         function flashToday(){const el=document.getElementById('today-row');if(el){el.classList.add('today-flash');setTimeout(()=>el.classList.remove('today-flash'),1400);}}
 
         function filterDriver(val,btnEl){vibrate();if(val==='all'){selectedDrivers.clear();}else{const intVal=parseInt(val);if(selectedDrivers.has(intVal))selectedDrivers.delete(intVal);else selectedDrivers.add(intVal);}localStorage.setItem("selected_drivers",JSON.stringify([...selectedDrivers]));updateDriverButtons();renderTable();}
@@ -1475,8 +1639,11 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
                 let isRed=(dayIdx===0||dayIdx===6||holidayName);
                 let dateClass=isRed?"td-date date-red":"td-date";
                 if(mIdx===curM&&dNum===curD&&today.getFullYear()===year){tr.className="today";tr.id="today-row";}
-                let dateHtml=dNum+'<small>'+dayWeek+'</small>'+(holidayName?'<div class="holiday-name">'+holidayName+'</div>':'');
-                tr.innerHTML='<td class="'+dateClass+'"><div class="td-date-inner">'+dateHtml+'</div></td>';
+                let apptKey=mName+'-'+dNum;
+                let apptList=(typeof myAppointments!=='undefined'&&myAppointments[apptKey])?myAppointments[apptKey]:null;
+                let apptBadge=apptList&&apptList.length>0?'<div class="appt-badge"><span class="material-icons-round" style="font-size:9px">event</span>'+apptList.length+'</div>':'';
+                let dateHtml=dNum+'<small>'+dayWeek+'</small>'+(holidayName?'<div class="holiday-name">'+holidayName+'</div>':'')+apptBadge;
+                tr.innerHTML='<td class="'+dateClass+'" style="cursor:pointer" onclick="openDayAppointments(\''+mName+'\','+dNum+')" title="Appuntamenti del giorno"><div class="td-date-inner">'+dateHtml+'</div></td>';
                 let countM=0,countP=0;
                 drivers.forEach(dr=>{let val=(row[dr.idx]?.v||"").toString().trim();let sType=normalizeShift(val);if(sType==="M"||sType==="MN")countM++;if(sType==="P")countP++;});
                 let dotsHtml="";
@@ -2209,9 +2376,24 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
             const saved=localStorage.getItem('hscroll');
             if(saved!==null){
                 const c=document.querySelector('.container');
-                if(c) c.scrollLeft=parseInt(saved)||0;
+                if(c){ c.scrollLeft=parseInt(saved)||0; pinMonthLabels(); }
             }
         }
+        // Tiene la scritta del mese ancorata a sinistra mentre si scorre il calendario
+        let _pinRaf=null;
+        function pinMonthLabels(){
+            const c=document.querySelector('.container');
+            if(!c)return;
+            const x=c.scrollLeft;
+            document.querySelectorAll('.sticky-month-text').forEach(el=>{ el.style.transform='translateX('+x+'px)'; });
+        }
+        (function(){
+            function onScroll(){ if(_pinRaf)return; _pinRaf=requestAnimationFrame(()=>{ pinMonthLabels(); _pinRaf=null; }); }
+            window.addEventListener('load',()=>{
+                const c=document.querySelector('.container');
+                if(c) c.addEventListener('scroll',onScroll,{passive:true});
+            });
+        })();
 
         // ── VISTA SETTIMANALE (swipe laterale, una settimana per schermata) ──
         let weekOffset=0; // settimane dal lunedì corrente
@@ -2322,15 +2504,249 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
 
         // ══════════════════════════════════════════════════════════════
         const firebaseConfig={apiKey:"AIzaSyAMX2ycf_6P3AcBvarVX4XNKbdposkuqgE",authDomain:"area-personale-autsocc-118-rsm.firebaseapp.com",projectId:"area-personale-autsocc-118-rsm",storageBucket:"area-personale-autsocc-118-rsm.firebasestorage.app",messagingSenderId:"910283994567",appId:"1:910283994567:web:d9c45b5f4b5a83b92595e2",measurementId:"G-9P8X82Y4H5"};
-        let db=null;
+        let db=null, auth=null;
         try{
             if(typeof firebase!=='undefined'){
                 if(!firebase.apps.length)firebase.initializeApp(firebaseConfig);
                 db=firebase.firestore();
+                if(firebase.auth)auth=firebase.auth();
             }else{
                 console.warn('Firebase non caricato — funzioni real-time disabilitate');
             }
         }catch(e){ console.error('Firebase init error:',e); }
+
+        // ══════════════════════════════════════════════════════════════
+        // 🔐 ACCOUNT / LOGIN  +  📅 APPUNTAMENTI PRIVATI  (v27)
+        // ══════════════════════════════════════════════════════════════
+        const KNOWN_OPERATORS=['BARBIERI','PAZZAGLIA','BIANCHI','SARTI','GHIOTTI','BERARDI','MICHELOTTI','VOLPINI','FABBRI'];
+        let session=null;            // {uid, email, operatorName, role}
+        let myAppointments={};       // 'MESE-giorno' -> [appt]
+        let apptContext={mName:'',dNum:0,iso:''};
+        let _listenersStarted=false;
+
+        function authErrMsg(code){
+            const m={
+                'auth/invalid-email':'Indirizzo email non valido.',
+                'auth/email-already-in-use':'Esiste già un account con questa email. Usa "Accedi".',
+                'auth/weak-password':'La password deve avere almeno 6 caratteri.',
+                'auth/user-not-found':'Nessun account trovato con questa email.',
+                'auth/wrong-password':'Password errata.',
+                'auth/invalid-credential':'Email o password non corretti.',
+                'auth/too-many-requests':'Troppi tentativi. Riprova tra qualche minuto.',
+                'auth/network-request-failed':'Errore di rete. Controlla la connessione.',
+                'auth/operation-not-allowed':'Metodo di accesso non abilitato nella console Firebase.'
+            };
+            return m[code]||('Errore: '+code);
+        }
+
+        let _loginMode='login';
+        function switchLoginTab(mode){
+            _loginMode=mode; loginError('');
+            document.getElementById('tab-login').classList.toggle('active',mode==='login');
+            document.getElementById('tab-register').classList.toggle('active',mode==='register');
+            document.getElementById('register-operator-field').style.display = mode==='register'?'block':'none';
+            document.getElementById('login-submit-label').innerText = mode==='register'?'Crea account':'Accedi';
+            const pw=document.getElementById('login-password'); if(pw)pw.setAttribute('autocomplete', mode==='register'?'new-password':'current-password');
+        }
+        function loginError(msg){ const e=document.getElementById('login-error'); if(!e)return; if(msg){ e.innerText=msg; e.classList.add('show'); } else { e.classList.remove('show'); } }
+
+        function populateLoginOperators(){
+            const sel=document.getElementById('login-operator'); if(!sel)return;
+            const list=(typeof drivers!=='undefined'&&drivers.length)?drivers.map(d=>d.name.toUpperCase()):KNOWN_OPERATORS;
+            const cur=sel.value;
+            sel.innerHTML='<option value="">-- Seleziona il tuo nome --</option>'+list.map(n=>{const disp=n.charAt(0)+n.slice(1).toLowerCase();return '<option value="'+disp+'">'+disp+'</option>';}).join('');
+            if(cur)sel.value=cur;
+        }
+
+        async function doLoginSubmit(){
+            loginError('');
+            const email=(document.getElementById('login-email').value||'').trim();
+            const pass=document.getElementById('login-password').value||'';
+            if(!email||!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){ loginError('Inserisci un indirizzo email valido.'); return; }
+            if(pass.length<6){ loginError('La password deve avere almeno 6 caratteri.'); return; }
+            if(!auth){ loginError('Firebase Authentication non disponibile. Controlla la connessione.'); return; }
+            const btn=document.getElementById('login-submit'); btn.disabled=true;
+            try{
+                if(_loginMode==='register'){
+                    const operator=document.getElementById('login-operator').value||'';
+                    const cred=await auth.createUserWithEmailAndPassword(email,pass);
+                    const uid=cred.user.uid;
+                    if(db){ try{ await db.collection('users').doc(uid).set({email:email, operatorName:operator, role:'operator', createdAt:new Date().toISOString()}); }catch(e){ console.warn('profilo non salvato',e); } }
+                    // onAuthStateChanged gestirà l'ingresso
+                } else {
+                    await auth.signInWithEmailAndPassword(email,pass);
+                }
+            }catch(e){
+                console.error('Auth error:',e);
+                loginError(authErrMsg(e.code||''));
+                btn.disabled=false;
+            }
+        }
+        async function loginAsCentrale(){
+            loginError('');
+            if(!auth){ loginError('Firebase Authentication non disponibile.'); return; }
+            const btn=document.querySelector('.login-btn-ghost'); if(btn)btn.disabled=true;
+            try{ await auth.signInAnonymously(); }
+            catch(e){ console.error(e); loginError(authErrMsg(e.code||'')); if(btn)btn.disabled=false; }
+        }
+
+        async function onAuthUser(user){
+            if(!user){
+                // Non loggato → mostra login
+                session=null;
+                const ov=document.getElementById('login-overlay'); if(ov)ov.classList.add('open');
+                return;
+            }
+            // Loggato (operatore o anonimo=centrale)
+            let s;
+            if(user.isAnonymous){
+                s={uid:user.uid, email:'Centrale Operativa', operatorName:'', role:'centrale'};
+            } else {
+                let operatorName='';
+                if(db){ try{ const snap=await db.collection('users').doc(user.uid).get(); if(snap.exists)operatorName=(snap.data().operatorName||''); }catch(e){ console.warn(e); } }
+                s={uid:user.uid, email:user.email||'', operatorName:operatorName, role:'operator'};
+            }
+            applySession(s);
+            const ov=document.getElementById('login-overlay'); if(ov)ov.classList.remove('open');
+            const btn=document.getElementById('login-submit'); if(btn)btn.disabled=false;
+            const gb=document.querySelector('.login-btn-ghost'); if(gb)gb.disabled=false;
+            postLogin();
+        }
+        function applySession(s){
+            session=s;
+            if(s.role==='operator' && s.operatorName){ turniUserName=s.operatorName; localStorage.setItem('turni_user_name',s.operatorName); }
+            updateAccountUI();
+        }
+        function postLogin(){
+            if(typeof updateTurniUserStatus==='function')updateTurniUserStatus();
+            startFirestoreListeners();   // i listener partono SOLO dopo l'autenticazione
+            loadAppointments();
+            requestNotifPermission();
+            if(typeof finalData!=='undefined'&&finalData.length>0&&typeof renderTable==='function')renderTable();
+            setTimeout(()=>{ if(typeof checkRepNotifications==='function')checkRepNotifications(); },600);
+        }
+        function logoutAccount(){
+            if(!confirm('Vuoi uscire dall\'account? Dovrai effettuare di nuovo l\'accesso.'))return;
+            localStorage.removeItem('turni_user_name');
+            const done=()=>location.reload();
+            if(auth){ auth.signOut().then(done).catch(done); } else done();
+        }
+        function updateAccountUI(){
+            const box=document.getElementById('account-badge'); if(!box||!session)return;
+            const em=box.querySelector('.ab-email'); const role=box.querySelector('.ab-role');
+            if(em)em.innerText='Loggato come '+session.email;
+            if(role)role.innerText = session.role==='centrale' ? 'Centrale Operativa' : ('Operatore: '+(session.operatorName||'non impostato'));
+        }
+        // Cambia il nome operatore associato all'account (dal menu Opzioni)
+        async function updateAccountOperator(name){
+            if(session && session.role==='operator' && session.uid && db){
+                try{ await db.collection('users').doc(session.uid).set({operatorName:name},{merge:true}); session.operatorName=name; updateAccountUI(); }catch(e){ console.warn(e); }
+            }
+        }
+        function initAuth(){
+            populateLoginOperators();
+            if(!auth){
+                // Senza Auth non si può entrare: mostra login con avviso
+                const ov=document.getElementById('login-overlay'); if(ov)ov.classList.add('open');
+                loginError('Firebase Authentication non caricato. Controlla la connessione internet.');
+                return;
+            }
+            // La sessione persiste automaticamente: onAuthStateChanged decide se mostrare il login
+            auth.onAuthStateChanged(onAuthUser);
+        }
+
+        // ── APPUNTAMENTI ──
+        function apptCol(){ return (db&&session&&session.uid)?db.collection('users').doc(session.uid).collection('appointments'):null; }
+        async function loadAppointments(){
+            myAppointments={};
+            const col=apptCol();
+            if(!col){ if(typeof renderTable==='function'&&finalData&&finalData.length)renderTable(); return; }
+            try{
+                const snap=await col.get();
+                snap.forEach(doc=>{ const a=doc.data(); a._id=doc.id; const k=a.dateKey; (myAppointments[k]=myAppointments[k]||[]).push(a); });
+                Object.keys(myAppointments).forEach(k=>myAppointments[k].sort((x,y)=>(x.time||'').localeCompare(y.time||'')));
+                if(typeof renderTable==='function'&&finalData&&finalData.length)renderTable();
+                checkApptReminders();
+            }catch(e){ console.warn('Appuntamenti non caricati:',e); }
+        }
+        function openDayAppointments(mName,dNum){
+            vibrate();
+            const mIdx=MONTH_MAP[mName]; const iso='2026-'+String((mIdx||0)+1).padStart(2,'0')+'-'+String(dNum).padStart(2,'0');
+            apptContext={mName:mName, dNum:dNum, iso:iso};
+            document.getElementById('appt-date-sub').innerText=dNum+' '+mName.charAt(0)+mName.slice(1).toLowerCase()+' 2026';
+            renderApptList();
+            document.getElementById('appt-title').value='';
+            document.getElementById('appt-time').value='';
+            document.getElementById('appt-note').value='';
+            document.getElementById('appt-remind').checked=true;
+            const m=document.getElementById('appt-modal'); m.style.display='flex'; setTimeout(()=>m.classList.add('open'),10);
+        }
+        function closeApptModal(e){ if(e&&e.target!==e.currentTarget)return; const m=document.getElementById('appt-modal'); m.classList.remove('open'); setTimeout(()=>m.style.display='none',250); }
+        function renderApptList(){
+            const k=apptContext.mName+'-'+apptContext.dNum;
+            const list=myAppointments[k]||[];
+            const el=document.getElementById('appt-list');
+            if(list.length===0){ el.innerHTML='<div class="appt-empty">Nessun appuntamento per questo giorno.<br>Aggiungine uno qui sotto 👇</div>'; return; }
+            el.innerHTML=list.map(a=>'<div class="appt-item">'
+                +'<span class="ai-time">'+(a.time||'—')+'</span>'
+                +'<div class="ai-body"><div class="ai-title">'+escapeHtml(a.title||'Appuntamento')+'</div>'
+                +(a.note?'<div class="ai-note">'+escapeHtml(a.note)+'</div>':'')
+                +(a.remind?'<div class="ai-remind"><span class="material-icons-round" style="font-size:12px">notifications_active</span> Promemoria attivo</div>':'')
+                +'</div>'
+                +'<button class="ai-del" onclick="deleteAppointment(\''+a._id+'\')"><span class="material-icons-round">delete_outline</span></button>'
+                +'</div>').join('');
+        }
+        function escapeHtml(s){ return (s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+        async function saveAppointment(){
+            const title=(document.getElementById('appt-title').value||'').trim();
+            if(!title){ alert('Inserisci un titolo per l\'appuntamento.'); return; }
+            const time=document.getElementById('appt-time').value||'';
+            const note=(document.getElementById('appt-note').value||'').trim();
+            const remind=document.getElementById('appt-remind').checked;
+            const appt={ dateKey:apptContext.mName+'-'+apptContext.dNum, mName:apptContext.mName, dNum:apptContext.dNum, iso:apptContext.iso, title, time, note, remind, createdAt:new Date().toISOString() };
+            try{
+                const col=apptCol();
+                if(col){ const ref=await col.add(appt); appt._id=ref.id; }
+                else { appt._id='local_'+Date.now(); }
+                const k=appt.dateKey; (myAppointments[k]=myAppointments[k]||[]).push(appt);
+                myAppointments[k].sort((x,y)=>(x.time||'').localeCompare(y.time||''));
+                renderApptList();
+                document.getElementById('appt-title').value=''; document.getElementById('appt-time').value=''; document.getElementById('appt-note').value='';
+                if(typeof renderTable==='function'&&finalData&&finalData.length)renderTable();
+                if(navigator.vibrate)navigator.vibrate(20);
+                checkApptReminders();
+            }catch(e){ console.error(e); alert('Errore nel salvataggio. Controlla la connessione.'); }
+        }
+        async function deleteAppointment(id){
+            if(!confirm('Eliminare questo appuntamento?'))return;
+            try{ const col=apptCol(); if(col&&!id.startsWith('local_'))await col.doc(id).delete(); }catch(e){ console.warn(e); }
+            Object.keys(myAppointments).forEach(k=>{ myAppointments[k]=myAppointments[k].filter(a=>a._id!==id); if(myAppointments[k].length===0)delete myAppointments[k]; });
+            renderApptList();
+            if(typeof renderTable==='function'&&finalData&&finalData.length)renderTable();
+        }
+
+        // ── PROMEMORIA APPUNTAMENTI ──
+        function requestNotifPermission(){ try{ if('Notification' in window && Notification.permission==='default')Notification.requestPermission(); }catch(e){} }
+        function getNotifiedAppts(){ try{ return new Set(JSON.parse(localStorage.getItem('notified_appts')||'[]')); }catch(e){ return new Set(); } }
+        function markApptNotified(id){ try{ const s=getNotifiedAppts(); s.add(id); localStorage.setItem('notified_appts',JSON.stringify([...s].slice(-300))); }catch(e){} }
+        function checkApptReminders(){
+            const today=new Date(); const todayIso=today.getFullYear()+'-'+String(today.getMonth()+1).padStart(2,'0')+'-'+String(today.getDate()).padStart(2,'0');
+            const notified=getNotifiedAppts();
+            Object.values(myAppointments).forEach(list=>list.forEach(a=>{
+                if(!a.remind||a._id&&notified.has(a._id))return;
+                if(a.iso!==todayIso)return; // promemoria semplice: appuntamenti di oggi
+                const msg='📅 Oggi'+(a.time?' alle '+a.time:'')+': '+(a.title||'Appuntamento');
+                try{ if('Notification' in window && Notification.permission==='granted')new Notification('Promemoria A.S. 26',{body:msg}); }catch(e){}
+                if(typeof notifHistory!=='undefined'){ notifHistory.unshift({id:'appt_'+a._id,text:'<b>📅 Promemoria appuntamento</b><br>'+escapeHtml(msg),read:false,date:new Date().toLocaleString('it-IT'),type:'appt'}); if(typeof saveNotifications==='function')saveNotifications(); if(typeof updateBadge==='function')updateBadge(); }
+                if(a._id)markApptNotified(a._id);
+            }));
+        }
+        setInterval(()=>{ if(session)checkApptReminders(); }, 5*60*1000);
+
+        // Avvio sistema account dopo che il DOM è pronto
+        if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initAuth);
+        else initAuth();
+
         let initialLoad=true,previousRequestsState={};
         const SEEN_REQUESTS_KEY='seen_request_popup_ids';
         function getSeenRequestIds(){try{return new Set(JSON.parse(localStorage.getItem(SEEN_REQUESTS_KEY)||'[]'));}catch(e){return new Set();}}
@@ -2340,8 +2756,11 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
         const RICHIESTE_APP_URL="https://centrale118rsm-code.github.io/Richieste-A.S.-118/";
         function buildRequestCard(richiesta,docId){let nomeRichiedente=richiesta.name||'N/D';let tipoRaw=richiesta.type||'N/D';let tipoRichiesta=TIPO_LABELS[tipoRaw]||tipoRaw.replace(/_/g,' ').toUpperCase();let dataDal=richiesta.dateFrom?new Date(richiesta.dateFrom).toLocaleDateString('it-IT'):'N/D';let dataAl=richiesta.dateTo?new Date(richiesta.dateTo).toLocaleDateString('it-IT'):dataDal;let note=richiesta.notes||'-';let swap=richiesta.swapWith?`<br><b style="color:#b45309;">Cambio con:</b> ${richiesta.swapWith}`:'';let timeSlot=richiesta.timeSlot?`<br><b style="color:#b45309;">Fascia:</b> ${richiesta.timeSlot}`:'';let effectiveDays=(richiesta.effectiveDays&&richiesta.effectiveDays!=='N/A')?`<br><b style="color:#b45309;">Giorni:</b> ${richiesta.effectiveDays}`:'';return{nomeRichiedente,tipoRichiesta,html:`<div style="background:#fffbeb;border:1px solid #fcd34d;border-radius:10px;padding:12px;margin-top:8px;"><b style="color:#b45309;">Da:</b> ${nomeRichiedente}<br><b style="color:#b45309;">Tipo:</b> ${tipoRichiesta} ${swap}${timeSlot}<br><b style="color:#b45309;">Periodo:</b> dal ${dataDal} al ${dataAl}${effectiveDays}<br><b style="color:#b45309;">Note:</b> ${note}<div style="margin-top:10px;text-align:right"><a href="${RICHIESTE_APP_URL}" target="_blank" style="display:inline-flex;align-items:center;gap:4px;background:#2563eb;color:white;padding:6px 14px;border-radius:8px;font-size:0.75rem;font-weight:700;text-decoration:none;"><span class="material-icons-round" style="font-size:16px">open_in_new</span> Apri Richieste</a></div></div>`};}
 
-        if(db) db.collection('richieste_turni').onSnapshot((snapshot)=>{
-            const userName=turniUserName;const isOperatore=(userName==='Pazzaglia'||userName==='Barbieri');let pendingNewRequests=[],pendingNotifs=[];
+        function startFirestoreListeners(){
+          if(_listenersStarted||!db)return;
+          _listenersStarted=true;
+          db.collection('richieste_turni').onSnapshot((snapshot)=>{
+            const userName=turniUserName;const isOperatore=(userName==='Pazzaglia'||userName==='Barbieri'||(session&&session.role==='centrale'));let pendingNewRequests=[],pendingNotifs=[];
             snapshot.docChanges().forEach((change)=>{const richiesta=change.doc.data();const docId=change.doc.id;
             if(change.type==="added"&&!richiesta.insertedInShifts&&!richiesta.obscured&&userName&&isOperatore){const card=buildRequestCard(richiesta,docId);if(!notifHistory.find(n=>n.id===docId)){let notifObj={id:docId,text:`<b style="color:#d97706;">${initialLoad?'SOSPESA':'NUOVA'}: ${card.tipoRichiesta}</b><br>${card.html}`,read:false,date:new Date().toLocaleString('it-IT'),type:'new_request'};pendingNotifs.push(notifObj);}if(!isRequestAlreadySeen(docId))pendingNewRequests.push({richiesta,docId,card,timestamp:richiesta.timestamp||''});}
             if(change.type==="modified"&&userName){const prevState=previousRequestsState[docId];const wasInserted=prevState?prevState.insertedInShifts:false;const nowInserted=richiesta.insertedInShifts===true;if(!wasInserted&&nowInserted){let nomeRichiedente=richiesta.name||'N/D';let tipoRaw=richiesta.type||'N/D';let tipoRichiesta=TIPO_LABELS[tipoRaw]||tipoRaw.replace(/_/g,' ').toUpperCase();let dataDal=richiesta.dateFrom?new Date(richiesta.dateFrom).toLocaleDateString('it-IT'):'N/D';let dataAl=richiesta.dateTo?new Date(richiesta.dateTo).toLocaleDateString('it-IT'):dataDal;let insertedAt=richiesta.insertedAt?new Date(richiesta.insertedAt).toLocaleDateString('it-IT'):new Date().toLocaleDateString('it-IT');let insertedKey='inserted_'+docId;if(nomeRichiedente.toLowerCase()===userName.toLowerCase()&&!isRequestAlreadySeen(insertedKey)){let testoInserita=`<div style="background:#dcfce7;border:1px solid #86efac;border-radius:10px;padding:12px;margin-top:8px;"><b style="color:#059669;">✓ Inserita nei turni il ${insertedAt}</b><br><b style="color:#166534;">Tipo:</b> ${tipoRichiesta}<br><b style="color:#166534;">Periodo:</b> dal ${dataDal} al ${dataAl}<div style="margin-top:10px;text-align:right"><a href="${RICHIESTE_APP_URL}" target="_blank" style="display:inline-flex;align-items:center;gap:4px;background:#059669;color:white;padding:6px 14px;border-radius:8px;font-size:0.75rem;font-weight:700;text-decoration:none;"><span class="material-icons-round" style="font-size:16px">open_in_new</span> Apri Richieste</a></div></div>`;let alertModal=document.getElementById('alert-modal');if(alertModal){document.getElementById('alert-title-text').innerHTML=`✅ RICHIESTA INSERITA NEI TURNI`;document.getElementById('alert-message-text').innerHTML=`La tua richiesta è stata elaborata:`+testoInserita;alertModal.style.display='flex';setTimeout(()=>alertModal.classList.add('open'),50);}if(navigator.vibrate)navigator.vibrate([100,50,100]);markRequestAsSeen(insertedKey);if(!notifHistory.find(n=>n.id===insertedKey)){notifHistory.unshift({id:insertedKey,text:`<b style="color:#059669;">✅ RICHIESTA INSERITA</b><br>${testoInserita}`,read:false,date:new Date().toLocaleString('it-IT'),type:'request_inserted'});if(typeof saveNotifications==='function')saveNotifications();if(typeof updateBadge==='function')updateBadge();}}}previousRequestsState[docId]={insertedInShifts:nowInserted};}
@@ -2351,7 +2770,7 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
             initialLoad=false;
         });
 
-        if(db) db.collection('gestionale_118').doc('tickets').onSnapshot((docSnapshot)=>{
+        db.collection('gestionale_118').doc('tickets').onSnapshot((docSnapshot)=>{
             appuntamentiVeicoli={};
             if(docSnapshot.exists){try{const activeTickets=JSON.parse(docSnapshot.data().data);activeTickets.forEach(tk=>{if(tk.dataAppuntamento&&tk.stato==='segnalato'){let d=new Date(tk.dataAppuntamento);let meseNome=Object.keys(MONTH_MAP).find(key=>MONTH_MAP[key]===d.getMonth());let giorno=d.getDate();if(meseNome&&giorno){let dateKey=`${meseNome}-${giorno}`;if(!appuntamentiVeicoli[dateKey])appuntamentiVeicoli[dateKey]=[];appuntamentiVeicoli[dateKey].push({operazione:"Appuntamento",veicolo:tk.mezzo,officina:tk.officinaAppuntamento||"Officina",problema:tk.problema||"",ora:tk.dataAppuntamentoOra||""});}}if(tk.dataStimataConsegna&&tk.stato==='in_officina'){let d=new Date(tk.dataStimataConsegna);let meseNome=Object.keys(MONTH_MAP).find(key=>MONTH_MAP[key]===d.getMonth());let giorno=d.getDate();if(meseNome&&giorno){let dateKey=`${meseNome}-${giorno}`;if(!appuntamentiVeicoli[dateKey])appuntamentiVeicoli[dateKey]=[];appuntamentiVeicoli[dateKey].push({operazione:"Ritiro",veicolo:tk.mezzo,officina:tk.officina||"Officina",problema:tk.problema||"",ora:tk.dataStimataConsegnaOra||""});}}});}catch(e){console.error("Errore ticket veicoli:",e);}}
             if(typeof finalData!=='undefined'&&finalData.length>0){renderTable();buildTicker();}
@@ -2374,7 +2793,7 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
             if(r.obscured){delete REP_OVERRIDES[docId];return;}
             REP_OVERRIDES[docId]={docId,name:r.name,swapWith:r.swapWith,timeSlot:r.timeSlot,dateFrom:r.dateFrom,obscured:r.obscured||false};
         }
-        if(db) db.collection('richieste_turni').onSnapshot((snapshot)=>{
+        db.collection('richieste_turni').onSnapshot((snapshot)=>{
             snapshot.docChanges().forEach(change=>{const r=change.doc.data();const docId=change.doc.id;if(change.type==='removed'){delete REP_OVERRIDES[docId];}else{applyRepOverrideFromRequest(docId,r);}});
             rebuildReperibilita();
             if(typeof finalData!=='undefined'&&finalData.length>0){renderTable();buildTicker();}
@@ -2382,10 +2801,11 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
         });
 
         // ── CONFIG ADMIN REAL-TIME ──
-        if(db) db.collection('as26_config').doc('settings').onSnapshot((doc)=>{
+        db.collection('as26_config').doc('settings').onSnapshot((doc)=>{
             if(!doc.exists)return;
             try{applyAdminConfig(doc.data());}catch(e){console.error('Config admin error:',e);}
         });
+        } // fine startFirestoreListeners
 
         function applyAdminConfig(cfg) {
             if (!cfg) return;
