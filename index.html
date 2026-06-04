@@ -179,8 +179,8 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
         thead th { background: var(--bg); color: var(--text-sec); padding: 5px; font-size: 0.7rem; text-transform: uppercase; font-weight: 800; letter-spacing: 0.5px; position: sticky; top: var(--header-h); z-index: 90; border-bottom: 1px solid var(--border); text-align: center; width: 110px !important; min-width: 110px !important; max-width: 110px !important; height: var(--th-h); backdrop-filter: blur(5px); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         thead th:first-child, tbody td:first-child { width: 60px !important; min-width: 60px !important; max-width: 60px !important; }
         thead th:first-child { position: -webkit-sticky !important; position: sticky !important; left: 0; z-index: 96 !important; background: var(--bg) !important; }
-        tr.month-header td { background: var(--month-bar-bg); color: white; position: -webkit-sticky !important; position: sticky !important; top: calc(var(--header-h) + var(--th-h)); left: 0; z-index: 88; box-shadow: 0 4px 15px rgba(0,0,0,0.2); padding: 0; border: none; line-height: 1; width: 100vw !important; min-width: 100vw !important; max-width: 100vw !important; }
-        .sticky-month-text { display: flex; align-items: center; gap: 12px; min-height: 40px; padding: 4px 0 4px 16px; width: 100vw; }
+        tr.month-header td { background: var(--month-bar-bg); color: white; position: -webkit-sticky !important; position: sticky !important; top: calc(var(--header-h) + var(--th-h)); z-index: 88; box-shadow: 0 4px 15px rgba(0,0,0,0.2); padding: 0; border: none; line-height: 1; }
+        .sticky-month-text { display: flex; align-items: center; gap: 12px; min-height: 40px; padding: 4px 0 4px 16px; position: -webkit-sticky; position: sticky; left: 0; width: 100vw; box-sizing: border-box; }
         .month-label { font-weight: 900; font-size: 1.4rem; text-transform: uppercase; letter-spacing: -0.5px; text-shadow: 0 2px 4px rgba(0,0,0,0.2); }
         .live-clock { font-variant-numeric: tabular-nums; font-weight: 800; font-size: 1rem; background: rgba(0,0,0,0.25); padding: 2px 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); letter-spacing: 0.5px; box-shadow: inset 0 1px 3px rgba(0,0,0,0.1); text-shadow: 0 1px 2px rgba(0,0,0,0.2); }
         tbody td { padding: 2px; height: var(--cell-h); vertical-align: middle; border-bottom: 1px solid var(--border); border-right: 1px dashed var(--border); transition: height 0.3s ease; width: 110px !important; min-width: 110px !important; max-width: 110px !important; overflow: hidden; }
@@ -359,7 +359,7 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
            ════════════════════════════════════════════════════════ */
 
         /* ── TICKER più veloce ── */
-        .ticker-inner { animation-duration: 18s !important; }
+        .ticker-inner { animation-duration: 12s !important; }
 
         /* ── FIX iOS: colonna data sticky robusta ── */
         body.ios-mode tbody td.td-date,
@@ -383,30 +383,33 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
         /* ── MONTH BAR sottile (poco più del nome) ── */
         tr.month-header td { box-shadow: 0 2px 10px rgba(0,0,0,0.16) !important; }
         .sticky-month-text {
-            min-height: 24px !important;
-            padding: 2px 14px !important;
+            min-height: 26px !important;
+            padding: 3px 16px !important;
             backdrop-filter: blur(4px);
             display: flex !important;
             align-items: center !important;
-            justify-content: space-around !important;
-            gap: 0 !important;
-            width: 100% !important;
+            justify-content: flex-start !important;
+            gap: 8px !important;
+            position: -webkit-sticky !important;
+            position: sticky !important;
+            left: 0 !important;
+            width: 100vw !important;
+            box-sizing: border-box !important;
         }
         .month-label {
-            font-size: 0.9rem !important;
+            font-size: 0.98rem !important;
             font-weight: 800 !important;
             letter-spacing: 0.3px !important;
             display: flex;
             align-items: center;
-            gap: 7px;
+            gap: 8px;
             white-space: nowrap;
             flex: 0 0 auto;
         }
-        .month-label:not(:first-child)::before { display: none; }
         .month-label::before {
             content: '';
-            width: 3px; height: 13px;
-            background: rgba(255,255,255,0.7);
+            width: 3px; height: 15px;
+            background: rgba(255,255,255,0.75);
             border-radius: 2px;
             box-shadow: 0 0 8px rgba(255,255,255,0.4);
             flex-shrink: 0;
@@ -676,19 +679,31 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
             z-index: 30;
             background: var(--bg-card);
             color: var(--text-main);
-            font-size: 0.72rem;
+            font-size: 0.6rem;
             font-weight: 800;
-            padding: 8px 6px;
-            min-width: 78px;
+            padding: 7px 3px;
+            min-width: 40px;
+            max-width: 40px;
             text-transform: uppercase;
-            letter-spacing: 0.3px;
+            letter-spacing: 0.2px;
             box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+            writing-mode: vertical-rl;
+            transform: rotate(180deg);
+            white-space: nowrap;
+            height: 70px;
+        }
+        .pano-table thead th.pano-corner {
+            writing-mode: horizontal-tb;
+            transform: none;
+            font-size: 0.9rem;
+            height: auto;
         }
         .pano-table thead th:first-child {
             left: 0;
             z-index: 40;
-            min-width: 54px;
-            width: 54px;
+            min-width: 46px;
+            width: 46px;
+            max-width: 46px;
             border-right: 2px solid var(--primary);
         }
         .pano-table tbody td.pano-date {
@@ -697,36 +712,50 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
             z-index: 20;
             background: var(--bg-card);
             font-weight: 800;
-            font-size: 0.82rem;
-            min-width: 54px;
-            width: 54px;
+            font-size: 0.8rem;
+            min-width: 46px;
+            width: 46px;
+            max-width: 46px;
             color: var(--text-main);
             border-right: 2px solid var(--primary);
             padding: 2px;
             box-shadow: 2px 0 5px rgba(0,0,0,0.06);
         }
-        .pano-date small { display: block; font-size: 0.6rem; color: var(--text-sec); font-weight: 600; text-transform: uppercase; }
+        .pano-date small { display: block; font-size: 0.55rem; color: var(--text-sec); font-weight: 600; text-transform: uppercase; }
         .pano-date.red { color: #dc2626; background: #fef2f2; }
         body.dark-mode .pano-date.red { background: #450a0a; color: #fca5a5; }
         .pano-cell {
-            padding: 3px 2px;
-            font-size: 0.66rem;
-            font-weight: 800;
-            height: 38px;
-            line-height: 1.1;
+            padding: 0;
+            font-size: 0.92rem;
+            font-weight: 900;
+            height: 34px;
+            min-width: 40px;
+            max-width: 40px;
+            line-height: 1;
+            text-align: center;
         }
-        .pano-cell .pc-time { font-size: 0.54rem; font-weight: 600; opacity: 0.8; display: block; margin-top: 1px; }
+        /* Turnisti (iniziale MAIUSCOLA, colore pieno) */
         .pano-cell.c-M  { background: var(--c-M);  color: var(--t-M); }
         .pano-cell.c-P  { background: var(--c-P);  color: var(--t-P); }
         .pano-cell.c-N  { background: var(--c-N);  color: var(--t-N); }
         .pano-cell.c-SM { background: var(--c-SM); color: var(--t-SM); }
         .pano-cell.c-R  { background: var(--c-R);  color: var(--t-R); }
-        .pano-cell.c-MN { background: linear-gradient(135deg,var(--c-M) 0%,var(--c-M) 45%,var(--c-N) 55%,var(--c-N) 100%); color:#fff; }
-        .pano-cell.c-spec { background: var(--bg); color: var(--text-sec); font-size: 0.56rem; }
+        .pano-cell.c-MN { background: linear-gradient(135deg,var(--c-M) 0 45%,var(--c-N) 55% 100%); color:#fff; }
+        /* Diurnisti (iniziale minuscola, colore diurno chiaro) */
+        .pano-cell.c-diurno { background: var(--c-D-day); color: var(--t-D-day); font-style: italic; border: 1px dashed var(--b-D-day); }
+        /* Assenze */
+        .pano-cell.c-ferie { background: var(--bg-ferie); color: var(--t-ferie); font-size: 0.72rem; }
+        .pano-cell.c-cong  { background: var(--bg-cong);  color: var(--t-cong);  font-size: 0.72rem; }
+        .pano-cell.c-perm  { background: var(--bg-perm);  color: var(--t-perm);  font-size: 0.72rem; }
+        .pano-cell.c-rec   { background: var(--bg-rec);   color: var(--t-rec);   font-size: 0.66rem; }
+        .pano-cell.c-mal   { background: #8c8b8b; color: #fff; font-size: 0.72rem; }
+        .pano-cell.c-spec  { background: var(--bg); color: var(--text-sec); font-size: 0.62rem; }
         .pano-cell.c-empty { background: transparent; color: var(--border); }
         .pano-row-today td { background: #fff7ed; }
         .pano-row-today .pano-date { background: #fff7ed; border-left: 4px solid #ea580c; }
         body.dark-mode .pano-row-today td { background: #431407; }
+        .pano-body.grabbing { cursor: grabbing; }
+        .pano-body { cursor: grab; }
         .pano-legend {
             display: flex;
             gap: 10px;
@@ -824,29 +853,53 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
             cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
         }
         .wv-close:active { transform: scale(0.92); }
-        .wv-body { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 12px; }
-        .wv-day { background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; margin-bottom: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
-        .wv-day.wv-today { border-color: #ea580c; box-shadow: 0 0 0 2px rgba(234,88,12,0.25); }
-        .wv-day-head {
-            padding: 10px 16px; font-weight: 800; font-size: 0.9rem;
-            background: var(--bg); color: var(--text-main);
-            border-bottom: 1px solid var(--border); text-transform: uppercase; letter-spacing: 0.5px;
+        .wv-body { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 12px 12px 30px; }
+        .wv-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 18px; margin-bottom: 14px; overflow: hidden; box-shadow: 0 4px 14px rgba(0,0,0,0.06); }
+        .wv-card.wv-today { border-color: #ea580c; box-shadow: 0 0 0 2px rgba(234,88,12,0.3), 0 6px 18px rgba(234,88,12,0.15); }
+        .wv-card-head {
+            display: flex; align-items: baseline; gap: 10px;
+            padding: 12px 16px; border-bottom: 1px solid var(--border);
+            background: linear-gradient(135deg, var(--bg), var(--bg-card));
         }
-        .wv-day-head.red { color: #dc2626; }
-        .wv-today .wv-day-head { background: linear-gradient(135deg, #fff7ed, #ffedd5); color: #c2410c; }
-        body.dark-mode .wv-today .wv-day-head { background: #431407; color: #fdba74; }
-        .wv-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(88px, 1fr)); gap: 8px; padding: 12px; }
-        .wv-op { display: flex; flex-direction: column; align-items: center; gap: 4px; }
-        .wv-op-name { font-size: 0.62rem; font-weight: 800; color: var(--text-sec); text-transform: uppercase; letter-spacing: 0.3px; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
-        .wv-cell { width: 100%; text-align: center; padding: 8px 2px; border-radius: 10px; font-size: 0.78rem; font-weight: 800; }
-        .wv-cell.c-M { background: var(--c-M); color: var(--t-M); }
-        .wv-cell.c-P { background: var(--c-P); color: var(--t-P); }
-        .wv-cell.c-N { background: var(--c-N); color: var(--t-N); }
-        .wv-cell.c-SM { background: var(--c-SM); color: var(--t-SM); }
-        .wv-cell.c-R { background: var(--c-R); color: var(--t-R); }
-        .wv-cell.c-MN { background: linear-gradient(135deg,var(--c-M) 0 45%,var(--c-N) 55% 100%); color:#fff; }
-        .wv-cell.c-spec { background: var(--bg); color: var(--text-sec); border: 1px solid var(--border); }
-        .wv-cell.c-empty { background: transparent; color: var(--border); border: 1px dashed var(--border); }
+        .wv-card-day { font-weight: 900; font-size: 1rem; color: var(--text-main); text-transform: capitalize; letter-spacing: -0.3px; }
+        .wv-card.wv-red .wv-card-day { color: #dc2626; }
+        .wv-card-date { font-size: 0.8rem; font-weight: 700; color: var(--text-sec); flex: 1; }
+        .wv-today-badge { background: #ea580c; color: #fff; font-size: 0.6rem; font-weight: 900; padding: 3px 9px; border-radius: 20px; letter-spacing: 0.5px; }
+        .wv-card.wv-today .wv-card-head { background: linear-gradient(135deg, #fff7ed, #ffedd5); }
+        body.dark-mode .wv-card.wv-today .wv-card-head { background: #431407; }
+        .wv-shift {
+            display: flex; align-items: flex-start; gap: 10px;
+            padding: 9px 14px; border-bottom: 1px dashed var(--border);
+        }
+        .wv-shift:last-child { border-bottom: none; }
+        .wv-shift-label {
+            display: flex; align-items: center; gap: 5px;
+            font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.3px;
+            min-width: 92px; flex-shrink: 0; padding-top: 3px;
+        }
+        .wv-shift-label .material-icons-round { font-size: 0.95rem; }
+        .wv-shift-people { display: flex; flex-wrap: wrap; gap: 5px; flex: 1; }
+        .wv-pill { font-size: 0.74rem; font-weight: 700; padding: 4px 11px; border-radius: 20px; background: var(--bg); border: 1px solid var(--border); color: var(--text-main); }
+        .wv-pill-d { font-style: italic; }
+        /* Colori per gruppo turno (bordo-sinistra colorato + etichetta colorata) */
+        .wv-shift.g-M  { border-left: 4px solid var(--c-M); }
+        .wv-shift.g-M  .wv-shift-label { color: var(--c-M); }
+        .wv-shift.g-P  { border-left: 4px solid var(--c-P); }
+        .wv-shift.g-P  .wv-shift-label { color: var(--c-P); }
+        .wv-shift.g-N  { border-left: 4px solid var(--c-N); }
+        .wv-shift.g-N  .wv-shift-label { color: var(--c-N); }
+        body.dark-mode .wv-shift.g-N .wv-shift-label { color: #93c5fd; }
+        .wv-shift.g-SM { border-left: 4px solid var(--c-SM); }
+        .wv-shift.g-SM .wv-shift-label { color: var(--c-SM); }
+        body.dark-mode .wv-shift.g-SM .wv-shift-label { color: #c4b5fd; }
+        .wv-shift.g-MN { border-left: 4px solid #ef4444; }
+        .wv-shift.g-MN .wv-shift-label { color: #dc2626; }
+        .wv-shift.g-D  { border-left: 4px solid #d97706; }
+        .wv-shift.g-D  .wv-shift-label { color: #d97706; }
+        .wv-rest, .wv-abs { display: flex; align-items: center; gap: 6px; padding: 8px 14px; font-size: 0.72rem; font-weight: 600; color: var(--text-sec); }
+        .wv-rest .material-icons-round, .wv-abs .material-icons-round { font-size: 0.95rem; color: #16a34a; }
+        .wv-abs .material-icons-round { color: #dc2626; }
+        .wv-empty { padding: 18px; text-align: center; color: var(--text-sec); font-size: 0.82rem; }
         .wv-hint { text-align: center; font-size: 0.72rem; color: var(--text-sec); padding: 4px 0 12px; }
     </style>
 </head>
@@ -913,7 +966,7 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
 
     <!-- LOADER -->
     <div id="loader">
-        <img src="foto1.png" alt="118 San Marino" style="width:150px;height:auto;max-height:150px;border-radius:22px;box-shadow:0 8px 30px rgba(0,0,0,0.5);position:relative;z-index:2;margin-bottom:24px;object-fit:cover;" onerror="this.onerror=null;this.src='logo.png';this.style.width='80px';this.style.height='80px';">
+        <img src="foto1.png" alt="118 San Marino" style="width:min(78vw,360px);height:auto;border-radius:24px;box-shadow:0 12px 40px rgba(0,0,0,0.55);position:relative;z-index:2;margin-bottom:26px;" onerror="this.onerror=null;this.src='logo.png';this.style.width='90px';">
         <div class="spinner" style="position:relative;z-index:2;"></div>
         <div id="loader-text"><h3 id="loader-msg">🚑 Caricamento in corso...</h3><p>A.S. 26 — San Marino</p></div>
         <div id="manual-upload">
@@ -1079,7 +1132,7 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
         <div class="top-bar">
             <div class="logo" onclick="secretClick()">
                 <img src="logo.png" alt="Logo" onerror="this.style.display='none'">
-                <div class="logo-text"><span class="logo-title">A.S. 26</span><span class="logo-sub" id="last-update-badge">San Marino</span></div>
+                <span class="logo-title" id="last-update-badge" style="display:none"></span>
             </div>
             <div class="right-controls">
                 <button class="btn-action" onclick="vibrate();scrollToToday()" title="Vai a oggi"><span class="material-icons-round">my_location</span></button>
@@ -1116,21 +1169,23 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
     <!-- PANORAMA: vista orizzontale ampia di tutti i turni -->
     <div id="panorama-modal">
         <div class="pano-header">
-            <h3><span class="material-icons-round">grid_view</span> Vista Panoramica</h3>
+            <button class="pano-close" onclick="closePanorama()" title="Indietro"><span class="material-icons-round">arrow_back</span></button>
+            <h3><span class="material-icons-round">grid_view</span> Panoramica</h3>
             <div class="pano-month-nav">
                 <button class="pano-nav-btn" onclick="panoPrevMonth()"><span class="material-icons-round">chevron_left</span></button>
                 <span class="pano-month-label" id="pano-month-label">—</span>
                 <button class="pano-nav-btn" onclick="panoNextMonth()"><span class="material-icons-round">chevron_right</span></button>
             </div>
-            <button class="pano-close" onclick="closePanorama()"><span class="material-icons-round">close</span></button>
         </div>
         <div class="pano-body" id="pano-body"></div>
         <div class="pano-legend">
-            <div class="pano-leg-item"><span class="pano-leg-dot" style="background:var(--c-M)"></span> Mattina</div>
-            <div class="pano-leg-item"><span class="pano-leg-dot" style="background:var(--c-P)"></span> Pomeriggio</div>
-            <div class="pano-leg-item"><span class="pano-leg-dot" style="background:var(--c-N)"></span> Notte</div>
-            <div class="pano-leg-item"><span class="pano-leg-dot" style="background:var(--c-SM)"></span> Smonto</div>
-            <div class="pano-leg-item"><span class="pano-leg-dot" style="background:var(--c-R)"></span> Riposo</div>
+            <div class="pano-leg-item"><b style="color:var(--text-main)">M</b> = in turno</div>
+            <div class="pano-leg-item"><b style="font-style:italic;color:var(--text-main)">m</b> = diurnista</div>
+            <div class="pano-leg-item"><span class="pano-leg-dot" style="background:var(--c-M)"></span>Matt.</div>
+            <div class="pano-leg-item"><span class="pano-leg-dot" style="background:var(--c-P)"></span>Pom.</div>
+            <div class="pano-leg-item"><span class="pano-leg-dot" style="background:var(--c-N)"></span>Notte</div>
+            <div class="pano-leg-item"><span class="pano-leg-dot" style="background:var(--c-SM)"></span>Smonto</div>
+            <div class="pano-leg-item"><span class="pano-leg-dot" style="background:var(--c-R)"></span>Riposo</div>
         </div>
     </div>
 
@@ -1409,7 +1464,7 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
             const year=2026,today=new Date(),curD=today.getDate(),curM=today.getMonth();
             for(let i=1;i<finalData.length;i++){
                 let row=finalData[i],mName=row[0].v,dNum=parseInt(row[1].v);
-                if(mName&&mName!==currentMonth){currentMonth=mName;let mId="m-"+i;globalMonthsList.push({name:mName,id:mId});let trM=document.createElement('tr');trM.className="month-header";trM.id=mId;let repeats=Math.max(3,(cols.length||6)+1);let labelSpan='<span class="month-label">'+mName+' '+year+'</span>';let repeated='';for(let r=0;r<repeats;r++){repeated+=labelSpan;}trM.innerHTML='<td colspan="'+(cols.length+1)+'"><div class="sticky-month-text">'+repeated+'</div></td>';tbody.appendChild(trM);}
+                if(mName&&mName!==currentMonth){currentMonth=mName;let mId="m-"+i;globalMonthsList.push({name:mName,id:mId});let trM=document.createElement('tr');trM.className="month-header";trM.id=mId;trM.innerHTML='<td colspan="'+(cols.length+1)+'"><div class="sticky-month-text"><span class="month-label">'+mName+' '+year+'</span></div></td>';tbody.appendChild(trM);}
                 let tr=document.createElement('tr');
                 let mIdx=MONTH_MAP[currentMonth];
                 let dateObj=new Date(year,mIdx,dNum);
@@ -1950,9 +2005,9 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
             const curM = today.getMonth(), curD = today.getDate();
             const mIdx = MONTH_MAP[monthName];
 
-            // Header colonne: DATA + tutti gli autisti
-            let html = '<table class="pano-table"><thead><tr><th>DATA</th>';
-            drivers.forEach(d => { html += '<th>'+d.name+'</th>'; });
+            // Header colonne: DATA + tutti gli autisti (iniziali per risparmiare spazio)
+            let html = '<table class="pano-table"><thead><tr><th class="pano-corner">📅</th>';
+            drivers.forEach(d => { html += '<th title="'+d.name+'">'+d.name+'</th>'; });
             html += '</tr></thead><tbody>';
 
             for(let i=1;i<finalData.length;i++){
@@ -1962,7 +2017,7 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
                 let dNum = parseInt(row[1].v);
                 if(!dNum) continue;
                 let dateObj = new Date(2026, mIdx, dNum);
-                let dayWeek = dateObj.toLocaleDateString('it-IT',{weekday:'short'}).toUpperCase();
+                let dayWeek = dateObj.toLocaleDateString('it-IT',{weekday:'short'}).toUpperCase().substring(0,3);
                 let dayIdx = dateObj.getDay();
                 let holKey = mIdx+'-'+dNum;
                 let isRed = (dayIdx===0||dayIdx===6||HOLIDAYS[holKey]);
@@ -1972,29 +2027,32 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
                 drivers.forEach(d => {
                     let val = (row[d.idx]?.v||'').toString().trim();
                     let st = normalizeShift(val);
-                    let cls = 'pano-cell ', label = '', time = '';
-                    if(st==='M'){ cls+='c-M'; label='MAT'; time='6:30-13:15'; }
-                    else if(st==='P'){ cls+='c-P'; label='POM'; time='12:45-20:10'; }
-                    else if(st==='N'){ cls+='c-N'; label='NOT'; time='19:45-00'; }
-                    else if(st==='SM'){ cls+='c-SM'; label='SM'; time='00-7:20'; }
-                    else if(st==='MN'){ cls+='c-MN'; label='M+N'; }
-                    else if(st==='R'){ cls+='c-R'; label='RIP'; }
+                    let firstChar = val.charAt(0);
+                    let isDiurno = (firstChar==='m' || firstChar==='p'); // minuscolo nel file = diurnista
+                    let cls = 'pano-cell ', label = '';
+                    if(st==='M'){ if(isDiurno){ cls+='c-diurno'; label='m'; } else { cls+='c-M'; label='M'; } }
+                    else if(st==='P'){ if(isDiurno){ cls+='c-diurno'; label='p'; } else { cls+='c-P'; label='P'; } }
+                    else if(st==='N'){ cls+='c-N'; label='N'; }
+                    else if(st==='SM'){ cls+='c-SM'; label='S'; }
+                    else if(st==='MN'){ cls+='c-MN'; label='Ⓜ'; }
+                    else if(st==='R'){ cls+='c-R'; label='R'; }
                     else {
                         let u = val.toUpperCase();
-                        if(u.includes('FER')){ cls+='c-spec'; label='FERIE'; }
-                        else if(u.includes('CONG')||u==='F'){ cls+='c-spec'; label='CONG'; }
-                        else if(u.includes('PERM')||u==='P'){ cls+='c-spec'; label='PERM'; }
-                        else if(u.includes('MAL')){ cls+='c-spec'; label='MAL'; }
-                        else if(u.includes('REC')){ cls+='c-spec'; label='REC'; }
+                        if(u.includes('FER')){ cls+='c-ferie'; label='F'; }
+                        else if(u.includes('CONG')||u==='F'){ cls+='c-cong'; label='C'; }
+                        else if(u.includes('PERM')||u==='P'){ cls+='c-perm'; label='P'; }
+                        else if(u.includes('MAL')){ cls+='c-mal'; label='✚'; }
+                        else if(u.includes('REC')){ cls+='c-rec'; label='Rc'; }
                         else if(val==='' || val==='-' || val==='.'){ cls+='c-empty'; label='·'; }
-                        else { cls+='c-spec'; label=u.substring(0,4); }
+                        else { cls+='c-spec'; label=u.substring(0,2); }
                     }
-                    html += '<td class="'+cls+'">'+label+(time?'<span class="pc-time">'+time+'</span>':'')+'</td>';
+                    html += '<td class="'+cls+'" title="'+d.name+': '+(val||'-')+'">'+label+'</td>';
                 });
                 html += '</tr>';
             }
             html += '</tbody></table>';
-            document.getElementById('pano-body').innerHTML = html;
+            const body = document.getElementById('pano-body');
+            body.innerHTML = html;
 
             // Scroll a oggi se nel mese corrente
             if(mIdx===curM){
@@ -2003,8 +2061,19 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
                     if(tr) tr.scrollIntoView({block:'center',behavior:'smooth'});
                 },100);
             } else {
-                document.getElementById('pano-body').scrollTop = 0;
+                body.scrollTop = 0;
             }
+            // Abilita trascinamento orizzontale col mouse (desktop)
+            enablePanoDrag(body);
+        }
+        // Trascinamento orizzontale (e verticale) col mouse nella panoramica
+        function enablePanoDrag(el){
+            if(!el || el._dragBound) return;
+            el._dragBound = true;
+            let down=false, sx=0, sy=0, sl=0, stp=0;
+            el.addEventListener('mousedown', e=>{ down=true; el.classList.add('grabbing'); sx=e.pageX; sy=e.pageY; sl=el.scrollLeft; stp=el.scrollTop; });
+            window.addEventListener('mouseup', ()=>{ down=false; el.classList.remove('grabbing'); });
+            el.addEventListener('mousemove', e=>{ if(!down)return; e.preventDefault(); el.scrollLeft=sl-(e.pageX-sx); el.scrollTop=stp-(e.pageY-sy); });
         }
 
         // Init platform + header state al load
@@ -2160,55 +2229,76 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
         function weekNext(){ weekOffset++; vibrate(); renderWeekView(); }
         function renderWeekView(){
             const today=new Date();
-            // Lunedì della settimana target
             const monday=new Date(today);
             const dow=(today.getDay()+6)%7; // 0=lun
             monday.setDate(today.getDate()-dow+weekOffset*7);
             const MN=['GENNAIO','FEBBRAIO','MARZO','APRILE','MAGGIO','GIUGNO','LUGLIO','AGOSTO','SETTEMBRE','OTTOBRE','NOVEMBRE','DICEMBRE'];
-            const dayNames=['LUN','MAR','MER','GIO','VEN','SAB','DOM'];
+            const dayFull=['LUNEDÌ','MARTEDÌ','MERCOLEDÌ','GIOVEDÌ','VENERDÌ','SABATO','DOMENICA'];
             let days=[];
             for(let i=0;i<7;i++){ const d=new Date(monday); d.setDate(monday.getDate()+i); days.push(d); }
             const first=days[0], last=days[6];
             document.getElementById('week-label').innerText =
                 first.getDate()+' '+MN[first.getMonth()].substr(0,3)+' – '+last.getDate()+' '+MN[last.getMonth()].substr(0,3);
 
-            // Per ogni giorno costruisci una card con tutti gli operatori
+            // Gruppi turno con metadati (ordine e colore)
+            const GROUPS=[
+                {key:'M',  label:'Mattina',    icon:'wb_sunny',     cls:'g-M'},
+                {key:'P',  label:'Pomeriggio', icon:'wb_twilight',  cls:'g-P'},
+                {key:'N',  label:'Notte',      icon:'bedtime',      cls:'g-N'},
+                {key:'SM', label:'Smonto',     icon:'night_shelter',cls:'g-SM'},
+                {key:'MN', label:'Mat+Notte',  icon:'bolt',         cls:'g-MN'}
+            ];
+
             let html='';
             days.forEach(d=>{
                 const mName=MN[d.getMonth()];
                 const dNum=d.getDate();
                 const isToday=(d.toDateString()===today.toDateString());
                 const dowIdx=d.getDay();
+                const dayLabel=dayFull[(dowIdx+6)%7];
                 const isRed=(dowIdx===0||dowIdx===6||HOLIDAYS[d.getMonth()+'-'+dNum]);
-                // Trova riga dati
                 let row=null;
                 for(let i=1;i<finalData.length;i++){
                     if((finalData[i][0].v||'').toString().toUpperCase().trim()===mName && parseInt(finalData[i][1].v)===dNum){ row=finalData[i]; break; }
                 }
-                html+='<div class="wv-day'+(isToday?' wv-today':'')+'">';
-                html+='<div class="wv-day-head'+(isRed?' red':'')+'">'+dayNames[(dowIdx+6)%7]+' '+dNum+' '+mName.substr(0,3)+(isToday?' • OGGI':'')+'</div>';
+                // Raggruppa per turno + diurnisti + riposo/assenze
+                const buckets={M:[],P:[],N:[],SM:[],MN:[]};
+                const diurni=[], riposi=[], assenze=[];
                 if(row){
-                    html+='<div class="wv-grid">';
                     drivers.forEach(dr=>{
                         const val=(row[dr.idx]?.v||'').toString().trim();
                         const st=normalizeShift(val);
-                        let cls='wv-cell ', lab='';
-                        if(st==='M'){cls+='c-M';lab='M';}
-                        else if(st==='P'){cls+='c-P';lab='P';}
-                        else if(st==='N'){cls+='c-N';lab='N';}
-                        else if(st==='SM'){cls+='c-SM';lab='SM';}
-                        else if(st==='MN'){cls+='c-MN';lab='M+N';}
-                        else if(st==='R'){cls+='c-R';lab='R';}
-                        else { const u=val.toUpperCase(); if(u.includes('FER')){cls+='c-spec';lab='FE';} else if(u.includes('CONG')||u==='F'){cls+='c-spec';lab='CO';} else if(u.includes('PERM')){cls+='c-spec';lab='PE';} else if(u.includes('MAL')){cls+='c-spec';lab='MA';} else if(u.includes('REC')){cls+='c-spec';lab='RE';} else { cls+='c-empty';lab='·'; } }
-                        html+='<div class="wv-op"><span class="wv-op-name">'+dr.name+'</span><span class="'+cls+'">'+lab+'</span></div>';
+                        const fc=val.charAt(0);
+                        const isDiurno=(fc==='m'||fc==='p');
+                        if(isDiurno){ diurni.push(dr.name+(fc==='m'?' (m)':' (p)')); return; }
+                        if(st && buckets[st]!==undefined){ buckets[st].push(dr.name); return; }
+                        if(st==='R'){ riposi.push(dr.name); return; }
+                        const u=val.toUpperCase();
+                        if(u.includes('FER')||u.includes('CONG')||u.includes('PERM')||u.includes('MAL')||u.includes('REC')||u==='F'){ assenze.push(dr.name); return; }
+                        if(val&&val!=='-'&&val!=='.') { /* sconosciuto: ignora */ }
                     });
-                    html+='</div>';
+                }
+                html+='<div class="wv-card'+(isToday?' wv-today':'')+(isRed?' wv-red':'')+'">';
+                html+='<div class="wv-card-head"><div class="wv-card-day">'+dayLabel+'</div><div class="wv-card-date">'+dNum+' '+mName.substr(0,3).toLowerCase()+'</div>'+(isToday?'<span class="wv-today-badge">OGGI</span>':'')+'</div>';
+                if(!row){
+                    html+='<div class="wv-empty">Nessun dato</div>';
                 } else {
-                    html+='<div style="padding:16px;text-align:center;color:var(--text-sec);font-size:0.8rem">Nessun dato</div>';
+                    let any=false;
+                    GROUPS.forEach(g=>{
+                        if(buckets[g.key].length>0){
+                            any=true;
+                            html+='<div class="wv-shift '+g.cls+'"><div class="wv-shift-label"><span class="material-icons-round">'+g.icon+'</span>'+g.label+'</div><div class="wv-shift-people">'+buckets[g.key].map(n=>'<span class="wv-pill">'+n+'</span>').join('')+'</div></div>';
+                        }
+                    });
+                    if(diurni.length>0){ any=true; html+='<div class="wv-shift g-D"><div class="wv-shift-label"><span class="material-icons-round">light_mode</span>Diurnisti</div><div class="wv-shift-people">'+diurni.map(n=>'<span class="wv-pill wv-pill-d">'+n+'</span>').join('')+'</div></div>'; }
+                    if(riposi.length>0){ html+='<div class="wv-rest"><span class="material-icons-round">weekend</span> Riposo: '+riposi.join(', ')+'</div>'; }
+                    if(assenze.length>0){ html+='<div class="wv-abs"><span class="material-icons-round">event_busy</span> Assenti: '+assenze.join(', ')+'</div>'; }
+                    if(!any && riposi.length===0 && assenze.length===0){ html+='<div class="wv-empty">Nessun turno</div>'; }
                 }
                 html+='</div>';
             });
             document.getElementById('week-body').innerHTML=html;
+            const wb=document.getElementById('week-body'); if(wb) wb.scrollTop=0;
         }
         // Swipe per cambiare settimana
         (function(){
