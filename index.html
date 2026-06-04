@@ -149,13 +149,23 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
         body { font-family: 'Inter', sans-serif; background: var(--bg); margin: 0; padding-top: var(--header-h); color: var(--text-main); transition: background 0.3s ease, color 0.3s ease; overscroll-behavior-y: none; }
         header { position: fixed; top: 0; left: 0; right: 0; background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 60%, #2563eb 100%); box-shadow: 0 2px 20px rgba(0,0,0,0.25); z-index: 1000; min-height: var(--header-h); display: flex; flex-direction: column; padding-top: 0; transition: transform 0.35s cubic-bezier(0.4,0,0.2,1), opacity 0.25s ease; }
         body.dark-mode header { background: linear-gradient(135deg, #020617 0%, #0f172a 60%, #1e3a8a 100%); }
-        .top-bar { padding: 0 12px; padding-top: env(safe-area-inset-top); display: flex; justify-content: space-between; align-items: center; height: 60px; flex-shrink: 0; gap: 10px; }
-        .logo { font-size: 1rem; font-weight: 900; color: #ffffff; display: flex; align-items: center; gap: 9px; letter-spacing: -0.5px; white-space: nowrap; flex-shrink: 1; min-width: 0; overflow: hidden; margin-right: auto; }
+        .top-bar { padding: 0 10px; padding-top: env(safe-area-inset-top); display: flex; justify-content: space-between; align-items: center; height: 60px; flex-shrink: 0; gap: 6px; }
+        .logo { font-size: 1rem; font-weight: 900; color: #ffffff; display: flex; align-items: center; gap: 9px; letter-spacing: -0.5px; white-space: nowrap; flex-shrink: 0; min-width: 0; margin-right: auto; }
         .logo img { filter: drop-shadow(0 2px 6px rgba(0,0,0,0.3)); border-radius: 10px; cursor: pointer; height: 34px; width: auto; border: 2px solid rgba(255,255,255,0.2); }
         .logo-text { display: flex; flex-direction: column; line-height: 1; overflow: hidden; }
         .logo-title { font-size: 1.05rem; font-weight: 900; color: #fff; letter-spacing: -0.5px; text-shadow: 0 1px 3px rgba(0,0,0,0.3); }
         .logo-sub { font-size: 0.6rem; font-weight: 600; color: rgba(255,255,255,0.65); margin-top: 2px; letter-spacing: 0.5px; text-transform: uppercase; }
         .right-controls { display: flex; gap: 5px; position: relative; flex-shrink: 0; align-items: center; }
+        @media (max-width: 430px){
+            .btn-action { width: 34px; height: 34px; border-radius: 10px; }
+            .btn-action .material-icons-round { font-size: 1.05rem; }
+            .right-controls { gap: 3px; }
+            .logo img { height: 30px; }
+        }
+        @media (max-width: 360px){
+            .btn-action { width: 31px; height: 31px; }
+            .right-controls { gap: 2px; }
+        }
         .btn-action { background: rgba(255,255,255,0.12); color: rgba(255,255,255,0.9); border: 1px solid rgba(255,255,255,0.2); width: 38px; height: 38px; padding: 0; border-radius: 11px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s cubic-bezier(0.4,0,0.2,1); position: relative; backdrop-filter: blur(8px); }
         .btn-action span.material-icons-round { font-size: 1.2rem; }
         .btn-action:active { transform: scale(0.92); background: rgba(255,255,255,0.22); }
@@ -180,9 +190,23 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
         thead th { background: var(--bg); color: var(--text-sec); padding: 5px; font-size: 0.7rem; text-transform: uppercase; font-weight: 800; letter-spacing: 0.5px; position: sticky; top: var(--header-h); z-index: 90; border-bottom: 1px solid var(--border); text-align: center; width: 110px !important; min-width: 110px !important; max-width: 110px !important; height: var(--th-h); backdrop-filter: blur(5px); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         thead th:first-child, tbody td:first-child { width: 60px !important; min-width: 60px !important; max-width: 60px !important; }
         thead th:first-child { position: -webkit-sticky !important; position: sticky !important; left: 0; z-index: 96 !important; background: var(--bg) !important; }
-        tr.month-header td { background: var(--month-bar-bg); color: white; position: -webkit-sticky !important; position: sticky !important; top: calc(var(--header-h) + var(--th-h)); z-index: 88; box-shadow: 0 4px 15px rgba(0,0,0,0.2); padding: 0; border: none; line-height: 1; }
-        .sticky-month-text { display: flex; align-items: center; gap: 12px; min-height: 40px; padding: 4px 0 4px 16px; box-sizing: border-box; }
-        .month-label { font-weight: 900; font-size: 1.4rem; text-transform: uppercase; letter-spacing: -0.5px; text-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+        tr.month-header td { background: var(--month-bar-bg); color: white; position: static; z-index: 1; box-shadow: none; padding: 0; border: none; line-height: 1; }
+        .sticky-month-text { display: flex; align-items: center; gap: 10px; min-height: 30px; padding: 5px 0 5px 16px; box-sizing: border-box; }
+        /* Overlay MESE fisso: sempre visibile, non scorre mai */
+        #month-fixed {
+            position: fixed; left: 0; right: 0;
+            top: calc(var(--header-h) + var(--th-h));
+            height: 24px; z-index: 86;
+            background: var(--month-bar-bg); color: #fff;
+            display: flex; align-items: center; padding: 0 16px;
+            font-weight: 800; font-size: 0.84rem; letter-spacing: 0.3px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.18);
+            pointer-events: none;
+            transition: top 0.25s ease;
+        }
+        #month-fixed::before { content:''; width:3px; height:13px; background:rgba(255,255,255,0.8); border-radius:2px; margin-right:9px; box-shadow:0 0 8px rgba(255,255,255,0.4); }
+        body.header-hidden #month-fixed { top: var(--th-h); }
+        .month-label { font-weight: 800; font-size: 0.84rem; text-transform: uppercase; letter-spacing: 0.3px; }
         .live-clock { font-variant-numeric: tabular-nums; font-weight: 800; font-size: 1rem; background: rgba(0,0,0,0.25); padding: 2px 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); letter-spacing: 0.5px; box-shadow: inset 0 1px 3px rgba(0,0,0,0.1); text-shadow: 0 1px 2px rgba(0,0,0,0.2); }
         tbody td { padding: 2px; height: var(--cell-h); vertical-align: middle; border-bottom: 1px solid var(--border); border-right: 1px dashed var(--border); transition: height 0.3s ease; width: 110px !important; min-width: 110px !important; max-width: 110px !important; overflow: hidden; }
         tbody td.td-date { position: -webkit-sticky !important; position: sticky !important; left: 0; z-index: 80; padding: 0 !important; border-right: 2px solid var(--border) !important; border-bottom: none !important; background: var(--bg); text-align: center; font-weight: 800; color: var(--text-main); font-size: 1.1rem; vertical-align: middle; }
@@ -382,32 +406,29 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
         body.ios-mode thead th { position: -webkit-sticky !important; position: sticky !important; }
 
         /* ── MONTH BAR sottile (poco più del nome) ── */
-        tr.month-header td { box-shadow: 0 2px 8px rgba(0,0,0,0.16) !important; overflow: hidden; }
+        tr.month-header td { box-shadow: none !important; overflow: visible; }
         .sticky-month-text {
-            min-height: 21px !important;
-            padding: 1px 14px !important;
-            backdrop-filter: blur(4px);
+            min-height: 30px !important;
+            padding: 5px 16px !important;
             display: flex !important;
             align-items: center !important;
             justify-content: flex-start !important;
-            gap: 8px !important;
-            width: max-content !important;
-            min-width: 160px;
-            will-change: transform;
+            gap: 9px !important;
+            width: auto !important;
         }
         .month-label {
-            font-size: 0.86rem !important;
+            font-size: 0.92rem !important;
             font-weight: 800 !important;
             letter-spacing: 0.3px !important;
             display: flex;
             align-items: center;
-            gap: 7px;
+            gap: 8px;
             white-space: nowrap;
             flex: 0 0 auto;
         }
         .month-label::before {
             content: '';
-            width: 3px; height: 13px;
+            width: 3px; height: 14px;
             background: rgba(255,255,255,0.75);
             border-radius: 2px;
             box-shadow: 0 0 8px rgba(255,255,255,0.4);
@@ -989,6 +1010,72 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
         .appt-remind-row { display:flex; align-items:center; justify-content:space-between; padding:6px 2px 12px; }
         .appt-remind-row span { font-size:0.88rem; font-weight:600; color:var(--text-main); }
         .btn-appt-save { width:100%; padding:14px; border-radius:13px; border:none; background:linear-gradient(135deg,#5b21b6,#7c3aed); color:#fff; font-weight:800; font-size:0.95rem; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; }
+
+        /* FAB "+" in basso a sinistra */
+        #fab-appt {
+            position: fixed; left: 18px; bottom: calc(20px + env(safe-area-inset-bottom));
+            width: 58px; height: 58px; border-radius: 50%; border: none; z-index: 1200;
+            background: linear-gradient(135deg,#0f766e,#0891b2); color: #fff;
+            box-shadow: 0 8px 22px rgba(8,145,178,0.5); cursor: pointer;
+            display: none; align-items: center; justify-content: center;
+        }
+        #fab-appt .material-icons-round { font-size: 30px; }
+        #fab-appt:active { transform: scale(0.9); }
+        /* Modal nuovo impegno */
+        #newappt-modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:3600; backdrop-filter:blur(8px); align-items:flex-end; justify-content:center; opacity:0; transition:opacity 0.3s; }
+        #newappt-modal.open { opacity:1; }
+        #newappt-modal .modal-content { transform:translateY(100%); transition:transform 0.35s cubic-bezier(0.16,1,0.3,1); max-height:92vh; }
+        #newappt-modal.open .modal-content { transform:translateY(0); }
+        .na-field { margin-bottom: 14px; }
+        .na-field > label { display:block; font-size:0.78rem; font-weight:800; color:var(--text-sec); margin-bottom:7px; }
+        .na-field input[type=text], .na-field input[type=date], .na-field input[type=time], .na-field select {
+            width:100%; padding:12px; border-radius:11px; border:1.5px solid var(--border);
+            font-size:0.92rem; background:var(--bg); color:var(--text-main); box-sizing:border-box; font-family:inherit;
+        }
+        .na-add-date { flex:0 0 48px; border:none; border-radius:11px; background:var(--primary); color:#fff; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+        .na-chips { display:flex; flex-wrap:wrap; gap:6px; margin-top:9px; }
+        .na-chip { display:inline-flex; align-items:center; gap:5px; background:#cffafe; color:#0e7490; border:1px solid #67e8f9; border-radius:18px; padding:5px 8px 5px 11px; font-size:0.78rem; font-weight:700; }
+        body.dark-mode .na-chip { background:#164e63; color:#a5f3fc; border-color:#0e7490; }
+        .na-chip button { background:none; border:none; color:inherit; cursor:pointer; display:flex; padding:0; }
+        .na-chip button .material-icons-round { font-size:15px; }
+        .na-colors { display:flex; flex-wrap:wrap; gap:10px; }
+        .na-color { width:32px; height:32px; border-radius:50%; cursor:pointer; border:3px solid transparent; transition:0.15s; }
+        .na-color.sel { border-color:var(--text-main); transform:scale(1.12); }
+        .na-icons { display:grid; grid-template-columns:repeat(auto-fill,minmax(46px,1fr)); gap:8px; }
+        .na-icon { aspect-ratio:1; border-radius:12px; border:1.5px solid var(--border); background:var(--bg); display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--text-sec); transition:0.15s; }
+        .na-icon.sel { border-color:var(--primary); background:var(--primary); color:#fff; transform:scale(1.05); }
+        .na-icon .material-icons-round { font-size:22px; }
+        /* Badge impegno sul calendario (icona colorata) */
+        .appt-icons { display:flex; align-items:center; justify-content:center; gap:2px; margin-top:2px; flex-wrap:wrap; }
+        .appt-ico { display:inline-flex; align-items:center; justify-content:center; width:15px; height:15px; border-radius:5px; color:#fff; }
+        .appt-ico .material-icons-round { font-size:10px; }
+        .appt-more { font-size:0.55rem; font-weight:900; color:var(--text-sec); }
+        .appt-title-cal { font-size:0.5rem; font-weight:800; line-height:1.05; margin-top:1px; max-width:46px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+        .ai-shared { font-size:0.62rem; color:#0891b2; font-weight:700; margin-top:3px; display:inline-flex; align-items:center; gap:3px; }
+
+        /* ════════ CENTRO NOTIFICHE ════════ */
+        #notif-modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:5000; backdrop-filter:blur(8px); align-items:flex-end; justify-content:center; opacity:0; transition:opacity 0.3s; }
+        #notif-modal.open { opacity:1; }
+        #notif-modal .modal-content { transform:translateY(100%); transition:transform 0.35s cubic-bezier(0.16,1,0.3,1); max-height:88vh; display:flex; flex-direction:column; }
+        #notif-modal.open .modal-content { transform:translateY(0); }
+        .notif-head { background:linear-gradient(135deg,#1e3a8a,#2563eb); color:#fff; padding:16px 18px; display:flex; justify-content:space-between; align-items:center; flex-shrink:0; }
+        .notif-head h3 { margin:0; font-size:1.1rem; font-weight:800; display:flex; align-items:center; gap:9px; }
+        .notif-sub { font-size:0.76rem; opacity:0.85; font-weight:600; margin-top:2px; }
+        .notif-clear { background:rgba(255,255,255,0.18); color:#fff; border:none; width:38px; height:38px; border-radius:11px; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+        .notif-body { overflow-y:auto; -webkit-overflow-scrolling:touch; padding:12px 14px 28px; background:var(--bg); }
+        .notif-card { background:var(--bg-card); border:1px solid var(--border); border-left-width:4px; border-radius:14px; padding:12px 13px; margin-bottom:10px; position:relative; box-shadow:0 2px 8px rgba(0,0,0,0.05); }
+        .notif-card.unread { box-shadow:0 3px 12px rgba(37,99,235,0.14); }
+        .notif-card .nc-top { display:flex; align-items:center; gap:8px; margin-bottom:6px; }
+        .notif-card .nc-ico { width:30px; height:30px; border-radius:9px; display:flex; align-items:center; justify-content:center; flex-shrink:0; color:#fff; }
+        .notif-card .nc-ico .material-icons-round { font-size:17px; }
+        .notif-card .nc-label { font-size:0.7rem; font-weight:800; text-transform:uppercase; letter-spacing:0.4px; flex:1; }
+        .notif-card .nc-date { font-size:0.64rem; color:var(--text-sec); font-weight:600; }
+        .notif-card .nc-body { font-size:0.84rem; color:var(--text-main); line-height:1.45; }
+        .notif-card .nc-body b { font-weight:800; }
+        .notif-card .nc-del { position:absolute; top:8px; right:8px; background:none; border:none; color:var(--text-sec); cursor:pointer; padding:3px; opacity:0.6; }
+        .notif-card .nc-unread-dot { position:absolute; top:14px; right:34px; width:8px; height:8px; border-radius:50%; background:#2563eb; }
+        .notif-empty { text-align:center; padding:50px 20px; color:var(--text-sec); }
+        .notif-empty .material-icons-round { font-size:48px; opacity:0.3; display:block; margin-bottom:10px; }
     </style>
 </head>
 <body>
@@ -1023,6 +1110,7 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
             <button class="login-btn" id="login-submit" onclick="doLoginSubmit()"><span class="material-icons-round">login</span> <span id="login-submit-label">Accedi</span></button>
             <div class="login-divider">oppure</div>
             <button class="login-btn-ghost" onclick="loginAsCentrale()"><span class="material-icons-round">headset_mic</span> Entra come Centrale Operativa</button>
+            <button class="login-btn-ghost" style="margin-top:9px" onclick="loginAsGuest()"><span class="material-icons-round">visibility</span> Entra come ospite (sola lettura)</button>
         </div>
     </div>
 
@@ -1035,19 +1123,76 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
             </div>
             <div class="modal-body" style="padding:0;overflow-y:auto">
                 <div class="appt-list" id="appt-list"></div>
-                <div class="appt-form">
-                    <div class="af-row">
-                        <input type="text" id="appt-title" placeholder="Titolo appuntamento" style="flex:2">
-                        <input type="time" id="appt-time" style="flex:1">
-                    </div>
-                    <textarea id="appt-note" placeholder="Note (facoltativo)"></textarea>
-                    <div class="appt-remind-row">
-                        <span>🔔 Ricordamelo con una notifica</span>
-                        <label class="switch"><input type="checkbox" id="appt-remind" checked><span class="slider"></span></label>
-                    </div>
-                    <button class="btn-appt-save" onclick="saveAppointment()"><span class="material-icons-round">add</span> Aggiungi appuntamento</button>
+                <div style="padding:14px 16px 24px">
+                    <button class="btn-appt-save" onclick="openNewAppt(apptContext.iso)"><span class="material-icons-round">add</span> Aggiungi impegno per questo giorno</button>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- FAB "+" in basso a sinistra -->
+    <button id="fab-appt" onclick="openNewAppt()" title="Nuovo impegno"><span class="material-icons-round">add</span></button>
+
+    <!-- MODAL NUOVO IMPEGNO (completo) -->
+    <div id="newappt-modal" onclick="closeNewAppt(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="appt-header" style="background:linear-gradient(135deg,#0f766e,#0891b2)">
+                <div><h3><span class="material-icons-round">add_task</span> Nuovo impegno</h3><div class="appt-date-sub">Calendario personale</div></div>
+                <button class="btn-close-modal" style="background:rgba(255,255,255,0.18);color:#fff" onclick="closeNewAppt()"><span class="material-icons-round">close</span></button>
+            </div>
+            <div class="modal-body" style="overflow-y:auto;padding:16px">
+                <div class="na-field">
+                    <label>📅 Date dell'impegno</label>
+                    <div class="af-row">
+                        <input type="date" id="na-date" min="2026-01-01" max="2026-12-31" value="2026-01-01" style="flex:2">
+                        <button class="na-add-date" onclick="addNaDate()"><span class="material-icons-round">add</span></button>
+                    </div>
+                    <div id="na-dates-chips" class="na-chips"></div>
+                </div>
+                <div class="na-field">
+                    <label>🏷️ Tipo di impegno</label>
+                    <input type="text" id="na-type" placeholder="es. Visita medica, Riunione, Compleanno...">
+                </div>
+                <div class="na-field">
+                    <label>🕒 Ora (facoltativa)</label>
+                    <input type="time" id="na-time">
+                </div>
+                <div class="na-field">
+                    <label>🎨 Colore sul calendario</label>
+                    <div id="na-colors" class="na-colors"></div>
+                </div>
+                <div class="na-field">
+                    <label>✨ Icona</label>
+                    <div id="na-icons" class="na-icons"></div>
+                </div>
+                <div class="appt-remind-row"><span>📝 Mostra il titolo sul calendario</span><label class="switch"><input type="checkbox" id="na-showtitle"><span class="slider"></span></label></div>
+                <div class="appt-remind-row"><span>👥 Visibile agli altri operatori</span><label class="switch"><input type="checkbox" id="na-shared"><span class="slider"></span></label></div>
+                <div class="na-field">
+                    <label>🔔 Promemoria</label>
+                    <select id="na-remind">
+                        <option value="none">Nessun promemoria</option>
+                        <option value="10m">10 minuti prima</option>
+                        <option value="1h">1 ora prima</option>
+                        <option value="2h">2 ore prima</option>
+                        <option value="1d">1 giorno prima</option>
+                    </select>
+                </div>
+                <button class="btn-appt-save" style="background:linear-gradient(135deg,#0f766e,#0891b2);margin-top:6px" onclick="saveNewAppt()"><span class="material-icons-round">check</span> Salva impegno</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- CENTRO NOTIFICHE (in-app) -->
+    <div id="notif-modal" onclick="closeNotifCenter(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="notif-head">
+                <div><h3><span class="material-icons-round">notifications</span> Notifiche</h3><div class="notif-sub" id="notif-count">—</div></div>
+                <div style="display:flex;gap:8px">
+                    <button class="notif-clear" onclick="clearAllNotifs()" title="Cancella tutte"><span class="material-icons-round">delete_sweep</span></button>
+                    <button class="btn-close-modal" style="background:rgba(255,255,255,0.18);color:#fff" onclick="closeNotifCenter()"><span class="material-icons-round">close</span></button>
+                </div>
+            </div>
+            <div class="notif-body" id="notif-body"></div>
         </div>
     </div>
 
@@ -1157,7 +1302,7 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
                         <button class="btn-logout" onclick="logoutAccount()"><span class="material-icons-round" style="font-size:15px">logout</span> Esci</button>
                     </div>
                 </div>
-                <div class="option-item" style="display:block">
+                <div class="option-item" id="chi-sei-block" style="display:block">
                     <div style="margin-bottom:10px"><span style="font-size:1rem;font-weight:700">Chi sei?</span><div style="font-size:0.8rem;color:var(--text-sec)">Seleziona il tuo nome per ricevere notifiche sui tuoi turni.</div></div>
                     <select id="turni-user-select" onchange="saveTurniUser(this.value)" style="width:100%;padding:12px;border-radius:10px;border:1px solid var(--border);font-size:0.95rem;font-weight:600;background:var(--bg);color:var(--text-main);">
                         <option value="">-- Nessuna selezione --</option>
@@ -1295,7 +1440,6 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
                 <div id="menu-dropdown">
                     <div class="menu-item" onclick="openPersonalArea()"><span class="material-icons-round">badge</span> Area Personale</div>
                     <div class="menu-item" onclick="openDinnerModal()"><span class="material-icons-round">restaurant</span> Organizza Uscita</div>
-                    <div class="menu-item" onclick="openStatsSelection()"><span class="material-icons-round">bar_chart</span> Statistiche</div>
                     <div class="menu-item" onclick="openOptionsModal()"><span class="material-icons-round">settings</span> Opzioni</div>
                     <div class="menu-item" onclick="openAdminPanel()" style="border-top:2px solid var(--border);color:#dc2626"><span class="material-icons-round" style="color:#dc2626">admin_panel_settings</span> Admin</div>
                     <div class="menu-item" onclick="vibrate();location.reload()"><span class="material-icons-round">refresh</span> Aggiorna</div>
@@ -1313,6 +1457,9 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
     <div id="pull-tab" title="Trascina verso il basso per mostrare la barra">
         <span class="material-icons-round">keyboard_arrow_down</span>
     </div>
+
+    <!-- Barra MESE fissa (sempre visibile, non scorre) -->
+    <div id="month-fixed"><span id="month-fixed-label">—</span></div>
 
     <!-- Orologio flottante fisso sempre visibile -->
     <div class="live-clock" id="fixed-clock"></div>
@@ -1590,7 +1737,51 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
         function loadNotificationHistory(){let saved=localStorage.getItem('notifications_history');if(saved)notifHistory=JSON.parse(saved);updateBadge();}
         function saveNotifications(){localStorage.setItem('notifications_history',JSON.stringify(notifHistory));}
         function updateBadge(){const unreadCount=notifHistory.filter(n=>!n.read).length;const badge=document.getElementById('notif-badge');if(unreadCount>0)badge.classList.add('visible');else badge.classList.remove('visible');}
-        function openNotifCenter(){vibrate();saveNotifications();var url='notifications.html';if(/Mobi|Android|iPhone|iPad/.test(navigator.userAgent)){window.location.href=url;}else{window.open(url,'_blank');}}
+        function openNotifCenter(){
+            vibrate();
+            if(document.getElementById('menu-dropdown').style.display==='flex')toggleMenu();
+            renderNotifCenter();
+            const m=document.getElementById('notif-modal'); m.style.display='flex'; setTimeout(()=>m.classList.add('open'),10);
+        }
+        function closeNotifCenter(e){
+            if(e&&e.target!==e.currentTarget)return;
+            // segna tutte come lette all'uscita
+            notifHistory.forEach(n=>n.read=true); saveNotifications(); updateBadge();
+            const m=document.getElementById('notif-modal'); m.classList.remove('open'); setTimeout(()=>m.style.display='none',250);
+        }
+        const NOTIF_META={
+            'new_request':{label:'Nuova richiesta',icon:'assignment',color:'#d97706'},
+            'request_inserted':{label:'Richiesta inserita',icon:'check_circle',color:'#059669'},
+            'rep':{label:'Reperibilità',icon:'contact_phone',color:'#2563eb'},
+            'rep_cover':{label:'Copertura reperibilità',icon:'sync_alt',color:'#7c3aed'},
+            'shift_change':{label:'Turni modificati',icon:'edit_calendar',color:'#0891b2'},
+            'appt':{label:'Promemoria impegno',icon:'event',color:'#db2777'},
+            'default':{label:'Notifica',icon:'notifications',color:'#475569'}
+        };
+        function renderNotifCenter(){
+            const body=document.getElementById('notif-body');
+            const cnt=document.getElementById('notif-count');
+            if(!notifHistory||notifHistory.length===0){
+                body.innerHTML='<div class="notif-empty"><span class="material-icons-round">notifications_off</span>Nessuna notifica</div>';
+                if(cnt)cnt.innerText='Tutto in ordine';
+                return;
+            }
+            const unread=notifHistory.filter(n=>!n.read).length;
+            if(cnt)cnt.innerText=notifHistory.length+' notifich'+(notifHistory.length===1?'a':'e')+(unread?(' · '+unread+' da leggere'):'');
+            body.innerHTML=notifHistory.map(n=>{
+                const meta=NOTIF_META[n.type]||NOTIF_META.default;
+                return '<div class="notif-card'+(n.read?'':' unread')+'" style="border-left-color:'+meta.color+'">'
+                    +'<div class="nc-top"><div class="nc-ico" style="background:'+meta.color+'"><span class="material-icons-round">'+meta.icon+'</span></div>'
+                    +'<span class="nc-label" style="color:'+meta.color+'">'+meta.label+'</span>'
+                    +'<span class="nc-date">'+(n.date||'')+'</span></div>'
+                    +(n.read?'':'<span class="nc-unread-dot"></span>')
+                    +'<button class="nc-del" onclick="deleteNotifAndRefresh(\''+String(n.id).replace(/'/g,"\\'")+'\')"><span class="material-icons-round" style="font-size:18px">close</span></button>'
+                    +'<div class="nc-body">'+n.text+'</div>'
+                    +'</div>';
+            }).join('');
+        }
+        function deleteNotifAndRefresh(id){ vibrate(); notifHistory=notifHistory.filter(n=>String(n.id)!==String(id)); saveNotifications(); updateBadge(); renderNotifCenter(); }
+        function clearAllNotifs(){ if(!notifHistory.length)return; if(!confirm('Cancellare tutte le notifiche?'))return; notifHistory=[]; saveNotifications(); updateBadge(); renderNotifCenter(); }
         function deleteNotif(id){vibrate();notifHistory=notifHistory.filter(n=>n.id!==id);saveNotifications();updateBadge();}
 
         function showChangeAlert(changes){let msg="";changes.slice(0,4).forEach((c,i)=>{msg+='<div style="background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:'+(i<changes.length-1?'8px':'0')+'">'+c+'</div>';});if(changes.length>4)msg+='<div style="font-size:0.78rem;color:var(--text-sec);text-align:center;margin-top:8px">...e altri '+(changes.length-4)+' autisti</div>';let modal=document.getElementById('alert-modal');document.getElementById('alert-title-text').innerText='⚠️ VARIAZIONE TURNI ('+changes.length+')';document.getElementById('alert-message-text').innerHTML='<div style="font-size:0.85rem;color:var(--text-sec);margin-bottom:12px">Hai rilevato cambi turno per gli autisti monitorati:</div>'+msg;modal.style.display='flex';setTimeout(()=>modal.classList.add('open'),100);vibrate();}
@@ -1641,9 +1832,16 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
                 if(mIdx===curM&&dNum===curD&&today.getFullYear()===year){tr.className="today";tr.id="today-row";}
                 let apptKey=mName+'-'+dNum;
                 let apptList=(typeof myAppointments!=='undefined'&&myAppointments[apptKey])?myAppointments[apptKey]:null;
-                let apptBadge=apptList&&apptList.length>0?'<div class="appt-badge"><span class="material-icons-round" style="font-size:9px">event</span>'+apptList.length+'</div>':'';
+                let apptBadge='';
+                if(apptList&&apptList.length>0){
+                    let iconsHtml=apptList.slice(0,3).map(a=>'<span class="appt-ico" style="background:'+(a.color||'#7c3aed')+'"><span class="material-icons-round">'+(a.icon||'event')+'</span></span>').join('');
+                    if(apptList.length>3)iconsHtml+='<span class="appt-more">+'+(apptList.length-3)+'</span>';
+                    let titled=apptList.find(a=>a.showTitle&&(a.type||a.title));
+                    let titleHtml=titled?'<div class="appt-title-cal" style="color:'+(titled.color||'#7c3aed')+'">'+escapeHtml(titled.type||titled.title)+'</div>':'';
+                    apptBadge='<div class="appt-icons">'+iconsHtml+'</div>'+titleHtml;
+                }
                 let dateHtml=dNum+'<small>'+dayWeek+'</small>'+(holidayName?'<div class="holiday-name">'+holidayName+'</div>':'')+apptBadge;
-                tr.innerHTML='<td class="'+dateClass+'" style="cursor:pointer" onclick="openDayAppointments(\''+mName+'\','+dNum+')" title="Appuntamenti del giorno"><div class="td-date-inner">'+dateHtml+'</div></td>';
+                tr.innerHTML='<td class="'+dateClass+'" style="cursor:pointer" onclick="openDayAppointments(\''+mName+'\','+dNum+')" title="Impegni del giorno"><div class="td-date-inner">'+dateHtml+'</div></td>';
                 let countM=0,countP=0;
                 drivers.forEach(dr=>{let val=(row[dr.idx]?.v||"").toString().trim();let sType=normalizeShift(val);if(sType==="M"||sType==="MN")countM++;if(sType==="P")countP++;});
                 let dotsHtml="";
@@ -1664,6 +1862,7 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
                 });
                 tbody.appendChild(tr);
             }
+            if(typeof updateMonthFixed==='function')setTimeout(updateMonthFixed,30);
         }
 
         // ── PASSWORD ADMIN CON SESSIONSTORAGE (patch v21 integrata nativamente) ──
@@ -2015,6 +2214,7 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
                 document.documentElement.style.setProperty('--header-h',h+'px');
                 document.body.style.paddingTop=h+'px';
             }
+            if(typeof updateMonthFixed==='function')updateMonthFixed();
         }
         window.addEventListener('resize',syncHeaderHeight);
         window.addEventListener('load',()=>setTimeout(syncHeaderHeight,300));
@@ -2024,7 +2224,7 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
         // PATCH v21 #1 — BACK BUTTON MOBILE (chiude modal, non esce dall'app)
         // ══════════════════════════════════════════════════════════════
         (function(){
-            const monitoredIds=['shift-modal','dinner-modal','options-modal','month-select-modal','stats-modal','alert-modal','changelog-modal','secret-gallery','menu-dropdown'];
+            const monitoredIds=['shift-modal','dinner-modal','options-modal','month-select-modal','stats-modal','alert-modal','changelog-modal','secret-gallery','menu-dropdown','appt-modal','newappt-modal','notif-modal'];
             let modalDepth=0;
             const prevStates={};
             function tryCloseTopModal(){
@@ -2111,7 +2311,11 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
         function showHeader(){
             document.body.classList.remove('header-hidden');
             localStorage.setItem('header_hidden','0');
-            setTimeout(()=>{ if(typeof syncHeaderHeight==='function') syncHeaderHeight(); },50);
+            const resync=()=>{ if(typeof syncHeaderHeight==='function')syncHeaderHeight(); };
+            requestAnimationFrame(resync);
+            setTimeout(resync,60);
+            setTimeout(resync,260);   // dopo la transizione CSS
+            setTimeout(resync,420);
             if(navigator.vibrate)navigator.vibrate(12);
         }
         // Gesto sulla linguetta nell'header: trascina SU (o tap) → nasconde
@@ -2379,19 +2583,35 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
                 if(c){ c.scrollLeft=parseInt(saved)||0; pinMonthLabels(); }
             }
         }
-        // Tiene la scritta del mese ancorata a sinistra mentre si scorre il calendario
+        // Aggiorna l'etichetta del mese fisso in base alla posizione di scroll verticale
         let _pinRaf=null;
-        function pinMonthLabels(){
-            const c=document.querySelector('.container');
-            if(!c)return;
-            const x=c.scrollLeft;
-            document.querySelectorAll('.sticky-month-text').forEach(el=>{ el.style.transform='translateX('+x+'px)'; });
+        function pinMonthLabels(){ updateMonthFixed(); }
+        function updateMonthFixed(){
+            const bar=document.getElementById('month-fixed');
+            const lbl=document.getElementById('month-fixed-label');
+            if(!lbl||!bar)return;
+            if(typeof globalMonthsList==='undefined'||!globalMonthsList.length){ bar.style.display='none'; return; }
+            bar.style.display='flex';
+            const hh=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--header-h'))||0;
+            const thH=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--th-h'))||40;
+            const headerHidden=document.body.classList.contains('header-hidden');
+            const lineY=(headerHidden?0:hh)+thH+4;
+            let current=globalMonthsList[0];
+            for(const m of globalMonthsList){
+                const el=document.getElementById(m.id);
+                if(!el)continue;
+                const top=el.getBoundingClientRect().top;
+                if(top<=lineY+24) current=m; else break;
+            }
+            if(current){ const txt=current.name+' 2026'; if(lbl.textContent!==txt)lbl.textContent=txt; }
         }
         (function(){
-            function onScroll(){ if(_pinRaf)return; _pinRaf=requestAnimationFrame(()=>{ pinMonthLabels(); _pinRaf=null; }); }
+            function onScroll(){ if(_pinRaf)return; _pinRaf=requestAnimationFrame(()=>{ updateMonthFixed(); _pinRaf=null; }); }
             window.addEventListener('load',()=>{
                 const c=document.querySelector('.container');
                 if(c) c.addEventListener('scroll',onScroll,{passive:true});
+                window.addEventListener('scroll',onScroll,{passive:true});
+                document.addEventListener('scroll',onScroll,{passive:true,capture:true});
             });
         })();
 
@@ -2534,7 +2754,8 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
                 'auth/invalid-credential':'Email o password non corretti.',
                 'auth/too-many-requests':'Troppi tentativi. Riprova tra qualche minuto.',
                 'auth/network-request-failed':'Errore di rete. Controlla la connessione.',
-                'auth/operation-not-allowed':'Metodo di accesso non abilitato nella console Firebase.'
+                'auth/operation-not-allowed':'Metodo di accesso non abilitato nella console Firebase.',
+                'auth/admin-restricted-operation':'Accesso anonimo non abilitato. Nella Console Firebase → Authentication → Sign-in method, attiva il provider "Anonimo".'
             };
             return m[code]||('Errore: '+code);
         }
@@ -2584,19 +2805,42 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
         }
         async function loginAsCentrale(){
             loginError('');
-            if(!auth){ loginError('Firebase Authentication non disponibile.'); return; }
-            const btn=document.querySelector('.login-btn-ghost'); if(btn)btn.disabled=true;
+            const btn=document.querySelectorAll('.login-btn-ghost')[0]; if(btn)btn.disabled=true;
+            if(!auth){ enterLocalMode('centrale'); return; }
             try{ await auth.signInAnonymously(); }
-            catch(e){ console.error(e); loginError(authErrMsg(e.code||'')); if(btn)btn.disabled=false; }
+            catch(e){
+                console.warn('Anon fallita:',e.code);
+                if(e.code==='auth/admin-restricted-operation'||e.code==='auth/operation-not-allowed'){
+                    // Accesso anonimo non abilitato: entra comunque in modalità locale
+                    enterLocalMode('centrale');
+                } else {
+                    loginError(authErrMsg(e.code||'')); if(btn)btn.disabled=false;
+                }
+            }
+        }
+        function loginAsGuest(){ enterLocalMode('guest'); }
+        function enterLocalMode(kind){
+            const s = kind==='centrale'
+                ? {uid:null, email:'Centrale Operativa', operatorName:'', role:'centrale', _local:true}
+                : {uid:null, email:'Ospite', operatorName:'', role:'guest', _local:true};
+            try{ localStorage.setItem('as26_localsession', JSON.stringify(s)); }catch(e){}
+            applySession(s);
+            const ov=document.getElementById('login-overlay'); if(ov)ov.classList.remove('open');
+            document.querySelectorAll('.login-btn-ghost').forEach(b=>b.disabled=false);
+            postLogin();
         }
 
         async function onAuthUser(user){
             if(!user){
-                // Non loggato → mostra login
+                // Nessun utente Firebase: controlla sessione locale (ospite/centrale-locale)
+                let local=null; try{ local=JSON.parse(localStorage.getItem('as26_localsession')||'null'); }catch(e){}
+                if(local){ applySession(local); const ov=document.getElementById('login-overlay'); if(ov)ov.classList.remove('open'); postLogin(); return; }
                 session=null;
                 const ov=document.getElementById('login-overlay'); if(ov)ov.classList.add('open');
                 return;
             }
+            // Utente Firebase reale → rimuovi eventuale sessione locale
+            try{ localStorage.removeItem('as26_localsession'); }catch(e){}
             // Loggato (operatore o anonimo=centrale)
             let s;
             if(user.isAnonymous){
@@ -2622,20 +2866,35 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
             startFirestoreListeners();   // i listener partono SOLO dopo l'autenticazione
             loadAppointments();
             requestNotifPermission();
+            const fab=document.getElementById('fab-appt'); if(fab)fab.style.display='flex';
             if(typeof finalData!=='undefined'&&finalData.length>0&&typeof renderTable==='function')renderTable();
+            // Mostra sempre il giorno corrente all'ingresso
+            setTimeout(()=>{ if(typeof scrollToTodayInstant==='function')scrollToTodayInstant(); },350);
+            setTimeout(()=>{ if(typeof scrollToTodayInstant==='function')scrollToTodayInstant(); },900);
             setTimeout(()=>{ if(typeof checkRepNotifications==='function')checkRepNotifications(); },600);
         }
+        // Quando l'app torna in primo piano, riporta al giorno corrente
+        document.addEventListener('visibilitychange',()=>{
+            if(!document.hidden && session && typeof scrollToTodayInstant==='function'){
+                setTimeout(scrollToTodayInstant,250);
+            }
+        });
         function logoutAccount(){
-            if(!confirm('Vuoi uscire dall\'account? Dovrai effettuare di nuovo l\'accesso.'))return;
+            if(!confirm('Vuoi uscire? Dovrai effettuare di nuovo l\'accesso.'))return;
             localStorage.removeItem('turni_user_name');
+            localStorage.removeItem('as26_localsession');
             const done=()=>location.reload();
-            if(auth){ auth.signOut().then(done).catch(done); } else done();
+            if(auth&&auth.currentUser){ auth.signOut().then(done).catch(done); } else done();
         }
         function updateAccountUI(){
-            const box=document.getElementById('account-badge'); if(!box||!session)return;
-            const em=box.querySelector('.ab-email'); const role=box.querySelector('.ab-role');
-            if(em)em.innerText='Loggato come '+session.email;
-            if(role)role.innerText = session.role==='centrale' ? 'Centrale Operativa' : ('Operatore: '+(session.operatorName||'non impostato'));
+            const box=document.getElementById('account-badge'); if(box&&session){
+                const em=box.querySelector('.ab-email'); const role=box.querySelector('.ab-role');
+                if(em)em.innerText='Loggato come '+session.email;
+                if(role)role.innerText = session.role==='centrale' ? 'Centrale Operativa' : ('Operatore: '+(session.operatorName||'non impostato'));
+            }
+            // Se loggato come operatore con nome già scelto al login, nascondi il selettore "Chi sei?"
+            const chi=document.getElementById('chi-sei-block');
+            if(chi) chi.style.display = (session && session.role==='operator' && session.operatorName) ? 'none' : 'block';
         }
         // Cambia il nome operatore associato all'account (dal menu Opzioni)
         async function updateAccountOperator(name){
@@ -2656,29 +2915,49 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
         }
 
         // ── APPUNTAMENTI ──
+        // ── COSTANTI IMPEGNI ──
+        const APPT_COLORS=['#7c3aed','#2563eb','#0891b2','#059669','#d97706','#dc2626','#db2777','#475569'];
+        const APPT_ICONS=['event','medical_services','local_hospital','fitness_center','school','work','restaurant','flight','directions_car','cake','favorite','sports_soccer','shopping_cart','build','celebration','payments','groups','beach_access','pets','home_repair_service'];
+        const REMIND_MIN={none:null,'10m':10,'1h':60,'2h':120,'1d':1440};
+        const MONTH_NAMES_BY_IDX=(function(){const o={};Object.keys(MONTH_MAP).forEach(k=>o[MONTH_MAP[k]]=k);return o;})();
+        function isoToDateKey(iso){ const p=iso.split('-'); const mi=parseInt(p[1])-1; const d=parseInt(p[2]); const mName=MONTH_NAMES_BY_IDX[mi]; return {mName, dNum:d}; }
+
+        // ── CARICAMENTO (privati + condivisi) ──
         function apptCol(){ return (db&&session&&session.uid)?db.collection('users').doc(session.uid).collection('appointments'):null; }
+        function sharedCol(){ return db?db.collection('shared_appointments'):null; }
+        function isLocalMode(){ return session && !session.uid; }
+        function loadLocalAppts(){ try{ const a=JSON.parse(localStorage.getItem('as26_local_appts')||'[]'); return Array.isArray(a)?a:[]; }catch(e){ return []; } }
+        function saveLocalAppts(arr){ try{ localStorage.setItem('as26_local_appts',JSON.stringify(arr)); }catch(e){} }
         async function loadAppointments(){
             myAppointments={};
-            const col=apptCol();
-            if(!col){ if(typeof renderTable==='function'&&finalData&&finalData.length)renderTable(); return; }
-            try{
-                const snap=await col.get();
-                snap.forEach(doc=>{ const a=doc.data(); a._id=doc.id; const k=a.dateKey; (myAppointments[k]=myAppointments[k]||[]).push(a); });
+            if(!session){ if(typeof renderTable==='function'&&finalData&&finalData.length)renderTable(); return; }
+            if(isLocalMode()){
+                loadLocalAppts().forEach(a=>{ a._scope='local'; a._own=true; (myAppointments[a.dateKey]=myAppointments[a.dateKey]||[]).push(a); });
                 Object.keys(myAppointments).forEach(k=>myAppointments[k].sort((x,y)=>(x.time||'').localeCompare(y.time||'')));
                 if(typeof renderTable==='function'&&finalData&&finalData.length)renderTable();
                 checkApptReminders();
-            }catch(e){ console.warn('Appuntamenti non caricati:',e); }
+                return;
+            }
+            try{
+                const col=apptCol();
+                if(col){ const snap=await col.get(); snap.forEach(doc=>{ const a=doc.data(); a._id=doc.id; a._scope='private'; a._own=true; (myAppointments[a.dateKey]=myAppointments[a.dateKey]||[]).push(a); }); }
+            }catch(e){ console.warn('Privati non caricati:',e); }
+            try{
+                const sc=sharedCol();
+                if(sc){ const snap=await sc.get(); snap.forEach(doc=>{ const a=doc.data(); a._id=doc.id; a._scope='shared'; a._own=(a.ownerUid===session.uid); (myAppointments[a.dateKey]=myAppointments[a.dateKey]||[]).push(a); }); }
+            }catch(e){ console.warn('Condivisi non caricati:',e); }
+            Object.keys(myAppointments).forEach(k=>myAppointments[k].sort((x,y)=>(x.time||'').localeCompare(y.time||'')));
+            if(typeof renderTable==='function'&&finalData&&finalData.length)renderTable();
+            checkApptReminders();
         }
+
+        // ── MODAL GIORNO (lista appuntamenti del giorno) ──
         function openDayAppointments(mName,dNum){
             vibrate();
             const mIdx=MONTH_MAP[mName]; const iso='2026-'+String((mIdx||0)+1).padStart(2,'0')+'-'+String(dNum).padStart(2,'0');
             apptContext={mName:mName, dNum:dNum, iso:iso};
             document.getElementById('appt-date-sub').innerText=dNum+' '+mName.charAt(0)+mName.slice(1).toLowerCase()+' 2026';
             renderApptList();
-            document.getElementById('appt-title').value='';
-            document.getElementById('appt-time').value='';
-            document.getElementById('appt-note').value='';
-            document.getElementById('appt-remind').checked=true;
             const m=document.getElementById('appt-modal'); m.style.display='flex'; setTimeout(()=>m.classList.add('open'),10);
         }
         function closeApptModal(e){ if(e&&e.target!==e.currentTarget)return; const m=document.getElementById('appt-modal'); m.classList.remove('open'); setTimeout(()=>m.style.display='none',250); }
@@ -2686,62 +2965,135 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
             const k=apptContext.mName+'-'+apptContext.dNum;
             const list=myAppointments[k]||[];
             const el=document.getElementById('appt-list');
-            if(list.length===0){ el.innerHTML='<div class="appt-empty">Nessun appuntamento per questo giorno.<br>Aggiungine uno qui sotto 👇</div>'; return; }
-            el.innerHTML=list.map(a=>'<div class="appt-item">'
-                +'<span class="ai-time">'+(a.time||'—')+'</span>'
-                +'<div class="ai-body"><div class="ai-title">'+escapeHtml(a.title||'Appuntamento')+'</div>'
+            if(list.length===0){ el.innerHTML='<div class="appt-empty">Nessun impegno per questo giorno.<br>Aggiungine uno qui sotto 👇</div>'; return; }
+            el.innerHTML=list.map(a=>{
+                const color=a.color||'#7c3aed'; const icon=a.icon||'event'; const title=a.type||a.title||'Impegno';
+                const remTxt=(a.remind&&a.remind!=='none')?({'10m':'10 min prima','1h':'1 ora prima','2h':'2 ore prima','1d':'1 giorno prima'}[a.remind]||(a.remind===true?'attivo':'')):'';
+                return '<div class="appt-item">'
+                +'<span class="ai-time" style="background:'+color+'22;color:'+color+'">'+(a.time||'<span class="material-icons-round" style="font-size:15px">'+icon+'</span>')+'</span>'
+                +'<div class="ai-body"><div class="ai-title"><span class="material-icons-round" style="font-size:14px;color:'+color+';vertical-align:-2px">'+icon+'</span> '+escapeHtml(title)+'</div>'
                 +(a.note?'<div class="ai-note">'+escapeHtml(a.note)+'</div>':'')
-                +(a.remind?'<div class="ai-remind"><span class="material-icons-round" style="font-size:12px">notifications_active</span> Promemoria attivo</div>':'')
+                +(remTxt?'<div class="ai-remind"><span class="material-icons-round" style="font-size:12px">notifications_active</span> '+remTxt+'</div>':'')
+                +(a._scope==='shared'?'<div class="ai-shared"><span class="material-icons-round" style="font-size:12px">groups</span> Condiviso'+(a._own?' (tuo)':' · '+escapeHtml(a.ownerName||'altro operatore'))+'</div>':'')
                 +'</div>'
-                +'<button class="ai-del" onclick="deleteAppointment(\''+a._id+'\')"><span class="material-icons-round">delete_outline</span></button>'
-                +'</div>').join('');
+                +(a._own!==false?'<button class="ai-del" onclick="deleteAppointment(\''+a._id+'\')"><span class="material-icons-round">delete_outline</span></button>':'')
+                +'</div>';
+            }).join('');
         }
         function escapeHtml(s){ return (s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
-        async function saveAppointment(){
-            const title=(document.getElementById('appt-title').value||'').trim();
-            if(!title){ alert('Inserisci un titolo per l\'appuntamento.'); return; }
-            const time=document.getElementById('appt-time').value||'';
-            const note=(document.getElementById('appt-note').value||'').trim();
-            const remind=document.getElementById('appt-remind').checked;
-            const appt={ dateKey:apptContext.mName+'-'+apptContext.dNum, mName:apptContext.mName, dNum:apptContext.dNum, iso:apptContext.iso, title, time, note, remind, createdAt:new Date().toISOString() };
+
+        // ── MODAL NUOVO IMPEGNO (completo) ──
+        let naDates=[]; let naColor=APPT_COLORS[0]; let naIcon=APPT_ICONS[0];
+        function openNewAppt(prefillIso){
+            if(!session){ alert('Devi prima effettuare l\'accesso.'); return; }
+            vibrate();
+            // chiudi eventuale modal-giorno
+            const dm=document.getElementById('appt-modal'); if(dm&&dm.classList.contains('open')){ dm.classList.remove('open'); setTimeout(()=>dm.style.display='none',200); }
+            naDates = prefillIso ? [prefillIso] : [];
+            naColor=APPT_COLORS[0]; naIcon=APPT_ICONS[0];
+            document.getElementById('na-type').value='';
+            document.getElementById('na-time').value='';
+            document.getElementById('na-showtitle').checked=false;
+            document.getElementById('na-shared').checked=false;
+            document.getElementById('na-remind').value='none';
+            const today=new Date(); const di=document.getElementById('na-date');
+            di.value = prefillIso || ('2026-'+String(today.getMonth()+1).padStart(2,'0')+'-'+String(today.getDate()).padStart(2,'0'));
+            buildColorPicker(); buildIconPicker(); renderNaChips();
+            const m=document.getElementById('newappt-modal'); m.style.display='flex'; setTimeout(()=>m.classList.add('open'),10);
+        }
+        function closeNewAppt(e){ if(e&&e.target!==e.currentTarget)return; const m=document.getElementById('newappt-modal'); m.classList.remove('open'); setTimeout(()=>m.style.display='none',250); }
+        function addNaDate(){ const v=document.getElementById('na-date').value; if(!v)return; if(!naDates.includes(v))naDates.push(v); naDates.sort(); renderNaChips(); }
+        function removeNaDate(iso){ naDates=naDates.filter(d=>d!==iso); renderNaChips(); }
+        function renderNaChips(){
+            const el=document.getElementById('na-dates-chips');
+            if(naDates.length===0){ el.innerHTML='<span style="font-size:0.76rem;color:var(--text-sec)">Aggiungi una o più date con il tasto +</span>'; return; }
+            el.innerHTML=naDates.map(iso=>{ const dk=isoToDateKey(iso); const lbl=dk.dNum+' '+(dk.mName?dk.mName.substr(0,3).toLowerCase():iso); return '<span class="na-chip">'+lbl+'<button onclick="removeNaDate(\''+iso+'\')"><span class="material-icons-round">close</span></button></span>'; }).join('');
+        }
+        function buildColorPicker(){
+            document.getElementById('na-colors').innerHTML=APPT_COLORS.map(c=>'<div class="na-color'+(c===naColor?' sel':'')+'" style="background:'+c+'" onclick="selectNaColor(\''+c+'\')"></div>').join('');
+        }
+        function selectNaColor(c){ naColor=c; buildColorPicker(); }
+        function buildIconPicker(){
+            document.getElementById('na-icons').innerHTML=APPT_ICONS.map(ic=>'<div class="na-icon'+(ic===naIcon?' sel':'')+'" onclick="selectNaIcon(\''+ic+'\')"><span class="material-icons-round">'+ic+'</span></div>').join('');
+        }
+        function selectNaIcon(ic){ naIcon=ic; buildIconPicker(); }
+        async function saveNewAppt(){
+            if(naDates.length===0){ alert('Aggiungi almeno una data.'); return; }
+            const type=(document.getElementById('na-type').value||'').trim();
+            if(!type){ alert('Inserisci il tipo di impegno.'); return; }
+            const time=document.getElementById('na-time').value||'';
+            const showTitle=document.getElementById('na-showtitle').checked;
+            const shared=document.getElementById('na-shared').checked;
+            const remind=document.getElementById('na-remind').value||'none';
             try{
-                const col=apptCol();
-                if(col){ const ref=await col.add(appt); appt._id=ref.id; }
-                else { appt._id='local_'+Date.now(); }
-                const k=appt.dateKey; (myAppointments[k]=myAppointments[k]||[]).push(appt);
-                myAppointments[k].sort((x,y)=>(x.time||'').localeCompare(y.time||''));
-                renderApptList();
-                document.getElementById('appt-title').value=''; document.getElementById('appt-time').value=''; document.getElementById('appt-note').value='';
+                for(const iso of naDates){
+                    const dk=isoToDateKey(iso);
+                    const appt={ dateKey:dk.mName+'-'+dk.dNum, mName:dk.mName, dNum:dk.dNum, iso, type, title:type, time, color:naColor, icon:naIcon, showTitle, shared, remind, ownerUid:session.uid||null, ownerName:(session.operatorName||session.email||'Operatore'), createdAt:new Date().toISOString() };
+                    let newId='local_'+Date.now()+'_'+Math.random().toString(36).slice(2,6);
+                    if(isLocalMode()){
+                        appt._id=newId; appt._scope='local'; appt._own=true;
+                        const arr=loadLocalAppts(); arr.push(appt); saveLocalAppts(arr);
+                    } else if(shared){
+                        const sc=sharedCol(); if(sc){ const ref=await sc.add(appt); newId=ref.id; } appt._scope='shared'; appt._id=newId; appt._own=true;
+                    } else {
+                        const col=apptCol(); if(col){ const ref=await col.add(appt); newId=ref.id; } appt._scope='private'; appt._id=newId; appt._own=true;
+                    }
+                    (myAppointments[appt.dateKey]=myAppointments[appt.dateKey]||[]).push(appt);
+                    myAppointments[appt.dateKey].sort((x,y)=>(x.time||'').localeCompare(y.time||''));
+                }
+                if(navigator.vibrate)navigator.vibrate(25);
+                closeNewAppt();
                 if(typeof renderTable==='function'&&finalData&&finalData.length)renderTable();
-                if(navigator.vibrate)navigator.vibrate(20);
                 checkApptReminders();
             }catch(e){ console.error(e); alert('Errore nel salvataggio. Controlla la connessione.'); }
         }
         async function deleteAppointment(id){
-            if(!confirm('Eliminare questo appuntamento?'))return;
-            try{ const col=apptCol(); if(col&&!id.startsWith('local_'))await col.doc(id).delete(); }catch(e){ console.warn(e); }
+            if(!confirm('Eliminare questo impegno?'))return;
+            let scope='private';
+            Object.values(myAppointments).forEach(list=>list.forEach(a=>{ if(a._id===id)scope=a._scope||'private'; }));
+            try{
+                if(scope==='local'){
+                    saveLocalAppts(loadLocalAppts().filter(a=>a._id!==id));
+                } else if(!id.startsWith('local_')){
+                    const col = scope==='shared' ? sharedCol() : apptCol();
+                    if(col)await col.doc(id).delete();
+                }
+            }catch(e){ console.warn(e); }
             Object.keys(myAppointments).forEach(k=>{ myAppointments[k]=myAppointments[k].filter(a=>a._id!==id); if(myAppointments[k].length===0)delete myAppointments[k]; });
             renderApptList();
             if(typeof renderTable==='function'&&finalData&&finalData.length)renderTable();
         }
 
-        // ── PROMEMORIA APPUNTAMENTI ──
+        // ── PROMEMORIA IMPEGNI (con anticipo) ──
         function requestNotifPermission(){ try{ if('Notification' in window && Notification.permission==='default')Notification.requestPermission(); }catch(e){} }
         function getNotifiedAppts(){ try{ return new Set(JSON.parse(localStorage.getItem('notified_appts')||'[]')); }catch(e){ return new Set(); } }
-        function markApptNotified(id){ try{ const s=getNotifiedAppts(); s.add(id); localStorage.setItem('notified_appts',JSON.stringify([...s].slice(-300))); }catch(e){} }
+        function markApptNotified(id){ try{ const s=getNotifiedAppts(); s.add(id); localStorage.setItem('notified_appts',JSON.stringify([...s].slice(-400))); }catch(e){} }
+        function fireApptNotif(a,msg){
+            try{ if('Notification' in window && Notification.permission==='granted')new Notification('Promemoria A.S. 26',{body:msg}); }catch(e){}
+            if(typeof notifHistory!=='undefined'){ notifHistory.unshift({id:'appt_'+a._id+'_'+Date.now(),text:'<b>📅 Promemoria impegno</b><br>'+escapeHtml(msg),read:false,date:new Date().toLocaleString('it-IT'),type:'appt'}); if(typeof saveNotifications==='function')saveNotifications(); if(typeof updateBadge==='function')updateBadge(); }
+            if(navigator.vibrate)navigator.vibrate([120,60,120]);
+        }
         function checkApptReminders(){
-            const today=new Date(); const todayIso=today.getFullYear()+'-'+String(today.getMonth()+1).padStart(2,'0')+'-'+String(today.getDate()).padStart(2,'0');
-            const notified=getNotifiedAppts();
+            const now=new Date(); const notified=getNotifiedAppts();
             Object.values(myAppointments).forEach(list=>list.forEach(a=>{
-                if(!a.remind||a._id&&notified.has(a._id))return;
-                if(a.iso!==todayIso)return; // promemoria semplice: appuntamenti di oggi
-                const msg='📅 Oggi'+(a.time?' alle '+a.time:'')+': '+(a.title||'Appuntamento');
-                try{ if('Notification' in window && Notification.permission==='granted')new Notification('Promemoria A.S. 26',{body:msg}); }catch(e){}
-                if(typeof notifHistory!=='undefined'){ notifHistory.unshift({id:'appt_'+a._id,text:'<b>📅 Promemoria appuntamento</b><br>'+escapeHtml(msg),read:false,date:new Date().toLocaleString('it-IT'),type:'appt'}); if(typeof saveNotifications==='function')saveNotifications(); if(typeof updateBadge==='function')updateBadge(); }
-                if(a._id)markApptNotified(a._id);
+                if(!a._id||notified.has(a._id))return;
+                const rem=a.remind;
+                if(!rem||rem==='none')return;
+                const title=a.type||a.title||'Impegno';
+                // appuntamento datetime
+                const dt=new Date(a.iso+'T'+((a.time&&/^\d{2}:\d{2}/.test(a.time))?a.time:'09:00')+':00');
+                if(isNaN(dt.getTime()))return;
+                let offMin = (rem===true)?0:(REMIND_MIN[rem]||0); // retrocompat: vecchio bool = al momento
+                const notifyTime=new Date(dt.getTime()-offMin*60000);
+                // notifica se siamo nella finestra [notifyTime, dt+30min]
+                if(now>=notifyTime && now<=new Date(dt.getTime()+30*60000)){
+                    const when = offMin>=1440?'domani':(offMin>=60?('tra '+(offMin/60)+(offMin/60===1?' ora':' ore')):(offMin>0?('tra '+offMin+' min'):'ora'));
+                    fireApptNotif(a,'📅 '+title+(a.time?' alle '+a.time:'')+' — '+when);
+                    markApptNotified(a._id);
+                }
             }));
         }
-        setInterval(()=>{ if(session)checkApptReminders(); }, 5*60*1000);
+        setInterval(()=>{ if(session)checkApptReminders(); }, 60*1000);
 
         // Avvio sistema account dopo che il DOM è pronto
         if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initAuth);
