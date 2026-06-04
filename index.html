@@ -151,7 +151,7 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
         body.dark-mode header { background: linear-gradient(135deg, #020617 0%, #0f172a 60%, #1e3a8a 100%); }
         .top-bar { padding: 0 10px; padding-top: env(safe-area-inset-top); display: flex; justify-content: space-between; align-items: center; height: 60px; flex-shrink: 0; gap: 6px; }
         .logo { font-size: 1rem; font-weight: 900; color: #ffffff; display: flex; align-items: center; gap: 9px; letter-spacing: -0.5px; white-space: nowrap; flex-shrink: 0; min-width: 0; margin-right: auto; }
-        .logo img { filter: drop-shadow(0 2px 6px rgba(0,0,0,0.3)); border-radius: 10px; cursor: pointer; height: 34px; width: auto; border: 2px solid rgba(255,255,255,0.2); }
+        .logo img { filter: drop-shadow(0 2px 6px rgba(0,0,0,0.3)); border-radius: 12px; cursor: pointer; height: 46px; width: auto; border: 2px solid rgba(255,255,255,0.25); }
         .logo-text { display: flex; flex-direction: column; line-height: 1; overflow: hidden; }
         .logo-title { font-size: 1.05rem; font-weight: 900; color: #fff; letter-spacing: -0.5px; text-shadow: 0 1px 3px rgba(0,0,0,0.3); }
         .logo-sub { font-size: 0.6rem; font-weight: 600; color: rgba(255,255,255,0.65); margin-top: 2px; letter-spacing: 0.5px; text-transform: uppercase; }
@@ -160,11 +160,12 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
             .btn-action { width: 34px; height: 34px; border-radius: 10px; }
             .btn-action .material-icons-round { font-size: 1.05rem; }
             .right-controls { gap: 3px; }
-            .logo img { height: 30px; }
+            .logo img { height: 40px; }
         }
         @media (max-width: 360px){
             .btn-action { width: 31px; height: 31px; }
             .right-controls { gap: 2px; }
+            .logo img { height: 36px; }
         }
         .btn-action { background: rgba(255,255,255,0.12); color: rgba(255,255,255,0.9); border: 1px solid rgba(255,255,255,0.2); width: 38px; height: 38px; padding: 0; border-radius: 11px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s cubic-bezier(0.4,0,0.2,1); position: relative; backdrop-filter: blur(8px); }
         .btn-action span.material-icons-round { font-size: 1.2rem; }
@@ -1085,6 +1086,41 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
         /* ── Chi sei?: nascosto quando operatore loggato ── */
         body.operator-session #chi-sei-block { display:none !important; }
 
+        /* ════════ ACCORDION OPZIONI ════════ */
+        .opt-account-hero {
+            background: linear-gradient(135deg,#1e3a8a,#2563eb);
+            color: #fff; padding: 20px;
+        }
+        .oah-email { font-weight: 900; font-size: 1.05rem; letter-spacing:-0.3px; }
+        .oah-role { font-size: 0.76rem; opacity: 0.82; font-weight: 600; margin-top: 3px; }
+        .oah-actions { display: flex; gap: 9px; margin-top: 14px; }
+        .oah-btn { flex: 1; padding: 10px; border-radius: 11px; border: none; font-weight: 800; font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
+        .oah-btn-pw { background: rgba(255,255,255,0.18); color: #fff; border: 1px solid rgba(255,255,255,0.25); }
+        .oah-btn-logout { background: rgba(220,38,38,0.85); color: #fff; }
+        .opt-section { border-bottom: 1px solid var(--border); }
+        .opt-section-hdr {
+            display: flex; align-items: center; gap: 11px;
+            padding: 15px 20px; cursor: pointer; background: var(--bg-card);
+            font-weight: 800; font-size: 0.95rem; color: var(--text-main);
+            user-select: none; -webkit-user-select: none; transition: background 0.15s;
+        }
+        .opt-section-hdr:active { background: var(--bg); }
+        .opt-section-hdr .material-icons-round { color: var(--primary); font-size: 1.1rem; flex-shrink:0; }
+        .opt-section-chev { margin-left: auto; transition: transform 0.25s; color: var(--text-sec); font-size: 1.2rem !important; }
+        .opt-section.open .opt-section-chev { transform: rotate(180deg); }
+        .opt-section-body { display: none; background: var(--bg); }
+        .opt-section.open .opt-section-body { display: block; }
+        /* ── miglioramenti form NUOVO IMPEGNO ── */
+        .na-section { background: var(--bg-card); border-radius: 14px; margin-bottom: 10px; overflow: hidden; border: 1px solid var(--border); }
+        .na-section-header { display: flex; align-items: center; gap: 9px; padding: 13px 15px; font-weight: 800; font-size: 0.92rem; color: var(--text-main); border-bottom: 1px solid var(--border); background: var(--bg); }
+        .na-section-body { padding: 13px 15px; }
+        .na-section-header .material-icons-round { color: var(--primary); font-size: 1.05rem; }
+        .na-share-select { width:100%; padding:12px; border-radius:11px; border:1.5px solid var(--border); font-size:0.92rem; background:var(--bg); color:var(--text-main); box-sizing:border-box; font-weight:600; }
+        .na-share-ops { display:none; margin-top:10px; display: grid; grid-template-columns: repeat(2,1fr); gap: 7px; }
+        .na-op-chip { display:flex; align-items:center; gap:7px; padding:8px 11px; border-radius:10px; border:1.5px solid var(--border); background:var(--bg); cursor:pointer; font-size:0.8rem; font-weight:700; color:var(--text-main); transition:0.15s; }
+        .na-op-chip input[type=checkbox] { accent-color:var(--primary); width:16px; height:16px; cursor:pointer; }
+        .na-op-chip.checked { border-color:var(--primary); background:var(--primary); color:#fff; }
+
         /* ── Data semplice: checkbox "fino al" ── */
         .na-until-row { margin-top:10px; display:flex; flex-direction:column; gap:6px; }
         .na-until-label { display:flex; align-items:center; gap:8px; font-size:0.84rem; font-weight:700; color:var(--text-main); cursor:pointer; }
@@ -1173,63 +1209,96 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
     <!-- FAB "+" in basso a sinistra -->
     <button id="fab-appt" onclick="openNewAppt()" title="Nuovo impegno"><span class="material-icons-round">add</span></button>
 
-    <!-- MODAL NUOVO IMPEGNO (completo) -->
+    <!-- MODAL NUOVO IMPEGNO (redesign) -->
     <div id="newappt-modal" onclick="closeNewAppt(event)">
         <div class="modal-content" onclick="event.stopPropagation()">
             <div class="appt-header" style="background:linear-gradient(135deg,#0f766e,#0891b2)">
                 <div><h3><span class="material-icons-round">add_task</span> Nuovo impegno</h3><div class="appt-date-sub">Calendario personale</div></div>
                 <button class="btn-close-modal" style="background:rgba(255,255,255,0.18);color:#fff" onclick="closeNewAppt()"><span class="material-icons-round">close</span></button>
             </div>
-            <div class="modal-body" style="overflow-y:auto;padding:16px">
-                <div class="na-field">
-                    <label>📅 Data dell'impegno</label>
-                    <input type="date" id="na-date" min="2026-01-01" max="2026-12-31">
-                    <div class="na-until-row">
-                        <label class="na-until-label">
-                            <input type="checkbox" id="na-until-check" onchange="toggleNaUntil()">
-                            Su più giorni — fino al:
-                        </label>
-                        <input type="date" id="na-date-to" min="2026-01-01" max="2026-12-31" style="display:none">
-                    </div>
-                    <button class="na-add-dates-btn" onclick="addNaDates()"><span class="material-icons-round">add</span> Aggiungi data / intervallo</button>
-                    <div id="na-dates-chips" class="na-chips" style="margin-top:9px"></div>
-                </div>
-                <div class="na-field">
-                    <label>🏷️ Tipo di impegno</label>
-                    <input type="text" id="na-type" placeholder="es. Visita medica, Riunione, Compleanno...">
-                </div>
-                <div class="na-field">
-                    <label>🕒 Ora (facoltativa)</label>
-                    <input type="time" id="na-time">
-                </div>
-                <div class="na-field">
-                    <label>🎨 Colore</label>
-                    <div id="na-colors" class="na-colors"></div>
-                </div>
-                <div class="na-field">
-                    <button class="na-icon-toggle-btn" onclick="toggleNaIcons()" id="na-icon-toggle-btn">
-                        <div class="na-icon-preview" id="na-icon-preview" style="background:#7c3aed"><span class="material-icons-round">event</span></div>
-                        <span id="na-icon-label">Scegli icona</span>
-                        <span class="na-icon-spacer"></span>
-                        <span class="material-icons-round" id="na-icon-chevron">expand_more</span>
-                    </button>
-                    <div id="na-icons-wrap" style="display:none; margin-top:9px">
-                        <div id="na-icons" class="na-icons"></div>
+            <div class="modal-body" style="overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px">
+
+                <!-- DATE -->
+                <div class="na-section">
+                    <div class="na-section-header"><span class="material-icons-round">event</span> Quando</div>
+                    <div class="na-section-body">
+                        <input type="date" id="na-date" min="2026-01-01" max="2026-12-31" style="width:100%;padding:11px 12px;border-radius:10px;border:1.5px solid var(--border);font-size:0.94rem;background:var(--bg);color:var(--text-main);box-sizing:border-box">
+                        <div class="na-until-row">
+                            <label class="na-until-label">
+                                <input type="checkbox" id="na-until-check" onchange="toggleNaUntil()">
+                                Su più giorni — fino al:
+                            </label>
+                            <input type="date" id="na-date-to" min="2026-01-01" max="2026-12-31" style="display:none;width:100%;padding:11px 12px;border-radius:10px;border:1.5px solid var(--primary);font-size:0.94rem;background:var(--bg);color:var(--text-main);box-sizing:border-box">
+                        </div>
+                        <button class="na-add-dates-btn" onclick="addNaDates()"><span class="material-icons-round">add</span> Aggiungi al calendario</button>
+                        <div id="na-dates-chips" class="na-chips" style="margin-top:8px"></div>
                     </div>
                 </div>
-                <div class="appt-remind-row"><span>📝 Mostra il titolo sul calendario</span><label class="switch"><input type="checkbox" id="na-showtitle"><span class="slider"></span></label></div>
-                <div class="appt-remind-row"><span>👥 Visibile agli altri operatori</span><label class="switch"><input type="checkbox" id="na-shared"><span class="slider"></span></label></div>
-                <div class="na-field">
-                    <label>🔔 Promemoria</label>
-                    <select id="na-remind">
-                        <option value="none">Nessun promemoria</option>
-                        <option value="10m">10 minuti prima</option>
-                        <option value="1h">1 ora prima</option>
-                        <option value="2h">2 ore prima</option>
-                        <option value="1d">1 giorno prima</option>
-                    </select>
+
+                <!-- TITOLO + ORA -->
+                <div class="na-section">
+                    <div class="na-section-header"><span class="material-icons-round">label</span> Cosa</div>
+                    <div class="na-section-body" style="display:flex;flex-direction:column;gap:9px">
+                        <input type="text" id="na-type" placeholder="es. Visita medica, Riunione, Compleanno..." style="width:100%;padding:12px;border-radius:10px;border:1.5px solid var(--border);font-size:0.94rem;background:var(--bg);color:var(--text-main);box-sizing:border-box;font-family:inherit">
+                        <input type="time" id="na-time" style="width:100%;padding:12px;border-radius:10px;border:1.5px solid var(--border);font-size:0.94rem;background:var(--bg);color:var(--text-main);box-sizing:border-box">
+                    </div>
                 </div>
-                <button class="btn-appt-save" style="background:linear-gradient(135deg,#0f766e,#0891b2);margin-top:6px" onclick="saveNewAppt()"><span class="material-icons-round">check</span> Salva impegno</button>
+
+                <!-- COLORE + ICONA -->
+                <div class="na-section">
+                    <div class="na-section-header"><span class="material-icons-round">palette</span> Aspetto sul calendario</div>
+                    <div class="na-section-body" style="display:flex;flex-direction:column;gap:12px">
+                        <div>
+                            <div style="font-size:0.75rem;font-weight:800;color:var(--text-sec);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.4px">Colore</div>
+                            <div id="na-colors" class="na-colors"></div>
+                        </div>
+                        <div>
+                            <div style="font-size:0.75rem;font-weight:800;color:var(--text-sec);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.4px">Icona</div>
+                            <button class="na-icon-toggle-btn" onclick="toggleNaIcons()" id="na-icon-toggle-btn">
+                                <div class="na-icon-preview" id="na-icon-preview" style="background:#7c3aed"><span class="material-icons-round">event</span></div>
+                                <span id="na-icon-label">Scegli icona</span>
+                                <span class="na-icon-spacer"></span>
+                                <span class="material-icons-round" id="na-icon-chevron">expand_more</span>
+                            </button>
+                            <div id="na-icons-wrap" style="display:none;margin-top:9px">
+                                <div id="na-icons" class="na-icons"></div>
+                            </div>
+                        </div>
+                        <div class="appt-remind-row" style="margin:0"><span style="font-size:0.88rem;font-weight:700">Mostra titolo nella cella</span><label class="switch"><input type="checkbox" id="na-showtitle"><span class="slider"></span></label></div>
+                    </div>
+                </div>
+
+                <!-- CONDIVISIONE -->
+                <div class="na-section">
+                    <div class="na-section-header"><span class="material-icons-round">people</span> Condivisione</div>
+                    <div class="na-section-body">
+                        <select class="na-share-select" id="na-share-type" onchange="updateNaShareType()">
+                            <option value="private">🔒 Solo per me</option>
+                            <option value="all">👥 Tutti gli operatori</option>
+                            <option value="specific">✎ Scegli chi può vederlo</option>
+                        </select>
+                        <div id="na-share-ops-wrap" style="display:none;margin-top:10px">
+                            <div style="font-size:0.76rem;color:var(--text-sec);font-weight:600;margin-bottom:8px">Seleziona gli operatori che possono vedere questo impegno:</div>
+                            <div id="na-share-ops" class="na-share-ops"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PROMEMORIA -->
+                <div class="na-section">
+                    <div class="na-section-header"><span class="material-icons-round">notifications_active</span> Promemoria</div>
+                    <div class="na-section-body">
+                        <select id="na-remind" style="width:100%;padding:12px;border-radius:10px;border:1.5px solid var(--border);font-size:0.92rem;background:var(--bg);color:var(--text-main);box-sizing:border-box">
+                            <option value="none">🔕 Nessun promemoria</option>
+                            <option value="10m">⏰ 10 minuti prima</option>
+                            <option value="1h">⏰ 1 ora prima</option>
+                            <option value="2h">⏰ 2 ore prima</option>
+                            <option value="1d">📅 1 giorno prima</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button class="btn-appt-save" style="background:linear-gradient(135deg,#0f766e,#0891b2)" onclick="saveNewAppt()"><span class="material-icons-round">check</span> Salva impegno</button>
             </div>
         </div>
     </div>
@@ -1340,77 +1409,120 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
     <div id="options-modal" onclick="closeOptionsModal(event)">
         <div class="modal-content" onclick="event.stopPropagation()">
             <div class="modal-header">
-                <div class="header-text"><h3><span class="material-icons-round" style="margin-right:10px">settings</span> OPZIONI</h3><span>Impostazioni App</span></div>
+                <div class="header-text"><h3><span class="material-icons-round" style="margin-right:10px">settings</span> OPZIONI</h3></div>
                 <button class="btn-close-modal" onclick="closeOptionsModal()"><span class="material-icons-round">close</span></button>
             </div>
-            <div class="modal-body" style="padding:0">
+            <div class="modal-body" style="padding:0;overflow-y:auto">
 
-                <!-- CATEGORIA: PROFILO -->
-                <div class="opt-cat-title"><span class="material-icons-round">person</span> Profilo</div>
-                <div style="padding:14px 20px 4px">
-                    <div class="account-badge" id="account-badge">
-                        <span class="material-icons-round">account_circle</span>
-                        <div class="ab-info"><div class="ab-email">—</div><div class="ab-role">—</div></div>
-                        <button class="btn-logout" onclick="logoutAccount()"><span class="material-icons-round" style="font-size:15px">logout</span> Esci</button>
-                    </div>
-                </div>
-                <div class="option-item" id="chi-sei-block" style="display:block">
-                    <div style="margin-bottom:10px"><span style="font-size:1rem;font-weight:700">Chi sei?</span><div style="font-size:0.8rem;color:var(--text-sec)">Seleziona il tuo nome per ricevere notifiche sui tuoi turni.</div></div>
-                    <select id="turni-user-select" onchange="saveTurniUser(this.value)" style="width:100%;padding:12px;border-radius:10px;border:1px solid var(--border);font-size:0.95rem;font-weight:600;background:var(--bg);color:var(--text-main);">
-                        <option value="">-- Nessuna selezione --</option>
-                    </select>
-                    <div id="turni-user-status" style="margin-top:8px;font-size:0.8rem;font-weight:600;color:var(--text-sec);"></div>
-                </div>
-
-                <!-- CATEGORIA: ASPETTO -->
-                <div class="opt-cat-title"><span class="material-icons-round">palette</span> Aspetto</div>
-                <div class="opt-toggle-row">
-                    <div><div class="otr-label">Tema Scuro</div><div class="otr-desc">Riduci l'affaticamento degli occhi</div></div>
-                    <label class="switch"><input type="checkbox" id="dark-mode-toggle" onchange="toggleDarkMode()"><span class="slider"></span></label>
-                </div>
-                <div class="opt-toggle-row">
-                    <div><div class="otr-label">Testo scorrevole in alto</div><div class="otr-desc">Mostra avvisi, reperibilità e turni del giorno</div></div>
-                    <label class="switch"><input type="checkbox" id="opt-ticker" onchange="toggleOption('ticker',this.checked)"><span class="slider"></span></label>
-                </div>
-                <div class="opt-toggle-row">
-                    <div><div class="otr-label">Mostra il cagnolino 🐕</div><div class="otr-desc">Icona animata sui turni in solitaria</div></div>
-                    <label class="switch"><input type="checkbox" id="opt-dog" onchange="toggleOption('dog',this.checked)"><span class="slider"></span></label>
-                </div>
-
-                <!-- CATEGORIA: VISUALIZZAZIONE -->
-                <div class="opt-cat-title"><span class="material-icons-round">view_agenda</span> Visualizzazione</div>
-                <div class="opt-toggle-row">
-                    <div><div class="otr-label">Dettagli al tocco</div><div class="otr-desc">Apri la scheda con colleghi e infermieri toccando una casella</div></div>
-                    <label class="switch"><input type="checkbox" id="opt-cellinfo" onchange="toggleOption('cellinfo',this.checked)"><span class="slider"></span></label>
-                </div>
-                <div class="option-item" style="display:block">
-                    <div style="margin-bottom:10px"><span style="font-size:1rem;font-weight:700">Modalità calendario</span><div style="font-size:0.8rem;color:var(--text-sec)">Scegli come visualizzare i turni</div></div>
-                    <div style="display:flex;gap:8px">
-                        <button id="vmode-vertical" onclick="setViewMode('vertical')" style="flex:1;padding:12px;border-radius:12px;border:2px solid var(--border);background:var(--bg);color:var(--text-main);font-weight:700;font-size:0.85rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:all 0.2s"><span class="material-icons-round" style="font-size:1.1rem">view_day</span> Verticale</button>
-                        <button id="vmode-week" onclick="setViewMode('week')" style="flex:1;padding:12px;border-radius:12px;border:2px solid var(--border);background:var(--bg);color:var(--text-main);font-weight:700;font-size:0.85rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:all 0.2s"><span class="material-icons-round" style="font-size:1.1rem">view_week</span> Settimanale</button>
+                <!-- ACCOUNT HERO (sempre visibile in cima) -->
+                <div class="opt-account-hero" id="opt-account-hero">
+                    <div class="oah-email" id="oah-email">—</div>
+                    <div class="oah-role" id="oah-role">—</div>
+                    <div class="oah-actions">
+                        <button class="oah-btn oah-btn-pw" onclick="changePassword()"><span class="material-icons-round" style="font-size:16px">lock_reset</span> Cambia password</button>
+                        <button class="oah-btn oah-btn-logout" onclick="logoutAccount()"><span class="material-icons-round" style="font-size:16px">logout</span> Esci</button>
                     </div>
                 </div>
 
-                <!-- CATEGORIA: DISPOSITIVO -->
-                <div class="opt-cat-title"><span class="material-icons-round">devices</span> Dispositivo</div>
-                <div class="option-item" style="display:block">
-                    <div style="margin-bottom:10px"><span style="font-size:1rem;font-weight:700">Tipo di telefono</span><div style="font-size:0.8rem;color:var(--text-sec)">Se la colonna data scorre via o l'header sparisce, scegli iPhone.</div></div>
-                    <div style="display:flex;gap:8px">
-                        <button id="plat-android" onclick="setPlatformMode('android')" style="flex:1;padding:12px;border-radius:12px;border:2px solid var(--border);background:var(--bg);color:var(--text-main);font-weight:700;font-size:0.9rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:all 0.2s"><span class="material-icons-round" style="font-size:1.1rem">android</span> Android</button>
-                        <button id="plat-ios" onclick="setPlatformMode('ios')" style="flex:1;padding:12px;border-radius:12px;border:2px solid var(--border);background:var(--bg);color:var(--text-main);font-weight:700;font-size:0.9rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:all 0.2s"><span class="material-icons-round" style="font-size:1.1rem">phone_iphone</span> iPhone</button>
+                <!-- 1 · PROFILO (accordion) -->
+                <div class="opt-section" id="opt-sec-profilo">
+                    <div class="opt-section-hdr" onclick="toggleOptSection('profilo')">
+                        <span class="material-icons-round">person</span> Profilo operatore
+                        <span class="material-icons-round opt-section-chev">expand_more</span>
+                    </div>
+                    <div class="opt-section-body">
+                        <div class="option-item" id="chi-sei-block">
+                            <div style="display:block;width:100%">
+                                <div style="font-weight:700;font-size:0.95rem;margin-bottom:4px">Chi sei?</div>
+                                <div style="font-size:0.78rem;color:var(--text-sec);margin-bottom:10px">Seleziona il tuo nome per ricevere le notifiche.</div>
+                                <select id="turni-user-select" onchange="saveTurniUser(this.value)" style="width:100%;padding:12px;border-radius:10px;border:1px solid var(--border);font-size:0.95rem;font-weight:600;background:var(--bg);color:var(--text-main);box-sizing:border-box">
+                                    <option value="">-- Nessuna selezione --</option>
+                                </select>
+                                <div id="turni-user-status" style="margin-top:8px;font-size:0.8rem;font-weight:600;color:var(--text-sec);"></div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="opt-toggle-row" id="install-container">
-                    <div><div class="otr-label">Installa Applicazione</div><div class="otr-desc">Aggiungi alla schermata Home</div></div>
-                    <button class="btn-install" onclick="installPWA()"><span class="material-icons-round">install_mobile</span> INSTALLA</button>
+
+                <!-- 2 · ASPETTO (accordion) -->
+                <div class="opt-section open" id="opt-sec-aspetto">
+                    <div class="opt-section-hdr" onclick="toggleOptSection('aspetto')">
+                        <span class="material-icons-round">palette</span> Aspetto
+                        <span class="material-icons-round opt-section-chev">expand_more</span>
+                    </div>
+                    <div class="opt-section-body">
+                        <div class="opt-toggle-row">
+                            <div><div class="otr-label">Tema Scuro</div><div class="otr-desc">Riduci l'affaticamento degli occhi</div></div>
+                            <label class="switch"><input type="checkbox" id="dark-mode-toggle" onchange="toggleDarkMode()"><span class="slider"></span></label>
+                        </div>
+                        <div class="opt-toggle-row">
+                            <div><div class="otr-label">Testo scorrevole</div><div class="otr-desc">Avvisi e turni del giorno nel ticker</div></div>
+                            <label class="switch"><input type="checkbox" id="opt-ticker" onchange="toggleOption('ticker',this.checked)"><span class="slider"></span></label>
+                        </div>
+                        <div class="opt-toggle-row">
+                            <div><div class="otr-label">Cagnolino 🐕</div><div class="otr-desc">Icona animata sui turni in solitaria</div></div>
+                            <label class="switch"><input type="checkbox" id="opt-dog" onchange="toggleOption('dog',this.checked)"><span class="slider"></span></label>
+                        </div>
+                    </div>
                 </div>
 
-                <!-- CATEGORIA: INFO -->
-                <div class="opt-cat-title"><span class="material-icons-round">info</span> Informazioni</div>
-                <div class="option-item" style="cursor:pointer" onclick="openChangelog()">
-                    <div style="display:flex;flex-direction:column"><span style="font-size:1rem">Note di Rilascio</span><span style="font-size:0.8rem;color:var(--text-sec);font-weight:400">Vedi gli ultimi aggiornamenti</span></div>
-                    <span class="material-icons-round" style="color:var(--text-sec)">chevron_right</span>
+                <!-- 3 · VISUALIZZAZIONE (accordion) -->
+                <div class="opt-section open" id="opt-sec-visualizzazione">
+                    <div class="opt-section-hdr" onclick="toggleOptSection('visualizzazione')">
+                        <span class="material-icons-round">view_agenda</span> Visualizzazione
+                        <span class="material-icons-round opt-section-chev">expand_more</span>
+                    </div>
+                    <div class="opt-section-body">
+                        <div class="opt-toggle-row">
+                            <div><div class="otr-label">Dettagli al tocco</div><div class="otr-desc">Scheda con colleghi toccando una casella</div></div>
+                            <label class="switch"><input type="checkbox" id="opt-cellinfo" onchange="toggleOption('cellinfo',this.checked)"><span class="slider"></span></label>
+                        </div>
+                        <div class="option-item" style="display:block;padding:16px 20px">
+                            <div style="font-weight:700;font-size:0.95rem;margin-bottom:10px">Modalità calendario</div>
+                            <div style="display:flex;gap:8px">
+                                <button id="vmode-vertical" onclick="setViewMode('vertical')" style="flex:1;padding:12px;border-radius:12px;border:2px solid var(--border);background:var(--bg);color:var(--text-main);font-weight:700;font-size:0.85rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:all 0.2s"><span class="material-icons-round" style="font-size:1.1rem">view_day</span> Verticale</button>
+                                <button id="vmode-week" onclick="setViewMode('week')" style="flex:1;padding:12px;border-radius:12px;border:2px solid var(--border);background:var(--bg);color:var(--text-main);font-weight:700;font-size:0.85rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:all 0.2s"><span class="material-icons-round" style="font-size:1.1rem">view_week</span> Settimanale</button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
+
+                <!-- 4 · DISPOSITIVO (accordion) -->
+                <div class="opt-section" id="opt-sec-dispositivo">
+                    <div class="opt-section-hdr" onclick="toggleOptSection('dispositivo')">
+                        <span class="material-icons-round">devices</span> Dispositivo
+                        <span class="material-icons-round opt-section-chev">expand_more</span>
+                    </div>
+                    <div class="opt-section-body">
+                        <div class="option-item" style="display:block;padding:16px 20px">
+                            <div style="font-weight:700;font-size:0.95rem;margin-bottom:4px">Tipo di telefono</div>
+                            <div style="font-size:0.8rem;color:var(--text-sec);margin-bottom:10px">Se la colonna data scorre via o l'header sparisce, scegli iPhone.</div>
+                            <div style="display:flex;gap:8px">
+                                <button id="plat-android" onclick="setPlatformMode('android')" style="flex:1;padding:12px;border-radius:12px;border:2px solid var(--border);background:var(--bg);color:var(--text-main);font-weight:700;font-size:0.9rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:all 0.2s"><span class="material-icons-round" style="font-size:1.1rem">android</span> Android</button>
+                                <button id="plat-ios" onclick="setPlatformMode('ios')" style="flex:1;padding:12px;border-radius:12px;border:2px solid var(--border);background:var(--bg);color:var(--text-main);font-weight:700;font-size:0.9rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:all 0.2s"><span class="material-icons-round" style="font-size:1.1rem">phone_iphone</span> iPhone</button>
+                            </div>
+                        </div>
+                        <div class="opt-toggle-row" id="install-container">
+                            <div><div class="otr-label">Installa Applicazione</div><div class="otr-desc">Aggiungi alla schermata Home</div></div>
+                            <button class="btn-install" onclick="installPWA()"><span class="material-icons-round">install_mobile</span> INSTALLA</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 5 · INFORMAZIONI (accordion) -->
+                <div class="opt-section" id="opt-sec-info">
+                    <div class="opt-section-hdr" onclick="toggleOptSection('info')">
+                        <span class="material-icons-round">info</span> Informazioni
+                        <span class="material-icons-round opt-section-chev">expand_more</span>
+                    </div>
+                    <div class="opt-section-body">
+                        <div class="option-item" style="cursor:pointer" onclick="openChangelog()">
+                            <div style="display:flex;flex-direction:column"><span style="font-size:1rem">Note di Rilascio</span><span style="font-size:0.8rem;color:var(--text-sec);font-weight:400">Vedi gli ultimi aggiornamenti</span></div>
+                            <span class="material-icons-round" style="color:var(--text-sec)">chevron_right</span>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
     </div>
@@ -2278,9 +2390,15 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
         function syncHeaderHeight(){
             const header=document.querySelector('header');
             if(!header)return;
-            // Se header nascosto, offset = 0 (gestito da CSS body.header-hidden)
+            // Misura sempre l'altezza reale del thead
+            const thEl=document.querySelector('thead tr:first-child th');
+            if(thEl){
+                const thH=thEl.offsetHeight;
+                if(thH>0)document.documentElement.style.setProperty('--th-h',thH+'px');
+            }
             if(document.body.classList.contains('header-hidden')){
                 document.body.style.paddingTop='0px';
+                if(typeof updateMonthFixed==='function')updateMonthFixed();
                 return;
             }
             const h=header.offsetHeight;
@@ -2291,7 +2409,11 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
             if(typeof updateMonthFixed==='function')updateMonthFixed();
         }
         window.addEventListener('resize',syncHeaderHeight);
-        window.addEventListener('load',()=>setTimeout(syncHeaderHeight,300));
+        window.addEventListener('load',()=>{
+            setTimeout(syncHeaderHeight,100);
+            setTimeout(syncHeaderHeight,350);
+            setTimeout(syncHeaderHeight,800);
+        });
         setInterval(()=>{if(typeof finalData!=='undefined'&&finalData.length>0)buildTicker();},5*60*1000);
 
         // ══════════════════════════════════════════════════════════════
@@ -2971,18 +3093,59 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
             if(auth&&auth.currentUser){ auth.signOut().then(done).catch(done); } else done();
         }
         function updateAccountUI(){
-            const box=document.getElementById('account-badge'); if(box&&session){
-                const em=box.querySelector('.ab-email'); const roleEl=box.querySelector('.ab-role');
-                if(em)em.innerText='Loggato come '+session.email;
-                if(roleEl){
-                    if(session.role==='guest')roleEl.innerText='Ospite — sola lettura';
-                    else if(session.role==='centrale')roleEl.innerText='Centrale Operativa'+(session._local?' (locale)':'');
-                    else roleEl.innerText='Operatore: '+(session.operatorName||'non impostato');
-                }
+            // Aggiorna l'hero in cima alle opzioni
+            const emailEl=document.getElementById('oah-email');
+            const roleEl=document.getElementById('oah-role');
+            if(emailEl)emailEl.innerText=session?session.email:'—';
+            if(roleEl){
+                if(!session)roleEl.innerText='—';
+                else if(session.role==='guest')roleEl.innerText='Ospite — sola lettura';
+                else if(session.role==='centrale')roleEl.innerText='Centrale Operativa'+(session._local?' (locale)':'');
+                else roleEl.innerText='Operatore: '+(session.operatorName||'non impostato');
             }
+            // backward compat per il vecchio account-badge (non c'è più)
             const chi=document.getElementById('chi-sei-block');
-            if(chi) chi.style.display = (session && session.role==='operator' && session.operatorName) ? 'none' : 'block';
+            if(chi) chi.style.display=(session&&session.role==='operator'&&session.operatorName)?'none':'block';
+            // Sezione profilo: apri se ospite/centrale (devono scegliere nome)
+            const profSec=document.getElementById('opt-sec-profilo');
+            if(profSec&&session&&session.role!=='operator')profSec.classList.add('open');
         }
+        function toggleOptSection(key){
+            const sec=document.getElementById('opt-sec-'+key);
+            if(sec)sec.classList.toggle('open');
+        }
+        async function changePassword(){
+            if(!session||session._local){ alert('La modifica password non è disponibile in modalità locale.'); return; }
+            if(!auth||!auth.currentUser||auth.currentUser.isAnonymous){ alert('Non supportato per questo tipo di account.'); return; }
+            try{
+                await auth.sendPasswordResetEmail(session.email);
+                alert('✉️ Email di reset password inviata a '+session.email+'. Controlla la casella di posta.');
+            }catch(e){ console.error(e); alert('Errore: '+(e.message||e.code||'sconosciuto')); }
+        }
+        function updateNaShareType(){
+            const st=document.getElementById('na-share-type').value;
+            const wrap=document.getElementById('na-share-ops-wrap');
+            if(wrap){ wrap.style.display=st==='specific'?'block':'none'; }
+            if(st==='specific') buildNaShareOps();
+        }
+        function buildNaShareOps(){
+            const ops=(typeof drivers!=='undefined'&&drivers.length)?drivers.map(d=>d.name):KNOWN_OPERATORS.map(n=>n.charAt(0)+n.slice(1).toLowerCase());
+            const myName=(session&&session.operatorName)||'';
+            const filtered=ops.filter(n=>n.toLowerCase()!==myName.toLowerCase());
+            const el=document.getElementById('na-share-ops');
+            if(!el)return;
+            const current=getCheckedShareOps();
+            el.innerHTML=filtered.map(n=>{
+                const checked=current.has(n);
+                return '<label class="na-op-chip'+(checked?' checked':'')+'" onclick="toggleNaOpChip(this,\''+n+'\')" id="naop-'+n+'"><input type="checkbox"'+(checked?' checked':'')+' style="display:none"> '+n+'</label>';
+            }).join('');
+        }
+        function getCheckedShareOps(){
+            const s=new Set();
+            document.querySelectorAll('#na-share-ops .na-op-chip.checked').forEach(el=>s.add(el.textContent.trim()));
+            return s;
+        }
+        function toggleNaOpChip(el,name){ el.classList.toggle('checked'); }
         // Cambia il nome operatore associato all'account (dal menu Opzioni)
         async function updateAccountOperator(name){
             if(session && session.role==='operator' && session.uid && db){
@@ -3031,7 +3194,14 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
             }catch(e){ console.warn('Privati non caricati:',e); }
             try{
                 const sc=sharedCol();
-                if(sc){ const snap=await sc.get(); snap.forEach(doc=>{ const a=doc.data(); a._id=doc.id; a._scope='shared'; a._own=(a.ownerUid===session.uid); (myAppointments[a.dateKey]=myAppointments[a.dateKey]||[]).push(a); }); }
+                if(sc){ const snap=await sc.get(); snap.forEach(doc=>{
+                    const a=doc.data(); a._id=doc.id; a._scope='shared'; a._own=(a.ownerUid===session.uid);
+                    // Filtra: sharedWith='all' → visibile a tutti; array → solo chi è incluso; null → visibile a tutti (retro-compat)
+                    const sw=a.sharedWith;
+                    const myName=(session.operatorName||'').toLowerCase();
+                    const canSee=!sw||sw==='all'||(Array.isArray(sw)&&sw.some(n=>n.toLowerCase()===myName))||a._own;
+                    if(canSee)(myAppointments[a.dateKey]=myAppointments[a.dateKey]||[]).push(a);
+                }); }
             }catch(e){ console.warn('Condivisi non caricati:',e); }
             Object.keys(myAppointments).forEach(k=>myAppointments[k].sort((x,y)=>(x.time||'').localeCompare(y.time||'')));
             if(typeof renderTable==='function'&&finalData&&finalData.length)renderTable();
@@ -3091,9 +3261,14 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
             const di=document.getElementById('na-date'); if(di)di.value=prefillIso||todayIso;
             const dto=document.getElementById('na-date-to'); if(dto){dto.value='';dto.style.display='none';}
             const uchk=document.getElementById('na-until-check'); if(uchk)uchk.checked=false;
-            // Centrale: condivisione forzata e bloccata
-            const sharedEl=document.getElementById('na-shared');
-            if(sharedEl){ const isCentrale=(session.role==='centrale'); sharedEl.checked=isCentrale; sharedEl.disabled=isCentrale; }
+            // Condivisione: Centrale → sempre "tutti" e bloccato; altri → libero
+            const shareTypeEl=document.getElementById('na-share-type');
+            if(shareTypeEl){
+                const isCentrale=(session.role==='centrale');
+                shareTypeEl.value=isCentrale?'all':'private';
+                shareTypeEl.disabled=isCentrale;
+                updateNaShareType();
+            }
             // Reset icone (collassate)
             const wrap=document.getElementById('na-icons-wrap'); if(wrap)wrap.style.display='none';
             const chev=document.getElementById('na-icon-chevron'); if(chev)chev.textContent='expand_more';
@@ -3170,12 +3345,14 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
             if(!type){ alert('Inserisci il tipo di impegno.'); return; }
             const time=document.getElementById('na-time').value||'';
             const showTitle=document.getElementById('na-showtitle').checked;
-            const shared=document.getElementById('na-shared').checked;
+            const shareType=(document.getElementById('na-share-type').value)||'private';
+            let shared=(shareType!=='private');
+            let sharedWith=shareType==='all'?'all':shareType==='specific'?[...getCheckedShareOps()]:null;
             const remind=document.getElementById('na-remind').value||'none';
             try{
                 for(const iso of naDates){
                     const dk=isoToDateKey(iso);
-                    const appt={ dateKey:dk.mName+'-'+dk.dNum, mName:dk.mName, dNum:dk.dNum, iso, type, title:type, time, color:naColor, icon:naIcon, showTitle, shared, remind, ownerUid:session.uid||null, ownerName:(session.operatorName||session.email||'Operatore'), createdAt:new Date().toISOString() };
+                    const appt={ dateKey:dk.mName+'-'+dk.dNum, mName:dk.mName, dNum:dk.dNum, iso, type, title:type, time, color:naColor, icon:naIcon, showTitle, shared, sharedWith:sharedWith||null, remind, ownerUid:session.uid||null, ownerName:(session.operatorName||session.email||'Operatore'), createdAt:new Date().toISOString() };
                     let newId='local_'+Date.now()+'_'+Math.random().toString(36).slice(2,6);
                     if(isLocalMode()){
                         appt._id=newId; appt._scope='local'; appt._own=true;
