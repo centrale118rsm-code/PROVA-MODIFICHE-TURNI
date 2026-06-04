@@ -196,17 +196,22 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
         #month-fixed {
             position: fixed; left: 0; right: 0;
             top: calc(var(--header-h) + var(--th-h));
-            height: 24px; z-index: 86;
+            height: 26px; z-index: 86;
             background: var(--month-bar-bg); color: #fff;
-            display: flex; align-items: center; padding: 0 16px;
+            display: flex; align-items: center; padding: 0 12px;
             font-weight: 800; font-size: 0.84rem; letter-spacing: 0.3px;
             box-shadow: 0 3px 10px rgba(0,0,0,0.18);
             pointer-events: none;
             transition: top 0.25s ease;
+            gap: 0;
         }
-        #month-fixed::before { content:''; width:3px; height:13px; background:rgba(255,255,255,0.8); border-radius:2px; margin-right:9px; box-shadow:0 0 8px rgba(255,255,255,0.4); }
+        #month-fixed::before { content:''; width:3px; height:13px; background:rgba(255,255,255,0.8); border-radius:2px; margin-right:8px; box-shadow:0 0 8px rgba(255,255,255,0.4); flex-shrink:0; }
+        #month-fixed-label { flex:1; min-width:0; }
+        #month-fixed-clock { font-size:0.73rem; font-weight:700; opacity:0.9; letter-spacing:0.2px; white-space:nowrap; font-variant-numeric:tabular-nums; padding-left:10px; border-left:1px solid rgba(255,255,255,0.3); margin-left:6px; }
         body.header-hidden #month-fixed { top: var(--th-h); }
         .month-label { font-weight: 800; font-size: 0.84rem; text-transform: uppercase; letter-spacing: 0.3px; }
+        /* Orologio flottante: rimosso, ora è nella barra mese */
+        #fixed-clock { display: none !important; }
         .live-clock { font-variant-numeric: tabular-nums; font-weight: 800; font-size: 1rem; background: rgba(0,0,0,0.25); padding: 2px 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); letter-spacing: 0.5px; box-shadow: inset 0 1px 3px rgba(0,0,0,0.1); text-shadow: 0 1px 2px rgba(0,0,0,0.2); }
         tbody td { padding: 2px; height: var(--cell-h); vertical-align: middle; border-bottom: 1px solid var(--border); border-right: 1px dashed var(--border); transition: height 0.3s ease; width: 110px !important; min-width: 110px !important; max-width: 110px !important; overflow: hidden; }
         tbody td.td-date { position: -webkit-sticky !important; position: sticky !important; left: 0; z-index: 80; padding: 0 !important; border-right: 2px solid var(--border) !important; border-bottom: none !important; background: var(--bg); text-align: center; font-weight: 800; color: var(--text-main); font-size: 1.1rem; vertical-align: middle; }
@@ -1080,14 +1085,11 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
         /* ── Chi sei?: nascosto quando operatore loggato ── */
         body.operator-session #chi-sei-block { display:none !important; }
 
-        /* ── Data mode toggle (singolo / intervallo) ── */
-        .na-date-mode { display:flex; gap:6px; margin-bottom:10px; }
-        .na-mode-btn { flex:1; padding:9px; border-radius:9px; border:1.5px solid var(--border); background:var(--bg); color:var(--text-sec); font-weight:700; font-size:0.82rem; cursor:pointer; transition:0.15s; }
-        .na-mode-btn.active { background:var(--primary); color:#fff; border-color:var(--primary); }
-        .na-range-row { display:flex; gap:10px; }
-        .na-range-row > div { flex:1; }
-        .na-range-row label { font-size:0.7rem; font-weight:800; color:var(--text-sec); display:block; margin-bottom:4px; }
-        .na-add-range { width:100%; margin-top:8px; height:44px; border:none; border-radius:11px; background:var(--primary); color:#fff; font-weight:800; font-size:0.88rem; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:7px; }
+        /* ── Data semplice: checkbox "fino al" ── */
+        .na-until-row { margin-top:10px; display:flex; flex-direction:column; gap:6px; }
+        .na-until-label { display:flex; align-items:center; gap:8px; font-size:0.84rem; font-weight:700; color:var(--text-main); cursor:pointer; }
+        .na-until-label input[type=checkbox] { width:18px; height:18px; accent-color:var(--primary); cursor:pointer; }
+        .na-add-dates-btn { width:100%; margin-top:10px; height:44px; border:none; border-radius:11px; background:var(--primary); color:#fff; font-weight:800; font-size:0.88rem; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:7px; }
 
         /* ── Icona: pulsante toggle ── */
         .na-icon-toggle-btn { width:100%; display:flex; align-items:center; gap:9px; padding:11px 13px; border-radius:11px; border:1.5px solid var(--border); background:var(--bg); color:var(--text-main); font-weight:700; font-size:0.88rem; cursor:pointer; text-align:left; }
@@ -1181,21 +1183,15 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
             <div class="modal-body" style="overflow-y:auto;padding:16px">
                 <div class="na-field">
                     <label>📅 Data dell'impegno</label>
-                    <div class="na-date-mode">
-                        <button class="na-mode-btn active" id="na-mode-single" onclick="setNaDateMode('single')">Giorno singolo</button>
-                        <button class="na-mode-btn" id="na-mode-range" onclick="setNaDateMode('range')">Intervallo di date</button>
+                    <input type="date" id="na-date" min="2026-01-01" max="2026-12-31">
+                    <div class="na-until-row">
+                        <label class="na-until-label">
+                            <input type="checkbox" id="na-until-check" onchange="toggleNaUntil()">
+                            Su più giorni — fino al:
+                        </label>
+                        <input type="date" id="na-date-to" min="2026-01-01" max="2026-12-31" style="display:none">
                     </div>
-                    <div id="na-single-wrap" class="af-row">
-                        <input type="date" id="na-date" min="2026-01-01" max="2026-12-31" style="flex:2">
-                        <button class="na-add-date" onclick="addNaDate()"><span class="material-icons-round">add</span></button>
-                    </div>
-                    <div id="na-range-wrap" style="display:none">
-                        <div class="na-range-row">
-                            <div><label>Dal</label><input type="date" id="na-date-from" min="2026-01-01" max="2026-12-31"></div>
-                            <div><label>Al</label><input type="date" id="na-date-to" min="2026-01-01" max="2026-12-31"></div>
-                        </div>
-                        <button class="na-add-range" onclick="addNaDateRange()"><span class="material-icons-round">date_range</span> Aggiungi intervallo</button>
-                    </div>
+                    <button class="na-add-dates-btn" onclick="addNaDates()"><span class="material-icons-round">add</span> Aggiungi data / intervallo</button>
                     <div id="na-dates-chips" class="na-chips" style="margin-top:9px"></div>
                 </div>
                 <div class="na-field">
@@ -1516,7 +1512,7 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
     </div>
 
     <!-- Barra MESE fissa (sempre visibile, non scorre) -->
-    <div id="month-fixed"><span id="month-fixed-label">—</span></div>
+    <div id="month-fixed"><span id="month-fixed-label">—</span><span id="month-fixed-clock"></span></div>
 
     <!-- Orologio flottante fisso sempre visibile -->
     <div class="live-clock" id="fixed-clock"></div>
@@ -1863,7 +1859,24 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
 
         function filterDriver(val,btnEl){vibrate();if(val==='all'){selectedDrivers.clear();}else{const intVal=parseInt(val);if(selectedDrivers.has(intVal))selectedDrivers.delete(intVal);else selectedDrivers.add(intVal);}localStorage.setItem("selected_drivers",JSON.stringify([...selectedDrivers]));updateDriverButtons();renderTable();}
         function updateDriverButtons(){const allBtn=document.querySelector('.chip-driver[data-idx="all"]');if(selectedDrivers.size===0)allBtn.classList.add('active');else allBtn.classList.remove('active');document.querySelectorAll('.chip-driver:not([data-idx="all"])').forEach(btn=>{const idx=parseInt(btn.dataset.idx);if(selectedDrivers.has(idx))btn.classList.add('active');else btn.classList.remove('active');});}
-        function startLiveClock(){const upd=()=>{const now=new Date();const dateStr=now.toLocaleDateString('it-IT',{weekday:'short',day:'numeric',month:'short'});const timeStr=now.toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit',second:'2-digit'});const fullStr=dateStr+' • '+timeStr;document.querySelectorAll('.live-clock').forEach(el=>{el.innerText=fullStr;});};upd();if(!window._clockStarted){window._clockStarted=setInterval(upd,1000);}}
+        function startLiveClock(){
+            const upd=()=>{
+                const now=new Date();
+                const dateStr=now.toLocaleDateString('it-IT',{weekday:'short',day:'numeric',month:'short'});
+                const timeStr=now.toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+                const fullStr=dateStr+' • '+timeStr;
+                document.querySelectorAll('.live-clock').forEach(el=>{el.innerText=fullStr;});
+                // Aggiorna anche la barra mese: giorno settimana + ora MM:SS
+                const mc=document.getElementById('month-fixed-clock');
+                if(mc){
+                    const dow=now.toLocaleDateString('it-IT',{weekday:'long'});
+                    const hm=now.toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'});
+                    mc.textContent=dow+' '+hm;
+                }
+            };
+            upd();
+            if(!window._clockStarted){window._clockStarted=setInterval(upd,1000);}
+        }
         window.addEventListener('DOMContentLoaded',startLiveClock);
 
         function renderTable(){
@@ -2933,7 +2946,11 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
             startFirestoreListeners();   // i listener partono SOLO dopo l'autenticazione
             loadAppointments();
             requestNotifPermission();
-            const fab=document.getElementById('fab-appt'); if(fab)fab.style.display='flex';
+            const fab=document.getElementById('fab-appt');
+            const fabH=document.getElementById('fab-in-header');
+            const isGuest=(session&&session.role==='guest');
+            if(fab)fab.style.display=isGuest?'none':'flex';
+            if(fabH&&isGuest)fabH.style.display='none';
             if(typeof finalData!=='undefined'&&finalData.length>0&&typeof renderTable==='function')renderTable();
             // Mostra sempre il giorno corrente all'ingresso
             setTimeout(()=>{ if(typeof scrollToTodayInstant==='function')scrollToTodayInstant(); },350);
@@ -2955,11 +2972,14 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
         }
         function updateAccountUI(){
             const box=document.getElementById('account-badge'); if(box&&session){
-                const em=box.querySelector('.ab-email'); const role=box.querySelector('.ab-role');
+                const em=box.querySelector('.ab-email'); const roleEl=box.querySelector('.ab-role');
                 if(em)em.innerText='Loggato come '+session.email;
-                if(role)role.innerText = session.role==='centrale' ? 'Centrale Operativa' : ('Operatore: '+(session.operatorName||'non impostato'));
+                if(roleEl){
+                    if(session.role==='guest')roleEl.innerText='Ospite — sola lettura';
+                    else if(session.role==='centrale')roleEl.innerText='Centrale Operativa'+(session._local?' (locale)':'');
+                    else roleEl.innerText='Operatore: '+(session.operatorName||'non impostato');
+                }
             }
-            // Se loggato come operatore con nome già scelto al login, nascondi il selettore "Chi sei?"
             const chi=document.getElementById('chi-sei-block');
             if(chi) chi.style.display = (session && session.role==='operator' && session.operatorName) ? 'none' : 'block';
         }
@@ -3025,6 +3045,9 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
             apptContext={mName:mName, dNum:dNum, iso:iso};
             document.getElementById('appt-date-sub').innerText=dNum+' '+mName.charAt(0)+mName.slice(1).toLowerCase()+' 2026';
             renderApptList();
+            // Nascondi pulsante "aggiungi" per ospiti
+            const addBtn=document.querySelector('#appt-modal .btn-appt-save');
+            if(addBtn)addBtn.style.display=(session&&session.role==='guest')?'none':'flex';
             const m=document.getElementById('appt-modal'); m.style.display='flex'; setTimeout(()=>m.classList.add('open'),10);
         }
         function closeApptModal(e){ if(e&&e.target!==e.currentTarget)return; const m=document.getElementById('appt-modal'); m.classList.remove('open'); setTimeout(()=>m.style.display='none',250); }
@@ -3053,6 +3076,7 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
         let naDates=[]; let naColor=APPT_COLORS[0]; let naIcon=APPT_ICONS[0];
         function openNewAppt(prefillIso){
             if(!session){ alert('Devi prima effettuare l\'accesso.'); return; }
+            if(session.role==='guest'){ alert('In modalità ospite non puoi creare impegni.'); return; }
             vibrate();
             const dm=document.getElementById('appt-modal'); if(dm&&dm.classList.contains('open')){ dm.classList.remove('open'); setTimeout(()=>dm.style.display='none',200); }
             naDates = prefillIso ? [prefillIso] : [];
@@ -3060,31 +3084,43 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
             document.getElementById('na-type').value='';
             document.getElementById('na-time').value='';
             document.getElementById('na-showtitle').checked=false;
-            document.getElementById('na-shared').checked=false;
             document.getElementById('na-remind').value='none';
-            // Reset date mode to single
-            setNaDateMode('single');
+            // Reset data semplice
             const today=new Date();
             const todayIso='2026-'+String(today.getMonth()+1).padStart(2,'0')+'-'+String(today.getDate()).padStart(2,'0');
             const di=document.getElementById('na-date'); if(di)di.value=prefillIso||todayIso;
-            const df=document.getElementById('na-date-from'); if(df)df.value=prefillIso||todayIso;
-            const dt=document.getElementById('na-date-to'); if(dt)dt.value=prefillIso||todayIso;
-            // Reset icon section (collapsed)
+            const dto=document.getElementById('na-date-to'); if(dto){dto.value='';dto.style.display='none';}
+            const uchk=document.getElementById('na-until-check'); if(uchk)uchk.checked=false;
+            // Centrale: condivisione forzata e bloccata
+            const sharedEl=document.getElementById('na-shared');
+            if(sharedEl){ const isCentrale=(session.role==='centrale'); sharedEl.checked=isCentrale; sharedEl.disabled=isCentrale; }
+            // Reset icone (collassate)
             const wrap=document.getElementById('na-icons-wrap'); if(wrap)wrap.style.display='none';
             const chev=document.getElementById('na-icon-chevron'); if(chev)chev.textContent='expand_more';
             buildColorPicker(); updateIconPreview(); renderNaChips();
             const m=document.getElementById('newappt-modal'); m.style.display='flex'; setTimeout(()=>m.classList.add('open'),10);
         }
-        function setNaDateMode(mode){
-            const sw=document.getElementById('na-single-wrap'); const rw=document.getElementById('na-range-wrap');
-            const ms=document.getElementById('na-mode-single'); const mr=document.getElementById('na-mode-range');
-            if(sw)sw.style.display=mode==='single'?'flex':'none';
-            if(rw)rw.style.display=mode==='range'?'block':'none';
-            if(ms)ms.classList.toggle('active',mode==='single');
-            if(mr)mr.classList.toggle('active',mode==='range');
+        function toggleNaUntil(){
+            const chk=document.getElementById('na-until-check');
+            const dto=document.getElementById('na-date-to');
+            if(dto)dto.style.display=chk.checked?'block':'none';
+        }
+        function addNaDates(){
+            const from=(document.getElementById('na-date').value||'');
+            if(!from){alert('Seleziona una data.');return;}
+            const uchk=document.getElementById('na-until-check');
+            const to=uchk&&uchk.checked?(document.getElementById('na-date-to').value||''):'';
+            if(to&&from<=to){
+                const d=new Date(from+'T12:00'); const end=new Date(to+'T12:00');
+                let count=0;
+                while(d<=end&&count<366){ const iso=d.toISOString().slice(0,10); if(!naDates.includes(iso))naDates.push(iso); d.setDate(d.getDate()+1); count++; }
+            } else {
+                if(!naDates.includes(from))naDates.push(from);
+            }
+            naDates.sort(); renderNaChips();
         }
         function closeNewAppt(e){ if(e&&e.target!==e.currentTarget)return; const m=document.getElementById('newappt-modal'); m.classList.remove('open'); setTimeout(()=>m.style.display='none',250); }
-        function addNaDate(){ const v=document.getElementById('na-date').value; if(!v)return; if(!naDates.includes(v))naDates.push(v); naDates.sort(); renderNaChips(); }
+        function addNaDate(){ addNaDates(); } // backward compat
         function addNaDateRange(){
             const from=(document.getElementById('na-date-from').value||'');
             const to=(document.getElementById('na-date-to').value||'');
