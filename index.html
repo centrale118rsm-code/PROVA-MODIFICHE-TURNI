@@ -383,26 +383,33 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
         /* ── MONTH BAR sottile (poco più del nome) ── */
         tr.month-header td { box-shadow: 0 2px 10px rgba(0,0,0,0.16) !important; }
         .sticky-month-text {
-            min-height: 26px !important;
-            padding: 2px 0 2px 14px !important;
+            min-height: 24px !important;
+            padding: 2px 14px !important;
             backdrop-filter: blur(4px);
-            justify-content: space-between !important;
-            padding-right: 14px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: space-around !important;
+            gap: 0 !important;
+            width: 100% !important;
         }
         .month-label {
-            font-size: 0.92rem !important;
+            font-size: 0.9rem !important;
             font-weight: 800 !important;
             letter-spacing: 0.3px !important;
             display: flex;
             align-items: center;
             gap: 7px;
+            white-space: nowrap;
+            flex: 0 0 auto;
         }
+        .month-label:not(:first-child)::before { display: none; }
         .month-label::before {
             content: '';
-            width: 3px; height: 14px;
+            width: 3px; height: 13px;
             background: rgba(255,255,255,0.7);
             border-radius: 2px;
             box-shadow: 0 0 8px rgba(255,255,255,0.4);
+            flex-shrink: 0;
         }
 
         /* ── OROLOGIO/DATA: badge flottante TRASCINABILE ── */
@@ -510,13 +517,17 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
             padding-top: 0 !important;
         }
         body.header-hidden thead th {
-            top: calc(env(safe-area-inset-top, 0px)) !important;
+            top: calc(env(safe-area-inset-top, 0px) + 19px) !important;
         }
         body.header-hidden tr.month-header td {
-            top: calc(env(safe-area-inset-top, 0px) + var(--th-h)) !important;
+            top: calc(env(safe-area-inset-top, 0px) + 19px + var(--th-h)) !important;
         }
         /* La linguetta resta visibile e agganciata in alto al centro */
         body.header-hidden #pull-tab { opacity: 1; pointer-events: all; }
+        /* Quando header nascosto, il fondale copre anche la striscia della linguetta */
+        body.header-hidden #header-backdrop {
+            height: calc(env(safe-area-inset-top, 0px) + 19px);
+        }
 
         /* ── LINGUETTA integrata (sostituisce la freccia tonda) ── */
         /* Maniglia incorporata SOTTO la barra colonne: trascina giù per riaprire */
@@ -561,46 +572,41 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
         @keyframes tab-bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(2px)} }
 
         /* ── LINGUETTA dentro l'header (freccia su per nascondere) ── */
-        /* Piccola maniglia in fondo all'header che invita a trascinare su */
+        /* Striscia in FLUSSO in fondo all'header: aggiunge altezza, non copre i nomi */
         #header-grip {
-            position: absolute;
-            bottom: -1px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 70px;
-            height: 16px;
-            background: rgba(0,0,0,0.22);
-            border-radius: 10px 10px 0 0;
+            position: relative;
+            width: 100%;
+            height: 17px;
+            flex-shrink: 0;
+            background: rgba(0,0,0,0.28);
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: grab;
             z-index: 1010;
-            border: 1px solid rgba(255,255,255,0.12);
-            border-bottom: none;
+            border-top: 1px solid rgba(255,255,255,0.10);
             touch-action: none;
             transition: background 0.2s;
         }
         body.header-hidden #header-grip { display: none; }
-        #header-grip:active { cursor: grabbing; background: rgba(0,0,0,0.35); }
+        #header-grip:active { cursor: grabbing; background: rgba(0,0,0,0.4); }
         #header-grip .grip-line {
-            width: 28px;
-            height: 3px;
+            width: 36px;
+            height: 4px;
             background: rgba(255,255,255,0.55);
-            border-radius: 2px;
+            border-radius: 3px;
             position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         #header-grip .grip-arrow {
-            position: absolute;
-            color: rgba(255,255,255,0.85);
-            font-size: 0.85rem;
+            color: rgba(255,255,255,0.9);
+            font-size: 0.8rem;
             line-height: 1;
-            top: -7px;
-            left: 50%;
-            transform: translateX(-50%);
             animation: grip-up 1.8s ease-in-out infinite;
         }
-        @keyframes grip-up { 0%,100%{transform:translateX(-50%) translateY(0)} 50%{transform:translateX(-50%) translateY(-3px)} }
+        @keyframes grip-up { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-2px)} }
 
         /* ── PANORAMA — vista orizzontale ampia ── */
         #panorama-modal {
@@ -772,6 +778,76 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
             color: #fff !important;
             box-shadow: 0 4px 14px rgba(37,99,235,0.35);
         }
+        /* View mode switch active state */
+        #vmode-vertical.vmode-active, #vmode-week.vmode-active {
+            border-color: var(--primary) !important;
+            background: var(--primary) !important;
+            color: #fff !important;
+            box-shadow: 0 4px 14px rgba(37,99,235,0.35);
+        }
+
+        /* ── VISTA SETTIMANALE (una settimana per schermata, swipe) ── */
+        #weekview-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 5000;
+            background: var(--bg);
+            flex-direction: column;
+            animation: panoIn 0.3s ease;
+        }
+        #weekview-modal.open { display: flex; }
+        .wv-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 16px;
+            padding-top: calc(14px + env(safe-area-inset-top));
+            background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 60%, #2563eb 100%);
+            color: #fff;
+            flex-shrink: 0;
+            box-shadow: 0 2px 16px rgba(0,0,0,0.3);
+        }
+        .wv-header h3 { font-size: 1.05rem; font-weight: 800; display: flex; align-items: center; gap: 8px; flex: 1; }
+        .wv-nav-btn {
+            background: rgba(255,255,255,0.12);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: #fff; width: 36px; height: 36px;
+            border-radius: 10px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .wv-nav-btn:active { transform: scale(0.92); }
+        .wv-week-label { font-weight: 800; font-size: 0.9rem; min-width: 128px; text-align: center; }
+        .wv-close {
+            background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2);
+            color: #fff; width: 38px; height: 38px; border-radius: 10px;
+            cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+        }
+        .wv-close:active { transform: scale(0.92); }
+        .wv-body { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 12px; }
+        .wv-day { background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; margin-bottom: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        .wv-day.wv-today { border-color: #ea580c; box-shadow: 0 0 0 2px rgba(234,88,12,0.25); }
+        .wv-day-head {
+            padding: 10px 16px; font-weight: 800; font-size: 0.9rem;
+            background: var(--bg); color: var(--text-main);
+            border-bottom: 1px solid var(--border); text-transform: uppercase; letter-spacing: 0.5px;
+        }
+        .wv-day-head.red { color: #dc2626; }
+        .wv-today .wv-day-head { background: linear-gradient(135deg, #fff7ed, #ffedd5); color: #c2410c; }
+        body.dark-mode .wv-today .wv-day-head { background: #431407; color: #fdba74; }
+        .wv-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(88px, 1fr)); gap: 8px; padding: 12px; }
+        .wv-op { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+        .wv-op-name { font-size: 0.62rem; font-weight: 800; color: var(--text-sec); text-transform: uppercase; letter-spacing: 0.3px; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+        .wv-cell { width: 100%; text-align: center; padding: 8px 2px; border-radius: 10px; font-size: 0.78rem; font-weight: 800; }
+        .wv-cell.c-M { background: var(--c-M); color: var(--t-M); }
+        .wv-cell.c-P { background: var(--c-P); color: var(--t-P); }
+        .wv-cell.c-N { background: var(--c-N); color: var(--t-N); }
+        .wv-cell.c-SM { background: var(--c-SM); color: var(--t-SM); }
+        .wv-cell.c-R { background: var(--c-R); color: var(--t-R); }
+        .wv-cell.c-MN { background: linear-gradient(135deg,var(--c-M) 0 45%,var(--c-N) 55% 100%); color:#fff; }
+        .wv-cell.c-spec { background: var(--bg); color: var(--text-sec); border: 1px solid var(--border); }
+        .wv-cell.c-empty { background: transparent; color: var(--border); border: 1px dashed var(--border); }
+        .wv-hint { text-align: center; font-size: 0.72rem; color: var(--text-sec); padding: 4px 0 12px; }
     </style>
 </head>
 <body>
@@ -837,7 +913,7 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
 
     <!-- LOADER -->
     <div id="loader">
-        <img src="logo.png" alt="Logo" style="width:80px;height:80px;border-radius:18px;box-shadow:0 4px 20px rgba(0,0,0,0.4);position:relative;z-index:2;margin-bottom:20px;" onerror="this.style.display='none'">
+        <img src="foto1.png" alt="118 San Marino" style="width:150px;height:auto;max-height:150px;border-radius:22px;box-shadow:0 8px 30px rgba(0,0,0,0.5);position:relative;z-index:2;margin-bottom:24px;object-fit:cover;" onerror="this.onerror=null;this.src='logo.png';this.style.width='80px';this.style.height='80px';">
         <div class="spinner" style="position:relative;z-index:2;"></div>
         <div id="loader-text"><h3 id="loader-msg">🚑 Caricamento in corso...</h3><p>A.S. 26 — San Marino</p></div>
         <div id="manual-upload">
@@ -1025,7 +1101,7 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
         <div class="driver-scroller" id="driver-nav"></div>
         <!-- Linguetta integrata: trascina su per nascondere la barra -->
         <div id="header-grip" title="Trascina verso l'alto per nascondere">
-            <div class="grip-line"><span class="grip-arrow material-icons-round">keyboard_arrow_up</span></div>
+            <span class="grip-arrow material-icons-round">keyboard_arrow_up</span>
         </div>
     </header>
 
@@ -1056,6 +1132,19 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
             <div class="pano-leg-item"><span class="pano-leg-dot" style="background:var(--c-SM)"></span> Smonto</div>
             <div class="pano-leg-item"><span class="pano-leg-dot" style="background:var(--c-R)"></span> Riposo</div>
         </div>
+    </div>
+
+    <!-- VISTA SETTIMANALE: una settimana per schermata, swipe laterale -->
+    <div id="weekview-modal">
+        <div class="wv-header">
+            <h3><span class="material-icons-round">view_week</span> Vista Settimanale</h3>
+            <button class="wv-nav-btn" onclick="weekPrev()"><span class="material-icons-round">chevron_left</span></button>
+            <span class="wv-week-label" id="week-label">—</span>
+            <button class="wv-nav-btn" onclick="weekNext()"><span class="material-icons-round">chevron_right</span></button>
+            <button class="wv-close" onclick="closeWeekView()"><span class="material-icons-round">close</span></button>
+        </div>
+        <div class="wv-hint">← scorri lateralmente per cambiare settimana →</div>
+        <div class="wv-body" id="week-body"></div>
     </div>
 
     <div class="container">
@@ -1168,7 +1257,7 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
 
         function vibrate(){if(navigator.vibrate)navigator.vibrate(10);}
         function toggleMenu(){vibrate();let m=document.getElementById('menu-dropdown');if(m.style.display==='flex'){m.classList.remove('open');setTimeout(()=>m.style.display='none',100);}else{m.style.display='flex';setTimeout(()=>m.classList.add('open'),10);}}
-        function openOptionsModal(){if(document.getElementById('menu-dropdown').style.display==='flex')toggleMenu();let m=document.getElementById('options-modal');m.style.display='flex';setTimeout(()=>m.classList.add('open'),10);const tg=document.getElementById('dark-mode-toggle');if(tg)tg.checked=document.body.classList.contains('dark-mode');const sel=document.getElementById('turni-user-select');if(sel&&turniUserName)sel.value=turniUserName;updatePlatformUI();}
+        function openOptionsModal(){if(document.getElementById('menu-dropdown').style.display==='flex')toggleMenu();let m=document.getElementById('options-modal');m.style.display='flex';setTimeout(()=>m.classList.add('open'),10);const tg=document.getElementById('dark-mode-toggle');if(tg)tg.checked=document.body.classList.contains('dark-mode');const sel=document.getElementById('turni-user-select');if(sel&&turniUserName)sel.value=turniUserName;updatePlatformUI();['ticker','dog','cellinfo'].forEach(k=>{const cb=document.getElementById('opt-'+k);if(cb&&typeof getOpt==='function')cb.checked=getOpt(k);});if(typeof updateViewModeUI==='function')updateViewModeUI();}
         function closeOptionsModal(e){if(e&&e.target!==e.currentTarget)return;let m=document.getElementById('options-modal');m.classList.remove('open');setTimeout(()=>m.style.display='none',200);}
         function toggleDarkMode(){vibrate();document.body.classList.toggle('dark-mode');const meta=document.querySelector('#theme-color-meta');const isDark=document.body.classList.contains('dark-mode');if(isDark){localStorage.setItem('theme','dark');meta.setAttribute('content','#0f172a');}else{localStorage.setItem('theme','light');meta.setAttribute('content','#ffffff');}}
 
@@ -1268,7 +1357,12 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
             loadNotificationHistory();
             renderTable();
             startLiveClock();
-            setTimeout(()=>{scrollToTodayInstant();setTimeout(flashToday,200);},80);
+            initOptions();
+            setTimeout(()=>{
+                restoreHScroll();          // ripristina scroll orizzontale memorizzato
+                scrollToTodayInstant();    // ma sempre verticalmente sul giorno corrente
+                setTimeout(flashToday,200);
+            },80);
             setTimeout(checkForScheduleChanges,2000);
             setTimeout(checkRepNotifications,3000);
             setTimeout(checkFirstLaunch,800);
@@ -1297,7 +1391,7 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
         function closeAlertAndSave(){vibrate();let modal=document.getElementById('alert-modal');modal.classList.remove('open');setTimeout(()=>{modal.style.display='none';},300);}
 
         function scrollToToday(){const el=document.getElementById('today-row');if(el){const hh=parseInt(getComputedStyle(document.documentElement).getPropertyValue('--header-h'))||126;const extra=100;const bodyRect=document.body.getBoundingClientRect().top,elRect=el.getBoundingClientRect().top,elPos=elRect-bodyRect,offsetPos=elPos-hh-extra;window.scrollTo({top:offsetPos,behavior:'smooth'});setTimeout(()=>{el.classList.add('today-flash');setTimeout(()=>el.classList.remove('today-flash'),1300);},400);}}
-        function scrollToTodayInstant(){const el=document.getElementById('today-row');if(el){el.scrollIntoView({block:'center',behavior:'instant'});window.scrollBy(0,-126);}}
+        function scrollToTodayInstant(){const el=document.getElementById('today-row');if(el){const c=document.querySelector('.container');const savedX=c?c.scrollLeft:0;el.scrollIntoView({block:'center',behavior:'instant'});window.scrollBy(0,-126);if(c)c.scrollLeft=savedX;}}
         function flashToday(){const el=document.getElementById('today-row');if(el){el.classList.add('today-flash');setTimeout(()=>el.classList.remove('today-flash'),1400);}}
 
         function filterDriver(val,btnEl){vibrate();if(val==='all'){selectedDrivers.clear();}else{const intVal=parseInt(val);if(selectedDrivers.has(intVal))selectedDrivers.delete(intVal);else selectedDrivers.add(intVal);}localStorage.setItem("selected_drivers",JSON.stringify([...selectedDrivers]));updateDriverButtons();renderTable();}
@@ -1315,7 +1409,7 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
             const year=2026,today=new Date(),curD=today.getDate(),curM=today.getMonth();
             for(let i=1;i<finalData.length;i++){
                 let row=finalData[i],mName=row[0].v,dNum=parseInt(row[1].v);
-                if(mName&&mName!==currentMonth){currentMonth=mName;let mId="m-"+i;globalMonthsList.push({name:mName,id:mId});let trM=document.createElement('tr');trM.className="month-header";trM.id=mId;trM.innerHTML='<td colspan="'+(cols.length+1)+'"><div class="sticky-month-text"><span class="month-label">'+mName+' '+year+'</span><span class="live-clock"></span></div></td>';tbody.appendChild(trM);}
+                if(mName&&mName!==currentMonth){currentMonth=mName;let mId="m-"+i;globalMonthsList.push({name:mName,id:mId});let trM=document.createElement('tr');trM.className="month-header";trM.id=mId;let repeats=Math.max(3,(cols.length||6)+1);let labelSpan='<span class="month-label">'+mName+' '+year+'</span>';let repeated='';for(let r=0;r<repeats;r++){repeated+=labelSpan;}trM.innerHTML='<td colspan="'+(cols.length+1)+'"><div class="sticky-month-text">'+repeated+'</div></td>';tbody.appendChild(trM);}
                 let tr=document.createElement('tr');
                 let mIdx=MONTH_MAP[currentMonth];
                 let dateObj=new Date(year,mIdx,dNum);
@@ -1343,7 +1437,7 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
                     let vehicleTasks=appuntamentiVeicoli[mName+"-"+dNum]||null;
                     let repBarHtml=getRepBarHtml(d.name,mName,dNum);
                     td.innerHTML=formatCell(cellInfo,showDog,vehicleTasks,repBarHtml);
-                    if(["M","P","N","R","MN","SM"].includes(sType))td.onclick=()=>openShiftModal(i,sType,mName,dNum,dayWeek);
+                    if(getOpt('cellinfo')&&["M","P","N","R","MN","SM"].includes(sType))td.onclick=()=>openShiftModal(i,sType,mName,dNum,dayWeek);
                     tr.appendChild(td);
                 });
                 tbody.appendChild(tr);
@@ -1643,48 +1737,16 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
         function buildTicker(){
             const ticker=document.getElementById('top-ticker');
             if(!ticker)return;
+            // Rispetta l'opzione: se disattivato, nascondi
+            if(typeof getOpt==='function' && !getOpt('ticker')){ ticker.style.display='none'; ticker.classList.add('no-content'); ticker.innerHTML=''; return; }
+            ticker.style.display='';
             const today=new Date();
             const todayM=today.getMonth();
             const todayD=today.getDate();
             const MONTH_NAMES=['GENNAIO','FEBBRAIO','MARZO','APRILE','MAGGIO','GIUGNO','LUGLIO','AGOSTO','SETTEMBRE','OTTOBRE','NOVEMBRE','DICEMBRE'];
             const SHIFT_LABELS={M:'Mattina',P:'Pomeriggio',N:'Notte',SM:'Smonto',MN:'Mat+Notte'};
-            const SHIFT_TIMES={M:'6:30-13:15',P:'12:45-20:10',N:'19:45-00:00',SM:'00:00-7:20',MN:'6:30+19:45'};
             let segs=[];
-            // Appuntamenti veicoli oggi
-            try{
-                if(typeof appuntamentiVeicoli!=='undefined'&&appuntamentiVeicoli){
-                    const mName=MONTH_NAMES[todayM];
-                    const dateKey=mName+'-'+todayD;
-                    const tasks=appuntamentiVeicoli[dateKey];
-                    if(tasks&&tasks.length>0){
-                        tasks.forEach(t=>{
-                            const ora=t.ora?' ore '+t.ora:'';
-                            const veicolo=t.veicolo?' '+t.veicolo:'';
-                            segs.push(`<div class="ticker-seg seg-app"><span class="material-icons-round">directions_car</span>${(t.operazione||'Manutenzione')}${veicolo}${ora}</div>`);
-                        });
-                    }
-                }
-            }catch(e){}
-            // Variazioni reperibilità oggi
-            try{
-                if(typeof REPERIBILITA_BASE!=='undefined'&&typeof REPERIBILITA!=='undefined'){
-                    const mNum=todayM+1;
-                    const repKey=mNum+'_'+todayD;
-                    const base=REPERIBILITA_BASE[repKey];
-                    const live=REPERIBILITA[repKey];
-                    if(base&&live){
-                        const slotLabels=['00-07','07-13','13-20','20-00'];
-                        for(let si=0;si<4;si++){
-                            const bN=(base[si]||'').toString().toUpperCase().trim();
-                            const lN=(live[si]||'').toString().toUpperCase().trim();
-                            if(bN&&lN&&bN!==lN){
-                                segs.push(`<div class="ticker-seg seg-rep"><span class="material-icons-round">swap_horiz</span>⚠️ Rep ${slotLabels[si]}: ${bN} → ${lN}</div>`);
-                            }
-                        }
-                    }
-                }
-            }catch(e){}
-            // Autisti in turno oggi
+            // SOLO autisti in turno oggi (nessun orario, nessun titolo, niente veicoli/reperibilità)
             try{
                 if(typeof finalData!=='undefined'&&finalData.length>1&&typeof drivers!=='undefined'&&typeof normalizeShift==='function'){
                     const mNameToday=MONTH_NAMES[todayM];
@@ -1705,7 +1767,7 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
                     }
                     Object.keys(shiftGroups).forEach(st=>{
                         if(shiftGroups[st].length>0){
-                            segs.push(`<div class="ticker-seg seg-turno"><span class="material-icons-round">drive_eta</span>${SHIFT_LABELS[st]} (${SHIFT_TIMES[st]}): ${shiftGroups[st].join(', ')}</div>`);
+                            segs.push(`<div class="ticker-seg seg-turno"><span class="material-icons-round">drive_eta</span><b>${SHIFT_LABELS[st]}:</b> ${shiftGroups[st].join(', ')}</div>`);
                         }
                     });
                 }
