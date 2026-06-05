@@ -390,7 +390,8 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
            ════════════════════════════════════════════════════════ */
 
         /* ── TICKER più veloce ── */
-        .ticker-inner { animation-duration: 12s !important; }
+        .ticker-inner { animation-duration: 12s !important; animation-play-state: var(--anim-play, running) !important; }
+        .appt-pulse, .td-date.has-my-appt { animation-play-state: var(--anim-play, running) !important; }
 
         /* ── FIX iOS: colonna data sticky robusta ── */
         body.ios-mode tbody td.td-date,
@@ -1083,8 +1084,12 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
         .notif-empty { text-align:center; padding:50px 20px; color:var(--text-sec); }
         .notif-empty .material-icons-round { font-size:48px; opacity:0.3; display:block; margin-bottom:10px; }
 
-        /* ── Chi sei?: nascosto quando operatore loggato ── */
-        body.operator-session #chi-sei-block { display:none !important; }
+        /* Riduce animazioni quando il SO richiede meno movimento (Accessibilità) */
+        @media (prefers-reduced-motion: reduce) {
+            .appt-pulse, @keyframes appt-pulse { animation: none !important; }
+            .ticker-inner { animation-duration: 25s !important; }
+            * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+        }
 
         /* ════════ ACCORDION OPZIONI ════════ */
         .opt-account-hero {
@@ -1787,24 +1792,79 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
             const tg=document.getElementById('dark-mode-toggle');if(tg)tg.checked=document.body.classList.contains('dark-mode');
             try{loadNursesData();}catch(e){console.warn('Infermieri:',e);}
             try{fetchGithubLastUpload();}catch(e){}
+
+            // ─── CACHE: ripristina dati dal localStorage per apertura istantanea ───
+            const CACHE_KEY='turni_data_v2';
+            const MAX_CACHE_AGE=24*60*60*1000; // 24h
+            let cacheLoaded=false;
             try{
-                // Fetch con timeout di sicurezza (10s)
-                const controller=new AbortController();
-                const tmo=setTimeout(()=>controller.abort(),10000);
-                const response=await fetch(FILE_NAME,{signal:controller.signal});
-                clearTimeout(tmo);
-                if(!response.ok)throw new Error("File turni non trovato (HTTP "+response.status+")");
-                const buffer=await response.arrayBuffer();
-                loadWorkbook(buffer);
-            }catch(e){
-                console.error('Caricamento turni fallito:',e);
-                // Mostra opzione di caricamento manuale invece di restare bloccati
-                const lt=document.getElementById('loader-text');
-                const mu=document.getElementById('manual-upload');
-                if(lt)lt.style.display='none';
-                if(mu)mu.style.display='block';
+                const raw=localStorage.getItem(CACHE_KEY);
+                if(raw){
+                    const cached=JSON.parse(raw);
+                    const age=Date.now()-(cached.ts||0);
+                    if(age < MAX_CACHE_AGE && Array.isArray(cached.finalData) && cached.finalData.length > 2){
+                        finalData=cached.finalData;
+                        if(cached.drivers&&cached.drivers.length)drivers=cached.drivers;
+                        cacheLoaded=true;
+                        console.log('⚡ Turni da cache ('+Math.round(age/60000)+'min fa)');
+                        // Mostra subito la UI — rimuovi il loader
+                        if(window._loaderDismiss)window._loaderDismiss();
+                        else{const ld=document.getElementById('loader');if(ld){ld.style.opacity='0';setTimeout(()=>ld&&ld.remove(),550);}}
+                        try{ initApp(); }catch(e){ console.error('initApp cache:',e); }
+                    }
+                }
+            }catch(e){ console.warn('Cache restore:',e); }
+
+            // ─── FETCH del file Excel (foreground se no cache, background se cache) ───
+            const doFetch=async()=>{
+                try{
+                    const controller=new AbortController();
+                    const tmo=setTimeout(()=>controller.abort(),10000);
+                    const response=await fetch(FILE_NAME,{signal:controller.signal});
+                    clearTimeout(tmo);
+                    if(!response.ok)throw new Error('HTTP '+response.status);
+                    const buffer=await response.arrayBuffer();
+                    // Calcola fingerprint leggero per capire se il file è cambiato
+                    const fp=_bufFingerprint(buffer);
+                    const cached=_tryGetCache(CACHE_KEY);
+                    if(cacheLoaded && cached && cached.fp===fp){
+                        // File invariato: aggiorna solo il timestamp
+                        cached.ts=Date.now();
+                        try{localStorage.setItem(CACHE_KEY,JSON.stringify(cached));}catch(e){}
+                        console.log('✓ File Excel invariato');
+                        return;
+                    }
+                    // File cambiato o primo caricamento: parsing completo
+                    await loadWorkbook(buffer, CACHE_KEY, fp, cacheLoaded);
+                }catch(e){
+                    if(!cacheLoaded){
+                        console.error('Caricamento turni fallito:',e);
+                        const lt=document.getElementById('loader-text');
+                        const mu=document.getElementById('manual-upload');
+                        if(lt)lt.style.display='none';
+                        if(mu)mu.style.display='block';
+                    } else {
+                        console.warn('Refresh in background fallito (userò cache):',e.message);
+                    }
+                }
+            };
+
+            if(cacheLoaded){
+                // Aggiornamento in background dopo 1.5s (non blocca la UI)
+                setTimeout(doFetch, 1500);
+            } else {
+                await doFetch();
             }
         }
+
+        function _bufFingerprint(buf){
+            const arr=new Uint8Array(buf); const len=arr.length;
+            let h=len;
+            const step=Math.max(1,Math.floor(len/64));
+            for(let i=0;i<len;i+=step)h=(h*31+arr[i])>>>0;
+            return h+'_'+len;
+        }
+        function _tryGetCache(key){ try{const r=localStorage.getItem(key);return r?JSON.parse(r):null;}catch(e){return null;} }
         // Avvia appena il DOM è pronto (NON aspetta CDN/font esterni → niente blocco infinito)
         if(document.readyState==='loading'){
             document.addEventListener('DOMContentLoaded',bootApp);
@@ -1827,10 +1887,9 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
                 }
             }
         },15000);
-        document.getElementById('file-input').addEventListener('change',function(e){const file=e.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=(evt)=>loadWorkbook(evt.target.result);reader.readAsArrayBuffer(file);});
+        document.getElementById('file-input').addEventListener('change',function(e){const file=e.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=(evt)=>loadWorkbook(evt.target.result,'turni_data_v2','manual',false);reader.readAsArrayBuffer(file);});
 
-        async function loadWorkbook(buffer){
-            // Verifica che ExcelJS sia disponibile (CDN potrebbe non essere caricato)
+        async function loadWorkbook(buffer, cacheKey, fingerprint, wasFromCache){
             if(typeof ExcelJS==='undefined'){
                 const loaderEl=document.getElementById('loader');
                 if(loaderEl)loaderEl.innerHTML='<div style="text-align:center;padding:20px"><h3 style="color:#f97316">Libreria non caricata</h3><p style="color:rgba(255,255,255,0.6);font-size:0.85rem">Connessione internet assente o lenta.<br>Controlla la rete e riprova.</p><button onclick="location.reload()" style="margin-top:16px;padding:12px 24px;border-radius:12px;border:none;background:#2563eb;color:#fff;font-weight:700;font-size:0.95rem;cursor:pointer">🔄 Riprova</button></div>';
@@ -1851,12 +1910,27 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
                 if(loaderEl2)loaderEl2.innerHTML='<div style="text-align:center;padding:20px"><h3 style="color:#ef4444">Errore lettura file</h3><p style="color:rgba(255,255,255,0.6);font-size:0.85rem">'+e.message+'</p><button onclick="location.reload()" style="margin-top:16px;padding:12px 24px;border-radius:12px;border:none;background:#2563eb;color:#fff;font-weight:700;cursor:pointer">🔄 Riprova</button></div>';
                 return;
             }
-            // Rimuovi SEMPRE il loader dopo il parsing riuscito, anche se initApp dovesse fallire
+            // Salva in cache per la prossima apertura (istantanea)
+            if(cacheKey && parsed && finalData.length > 2){
+                try{
+                    localStorage.setItem(cacheKey, JSON.stringify({
+                        finalData, drivers,
+                        fp: fingerprint||'', ts: Date.now()
+                    }));
+                    console.log('💾 Cache turni salvata ('+finalData.length+' righe)');
+                }catch(e){ console.warn('Cache save:',e); }
+            }
+            // Se era già a schermo (cache), aggiorna silenziosamente
+            if(wasFromCache){
+                try{ initApp(); }catch(e){}
+                const nb=document.getElementById('notif-badge');
+                if(nb){ /* piccola notifica top */ }
+                return;
+            }
             if(window._loaderDismiss)window._loaderDismiss();
             else{const loaderDiv=document.getElementById('loader');if(loaderDiv){loaderDiv.style.opacity='0';setTimeout(()=>loaderDiv.remove(),550);}}
-            // initApp protetto: un suo errore non deve lasciare schermata vuota
             try{ initApp(); }
-            catch(e){ console.error('Errore initApp:',e); alert('L\'app è partita ma c\'è stato un problema nel rendering: '+e.message); }
+            catch(e){ console.error('Errore initApp:',e); alert('Problema nel rendering: '+e.message); }
         }
 
         function convertHorizontalToVertical(raw){let processed=[],header=["MESE","GIORNO","NOME"],driverRows=[];for(let r=3;r<raw.length;r++){if(!raw[r])continue;let cellName=raw[r][1];if(cellName&&cellName.v&&typeof cellName.v==='string'){let txt=cellName.v.toUpperCase();if(txt.includes("CONGEDO")||txt.includes("MALATTIA")||txt.includes("RESIDUE")||txt.includes("P.S.")||txt.includes("RECUPERO")||txt.includes("PERM.")||txt.includes("ASPETTATIVA")||txt.includes("FEST.")||txt.includes("DISTACCO")||txt.includes("1>7")||txt.includes("P/PN"))continue;}if(cellName&&cellName.v&&typeof cellName.v==='string'&&cellName.v.length>2){let driverObj={name:cellName.v,idx:r,subIdx:null};if(raw[r+1]&&(!raw[r+1][1]||!raw[r+1][1].v||raw[r+1][1].v.toString().trim()===""))driverObj.subIdx=r+1;driverRows.push(driverObj);header.push(cellName.v);}}processed.push(header);let rowMese=raw[1],rowGiorno=raw[2],currentMonth="";if(rowGiorno){for(let c=2;c<rowGiorno.length;c++){let cellDay=rowGiorno[c],cellMese=rowMese?rowMese[c]:null,dayNum=cellDay?cellDay.v:null;if(cellMese&&cellMese.v&&typeof cellMese.v==='string'){let parts=cellMese.v.split(".");if(parts[0])currentMonth=parts[0].trim().toUpperCase();}if(dayNum&&!isNaN(parseInt(dayNum))){let newRow=[{v:currentMonth},{v:dayNum},{v:""}];driverRows.forEach(dr=>{let mainData=raw[dr.idx][c]||{v:"",c:null};let subData=dr.subIdx?(raw[dr.subIdx][c]||{v:"",c:null}):{v:"",c:null};newRow.push({v:mainData.v,c:mainData.c,subV:subData.v,subC:subData.c});});processed.push(newRow);}}}return processed;}
@@ -1993,15 +2067,17 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
 
         function renderTable(){
             const thead=document.getElementById('table-head'),tbody=document.getElementById('table-body');
-            thead.innerHTML="";tbody.innerHTML="";
+            // Usa DocumentFragment per evitare reflow per ogni riga (critico su iOS)
+            const headFrag=document.createDocumentFragment();
+            const bodyFrag=document.createDocumentFragment();
             let cols=selectedDrivers.size===0?drivers:drivers.filter(d=>selectedDrivers.has(d.idx));
-            let thD=document.createElement('th');thD.innerText="DATA";thD.style.left="0";thD.style.zIndex="95";thead.appendChild(thD);
-            cols.forEach(d=>{let th=document.createElement('th');th.innerText=d.name;thead.appendChild(th);});
+            let thD=document.createElement('th');thD.innerText="DATA";thD.style.left="0";thD.style.zIndex="95";headFrag.appendChild(thD);
+            cols.forEach(d=>{let th=document.createElement('th');th.innerText=d.name;headFrag.appendChild(th);});
             let currentMonth="";globalMonthsList=[];
             const year=2026,today=new Date(),curD=today.getDate(),curM=today.getMonth();
             for(let i=1;i<finalData.length;i++){
                 let row=finalData[i],mName=row[0].v,dNum=parseInt(row[1].v);
-                if(mName&&mName!==currentMonth){currentMonth=mName;let mId="m-"+i;globalMonthsList.push({name:mName,id:mId});let trM=document.createElement('tr');trM.className="month-header";trM.id=mId;trM.innerHTML='<td colspan="'+(cols.length+1)+'"><div class="sticky-month-text"><span class="month-label">'+mName+' '+year+'</span></div></td>';tbody.appendChild(trM);}
+                if(mName&&mName!==currentMonth){currentMonth=mName;let mId="m-"+i;globalMonthsList.push({name:mName,id:mId});let trM=document.createElement('tr');trM.className="month-header";trM.id=mId;trM.innerHTML='<td colspan="'+(cols.length+1)+'"><div class="sticky-month-text"><span class="month-label">'+mName+' '+year+'</span></div></td>';bodyFrag.appendChild(trM);}
                 let tr=document.createElement('tr');
                 let mIdx=MONTH_MAP[currentMonth];
                 let dateObj=new Date(year,mIdx,dNum);
@@ -2046,8 +2122,11 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
                     if(getOpt('cellinfo')&&["M","P","N","R","MN","SM"].includes(sType))td.onclick=()=>openShiftModal(i,sType,mName,dNum,dayWeek);
                     tr.appendChild(td);
                 });
-                tbody.appendChild(tr);
+                bodyFrag.appendChild(tr);
             }
+            // Flush unico: un solo reflow per tutto il render (molto più veloce su iOS)
+            thead.innerHTML=""; tbody.innerHTML="";
+            thead.appendChild(headFrag); tbody.appendChild(bodyFrag);
             if(typeof updateMonthFixed==='function')setTimeout(updateMonthFixed,30);
             if(typeof syncHeaderHeight==='function')setTimeout(syncHeaderHeight,60);
         }
@@ -3099,11 +3178,13 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
             setTimeout(()=>{ if(typeof scrollToTodayInstant==='function')scrollToTodayInstant(); },900);
             setTimeout(()=>{ if(typeof checkRepNotifications==='function')checkRepNotifications(); },600);
         }
-        // Quando l'app torna in primo piano, riporta al giorno corrente
+        // ── Pausa animazioni quando app in background (risparmio CPU su iOS) ──
         document.addEventListener('visibilitychange',()=>{
             if(!document.hidden && session && typeof scrollToTodayInstant==='function'){
                 setTimeout(scrollToTodayInstant,250);
             }
+            // Pausa/riprendi animazioni CSS
+            document.body.style.setProperty('--anim-play',document.hidden?'paused':'running');
         });
         function logoutAccount(){
             if(!confirm('Vuoi uscire? Dovrai effettuare di nuovo l\'accesso.'))return;
