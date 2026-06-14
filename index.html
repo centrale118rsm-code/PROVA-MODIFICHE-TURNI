@@ -1164,36 +1164,7 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
     <div id="header-backdrop"></div>
 
     <!-- LOGIN OVERLAY -->
-    <div id="login-overlay">
-        <div class="login-card">
-            <img src="foto1.png" class="login-logo" alt="118" onerror="this.onerror=null;this.src='logo.png'">
-            <div class="login-title">A.S. 26</div>
-            <div class="login-sub">Gestione Turni 118 · San Marino</div>
-            <div class="login-tabs">
-                <div class="login-tab active" id="tab-login" onclick="switchLoginTab('login')">Accedi</div>
-                <div class="login-tab" id="tab-register" onclick="switchLoginTab('register')">Registrati</div>
-            </div>
-            <div class="login-error" id="login-error"></div>
-            <div class="login-field">
-                <label>Email</label>
-                <input type="email" id="login-email" autocomplete="email" placeholder="nome@esempio.com">
-            </div>
-            <div class="login-field">
-                <label>Password</label>
-                <input type="password" id="login-password" autocomplete="current-password" placeholder="••••••••">
-            </div>
-            <div class="login-field" id="register-operator-field" style="display:none">
-                <label>Sei un operatore?</label>
-                <select id="login-operator">
-                    <option value="">-- Seleziona il tuo nome --</option>
-                </select>
-            </div>
-            <button class="login-btn" id="login-submit" onclick="doLoginSubmit()"><span class="material-icons-round">login</span> <span id="login-submit-label">Accedi</span></button>
-            <div class="login-divider">oppure</div>
-            <button class="login-btn-ghost" onclick="loginAsCentrale()"><span class="material-icons-round">headset_mic</span> Entra come Centrale Operativa</button>
-            <button class="login-btn-ghost" style="margin-top:9px" onclick="loginAsGuest()"><span class="material-icons-round">visibility</span> Entra come ospite (sola lettura)</button>
-        </div>
-    </div>
+
 
     <!-- MODAL APPUNTAMENTI -->
     <div id="appt-modal" onclick="closeApptModal(event)">
@@ -1205,110 +1176,14 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
             <div class="modal-body" style="padding:0;overflow-y:auto">
                 <div class="appt-list" id="appt-list"></div>
                 <div style="padding:14px 16px 24px">
-                    <button class="btn-appt-save" onclick="openNewAppt(apptContext.iso)"><span class="material-icons-round">add</span> Aggiungi impegno per questo giorno</button>
+
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- FAB "+" in basso a sinistra -->
-    <button id="fab-appt" onclick="openNewAppt()" title="Nuovo impegno"><span class="material-icons-round">add</span></button>
 
-    <!-- MODAL NUOVO IMPEGNO (redesign) -->
-    <div id="newappt-modal" onclick="closeNewAppt(event)">
-        <div class="modal-content" onclick="event.stopPropagation()">
-            <div class="appt-header" style="background:linear-gradient(135deg,#0f766e,#0891b2)">
-                <div><h3><span class="material-icons-round">add_task</span> Nuovo impegno</h3><div class="appt-date-sub">Calendario personale</div></div>
-                <button class="btn-close-modal" style="background:rgba(255,255,255,0.18);color:#fff" onclick="closeNewAppt()"><span class="material-icons-round">close</span></button>
-            </div>
-            <div class="modal-body" style="overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px">
-
-                <!-- DATE -->
-                <div class="na-section">
-                    <div class="na-section-header"><span class="material-icons-round">event</span> Quando</div>
-                    <div class="na-section-body">
-                        <input type="date" id="na-date" min="2026-01-01" max="2026-12-31" style="width:100%;padding:11px 12px;border-radius:10px;border:1.5px solid var(--border);font-size:0.94rem;background:var(--bg);color:var(--text-main);box-sizing:border-box">
-                        <div class="na-until-row">
-                            <label class="na-until-label">
-                                <input type="checkbox" id="na-until-check" onchange="toggleNaUntil()">
-                                Su più giorni — fino al:
-                            </label>
-                            <input type="date" id="na-date-to" min="2026-01-01" max="2026-12-31" style="display:none;width:100%;padding:11px 12px;border-radius:10px;border:1.5px solid var(--primary);font-size:0.94rem;background:var(--bg);color:var(--text-main);box-sizing:border-box">
-                        </div>
-                        <button class="na-add-dates-btn" onclick="addNaDates()"><span class="material-icons-round">add</span> Aggiungi al calendario</button>
-                        <div id="na-dates-chips" class="na-chips" style="margin-top:8px"></div>
-                    </div>
-                </div>
-
-                <!-- TITOLO + ORA -->
-                <div class="na-section">
-                    <div class="na-section-header"><span class="material-icons-round">label</span> Cosa</div>
-                    <div class="na-section-body" style="display:flex;flex-direction:column;gap:9px">
-                        <input type="text" id="na-type" placeholder="es. Visita medica, Riunione, Compleanno..." style="width:100%;padding:12px;border-radius:10px;border:1.5px solid var(--border);font-size:0.94rem;background:var(--bg);color:var(--text-main);box-sizing:border-box;font-family:inherit">
-                        <input type="time" id="na-time" style="width:100%;padding:12px;border-radius:10px;border:1.5px solid var(--border);font-size:0.94rem;background:var(--bg);color:var(--text-main);box-sizing:border-box">
-                    </div>
-                </div>
-
-                <!-- COLORE + ICONA -->
-                <div class="na-section">
-                    <div class="na-section-header"><span class="material-icons-round">palette</span> Aspetto sul calendario</div>
-                    <div class="na-section-body" style="display:flex;flex-direction:column;gap:12px">
-                        <div>
-                            <div style="font-size:0.75rem;font-weight:800;color:var(--text-sec);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.4px">Colore</div>
-                            <div id="na-colors" class="na-colors"></div>
-                        </div>
-                        <div>
-                            <div style="font-size:0.75rem;font-weight:800;color:var(--text-sec);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.4px">Icona</div>
-                            <button class="na-icon-toggle-btn" onclick="toggleNaIcons()" id="na-icon-toggle-btn">
-                                <div class="na-icon-preview" id="na-icon-preview" style="background:#7c3aed"><span class="material-icons-round">event</span></div>
-                                <span id="na-icon-label">Scegli icona</span>
-                                <span class="na-icon-spacer"></span>
-                                <span class="material-icons-round" id="na-icon-chevron">expand_more</span>
-                            </button>
-                            <div id="na-icons-wrap" style="display:none;margin-top:9px">
-                                <div id="na-icons" class="na-icons"></div>
-                            </div>
-                        </div>
-                        <div class="appt-remind-row" style="margin:0"><span style="font-size:0.88rem;font-weight:700">Mostra titolo nella cella</span><label class="switch"><input type="checkbox" id="na-showtitle"><span class="slider"></span></label></div>
-                    </div>
-                </div>
-
-                <!-- CONDIVISIONE -->
-                <div class="na-section">
-                    <div class="na-section-header"><span class="material-icons-round">people</span> Condivisione</div>
-                    <div class="na-section-body">
-                        <select class="na-share-select" id="na-share-type" onchange="updateNaShareType()">
-                            <option value="private">🔒 Solo per me</option>
-                            <option value="all">👥 Tutti gli operatori</option>
-                            <option value="specific">✎ Scegli chi può vederlo</option>
-                        </select>
-                        <div id="na-share-ops-wrap" style="display:none;margin-top:10px">
-                            <div style="font-size:0.76rem;color:var(--text-sec);font-weight:600;margin-bottom:8px">Seleziona gli operatori che possono vedere questo impegno:</div>
-                            <div id="na-share-ops" class="na-share-ops"></div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- PROMEMORIA -->
-                <div class="na-section">
-                    <div class="na-section-header"><span class="material-icons-round">notifications_active</span> Promemoria</div>
-                    <div class="na-section-body">
-                        <select id="na-remind" style="width:100%;padding:12px;border-radius:10px;border:1.5px solid var(--border);font-size:0.92rem;background:var(--bg);color:var(--text-main);box-sizing:border-box">
-                            <option value="none">🔕 Nessun promemoria</option>
-                            <option value="10m">⏰ 10 minuti prima</option>
-                            <option value="1h">⏰ 1 ora prima</option>
-                            <option value="2h">⏰ 2 ore prima</option>
-                            <option value="1d">📅 1 giorno prima</option>
-                        </select>
-                    </div>
-                </div>
-
-                <button class="btn-appt-save" style="background:linear-gradient(135deg,#0f766e,#0891b2)" onclick="saveNewAppt()"><span class="material-icons-round">check</span> Salva impegno</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- CENTRO NOTIFICHE (in-app) -->
+        <!-- CENTRO NOTIFICHE (in-app) -->
     <div id="notif-modal" onclick="closeNotifCenter(event)">
         <div class="modal-content" onclick="event.stopPropagation()">
             <div class="notif-head">
@@ -1600,7 +1475,7 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
                 <span class="logo-title" id="last-update-badge" style="display:none"></span>
             </div>
             <div class="right-controls">
-                <button id="fab-in-header" onclick="openNewAppt()" title="Nuovo impegno"><span class="material-icons-round">add</span></button>
+
                 <button class="btn-action" onclick="vibrate();scrollToToday()" title="Vai a oggi"><span class="material-icons-round">my_location</span></button>
                 <button class="btn-action" onclick="openPanorama()" title="Vista panoramica completa"><span class="material-icons-round">calendar_view_month</span></button>
                 <button class="btn-action" onclick="openMonthModal()" title="Salta al mese"><span class="material-icons-round">event</span></button>
@@ -3605,9 +3480,12 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
         setInterval(()=>{ if(session)checkApptReminders(); }, 60*1000);
 
 
-        // Avvio sistema account dopo che il DOM è pronto
-        if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initAuth);
-        else initAuth();
+        // Accesso automatico come Centrale Operativa (login rimosso)
+        function startAsCentrale(){
+            enterLocalMode('centrale');
+        }
+        if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',startAsCentrale);
+        else startAsCentrale();
 
         let initialLoad=true,previousRequestsState={};
         const SEEN_REQUESTS_KEY='seen_request_popup_ids';
