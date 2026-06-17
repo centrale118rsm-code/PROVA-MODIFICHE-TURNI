@@ -9,6 +9,7 @@
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;outline:none;}
 :root{
@@ -653,6 +654,41 @@ input:checked+.slider:before{transform:translateX(21px);}
         <span class="material-icons-round" style="color:#16a34a;font-size:18px;flex-shrink:0;margin-top:2px">check_circle</span>
         <div style="font-size:0.78rem;color:#14532d;line-height:1.5;font-weight:500">
           Ogni modifica viene salvata automaticamente su <code style="background:#bbf7d0;padding:1px 5px;border-radius:4px;font-size:0.7rem">as26_config/settings</code> e applicata in <b>real-time</b> su tutti i dispositivi.
+          <div style="margin-top:12px;padding:12px;background:#fef9c3;border:1px solid #fde047;border-radius:10px;font-size:0.78rem;">
+            <b>📋 Regole Firestore consigliate</b> — copia nella console Firebase → Firestore → Regole:<br>
+            <code style="display:block;background:#0f172a;color:#7dd3fc;padding:10px;border-radius:8px;margin-top:8px;font-size:0.7rem;white-space:pre-wrap;">rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Profilo personale + impegni privati
+    match /users/{uid} {
+      allow read, write: if request.auth != null &amp;&amp; request.auth.uid == uid;
+      match /appointments/{doc} {
+        allow read, write: if request.auth != null &amp;&amp; request.auth.uid == uid;
+      }
+    }
+    // Impegni condivisi
+    match /shared_appointments/{doc} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null &amp;&amp; request.resource.data.ownerUid == request.auth.uid;
+      allow update, delete: if request.auth != null &amp;&amp; resource.data.ownerUid == request.auth.uid;
+    }
+    // Collezioni operative (aperte anche ad ospiti)
+    match /richieste_turni/{doc} { allow read, write: if true; }
+    match /as26_config/{doc}     { allow read, write: if true; }
+    match /gestionale_118/{doc}  { allow read, write: if true; }
+
+    // ✅ AGGIUNGI QUESTA — Sessioni di monitoraggio accessi
+    match /as26_sessions/{doc} {
+      allow write: if true;              // tutti scrivono la propria sessione
+      allow read:  if request.auth != null;  // solo autenticati leggono
+    }
+
+    // Tutto il resto: bloccato
+    match /{document=**} { allow read, write: if false; }
+  }
+}</code>
+          </div>
         </div>
       </div>
       <div style="padding:14px 18px;display:flex;gap:8px">
@@ -758,7 +794,66 @@ input:checked+.slider:before{transform:translateX(21px);}
 const firebaseConfig={apiKey:"AIzaSyAMX2ycf_6P3AcBvarVX4XNKbdposkuqgE",authDomain:"area-personale-autsocc-118-rsm.firebaseapp.com",projectId:"area-personale-autsocc-118-rsm",storageBucket:"area-personale-autsocc-118-rsm.firebasestorage.app",messagingSenderId:"910283994567",appId:"1:910283994567:web:d9c45b5f4b5a83b92595e2"};
 if(!firebase.apps.length)firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
+const auth=firebase.auth();
 const CONFIG_DOC=db.collection('as26_config').doc('settings');
+
+// ── AUTENTICAZIONE ADMIN ──
+let _adminAuthed = false;
+let _useRestFallback = false; // true se signInAnonymously non è disponibile
+
+function ensureAdminAuth(){
+    return new Promise((resolve) => {
+        // Se già autenticato, procedi
+        if(_adminAuthed && auth.currentUser){ resolve(); return; }
+        // Se già sappiamo che REST è necessario, procedi
+        if(_useRestFallback){ resolve(); return; }
+        auth.signInAnonymously()
+            .then(() => { _adminAuthed = true; resolve(); })
+            .catch(e => {
+                console.warn('signInAnonymously non disponibile:', e.code);
+                _useRestFallback = true;
+                resolve(); // Procedi comunque, useremo REST API per le sessioni
+            });
+    });
+}
+
+// Lettura as26_sessions via REST API Firestore (fallback senza auth)
+// Usa la REST API pubblica con apiKey — funziona se le regole permettono read: if true
+// NOTA: per sicurezza mantieni le regole con read: if request.auth != null
+//       e abilita il provider Anonimo su Firebase Authentication
+function fetchSessionsViaRest(hoursFilter, userFilter){
+    const PROJECT = firebaseConfig.projectId;
+    const API_KEY = firebaseConfig.apiKey;
+    const BASE = 'https://firestore.googleapis.com/v1/projects/'+PROJECT+'/databases/(default)/documents';
+    const url = BASE+'/as26_sessions?pageSize=200&key='+API_KEY;
+    return fetch(url)
+        .then(r => r.json())
+        .then(data => {
+            if(data.error) throw new Error(data.error.message);
+            const docs = data.documents || [];
+            return docs.map(d => {
+                const f = d.fields || {};
+                const getStr = k => f[k] ? (f[k].stringValue||f[k].booleanValue||f[k].integerValue||'') : '';
+                const getBool = k => f[k] ? !!f[k].booleanValue : false;
+                const getArr = k => f[k] && f[k].arrayValue && f[k].arrayValue.values
+                    ? f[k].arrayValue.values.map(v=>v.stringValue||'') : [];
+                const getInt = k => f[k] ? parseInt(f[k].integerValue||0) : 0;
+                return {
+                    id: d.name.split('/').pop(),
+                    name: getStr('name'),
+                    operatorName: getStr('operatorName'),
+                    role: getStr('role'),
+                    device: getStr('device'),
+                    startedAt: getStr('startedAt'),
+                    lastSeen: getStr('lastSeen'),
+                    endedAt: getStr('endedAt'),
+                    isOnline: getBool('isOnline'),
+                    pagesViewed: getArr('pagesViewed'),
+                    durationMin: getInt('durationMin'),
+                };
+            });
+        });
+}
 
 const DEFAULT_DRIVERS=["Barbieri","Pazzaglia","Bianchi","Sarti","Ghiotti","Berardi","Michelotti","Volpini","Fabbri"];
 const DEFAULT_HOLIDAYS=[{key:"0-1",name:"CAPODANNO"},{key:"0-6",name:"EPIFANIA"},{key:"1-5",name:"S. AGATA"},{key:"2-25",name:"ARENGO"},{key:"3-1",name:"REGGENZA"},{key:"3-5",name:"PASQUA"},{key:"3-6",name:"LUN. ANGELO"},{key:"4-1",name:"1° MAGGIO"},{key:"5-4",name:"CORPUS DOM."},{key:"6-28",name:"LIBERAZIONE"},{key:"7-15",name:"FERRAGOSTO"},{key:"8-3",name:"S. MARINO"},{key:"9-1",name:"REGGENZA"},{key:"10-1",name:"OGNISSANTI"},{key:"10-2",name:"COMM. DEFUNTI"},{key:"11-8",name:"IMMACOLATA"},{key:"11-25",name:"NATALE"},{key:"11-26",name:"S. STEFANO"}];
@@ -770,7 +865,20 @@ function setSaveStatus(state,label){const dot=document.getElementById('save-dot'
 function doSave(){if(isSaving)return;isSaving=true;CONFIG_DOC.set(collectConfig()).then(()=>{setSaveStatus('saved','Salvato ✓');isSaving=false;setTimeout(()=>setSaveStatus('saved','Online'),3000);}).catch(e=>{setSaveStatus('error','Errore!');isSaving=false;showToast('❌ '+e.message,'error');});}
 
 // ── LOCK ──
-function unlock(){const pwd=document.getElementById('pwd-input').value.trim().toLowerCase();if(pwd==='ambulanza'){document.getElementById('lock-screen').style.display='none';loadFromFirebase();}else{const err=document.getElementById('lock-error');err.textContent='❌ Password errata. Riprova.';document.getElementById('pwd-input').value='';document.getElementById('pwd-input').focus();setTimeout(()=>err.textContent='',3000);}}
+function unlock(){
+    const pwd=document.getElementById('pwd-input').value.trim().toLowerCase();
+    if(pwd==='ambulanza'){
+        document.getElementById('lock-screen').style.display='none';
+        // Autenticati prima di caricare
+        ensureAdminAuth().then(() => loadFromFirebase());
+    } else {
+        const err=document.getElementById('lock-error');
+        err.textContent='❌ Password errata. Riprova.';
+        document.getElementById('pwd-input').value='';
+        document.getElementById('pwd-input').focus();
+        setTimeout(()=>err.textContent='',3000);
+    }
+}
 
 // ── ACCORDION ──
 function toggleAcc(id){
@@ -788,94 +896,135 @@ const SESSIONS_COL = db.collection('as26_sessions');
 let _accessLogCache = [];
 
 // Carica utenti online (sessione attiva negli ultimi 5 minuti)
-function loadOnlineUsers(){
-    const cutoff = new Date(Date.now() - 5*60*1000);
+function renderOnlineUsers(sessions){
+    const cutoff5m = Date.now() - 5*60*1000;
     const badge = document.getElementById('online-badge');
-    SESSIONS_COL
-        .where('lastSeen', '>=', cutoff.toISOString())
-        .orderBy('lastSeen','desc')
-        .get()
-        .then(snap => {
-            const container = document.getElementById('online-users-list');
-            if(!container) return;
-            if(snap.empty){
-                container.innerHTML = '<div style="color:var(--text-sec);font-size:0.82rem;padding:4px 0">Nessun utente online in questo momento</div>';
-                if(badge) badge.style.display='none';
-                return;
-            }
-            if(badge){ badge.style.display='inline-block'; badge.textContent='● '+snap.size+' ONLINE'; }
-            container.innerHTML = '';
-            snap.forEach(doc => {
-                const d = doc.data();
-                const name = d.name || d.operatorName || 'Utente';
-                const role = d.role || 'guest';
-                const lastSeen = d.lastSeen ? new Date(d.lastSeen) : null;
-                const sinceMin = lastSeen ? Math.round((Date.now()-lastSeen.getTime())/60000) : null;
-                const roleColor = role==='operator'?'#2563eb':role==='centrale'?'#7c3aed':'#64748b';
-                const chip = document.createElement('div');
-                chip.style.cssText = 'display:inline-flex;align-items:center;gap:6px;background:'+roleColor+'18;border:1px solid '+roleColor+'44;border-radius:20px;padding:6px 12px;font-size:0.78rem;font-weight:700;color:'+roleColor+';';
-                chip.innerHTML = '<span style="width:8px;height:8px;border-radius:50%;background:#16a34a;box-shadow:0 0 6px #16a34a;flex-shrink:0;animation:pulse-dot 1.5s infinite;"></span>'
-                    + name
-                    + (sinceMin!==null?'<span style="font-size:0.62rem;opacity:0.7;font-weight:600;margin-left:2px;">'+sinceMin+'m fa</span>':'');
-                container.appendChild(chip);
+    const container = document.getElementById('online-users-list');
+    if(!container) return;
+    const online = sessions.filter(d => {
+        if(!d.lastSeen) return false;
+        return new Date(d.lastSeen).getTime() >= cutoff5m;
+    });
+    if(online.length === 0){
+        container.innerHTML = '<div style="color:var(--text-sec);font-size:0.82rem;padding:4px 0">Nessun utente online in questo momento</div>';
+        if(badge) badge.style.display='none';
+        return;
+    }
+    if(badge){ badge.style.display='inline-block'; badge.textContent='● '+online.length+' ONLINE'; }
+    container.innerHTML = '';
+    online.forEach(d => {
+        const name = d.name || d.operatorName || 'Utente';
+        const role = d.role || 'guest';
+        const lastSeen = d.lastSeen ? new Date(d.lastSeen) : null;
+        const sinceMin = lastSeen ? Math.round((Date.now()-lastSeen.getTime())/60000) : null;
+        const roleColor = role==='operator'?'#2563eb':role==='centrale'?'#7c3aed':'#64748b';
+        const chip = document.createElement('div');
+        chip.style.cssText = 'display:inline-flex;align-items:center;gap:6px;background:'+roleColor+'18;border:1px solid '+roleColor+'44;border-radius:20px;padding:6px 12px;font-size:0.78rem;font-weight:700;color:'+roleColor+';';
+        chip.innerHTML = '<span style="width:8px;height:8px;border-radius:50%;background:#16a34a;box-shadow:0 0 6px #16a34a;flex-shrink:0;"></span>'
+            + name
+            + (sinceMin!==null?'<span style="font-size:0.62rem;opacity:0.7;font-weight:600;margin-left:2px;">'+sinceMin+'m fa</span>':'');
+        container.appendChild(chip);
+    });
+}
+
+function loadOnlineUsers(){
+    ensureAdminAuth().then(() => {
+        if(_useRestFallback){
+            fetchSessionsViaRest().then(renderOnlineUsers).catch(e=>{
+                const c=document.getElementById('online-users-list');
+                if(c)c.innerHTML='<div style="color:#ef4444;font-size:0.78rem">'+e.message+'</div>';
             });
-        })
-        .catch(e => {
-            const c = document.getElementById('online-users-list');
-            if(c) c.innerHTML = '<div style="color:#ef4444;font-size:0.78rem">Errore: '+e.message+'</div>';
-        });
+            return;
+        }
+        const cutoff = new Date(Date.now() - 5*60*1000);
+        SESSIONS_COL
+            .where('lastSeen', '>=', cutoff.toISOString())
+            .orderBy('lastSeen','desc')
+            .get()
+            .then(snap => {
+                const sessions = [];
+                snap.forEach(doc => sessions.push(Object.assign({id:doc.id},doc.data())));
+                renderOnlineUsers(sessions);
+            })
+            .catch(e => {
+                const c = document.getElementById('online-users-list');
+                if(c) c.innerHTML = '<div style="color:#ef4444;font-size:0.78rem">'+e.message+'<br><span style="opacity:0.7">Verifica che il provider Anonimo sia abilitato su Firebase Auth</span></div>';
+            });
+    });
 }
 
 // Carica log accessi
-function loadAccessLog(){
+function processSessionsData(sessions){
     const hours = parseInt(document.getElementById('mon-filter-period')?.value || '24');
     const userFilter = document.getElementById('mon-filter-user')?.value || '';
+    const cutoff = hours > 0 ? new Date(Date.now() - hours*60*60*1000).toISOString() : null;
+
+    _accessLogCache = sessions.filter(d => !cutoff || (d.startedAt && d.startedAt >= cutoff));
+    _accessLogCache.sort((a,b) => (b.startedAt||'').localeCompare(a.startedAt||''));
+
+    const userSet = new Set();
+    let totalMin = 0, countWithTime = 0;
+    _accessLogCache.forEach(d => {
+        const name = d.name || d.operatorName || '';
+        if(name) userSet.add(name);
+        if(d.durationMin){ totalMin += d.durationMin; countWithTime++; }
+    });
+
+    const el = id => document.getElementById(id);
+    if(el('mon-stat-total')) el('mon-stat-total').textContent = _accessLogCache.length;
+    if(el('mon-stat-unique')) el('mon-stat-unique').textContent = userSet.size;
+    if(el('mon-stat-avgtime')) el('mon-stat-avgtime').textContent = countWithTime>0?Math.round(totalMin/countWithTime):'—';
+
+    const userSel = document.getElementById('mon-filter-user');
+    if(userSel && userSel.options.length < 2){
+        [...userSet].sort().forEach(name => {
+            const opt = document.createElement('option');
+            opt.value = name; opt.textContent = name;
+            userSel.appendChild(opt);
+        });
+    }
+
+    let filtered = _accessLogCache;
+    if(userFilter) filtered = filtered.filter(d => (d.name||d.operatorName||'')===userFilter);
+    renderAccessLog(filtered);
+}
+
+function loadAccessLog(){
     const container = document.getElementById('access-log-container');
     if(container) container.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text-sec);font-size:0.82rem;">⏳ Caricamento...</div>';
 
-    let query = SESSIONS_COL.orderBy('startedAt','desc').limit(200);
-    if(hours > 0){
-        const cutoff = new Date(Date.now() - hours*60*60*1000).toISOString();
-        query = SESSIONS_COL.where('startedAt','>=',cutoff).orderBy('startedAt','desc').limit(200);
-    }
-
-    query.get().then(snap => {
-        _accessLogCache = [];
-        const userSet = new Set();
-        let totalMin = 0, countWithTime = 0;
-
-        snap.forEach(doc => {
-            const d = Object.assign({id:doc.id}, doc.data());
-            _accessLogCache.push(d);
-            const name = d.name || d.operatorName || 'Utente';
-            if(name !== 'Utente') userSet.add(name);
-            if(d.durationMin){ totalMin += d.durationMin; countWithTime++; }
-        });
-
-        // Statistiche
-        const el = (id) => document.getElementById(id);
-        if(el('mon-stat-total')) el('mon-stat-total').textContent = _accessLogCache.length;
-        if(el('mon-stat-unique')) el('mon-stat-unique').textContent = userSet.size;
-        if(el('mon-stat-avgtime')) el('mon-stat-avgtime').textContent = countWithTime>0?Math.round(totalMin/countWithTime):'—';
-
-        // Popola filtro utenti
-        const userSel = document.getElementById('mon-filter-user');
-        if(userSel && userSel.options.length < 2){
-            [...userSet].sort().forEach(name => {
-                const opt = document.createElement('option');
-                opt.value = name; opt.textContent = name;
-                userSel.appendChild(opt);
-            });
+    ensureAdminAuth().then(() => {
+        // Fallback REST se signInAnonymously non disponibile
+        if(_useRestFallback){
+            fetchSessionsViaRest()
+                .then(sessions => processSessionsData(sessions))
+                .catch(e => {
+                    if(container) container.innerHTML = showPermissionError(e.message);
+                });
+            return;
         }
-
-        // Filtra
-        let filtered = _accessLogCache;
-        if(userFilter) filtered = filtered.filter(d => (d.name||d.operatorName||'')===userFilter);
-
-        renderAccessLog(filtered);
-    }).catch(e => {
-        if(container) container.innerHTML = '<div style="padding:20px;color:#ef4444;font-size:0.82rem;">Errore Firebase: '+e.message+'<br><br>Assicurati che la collezione <code>as26_sessions</code> esista e che le regole Firestore permettano la lettura Admin.</div>';
+        // Firestore SDK
+        SESSIONS_COL.orderBy('startedAt','desc').limit(500).get()
+            .then(snap => {
+                const sessions = [];
+                snap.forEach(doc => sessions.push(Object.assign({id:doc.id}, doc.data())));
+                processSessionsData(sessions);
+            })
+            .catch(e => {
+                if(container) container.innerHTML = showPermissionError(e.message);
+            });
     });
+}
+
+function showPermissionError(msg){
+    var rulesCode = 'match /as26_sessions/{doc} {\n  allow write: if true;\n  allow read: if request.auth != null;\n}';
+    return '<div style="padding:16px 20px;color:#ef4444;font-size:0.82rem;line-height:1.7;">'
+        +'<b>⚠️ Errore permessi Firestore</b><br>'
+        +msg+'<br><br>'
+        +'<b>Soluzione rapida</b> — aggiungi nelle regole Firestore:<br>'
+        +'<code style="background:#0f172a;color:#7dd3fc;padding:8px 12px;border-radius:8px;display:block;margin-top:6px;font-size:0.75rem;white-space:pre;">'+rulesCode+'</code>'
+        +'<br>Poi abilita <b>Authentication → Anonimo</b> nella console Firebase.'
+        +'</div>';
 }
 
 function renderAccessLog(sessions){
