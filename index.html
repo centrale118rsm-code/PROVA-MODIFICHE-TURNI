@@ -308,6 +308,10 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
         .nurse-shift-tag { font-size: 0.78rem; font-weight: 700; color: #059669; background: #d1fae5; padding: 5px 12px; border-radius: 8px; white-space: nowrap; display: flex; align-items: center; gap: 4px; }
         .nurse-loading { text-align: center; padding: 24px; color: var(--text-sec); font-size: 0.85rem; display: flex; align-items: center; justify-content: center; gap: 10px; font-weight: 500; }
         .btn-inf { background: linear-gradient(135deg,#059669,#10b981) !important; color: white !important; border-color: rgba(255,255,255,0.3) !important; font-weight: 900 !important; }
+        .btn-area-pers { background: linear-gradient(135deg,#6d28d9,#8b5cf6) !important; color: #fff !important; border-color: rgba(255,255,255,0.3) !important; font-weight: 900 !important; flex-direction: column !important; gap: 0px !important; min-width: 44px; min-height: 38px; height: auto !important; padding: 3px 5px !important; }
+        .btn-area-pers .material-icons-round { font-size: 1rem !important; }
+        .btn-area-pers .ap-txt { font-size: 0.42rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; line-height: 1.2; text-align: center; }
+        @media (max-width: 430px) { .btn-area-pers { min-width: 36px; } .btn-area-pers .ap-txt { font-size: 0.38rem; } }
         /* Dinner v2 */
         .dinner-ev-tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;}
         .dinner-ev-tab{background:var(--bg-card);border:1.5px solid var(--border);border-radius:12px;padding:10px 4px;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;font-size:0.68rem;font-weight:700;color:var(--text-sec);transition:all 0.18s;}
@@ -1165,6 +1169,21 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
 
     <!-- LOGIN OVERLAY -->
 
+    <!-- MODAL CHI SEI - primo avvio -->
+    <div id="who-modal" style="display:none;position:fixed;inset:0;z-index:9500;background:linear-gradient(155deg,#0b1220 0%,#1e3a8a 55%,#2563eb 100%);align-items:center;justify-content:center;padding:20px;overflow-y:auto;">
+        <div style="width:100%;max-width:400px;background:var(--bg-card);border-radius:24px;padding:28px 22px 24px;box-shadow:0 20px 60px rgba(0,0,0,0.5);animation:panoIn 0.4s ease;">
+            <img src="logo.png" alt="Logo" style="width:74px;height:74px;border-radius:18px;object-fit:cover;display:block;margin:0 auto 14px;box-shadow:0 6px 20px rgba(0,0,0,0.3);" onerror="this.style.display='none'">
+            <div style="text-align:center;font-size:1.25rem;font-weight:900;color:var(--text-main);letter-spacing:-0.5px;margin-bottom:4px;">Chi sei?</div>
+            <div style="text-align:center;font-size:0.82rem;color:var(--text-sec);margin-bottom:20px;line-height:1.4;">Seleziona il tuo nome per ricevere le notifiche personalizzate. Questa scelta viene ricordata.</div>
+            <div id="who-names-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;"></div>
+            <div style="border-top:1px solid var(--border);padding-top:12px;">
+                <button onclick="chooseWhoIAm('__centrale__')" style="width:100%;padding:14px;border-radius:14px;border:none;background:linear-gradient(135deg,#0f172a,#1e3a8a);color:#fff;font-weight:800;font-size:0.95rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;touch-action:manipulation;">
+                    <span class="material-icons-round" style="font-size:1.1rem">radio</span> Centrale Operativa 118
+                </button>
+            </div>
+            <div style="text-align:center;font-size:0.65rem;color:var(--text-sec);margin-top:10px;">Puoi cambiare la scelta in qualsiasi momento da Opzioni → Profilo</div>
+        </div>
+    </div>
 
     <!-- MODAL APPUNTAMENTI -->
     <div id="appt-modal" onclick="closeApptModal(event)">
@@ -1299,8 +1318,7 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
                     <div class="oah-email" id="oah-email">—</div>
                     <div class="oah-role" id="oah-role">—</div>
                     <div class="oah-actions">
-                        <button class="oah-btn oah-btn-pw" onclick="changePassword()"><span class="material-icons-round" style="font-size:16px">lock_reset</span> Cambia password</button>
-                        <button class="oah-btn oah-btn-logout" onclick="logoutAccount()"><span class="material-icons-round" style="font-size:16px">logout</span> Esci</button>
+                        <button class="oah-btn oah-btn-logout" style="flex:1" onclick="logoutAccount()"><span class="material-icons-round" style="font-size:16px">logout</span> Cambia utente</button>
                     </div>
                 </div>
 
@@ -1477,9 +1495,9 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
             <div class="right-controls">
 
                 <button class="btn-action" onclick="vibrate();scrollToToday()" title="Vai a oggi"><span class="material-icons-round">my_location</span></button>
-                <button class="btn-action" onclick="openPanorama()" title="Vista panoramica completa"><span class="material-icons-round">calendar_view_month</span></button>
+                <button class="btn-action btn-area-pers" onclick="openPersonalAreaBtn()" title="Area Personale"><span class="material-icons-round">badge</span><span class="ap-txt">AREA<br>PERS.</span></button>
                 <button class="btn-action" onclick="openMonthModal()" title="Salta al mese"><span class="material-icons-round">event</span></button>
-                <button class="btn-action btn-inf" onclick="openInfLink()" title="Turni Infermieri 2026"><span class="material-icons-round" style="font-size:1.1rem">vaccines</span></button>
+                <button class="btn-action btn-inf" onclick="openInfLink()" title="Turni Infermieri 2026"><span style="font-size:0.85rem;font-weight:900;letter-spacing:0.5px">INF.</span></button>
                 <button class="btn-action" onclick="openNotifCenter()" style="position:relative" title="Notifiche"><span class="material-icons-round">notifications</span><span id="notif-badge" class="badge-dot"></span></button>
                 <button class="btn-action" onclick="toggleMenu()" title="Menu"><span class="material-icons-round">menu</span></button>
                 <div id="menu-dropdown">
@@ -1630,6 +1648,49 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
         function openChangelog(){closeOptionsModal();setTimeout(showChangelog,200);}
         function openInfLink(){vibrate();window.open(window._infUrl||"https://centrale118rsm-code.github.io/Turni-Infermieri-2026/","_blank");}
         function openPersonalArea(){vibrate();toggleMenu();window.open("https://centrale118rsm-code.github.io/Area-riservata-A.S.-118/","_blank");}
+        function openPersonalAreaBtn(){vibrate();if(document.getElementById('menu-dropdown').style.display==='flex')toggleMenu();window.open("https://centrale118rsm-code.github.io/Area-riservata-A.S.-118/","_blank");}
+
+        /* ── CHI SEI: primo avvio ── */
+        const AS26_WHO_KEY='as26_who_v1';
+        function checkWhoIAm(){
+            if(localStorage.getItem(AS26_WHO_KEY))return; // già scelto
+            showWhoModal();
+        }
+        function showWhoModal(){
+            const modal=document.getElementById('who-modal');
+            if(!modal)return;
+            const grid=document.getElementById('who-names-grid');
+            if(grid){
+                const names=(typeof drivers!=='undefined'&&drivers.length>0)
+                    ?drivers.map(d=>d.name)
+                    :['BARBIERI','PAZZAGLIA','BIANCHI','SARTI','GHIOTTI','BERARDI','MICHELOTTI','VOLPINI','FABBRI'];
+                grid.innerHTML=names.map(n=>{
+                    const d=n.charAt(0).toUpperCase()+n.slice(1).toLowerCase();
+                    return '<button onclick="chooseWhoIAm(''+d+'')" style="padding:13px 8px;border-radius:12px;border:2px solid var(--border);background:var(--bg);color:var(--text-main);font-weight:800;font-size:0.9rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;touch-action:manipulation;"><span class="material-icons-round" style="font-size:1rem;color:#7c3aed">person</span>'+d+'</button>';
+                }).join('');
+            }
+            modal.style.display='flex';
+        }
+        function chooseWhoIAm(name){
+            vibrate();
+            localStorage.setItem(AS26_WHO_KEY, name);
+            const modal=document.getElementById('who-modal');
+            if(modal){ modal.style.opacity='0'; modal.style.transition='opacity 0.3s'; setTimeout(()=>{ modal.style.display='none'; modal.style.opacity=''; modal.style.transition=''; },300); }
+            if(name==='__centrale__'){
+                const s={uid:null,email:'Centrale Operativa',operatorName:'',role:'centrale',_local:true};
+                try{localStorage.setItem('as26_localsession',JSON.stringify(s));}catch(e){}
+                turniUserName='';
+            } else {
+                const s={uid:null,email:name,operatorName:name,role:'operator',_local:true};
+                try{localStorage.setItem('as26_localsession',JSON.stringify(s));}catch(e){}
+                turniUserName=name;
+                localStorage.setItem('turni_user_name',name);
+            }
+            if(typeof applySession==='function')applySession(JSON.parse(localStorage.getItem('as26_localsession')));
+            if(typeof postLogin==='function')postLogin();
+            if(typeof renderTable==='function'&&typeof finalData!=='undefined'&&finalData.length>0)renderTable();
+            if(typeof buildTicker==='function')setTimeout(buildTicker,600);
+        }
 
         async function loadNursesData(){try{const resp=await fetch("https://centrale118rsm-code.github.io/Turni-Infermieri-2026/infermieri.xlsx?v="+Date.now());if(!resp.ok)throw new Error("File infermieri non trovato");const buf=await resp.arrayBuffer();const wb=new ExcelJS.Workbook();await wb.xlsx.load(buf);let ws=wb.getWorksheet("Foglio2")||wb.worksheets[0];let rawData=[];ws.eachRow({includeEmpty:true},(row,rowNumber)=>{let rowData=[];row.eachCell({includeEmpty:true},(cell,colNumber)=>{let val=cell.value;if(typeof val==='object'&&val!==null)val=val.result||"";let bg=null;if(cell.fill&&cell.fill.fgColor){bg=cell.fill.fgColor.argb;if(!bg&&cell.fill.fgColor.theme!==undefined)bg="THEME_"+cell.fill.fgColor.theme;}rowData[colNumber]={v:val,c:bg};});rawData[rowNumber]=rowData;});nursesData=convertHorizontalToVertical(rawData);let header=nursesData[0];nurses=[];for(let i=3;i<header.length;i++){let nm=header[i]?header[i].toString().trim():"";if(nm!=="")nurses.push({name:nm.toUpperCase(),idx:i});}nursesLoaded=true;nursesLoadAttempted=true;}catch(e){console.log("ℹ️ Dati infermieri non disponibili:",e.message);nursesLoaded=false;nursesLoadAttempted=true;}}
 
@@ -1833,11 +1894,19 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
             setTimeout(checkForScheduleChanges,2000);
             setTimeout(checkRepNotifications,3000);
             setTimeout(checkFirstLaunch,800);
+            setTimeout(()=>{
+                // Primo avvio: chiedi chi sei (solo se non ancora scelto)
+                if(!localStorage.getItem(AS26_WHO_KEY)) showWhoModal();
+            },700);
             // Ticker: costruito dopo 1.5s così i dati sono pronti
             setTimeout(buildTicker,1500);
         }
 
-        function populateUserSelect(nameList){const sel=document.getElementById('turni-user-select');if(!sel)return;const cur=sel.value||turniUserName||'';sel.innerHTML='<option value="">-- Nessuna selezione --</option>'+nameList.map(n=>{const display=n.charAt(0).toUpperCase()+n.slice(1).toLowerCase();return'<option value="'+display+'">'+display+'</option>';}).join('');if(cur){const opt=Array.from(sel.options).find(o=>o.value.toLowerCase()===cur.toLowerCase());if(opt)sel.value=opt.value;}}
+        function populateUserSelect(nameList){
+            // Se il modal Chi sei è aperto, aggiorna la griglia con i nomi reali
+            const whoModal=document.getElementById('who-modal');
+            if(whoModal&&whoModal.style.display==='flex')showWhoModal();
+            const sel=document.getElementById('turni-user-select');if(!sel)return;const cur=sel.value||turniUserName||'';sel.innerHTML='<option value="">-- Nessuna selezione --</option>'+nameList.map(n=>{const display=n.charAt(0).toUpperCase()+n.slice(1).toLowerCase();return'<option value="'+display+'">'+display+'</option>';}).join('');if(cur){const opt=Array.from(sel.options).find(o=>o.value.toLowerCase()===cur.toLowerCase());if(opt)sel.value=opt.value;}}
 
         let turniUserName=localStorage.getItem('turni_user_name')||'';
         function initNotificationOptions(){const sel=document.getElementById('turni-user-select');if(!sel)return;sel.value=turniUserName;updateTurniUserStatus();}
@@ -3062,9 +3131,10 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
             document.body.style.setProperty('--anim-play',document.hidden?'paused':'running');
         });
         function logoutAccount(){
-            if(!confirm('Vuoi uscire? Dovrai effettuare di nuovo l\'accesso.'))return;
+            if(!confirm('Vuoi cambiare utente?'))return;
             localStorage.removeItem('turni_user_name');
             localStorage.removeItem('as26_localsession');
+            localStorage.removeItem(AS26_WHO_KEY);
             const done=()=>location.reload();
             if(auth&&auth.currentUser){ auth.signOut().then(done).catch(done); } else done();
         }
@@ -3106,13 +3176,20 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
         }
         function initAuth(){
             populateLoginOperators();
-            if(!auth){
-                // Senza Auth non si può entrare: mostra login con avviso
-                const ov=document.getElementById('login-overlay'); if(ov)ov.classList.add('open');
-                loginError('Firebase Authentication non caricato. Controlla la connessione internet.');
+            // Controlla prima sessione locale salvata (senza Firebase)
+            let localSess=null;
+            try{ localSess=JSON.parse(localStorage.getItem('as26_localsession')||'null'); }catch(e){}
+            if(localSess){
+                applySession(localSess);
+                const ov=document.getElementById('login-overlay'); if(ov)ov.classList.remove('open');
+                postLogin();
                 return;
             }
-            // La sessione persiste automaticamente: onAuthStateChanged decide se mostrare il login
+            if(!auth){
+                // Senza Auth e senza sessione: mostra who-modal
+                if(!localStorage.getItem(AS26_WHO_KEY)) showWhoModal();
+                return;
+            }
             auth.onAuthStateChanged(onAuthUser);
         }
 
