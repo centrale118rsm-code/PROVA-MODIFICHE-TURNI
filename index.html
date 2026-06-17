@@ -1674,20 +1674,26 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
         function chooseWhoIAm(name){
             vibrate();
             localStorage.setItem(AS26_WHO_KEY, name);
+            // Chiudi modal con fade
             const modal=document.getElementById('who-modal');
             if(modal){ modal.style.opacity='0'; modal.style.transition='opacity 0.3s'; setTimeout(()=>{ modal.style.display='none'; modal.style.opacity=''; modal.style.transition=''; },300); }
+            // Crea e salva sessione
+            let s;
             if(name==='__centrale__'){
-                const s={uid:null,email:'Centrale Operativa',operatorName:'',role:'centrale',_local:true};
-                try{localStorage.setItem('as26_localsession',JSON.stringify(s));}catch(e){}
+                s={uid:null,email:'Centrale Operativa',operatorName:'',role:'centrale',_local:true};
                 turniUserName='';
             } else {
-                const s={uid:null,email:name,operatorName:name,role:'operator',_local:true};
-                try{localStorage.setItem('as26_localsession',JSON.stringify(s));}catch(e){}
+                s={uid:null,email:name,operatorName:name,role:'operator',_local:true};
                 turniUserName=name;
                 localStorage.setItem('turni_user_name',name);
             }
-            if(typeof applySession==='function')applySession(JSON.parse(localStorage.getItem('as26_localsession')));
-            if(typeof postLogin==='function')postLogin();
+            try{localStorage.setItem('as26_localsession',JSON.stringify(s));}catch(e){}
+            session=s;
+            if(typeof applySession==='function')applySession(s);
+            // Aggiorna UI senza ricaricare la pagina
+            if(typeof updateTurniUserStatus==='function')updateTurniUserStatus();
+            if(typeof updateAccountUI==='function')updateAccountUI();
+            if(typeof checkRepNotifications==='function')setTimeout(checkRepNotifications,500);
             if(typeof renderTable==='function'&&typeof finalData!=='undefined'&&finalData.length>0)renderTable();
             if(typeof buildTicker==='function')setTimeout(buildTicker,600);
         }
@@ -1894,10 +1900,7 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
             setTimeout(checkForScheduleChanges,2000);
             setTimeout(checkRepNotifications,3000);
             setTimeout(checkFirstLaunch,800);
-            setTimeout(()=>{
-                // Primo avvio: chiedi chi sei (solo se non ancora scelto)
-                if(!localStorage.getItem(AS26_WHO_KEY)) showWhoModal();
-            },700);
+            // who-modal: gestito da startAsCentrale al primo avvio
             // Ticker: costruito dopo 1.5s così i dati sono pronti
             setTimeout(buildTicker,1500);
         }
@@ -3071,11 +3074,8 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
 
         async function onAuthUser(user){
             if(!user){
-                // Nessun utente Firebase: controlla sessione locale (ospite/centrale-locale)
-                let local=null; try{ local=JSON.parse(localStorage.getItem('as26_localsession')||'null'); }catch(e){}
-                if(local){ applySession(local); const ov=document.getElementById('login-overlay'); if(ov)ov.classList.remove('open'); postLogin(); return; }
-                session=null;
-                const ov=document.getElementById('login-overlay'); if(ov)ov.classList.add('open');
+                // Nessun utente Firebase: la sessione locale è già gestita da startAsCentrale
+                // Non mostrare login-overlay: l'app funziona sempre in locale
                 return;
             }
             // Utente Firebase reale → rimuovi eventuale sessione locale
@@ -3176,21 +3176,9 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
         }
         function initAuth(){
             populateLoginOperators();
-            // Controlla prima sessione locale salvata (senza Firebase)
-            let localSess=null;
-            try{ localSess=JSON.parse(localStorage.getItem('as26_localsession')||'null'); }catch(e){}
-            if(localSess){
-                applySession(localSess);
-                const ov=document.getElementById('login-overlay'); if(ov)ov.classList.remove('open');
-                postLogin();
-                return;
-            }
-            if(!auth){
-                // Senza Auth e senza sessione: mostra who-modal
-                if(!localStorage.getItem(AS26_WHO_KEY)) showWhoModal();
-                return;
-            }
-            auth.onAuthStateChanged(onAuthUser);
+            // startAsCentrale() ha già gestito sessione/postLogin prima di questo punto
+            // initAuth ora serve solo per Firebase Auth (se disponibile)
+            if(auth){ auth.onAuthStateChanged(onAuthUser); }
         }
 
         // ── APPUNTAMENTI ──
@@ -3557,9 +3545,30 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
         setInterval(()=>{ if(session)checkApptReminders(); }, 60*1000);
 
 
-        // Accesso automatico come Centrale Operativa (login rimosso)
+        // Accesso automatico: rispetta sessione salvata o chiede chi sei al primo avvio
         function startAsCentrale(){
-            enterLocalMode('centrale');
+            // Controlla se esiste già una sessione locale valida
+            let existingSess = null;
+            try{ existingSess = JSON.parse(localStorage.getItem('as26_localsession') || 'null'); }catch(e){}
+            if(existingSess){
+                // Sessione esistente: usa quella
+                applySession(existingSess);
+                const ov = document.getElementById('login-overlay'); if(ov) ov.classList.remove('open');
+                postLogin();
+                return;
+            }
+            // Prima apertura assoluta: mostra modal "Chi sei?"
+            // Il modal sarà visibile dopo il caricamento Excel (initApp lo mostrerà)
+            // Nel frattempo, avvia come guest temporaneo per caricare i turni
+            const tempSess = {uid:null, email:'Caricamento...', operatorName:'', role:'guest', _local:true, _temp:true};
+            applySession(tempSess);
+            postLogin();
+            // Mostra who-modal dopo che l'app è pronta
+            setTimeout(function(){
+                if(!localStorage.getItem('as26_who_v1')){
+                    showWhoModal();
+                }
+            }, 1800);
         }
         if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',startAsCentrale);
         else startAsCentrale();
