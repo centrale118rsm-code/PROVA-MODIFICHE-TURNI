@@ -1662,12 +1662,17 @@ header > .top-bar { padding-top: env(safe-area-inset-top) !important; }
             const grid=document.getElementById('who-names-grid');
             if(grid){
                 const names=(typeof drivers!=='undefined'&&drivers.length>0)
-                    ?drivers.map(d=>d.name)
+                    ?drivers.map(function(d){return d.name;})
                     :['BARBIERI','PAZZAGLIA','BIANCHI','SARTI','GHIOTTI','BERARDI','MICHELOTTI','VOLPINI','FABBRI'];
-                grid.innerHTML=names.map(n=>{
+                grid.innerHTML='';
+                names.forEach(function(n){
                     const d=n.charAt(0).toUpperCase()+n.slice(1).toLowerCase();
-                    return '<button onclick="chooseWhoIAm(''+d+'')" style="padding:13px 8px;border-radius:12px;border:2px solid var(--border);background:var(--bg);color:var(--text-main);font-weight:800;font-size:0.9rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;touch-action:manipulation;"><span class="material-icons-round" style="font-size:1rem;color:#7c3aed">person</span>'+d+'</button>';
-                }).join('');
+                    const btn=document.createElement('button');
+                    btn.style.cssText='padding:13px 8px;border-radius:12px;border:2px solid var(--border);background:var(--bg);color:var(--text-main);font-weight:800;font-size:0.9rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;touch-action:manipulation;width:100%;';
+                    btn.innerHTML='<span class="material-icons-round" style="font-size:1rem;color:#7c3aed">person</span>'+d;
+                    btn.addEventListener('click',function(){ chooseWhoIAm(d); });
+                    grid.appendChild(btn);
+                });
             }
             modal.style.display='flex';
         }
