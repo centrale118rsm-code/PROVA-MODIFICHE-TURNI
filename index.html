@@ -168,6 +168,23 @@
 
         .driver-scroller { flex: 1; display: flex; gap: 7px; overflow-x: auto; padding: 0 12px; align-items: center; scrollbar-width: none; -webkit-overflow-scrolling: touch; border-top: 1px solid rgba(255,255,255,0.12); height: 40px; background: rgba(0,0,0,0.15); }
         .driver-scroller::-webkit-scrollbar { display: none; }
+
+        /* TICKER SCORREVOLE — riepilogo rapido del giorno */
+        .ticker-wrap {
+            width: 100%; overflow: hidden; white-space: nowrap;
+            background: linear-gradient(90deg, #0f172a, #1e3a8a 60%, #2563eb);
+            border-top: 1px solid rgba(255,255,255,0.1);
+            padding: 7px 0;
+        }
+        .ticker-track { display: inline-flex; will-change: transform; animation: ticker-scroll linear infinite; }
+        .ticker-track span { display: inline-flex; align-items: center; }
+        .ticker-item { color: #fff; font-size: 0.74rem; font-weight: 700; letter-spacing: 0.1px; padding: 0 22px; opacity: 0.96; }
+        .ticker-item b { font-weight: 900; }
+        .ticker-sep { opacity: 0.4; padding: 0 4px; }
+        @keyframes ticker-scroll {
+            from { transform: translateX(0); }
+            to   { transform: translateX(-50%); }
+        }
         
         .chip { 
             padding: 5px 11px; border-radius: 7px; font-size: 0.72rem; font-weight: 700; 
@@ -425,10 +442,17 @@
         input[type="file"] { display: none; }
         
         /* MODALI */
-        #shift-modal, #dinner-modal, #options-modal, #notif-center-modal, #month-select-modal { display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.6); z-index: 3000; backdrop-filter: blur(8px); align-items: flex-end; justify-content: center; opacity: 0; transition: opacity 0.3s; }
-        #shift-modal.open, #dinner-modal.open, #options-modal.open, #notif-center-modal.open, #month-select-modal.open { opacity: 1; }
+        #shift-modal, #dinner-modal, #options-modal, #notif-center-modal, #month-select-modal, #admin-pw-modal { display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.6); z-index: 3000; backdrop-filter: blur(8px); align-items: flex-end; justify-content: center; opacity: 0; transition: opacity 0.3s; }
+        #shift-modal.open, #dinner-modal.open, #options-modal.open, #notif-center-modal.open, #month-select-modal.open, #admin-pw-modal.open { opacity: 1; }
         .modal-content { background: var(--bg-card); width: 100%; max-width: 600px; border-radius: 24px 24px 0 0; box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.3); overflow: hidden; transform: translateY(100%); transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1); max-height: 85vh; display: flex; flex-direction: column; }
-        #shift-modal.open .modal-content, #dinner-modal.open .modal-content, #options-modal.open .modal-content, #notif-center-modal.open .modal-content, #month-select-modal.open .modal-content { transform: translateY(0); }
+        #shift-modal.open .modal-content, #dinner-modal.open .modal-content, #options-modal.open .modal-content, #notif-center-modal.open .modal-content, #month-select-modal.open .modal-content, #admin-pw-modal.open .modal-content { transform: translateY(0); }
+        #admin-pw-modal .modal-content { align-items: flex-end; }
+        #admin-modal { display: none; position: fixed; inset: 0; background: var(--bg-card); z-index: 4000; flex-direction: column; overflow: hidden; animation: slideInRight 0.3s ease; }
+        #admin-modal.open { display: flex; }
+        .admin-session-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px; padding: 14px 16px; margin: 0 16px 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+        .admin-view-chip { display: inline-flex; align-items: center; gap: 4px; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 3px 8px; font-size: 0.68rem; font-weight: 700; color: var(--text-sec); margin: 2px 4px 0 0; }
+        .admin-live-dot { width: 8px; height: 8px; border-radius: 50%; background: #16a34a; display: inline-block; margin-right: 5px; animation: rep-blink-live 1.4s ease-in-out infinite; }
+        @keyframes rep-blink-live { 0%,100% { opacity: 1; } 50% { opacity: 0.25; } }
         
         .modal-header { background: var(--bg); color: var(--text-main); padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); }
         .header-text h3 { margin: 0; font-size: 1.2rem; font-weight: 800; color: var(--text-main); display: flex; align-items: center; gap: 10px;}
@@ -1098,12 +1122,14 @@
         <div class="modal-content" onclick="event.stopPropagation()">
             <div class="modal-header" id="modal-header-bg">
                 <div class="header-text">
-                    <h3 id="modal-title">TITOLO</h3>
+                    <h3 id="modal-title" style="display:flex;align-items:center;gap:8px;">
+                        <span id="modal-title-text">TITOLO</span>
+                        <button id="shift-modal-add-note-btn" onclick="openNewNoteFromShiftModal()" title="Aggiungi nota per questo giorno" style="background:#7c3aed;color:#fff;border:none;width:26px;height:26px;border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;padding:0;">
+                            <span class="material-icons-round" style="font-size:17px;">add</span>
+                        </button>
+                    </h3>
                     <span id="modal-subtitle">Data del giorno</span>
                 </div>
-                <button class="btn-close-modal" id="shift-modal-add-note-btn" onclick="openNewNoteFromShiftModal()" title="Aggiungi nota per questo giorno" style="background:#7c3aed;color:#fff;margin-right:8px;">
-                    <span class="material-icons-round">add</span>
-                </button>
                 <button class="btn-close-modal" onclick="closeShiftModal()">
                     <span class="material-icons-round">keyboard_arrow_down</span>
                 </button>
@@ -1170,7 +1196,54 @@
                     </div>
                     <span class="material-icons-round" style="color:var(--text-sec)">info_outline</span>
                 </div>
+                <div class="option-item" style="cursor:pointer" onclick="askAdminPassword()">
+                    <div style="display:flex; flex-direction:column">
+                        <span style="font-size:1rem">Area Admin</span>
+                        <span style="font-size:0.8rem; color:var(--text-sec); font-weight:400">Accessi, utilizzo e panoramica globale</span>
+                    </div>
+                    <span class="material-icons-round" style="color:var(--text-sec)">admin_panel_settings</span>
+                </div>
             </div>
+        </div>
+    </div>
+
+    <!-- MODAL PASSWORD ADMIN -->
+    <div id="admin-pw-modal" onclick="closeAdminPwModal(event)">
+        <div class="modal-content" onclick="event.stopPropagation()" style="border-radius:24px;max-width:360px;margin:auto;">
+            <div class="modal-header">
+                <div class="header-text">
+                    <h3><span class="material-icons-round" style="margin-right:8px">lock</span> Area Admin</h3>
+                    <span>Inserisci la password</span>
+                </div>
+                <button class="btn-close-modal" onclick="closeAdminPwModal()">
+                    <span class="material-icons-round">close</span>
+                </button>
+            </div>
+            <div class="modal-body" style="padding:20px;">
+                <input type="password" id="admin-pw-input" placeholder="Password" autocomplete="off"
+                    style="width:100%;padding:14px;border-radius:12px;border:1px solid var(--border);font-size:1rem;font-weight:600;background:var(--bg);color:var(--text-main);text-align:center;letter-spacing:2px;"
+                    onkeydown="if(event.key==='Enter') checkAdminPassword()">
+                <div id="admin-pw-error" style="color:#dc2626;font-size:0.78rem;font-weight:700;text-align:center;margin-top:8px;min-height:16px;"></div>
+                <button class="btn-note-save" style="margin-top:14px;" onclick="checkAdminPassword()">
+                    <span class="material-icons-round">login</span> Entra
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL AREA ADMIN -->
+    <div id="admin-modal">
+        <div class="modal-content" style="height:100%;max-height:100%;border-radius:0;max-width:100%;">
+            <div class="modal-header" style="background:linear-gradient(135deg,#0f172a,#1e3a8a);border-bottom:none;flex-shrink:0;">
+                <div class="header-text">
+                    <h3 style="color:#fff"><span class="material-icons-round" style="margin-right:8px">admin_panel_settings</span> Area Admin</h3>
+                    <span style="color:rgba(255,255,255,0.7)" id="admin-summary-sub">Panoramica accessi</span>
+                </div>
+                <button class="btn-close-modal" style="background:rgba(255,255,255,0.15);color:#fff;" onclick="closeAdminModal()">
+                    <span class="material-icons-round">close</span>
+                </button>
+            </div>
+            <div class="modal-body" id="admin-sessions-list" style="background:var(--bg);"></div>
         </div>
     </div>
 
@@ -1311,6 +1384,12 @@
             </div>
         </div>
         <div class="driver-scroller" id="driver-nav"></div>
+        <div class="ticker-wrap" id="ticker-wrap" style="display:none;">
+            <div class="ticker-track" id="ticker-track">
+                <span id="ticker-content"></span>
+                <span id="ticker-content-dup" aria-hidden="true"></span>
+            </div>
+        </div>
     </header>
 
     <div class="container">
@@ -2144,6 +2223,8 @@
             // mostra a cascata l'eventuale changelog.
             setTimeout(checkWhoIAm, 700);
             initNotesSystem();
+            setTimeout(buildTicker, 900);
+            if (typeof startSessionTracking === 'function') startSessionTracking();
         }
 
         function calculateAmbulanceDates() {
@@ -2203,6 +2284,7 @@
             localStorage.removeItem('schedule_snapshot');
             updateTurniUserStatus();
             setTimeout(checkRepNotifications, 500);
+            if (typeof updateSessionUser === 'function') updateSessionUser();
         }
 
         function updateTurniUserStatus() {
@@ -2271,6 +2353,7 @@
                 setTimeout(() => { modal.style.display = 'none'; }, 300);
             }
             setTimeout(checkFirstLaunch, 500);
+            if (typeof updateSessionUser === 'function') updateSessionUser();
         }
 
         function getShiftReadableName(code) {
@@ -2650,7 +2733,7 @@
             shiftModalCurrentDay = day;
             let row = finalData[rowIndex];
             let list = document.getElementById('modal-list');
-            let title = document.getElementById('modal-title');
+            let title = document.getElementById('modal-title-text');
             let sub = document.getElementById('modal-subtitle');
             let mc = document.querySelector('#shift-modal .modal-content');
             mc.className = mc.className.replace(/modal-theme-\w+/g, '');
@@ -3396,11 +3479,17 @@
                 let ms = stats[mName];
                 let st = normalizeShift(val);
                 let isSpecial = false;
+                // Un congedo ordinario "appoggiato" su un giorno già di riposo non va contato:
+                // non ha senso consumare un giorno di ferie/congedo in un giorno in cui si riposava comunque.
+                let isRestDay = (st === "R");
 
                 if (subVal === "NL" || u === "NL") { ms.NL++; totals.NL++; isSpecial = true; }
                 else if (subVal === "NG") { ms.NG++; totals.NG++; isSpecial = true; }
                 else if (subVal === "M" || subVal === "MAL" || u === "MALATTIA" || u === "MAL") { ms.MAL++; totals.MAL++; isSpecial = true; }
-                else if (subVal === "F" || subVal.includes("CONG") || u === "F") { ms.CONG++; totals.CONG++; isSpecial = true; }
+                else if (subVal === "F" || subVal.includes("CONG") || u === "F") {
+                    if (!isRestDay) { ms.CONG++; totals.CONG++; isSpecial = true; }
+                    // altrimenti: cade sul riposo, non lo contiamo — il giorno finirà nel conteggio R più sotto
+                }
                 else if (subVal === "V" || subVal.includes("FER") || u.includes("FER")) { ms.FERIE++; totals.FERIE++; isSpecial = true; }
                 else if (subVal === "R" || subVal.includes("REC") || u.includes("REC")) { ms.REC++; totals.REC++; isSpecial = true; }
                 else if (subVal === "P" || subVal.includes("PER") || u.includes("PERM")) { ms.PERM++; totals.PERM++; isSpecial = true; }
@@ -3409,7 +3498,7 @@
                     if (cat) {
                         if (cat.cls==="spec-red") { ms.MAL++; totals.MAL++; isSpecial=true; }
                         else if (cat.cls==="spec-orange") { ms.FERIE++; totals.FERIE++; isSpecial=true; }
-                        else if (cat.cls==="spec-yellow") { ms.CONG++; totals.CONG++; isSpecial=true; }
+                        else if (cat.cls==="spec-yellow") { if (!isRestDay) { ms.CONG++; totals.CONG++; isSpecial=true; } }
                         else if (cat.cls==="spec-green") { ms.PERM++; totals.PERM++; isSpecial=true; }
                         else if (cat.cls==="spec-pink") { ms.REC++; totals.REC++; isSpecial=true; }
                         else if (cat.cls==="spec-blue") { ms.NG++; totals.NG++; isSpecial=true; }
@@ -3894,6 +3983,7 @@ function initNotesSystem() {
         if (typeof finalData !== 'undefined' && finalData.length) refreshNoteBadges();
         if (currentNoteDateKey === '__overview__') renderNotesOverviewList();
         else if (currentNoteDateKey) renderDayNotesList();
+        if (typeof buildTicker === 'function') buildTicker();
     }, (err) => console.warn('Note: listener non disponibile', err));
 }
 
@@ -3914,6 +4004,261 @@ function refreshNoteBadges() {
         } else if (!has && dot) {
             dot.remove();
         }
+    });
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   TICKER SCORREVOLE — riepilogo rapido del giorno: chi è in turno oggi,
+   se ci sono note per oggi, se ci sono veicoli dal meccanico oggi.
+   ══════════════════════════════════════════════════════════════════ */
+function buildTicker() {
+    const wrap = document.getElementById('ticker-wrap');
+    const contentEl = document.getElementById('ticker-content');
+    const contentDupEl = document.getElementById('ticker-content-dup');
+    const track = document.getElementById('ticker-track');
+    if (!wrap || !contentEl || !contentDupEl || !track) return;
+    if (typeof finalData === 'undefined' || !finalData || finalData.length < 2) { wrap.style.display = 'none'; return; }
+
+    const today = new Date();
+    const curD = today.getDate(), curM = today.getMonth();
+    let todayRow = null, todayMonthName = "";
+    for (let i = 1; i < finalData.length; i++) {
+        let row = finalData[i];
+        let mName = row[0].v;
+        let dNum = parseInt(row[1].v);
+        let mIdx = MONTH_MAP[mName];
+        if (mIdx === curM && dNum === curD) { todayRow = row; todayMonthName = mName; break; }
+    }
+
+    let items = [];
+
+    if (todayRow && typeof drivers !== 'undefined' && drivers.length > 0) {
+        let byShift = { M: [], P: [], N: [] };
+        drivers.forEach(d => {
+            let cellData = todayRow[d.idx];
+            let val = cellData && cellData.v ? cellData.v.toString().trim() : "";
+            let st = normalizeShift(val);
+            let displayName = d.name.charAt(0) + d.name.slice(1).toLowerCase();
+            if (st === "M" || st === "MN") byShift.M.push(displayName);
+            if (st === "P") byShift.P.push(displayName);
+            if (st === "N" || st === "SM" || st === "MN") byShift.N.push(displayName);
+        });
+        if (byShift.M.length) items.push('<span class="ticker-item">☀️ Mattina: <b>' + escapeHtmlNote(byShift.M.join(', ')) + '</b></span>');
+        if (byShift.P.length) items.push('<span class="ticker-item">🌇 Pomeriggio: <b>' + escapeHtmlNote(byShift.P.join(', ')) + '</b></span>');
+        if (byShift.N.length) items.push('<span class="ticker-item">🌙 Notte: <b>' + escapeHtmlNote(byShift.N.join(', ')) + '</b></span>');
+    }
+
+    if (todayMonthName) {
+        let todayKey = todayMonthName + '-' + curD;
+
+        // Note visibili a te per oggi
+        let notes = (typeof notesByDate !== 'undefined' && notesByDate[todayKey]) ? notesByDate[todayKey] : [];
+        if (notes.length > 0) {
+            let preview = notes.slice(0, 3).map(n => (n.testo || '').slice(0, 44)).join(' • ');
+            items.push('<span class="ticker-item">📝 ' + notes.length + (notes.length > 1 ? ' note' : ' nota') + ' oggi: <b>' + escapeHtmlNote(preview) + '</b></span>');
+        }
+
+        // Veicoli dal meccanico / gestionale oggi
+        let vTasks = (typeof appuntamentiVeicoli !== 'undefined' && appuntamentiVeicoli[todayKey]) ? appuntamentiVeicoli[todayKey] : [];
+        vTasks.forEach(t => {
+            let v = t.veicolo || 'Veicolo';
+            let op = t.operazione || 'Manutenzione';
+            let ora = t.ora ? (' alle ' + t.ora) : '';
+            items.push('<span class="ticker-item">🔧 ' + escapeHtmlNote(v) + ': ' + escapeHtmlNote(op) + escapeHtmlNote(ora) + '</span>');
+        });
+    }
+
+    if (items.length === 0) {
+        wrap.style.display = 'none';
+        return;
+    }
+
+    const sep = '<span class="ticker-sep">●</span>';
+    const joined = items.join(sep);
+    contentEl.innerHTML = joined;
+    contentDupEl.innerHTML = sep + joined; // duplicato (con separatore davanti) per loop continuo senza scatti
+    wrap.style.display = 'block';
+
+    // Velocità proporzionale alla lunghezza del testo, per un ritmo di lettura costante
+    const textLen = (contentEl.innerText || contentEl.textContent || '').length;
+    const duration = Math.max(18, Math.min(90, textLen * 0.16));
+    track.style.animationDuration = duration + 's';
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   AREA ADMIN — tracciamento sessioni (chi accede, quando, cosa guarda,
+   quanto tempo resta collegato) e pannello di panoramica globale,
+   protetto da password. Tutto lato client: la password non è un vero
+   meccanismo di sicurezza, serve solo a evitare accessi accidentali.
+   ══════════════════════════════════════════════════════════════════ */
+const ADMIN_PASSWORD = 'matteo';
+let as26SessionDocId = null;
+let as26SessionStarted = null;
+let adminSessionsUnsub = null;
+
+function detectDeviceLabel() {
+    const ua = (navigator.userAgent || '').toLowerCase();
+    if (/ipad/.test(ua)) return 'iPad';
+    if (/iphone|ipod/.test(ua)) return 'iPhone';
+    if (/android/.test(ua)) return 'Android';
+    return 'PC / Desktop';
+}
+
+function startSessionTracking() {
+    if (!db || typeof db.collection !== 'function') return;
+    if (as26SessionDocId) return; // già avviata in questa pagina
+    as26SessionStarted = new Date().toISOString();
+    db.collection('app_sessions').add({
+        user: turniUserName || 'Non identificato',
+        device: detectDeviceLabel(),
+        startedAt: as26SessionStarted,
+        lastActiveAt: as26SessionStarted,
+        views: {}
+    }).then(ref => {
+        as26SessionDocId = ref.id;
+    }).catch(e => console.warn('Tracciamento sessione non disponibile:', e));
+
+    // "Battito" periodico: aggiorna l'ultimo istante attivo, così l'Admin sa quanto sei rimasto dentro
+    setInterval(() => {
+        if (!as26SessionDocId || !db) return;
+        db.collection('app_sessions').doc(as26SessionDocId).update({ lastActiveAt: new Date().toISOString() }).catch(() => {});
+    }, 25000);
+
+    window.addEventListener('beforeunload', () => {
+        if (!as26SessionDocId || !db) return;
+        db.collection('app_sessions').doc(as26SessionDocId).update({ lastActiveAt: new Date().toISOString() }).catch(() => {});
+    });
+    document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible' && as26SessionDocId && db) {
+            db.collection('app_sessions').doc(as26SessionDocId).update({ lastActiveAt: new Date().toISOString() }).catch(() => {});
+        }
+    });
+}
+
+function updateSessionUser() {
+    if (!as26SessionDocId || !db) return;
+    db.collection('app_sessions').doc(as26SessionDocId).update({ user: turniUserName || 'Non identificato' }).catch(() => {});
+}
+
+// Registra l'apertura di una finestra/sezione per la panoramica "cosa visualizza".
+// Chiamata dall'osservatore generico che gestisce già il tasto indietro (vedi fine file).
+function logAdminView(modalId) {
+    if (!as26SessionDocId || !db) return;
+    const safeKey = modalId.replace(/[^a-zA-Z0-9_]/g, '_');
+    const field = {};
+    field['views.' + safeKey] = firebase.firestore.FieldValue.increment(1);
+    field['lastActiveAt'] = new Date().toISOString();
+    db.collection('app_sessions').doc(as26SessionDocId).update(field).catch(() => {});
+}
+
+const ADMIN_VIEW_LABELS = {
+    'shift_modal': '📅 Turni', 'options_modal': '⚙️ Opzioni', 'month_select_modal': '🗓️ Mesi',
+    'notif_center_modal': '🔔 Notifiche', 'appt_modal': '📝 Note', 'newappt_modal': '➕ Nuova nota',
+    'dinner_modal': '🍽️ Uscita', 'stats_modal': '📊 Statistiche', 'secret_gallery': '🖼️ Galleria',
+    'alert_modal': '⚠️ Avvisi', 'changelog_modal': '📋 Changelog', 'game_modal': '🎮 Gioco',
+    'menu_dropdown': '☰ Menu', 'admin_pw_modal': '🔒 Password admin', 'admin_modal': '🛡️ Area admin'
+};
+function adminFriendlyViewName(key) { return ADMIN_VIEW_LABELS[key] || key; }
+
+function askAdminPassword() {
+    const menu = document.getElementById('menu-dropdown');
+    if (menu && menu.style.display === 'flex') toggleMenu();
+    vibrate();
+    const pwInput = document.getElementById('admin-pw-input');
+    const pwErr = document.getElementById('admin-pw-error');
+    if (pwInput) pwInput.value = '';
+    if (pwErr) pwErr.innerText = '';
+    const m = document.getElementById('admin-pw-modal');
+    m.style.display = 'flex'; setTimeout(() => m.classList.add('open'), 10);
+    setTimeout(() => { if (pwInput) pwInput.focus(); }, 320);
+}
+
+function closeAdminPwModal(e) {
+    if (e && e.target !== e.currentTarget) return;
+    const m = document.getElementById('admin-pw-modal');
+    m.classList.remove('open');
+    setTimeout(() => m.style.display = 'none', 250);
+}
+
+function checkAdminPassword() {
+    const val = (document.getElementById('admin-pw-input').value || '').trim().toLowerCase();
+    if (val === ADMIN_PASSWORD) {
+        closeAdminPwModal();
+        setTimeout(openAdminModal, 260);
+    } else {
+        document.getElementById('admin-pw-error').innerText = 'Password errata';
+        vibrate();
+    }
+}
+
+function openAdminModal() {
+    vibrate();
+    const m = document.getElementById('admin-modal');
+    m.style.display = 'flex';
+    setTimeout(() => m.classList.add('open'), 10);
+    renderAdminSessions();
+}
+
+function closeAdminModal() {
+    vibrate();
+    const m = document.getElementById('admin-modal');
+    m.classList.remove('open');
+    setTimeout(() => m.style.display = 'none', 300);
+    if (adminSessionsUnsub) { adminSessionsUnsub(); adminSessionsUnsub = null; }
+}
+
+function renderAdminSessions() {
+    const list = document.getElementById('admin-sessions-list');
+    const sub = document.getElementById('admin-summary-sub');
+    if (!list) return;
+    if (!db || typeof db.collection !== 'function') {
+        list.innerHTML = '<div class="note-empty">Connessione al database non disponibile.</div>';
+        return;
+    }
+    if (adminSessionsUnsub) { adminSessionsUnsub(); adminSessionsUnsub = null; }
+    list.innerHTML = '<div class="note-empty">Caricamento...</div>';
+
+    adminSessionsUnsub = db.collection('app_sessions').orderBy('startedAt', 'desc').limit(150).onSnapshot(function(snapshot) {
+        let sessions = [];
+        snapshot.forEach(function(doc) { sessions.push(Object.assign({ _id: doc.id }, doc.data())); });
+
+        const now = Date.now();
+        const liveCount = sessions.filter(function(s) {
+            const la = s.lastActiveAt ? new Date(s.lastActiveAt).getTime() : 0;
+            return (now - la) < 60000;
+        }).length;
+        if (sub) sub.innerText = liveCount + ' online ora · ' + sessions.length + ' accessi (ultimi 150)';
+
+        if (sessions.length === 0) {
+            list.innerHTML = '<div class="note-empty">Nessun accesso registrato ancora.</div>';
+            return;
+        }
+
+        list.innerHTML = '<div style="padding:14px 16px 4px"></div>' + sessions.map(function(s) {
+            const started = s.startedAt ? new Date(s.startedAt) : null;
+            const lastActive = s.lastActiveAt ? new Date(s.lastActiveAt) : started;
+            const isLive = lastActive && ((now - lastActive.getTime()) < 60000);
+            const durationMs = (lastActive && started) ? (lastActive.getTime() - started.getTime()) : 0;
+            const durMin = Math.max(0, Math.round(durationMs / 60000));
+            const durLabel = durMin < 1 ? '<1 min' : (durMin < 60 ? (durMin + ' min') : (Math.floor(durMin / 60) + 'h ' + (durMin % 60) + 'm'));
+            const dateLabel = started ? started.toLocaleString('it-IT', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' }) : '—';
+            const views = s.views || {};
+            const viewChips = Object.keys(views).map(function(k) {
+                return '<span class="admin-view-chip">' + escapeHtmlNote(adminFriendlyViewName(k)) + ' × ' + views[k] + '</span>';
+            }).join('');
+
+            return '<div class="admin-session-card">'
+                + '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">'
+                + '<div><div style="font-weight:800;font-size:0.95rem;color:var(--text-main)">' + (isLive ? '<span class="admin-live-dot"></span>' : '') + escapeHtmlNote(s.user || 'Sconosciuto') + '</div>'
+                + '<div style="font-size:0.72rem;color:var(--text-sec);margin-top:2px">' + escapeHtmlNote(s.device || '—') + ' · ' + dateLabel + '</div></div>'
+                + '<div style="text-align:right;flex-shrink:0"><div style="font-size:0.95rem;font-weight:800;color:var(--primary)">' + durLabel + '</div>'
+                + '<div style="font-size:0.62rem;color:var(--text-sec);font-weight:700">' + (isLive ? 'ONLINE ORA' : 'durata sessione') + '</div></div>'
+                + '</div>'
+                + (viewChips ? '<div style="margin-top:10px">' + viewChips + '</div>' : '')
+                + '</div>';
+        }).join('');
+    }, function(err) {
+        list.innerHTML = '<div class="note-empty">Errore caricamento: ' + escapeHtmlNote(err.message) + '</div>';
     });
 }
 
@@ -4183,6 +4528,7 @@ async function deleteNote(id) {
             if (typeof finalData !== 'undefined' && finalData.length > 0) {
                 renderTable();
             }
+            if (typeof buildTicker === 'function') buildTicker();
         });
 
         /* ══════════════════════════════════════════════════════════════════
@@ -4209,7 +4555,9 @@ async function deleteNote(id) {
                 'alert-modal': 'closeAlertAndSave',
                 'changelog-modal': 'closeChangelog',
                 'game-modal': 'closeGameModal',
-                'menu-dropdown': 'toggleMenu'
+                'menu-dropdown': 'toggleMenu',
+                'admin-pw-modal': 'closeAdminPwModal',
+                'admin-modal': 'closeAdminModal'
             };
 
             let modalStack = [];
@@ -4230,6 +4578,7 @@ async function deleteNote(id) {
                         modalStack = modalStack.filter(function(x) { return x !== id; });
                         modalStack.push(id);
                         try { history.pushState({ as26Modal: id }, ''); } catch(e) {}
+                        if (typeof logAdminView === 'function') logAdminView(id);
                     } else if (!nowOpen && wasOpen) {
                         const idx = modalStack.lastIndexOf(id);
                         if (idx !== -1) {
