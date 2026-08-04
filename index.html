@@ -88,10 +88,16 @@
             position: fixed; top: 0; left: 0; right: 0;
             background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 60%, #2563eb 100%);
             box-shadow: 0 2px 20px rgba(0,0,0,0.25);
-            z-index: 1000; height: var(--header-h);
+            z-index: 1000;
+            /* Altezza automatica: il contenuto (barra superiore, elenco autisti e ticker,
+               quest'ultimo presente solo quando ci sono informazioni da mostrare) determina
+               l'altezza reale, che syncHeaderHeight() rimisura e riporta in --header-h.
+               Con un'altezza fissa la misura sarebbe circolare e la barra dei mesi finirebbe
+               sotto al ticker. */
+            min-height: var(--header-h);
             display: flex; flex-direction: column;
             padding-top: env(safe-area-inset-top);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         body.dark-mode header { background: linear-gradient(135deg, #020617 0%, #0f172a 60%, #1e3a8a 100%); }
         
@@ -1137,14 +1143,15 @@
         <div class="modal-content" onclick="event.stopPropagation()">
             <div class="modal-header" id="modal-header-bg">
                 <div class="header-text">
-                    <h3 id="modal-title" style="display:flex;align-items:center;gap:8px;">
+                    <h3 id="modal-title">
                         <span id="modal-title-text">TITOLO</span>
-                        <button id="shift-modal-add-note-btn" onclick="openNewNoteFromShiftModal()" title="Aggiungi nota per questo giorno" style="background:#7c3aed;color:#fff;border:none;width:26px;height:26px;border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;padding:0;">
-                            <span class="material-icons-round" style="font-size:17px;">add</span>
-                        </button>
                     </h3>
                     <span id="modal-subtitle">Data del giorno</span>
                 </div>
+                <button id="shift-modal-add-note-btn" onclick="openNewNoteFromShiftModal()" title="Aggiungi una nota per questo giorno"
+                    style="background:#7c3aed;color:#fff;border:none;border-radius:10px;padding:8px 12px;display:flex;align-items:center;gap:6px;cursor:pointer;font-weight:800;font-size:0.78rem;flex-shrink:0;margin-right:8px;font-family:inherit;">
+                    <span class="material-icons-round" style="font-size:16px;">edit_note</span> Nota
+                </button>
                 <button class="btn-close-modal" onclick="closeShiftModal()">
                     <span class="material-icons-round">keyboard_arrow_down</span>
                 </button>
@@ -1783,7 +1790,8 @@
                         closeMonthModal();
                         const el = document.getElementById(m.id);
                         if(el) {
-                            const headerHeight = 100;
+                            const headerEl = document.querySelector('header');
+                            const headerHeight = headerEl ? headerEl.getBoundingClientRect().height : 100;
                             const bodyRect = document.body.getBoundingClientRect().top;
                             const elementRect = el.getBoundingClientRect().top;
                             const elementPosition = elementRect - bodyRect;
@@ -2692,7 +2700,8 @@
         function scrollToToday() {
             const el = document.getElementById('today-row');
             if (el) {
-                const headerHeight = 160; 
+                const headerEl = document.querySelector('header');
+                const headerHeight = (headerEl ? headerEl.getBoundingClientRect().height : 100) + 60;
                 const extraOffset = 100; 
                 const bodyRect = document.body.getBoundingClientRect().top;
                 const elementRect = el.getBoundingClientRect().top;
@@ -4207,9 +4216,9 @@ function buildTicker() {
             if (st === "P") byShift.P.push(displayName);
             if (st === "N" || st === "SM" || st === "MN") byShift.N.push(displayName);
         });
-        if (byShift.M.length) items.push('<span class="ticker-item">☀️ Mattina: <b>' + escapeHtmlNote(byShift.M.join(', ')) + '</b></span>');
-        if (byShift.P.length) items.push('<span class="ticker-item">🌇 Pomeriggio: <b>' + escapeHtmlNote(byShift.P.join(', ')) + '</b></span>');
-        if (byShift.N.length) items.push('<span class="ticker-item">🌙 Notte: <b>' + escapeHtmlNote(byShift.N.join(', ')) + '</b></span>');
+        if (byShift.M.length) items.push('<span class="ticker-item">Mattina: <b>' + escapeHtmlNote(byShift.M.join(', ')) + '</b></span>');
+        if (byShift.P.length) items.push('<span class="ticker-item">Pomeriggio: <b>' + escapeHtmlNote(byShift.P.join(', ')) + '</b></span>');
+        if (byShift.N.length) items.push('<span class="ticker-item">Notte: <b>' + escapeHtmlNote(byShift.N.join(', ')) + '</b></span>');
     }
 
     if (todayMonthName) {
@@ -4219,7 +4228,7 @@ function buildTicker() {
         let notes = (typeof notesByDate !== 'undefined' && notesByDate[todayKey]) ? notesByDate[todayKey] : [];
         if (notes.length > 0) {
             let preview = notes.slice(0, 3).map(n => (n.testo || '').slice(0, 44)).join(' • ');
-            items.push('<span class="ticker-item">📝 ' + notes.length + (notes.length > 1 ? ' note' : ' nota') + ' oggi: <b>' + escapeHtmlNote(preview) + '</b></span>');
+            items.push('<span class="ticker-item">' + notes.length + (notes.length > 1 ? ' note' : ' nota') + ' oggi: <b>' + escapeHtmlNote(preview) + '</b></span>');
         }
 
         // Veicoli dal meccanico / gestionale oggi
@@ -4228,7 +4237,7 @@ function buildTicker() {
             let v = t.veicolo || 'Veicolo';
             let op = t.operazione || 'Manutenzione';
             let ora = t.ora ? (' alle ' + t.ora) : '';
-            items.push('<span class="ticker-item">🔧 ' + escapeHtmlNote(v) + ': ' + escapeHtmlNote(op) + escapeHtmlNote(ora) + '</span>');
+            items.push('<span class="ticker-item">Officina — ' + escapeHtmlNote(v) + ': ' + escapeHtmlNote(op) + escapeHtmlNote(ora) + '</span>');
         });
     }
 
@@ -4261,9 +4270,37 @@ function buildTicker() {
 function syncHeaderHeight() {
     const header = document.querySelector('header');
     if (!header) return;
-    const h = header.offsetHeight;
+    const h = Math.ceil(header.getBoundingClientRect().height);
     if (h > 0) document.documentElement.style.setProperty('--header-h', h + 'px');
 }
+
+// L'header cambia altezza in più momenti difficili da prevedere (comparsa/scomparsa del
+// ticker, caricamento dei font che rende il testo più alto, rotazione dello schermo,
+// barra degli indirizzi del browser mobile che si ritrae). Un ResizeObserver rimisura
+// automaticamente ad ogni variazione, invece di affidarsi a un singolo calcolo iniziale.
+(function watchHeaderHeight() {
+    function attach() {
+        const header = document.querySelector('header');
+        if (!header) { setTimeout(attach, 200); return; }
+        syncHeaderHeight();
+        if (typeof ResizeObserver !== 'undefined') {
+            const ro = new ResizeObserver(() => syncHeaderHeight());
+            ro.observe(header);
+        }
+        // Rete di sicurezza per i browser senza ResizeObserver e per il caricamento dei font
+        [100, 400, 1200, 2500].forEach(ms => setTimeout(syncHeaderHeight, ms));
+        if (document.fonts && document.fonts.ready) {
+            document.fonts.ready.then(syncHeaderHeight).catch(() => {});
+        }
+    }
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', attach);
+    } else {
+        attach();
+    }
+    window.addEventListener('load', syncHeaderHeight);
+})();
+
 window.addEventListener('resize', () => requestAnimationFrame(syncHeaderHeight));
 window.addEventListener('orientationchange', () => setTimeout(syncHeaderHeight, 250));
 
