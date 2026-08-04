@@ -482,7 +482,15 @@
         #who-modal { display:none; position:fixed; inset:0; z-index:9500; background:linear-gradient(155deg,#0b1220 0%,#1e3a8a 55%,#2563eb 100%); align-items:center; justify-content:center; padding:20px; overflow-y:auto; opacity:0; transition:opacity 0.3s; }
         #who-modal.open { opacity:1; }
         .who-card { width:100%; max-width:400px; background:var(--bg-card); border-radius:24px; padding:28px 22px 24px; box-shadow:0 20px 60px rgba(0,0,0,0.5); }
-        .who-name-btn { padding:13px 8px; border-radius:12px; border:2px solid var(--border); background:var(--bg); color:var(--text-main); font-weight:800; font-size:0.9rem; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px; touch-action:manipulation; width:100%; }
+        .who-name-btn { padding:13px 8px; border-radius:12px; border:2px solid var(--border); background:var(--bg); color:var(--text-main); font-weight:800; font-size:0.9rem; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px; touch-action:manipulation; width:100%; flex-wrap:wrap; }
+        .who-name-btn.who-name-taken { opacity:0.5; cursor:not-allowed; background:var(--border); color:var(--text-sec); }
+
+        /* Cella destinataria di una nota: bordo lampeggiante viola/bianco */
+        .note-target-cell { position: relative; z-index: 1; animation: note-target-blink 0.9s step-start infinite; }
+        @keyframes note-target-blink {
+            0%, 49%   { box-shadow: inset 0 0 0 3px #7c3aed; }
+            50%, 100% { box-shadow: inset 0 0 0 3px #ffffff; }
+        }
         .who-name-btn:active { transform:scale(0.96); }
         .who-centrale-btn { width:100%; padding:14px; border-radius:14px; border:none; background:linear-gradient(135deg,#0f172a,#1e3a8a); color:#fff; font-weight:800; font-size:0.95rem; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; touch-action:manipulation; }
 
@@ -960,11 +968,14 @@
         <div class="modal-content" onclick="event.stopPropagation()">
             <div class="modal-header">
                 <div class="header-text">
-                    <h3><span class="material-icons-round" style="margin-right:10px">notifications</span> NOTIFICHE</h3>
-                    <span>Storico Avvisi</span>
+                    <h3><span class="material-icons-round" style="margin-right:10px">notifications</span> <span id="notif-center-title">NOTIFICHE</span></h3>
+                    <span id="notif-center-subtitle">Storico Avvisi</span>
                 </div>
                 <div style="display:flex; gap:10px">
-                    <button class="btn-close-modal" onclick="clearAllNotif()" style="color:#ef4444">
+                    <button class="btn-close-modal" onclick="toggleNotifArchiveView()" id="notif-archive-toggle-btn" title="Archivio">
+                        <span class="material-icons-round">archive</span>
+                    </button>
+                    <button class="btn-close-modal" onclick="clearAllNotif()" style="color:#ef4444" id="notif-clear-btn">
                         <span class="material-icons-round">delete_sweep</span>
                     </button>
                     <button class="btn-close-modal" onclick="closeNotifCenter()">
@@ -1047,11 +1058,15 @@
             <div style="text-align:center;font-size:1.25rem;font-weight:900;color:var(--text-main);letter-spacing:-0.5px;margin-bottom:4px;">Chi sei?</div>
             <div style="text-align:center;font-size:0.82rem;color:var(--text-sec);margin-bottom:20px;line-height:1.4;">Seleziona il tuo nome per ricevere le notifiche personalizzate (turni, reperibilità, note). Questa scelta viene ricordata su questo dispositivo.</div>
             <div id="who-names-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;"></div>
-            <div style="border-top:1px solid var(--border);padding-top:12px;">
+            <div style="border-top:1px solid var(--border);padding-top:12px;display:flex;flex-direction:column;gap:8px;">
                 <button class="who-centrale-btn" onclick="chooseWhoIAm('CENTRALE')">
                     <span class="material-icons-round" style="font-size:1.1rem">radio</span> Centrale Operativa 118
                 </button>
-                <div style="text-align:center;font-size:0.68rem;color:var(--text-sec);margin-top:8px;">Usa questa opzione se apri l'app dal PC della Centrale, non dal telefono personale.</div>
+                <div style="text-align:center;font-size:0.68rem;color:var(--text-sec);">Usa questa opzione se apri l'app dal PC della Centrale, non dal telefono personale.</div>
+                <button class="who-centrale-btn" style="background:linear-gradient(135deg,#475569,#64748b);" onclick="chooseWhoIAm('OSPITE')">
+                    <span class="material-icons-round" style="font-size:1.1rem">visibility</span> Accedi come Ospite
+                </button>
+                <div style="text-align:center;font-size:0.68rem;color:var(--text-sec);">Solo consultazione, senza notifiche personalizzate.</div>
             </div>
             <div style="text-align:center;font-size:0.65rem;color:var(--text-sec);margin-top:10px;">Puoi cambiare la scelta in qualsiasi momento da Opzioni</div>
         </div>
@@ -1158,6 +1173,7 @@
                     <select id="turni-user-select" onchange="saveTurniUser(this.value)" style="width:100%;padding:12px;border-radius:10px;border:1px solid var(--border);font-size:0.95rem;font-weight:600;background:var(--bg);color:var(--text-main);">
                         <option value="">-- Nessuna selezione --</option>
                         <option value="CENTRALE">📻 Centrale Operativa 118</option>
+                        <option value="OSPITE">👁️ Ospite</option>
                         <option value="Barbieri">Barbieri</option>
                         <option value="Pazzaglia">Pazzaglia</option>
                         <option value="Bianchi">Bianchi</option>
@@ -1657,7 +1673,9 @@
         let finalData = [];
         let drivers = [];
         let selectedDrivers = new Set();
-        let notifHistory = []; 
+        let notifHistory = [];
+        let notifArchive = [];
+        let notifShowingArchive = false;
         let ambulanceMap = {}; 
         let globalMonthsList = [];
         let nursesData = [];
@@ -2292,6 +2310,8 @@
             if(!el) return;
             if(turniUserName === 'CENTRALE') {
                 el.innerHTML = `<span style="color:#059669;">✓ Accesso come <b>📻 Centrale Operativa 118</b></span>`;
+            } else if(turniUserName === 'OSPITE') {
+                el.innerHTML = `<span style="color:#64748b;">👁️ Accesso come <b>Ospite</b> — solo consultazione, nessuna notifica personale</span>`;
             } else if(turniUserName) {
                 const isAdmin = (turniUserName === 'Pazzaglia' || turniUserName === 'Barbieri');
                 el.innerHTML = `<span style="color:#059669;">✓ Notifiche attive per <b>${turniUserName}</b></span>` +
@@ -2332,6 +2352,7 @@
                 currentDriverNamesForWho().forEach(name => {
                     const btn = document.createElement('button');
                     btn.className = 'who-name-btn';
+                    btn.dataset.whoName = name;
                     btn.innerHTML = `<span class="material-icons-round" style="font-size:1rem;color:#7c3aed">person</span>${name}`;
                     btn.onclick = () => chooseWhoIAm(name);
                     grid.appendChild(btn);
@@ -2339,6 +2360,35 @@
             }
             modal.style.display = 'flex';
             setTimeout(() => modal.classList.add('open'), 10);
+            markAlreadyLoggedInNames();
+        }
+
+        // Disabilita nella griglia "Chi sei?" i nomi degli operatori già collegati altrove
+        // (sessione attiva negli ultimi 90 secondi), per evitare che due persone diverse
+        // selezionino per errore la stessa identità nello stesso momento.
+        function markAlreadyLoggedInNames() {
+            if (!db || typeof db.collection !== 'function') return;
+            const cutoff = new Date(Date.now() - 90000).toISOString();
+            db.collection('app_sessions').where('lastActiveAt', '>=', cutoff).get().then(snapshot => {
+                let activeNames = new Set();
+                snapshot.forEach(doc => {
+                    const u = doc.data().user;
+                    if (u && u !== 'CENTRALE' && u !== 'OSPITE' && u !== 'Non identificato') {
+                        activeNames.add(normalizeRepName(u));
+                    }
+                });
+                const myNorm = turniUserName ? normalizeRepName(turniUserName) : "";
+                document.querySelectorAll('#who-names-grid .who-name-btn').forEach(btn => {
+                    const name = btn.dataset.whoName;
+                    const nNorm = normalizeRepName(name);
+                    if (activeNames.has(nNorm) && nNorm !== myNorm) {
+                        btn.disabled = true;
+                        btn.classList.add('who-name-taken');
+                        btn.onclick = null;
+                        btn.innerHTML = `<span class="material-icons-round" style="font-size:1rem;color:#94a3b8">lock</span>${name}<span style="font-size:0.58rem;opacity:0.75;display:block;font-weight:700;">già connesso</span>`;
+                    }
+                });
+            }).catch(e => console.warn('Verifica accessi attivi non disponibile:', e));
         }
 
         function chooseWhoIAm(name) {
@@ -2440,11 +2490,19 @@
             if(saved) {
                 notifHistory = JSON.parse(saved);
             }
+            let savedArchive = localStorage.getItem('notifications_archive');
+            if (savedArchive) {
+                notifArchive = JSON.parse(savedArchive);
+            }
             updateBadge();
         }
 
         function saveNotifications() {
             localStorage.setItem('notifications_history', JSON.stringify(notifHistory));
+        }
+
+        function saveNotifArchive() {
+            localStorage.setItem('notifications_archive', JSON.stringify(notifArchive));
         }
 
         function updateBadge() {
@@ -2459,6 +2517,7 @@
 
         function openNotifCenter() {
             vibrate();
+            notifShowingArchive = false;
             let modal = document.getElementById('notif-center-modal');
             modal.style.display = 'flex';
             setTimeout(() => modal.classList.add('open'), 10);
@@ -2489,30 +2548,124 @@
                 div.innerHTML = `
                     <div class="notif-date">${item.date}</div>
                     <div class="notif-text">${item.text}</div>
-                    <button class="btn-del-notif" onclick="deleteNotif('${item.id}')">
-                        <span class="material-icons-round" style="font-size:18px">close</span>
+                    <button class="btn-del-notif" onclick="deleteNotif('${item.id}')" title="Sposta in archivio">
+                        <span class="material-icons-round" style="font-size:18px">archive</span>
                     </button>
                 `;
                 container.appendChild(div);
             });
         }
 
+        // Elimina dalla lista attiva ma NON la perde: la sposta nell'archivio, dove resta
+        // consultabile finché non viene eliminata definitivamente da lì.
         function deleteNotif(id) {
             vibrate();
-            notifHistory = notifHistory.filter(n => n.id !== id);
+            let idx = notifHistory.findIndex(n => n.id === id);
+            if (idx !== -1) {
+                let [moved] = notifHistory.splice(idx, 1);
+                moved.archivedAt = new Date().toLocaleString('it-IT');
+                notifArchive.unshift(moved);
+                saveNotifArchive();
+            }
             saveNotifications();
             renderNotifList();
             updateBadge();
         }
 
         function clearAllNotif() {
-            if(confirm("Eliminare tutte le notifiche?")) {
+            if (notifShowingArchive) {
+                if (confirm("Eliminare definitivamente tutte le notifiche archiviate? Questa azione non si può annullare.")) {
+                    vibrate();
+                    notifArchive = [];
+                    saveNotifArchive();
+                    renderNotifArchiveList();
+                }
+                return;
+            }
+            if(confirm("Spostare tutte le notifiche nell'archivio?")) {
                 vibrate();
+                notifHistory.forEach(n => { n.archivedAt = new Date().toLocaleString('it-IT'); });
+                notifArchive = notifHistory.concat(notifArchive);
                 notifHistory = [];
                 saveNotifications();
+                saveNotifArchive();
                 renderNotifList();
                 updateBadge();
             }
+        }
+
+        // Passa dalla lista notifiche attive all'archivio (e viceversa)
+        function toggleNotifArchiveView() {
+            vibrate();
+            notifShowingArchive = !notifShowingArchive;
+            const title = document.getElementById('notif-center-title');
+            const sub = document.getElementById('notif-center-subtitle');
+            const toggleBtn = document.getElementById('notif-archive-toggle-btn');
+            const clearBtn = document.getElementById('notif-clear-btn');
+            if (notifShowingArchive) {
+                if (title) title.innerText = 'ARCHIVIO';
+                if (sub) sub.innerText = 'Notifiche eliminate';
+                if (toggleBtn) toggleBtn.innerHTML = '<span class="material-icons-round">notifications</span>';
+                if (toggleBtn) toggleBtn.title = 'Torna alle notifiche';
+                if (clearBtn) clearBtn.title = 'Svuota archivio definitivamente';
+                renderNotifArchiveList();
+            } else {
+                if (title) title.innerText = 'NOTIFICHE';
+                if (sub) sub.innerText = 'Storico Avvisi';
+                if (toggleBtn) toggleBtn.innerHTML = '<span class="material-icons-round">archive</span>';
+                if (toggleBtn) toggleBtn.title = 'Archivio';
+                if (clearBtn) clearBtn.title = '';
+                renderNotifList();
+            }
+        }
+
+        function renderNotifArchiveList() {
+            const container = document.getElementById('notif-list-container');
+            container.innerHTML = "";
+            if (notifArchive.length === 0) {
+                container.innerHTML = `<div class="no-notif">Archivio vuoto.</div>`;
+                return;
+            }
+            notifArchive.forEach(item => {
+                let div = document.createElement('div');
+                div.className = 'notif-item';
+                div.style.opacity = '0.85';
+                div.innerHTML = `
+                    <div class="notif-date">${item.date}${item.archivedAt ? ' · archiviata il ' + item.archivedAt : ''}</div>
+                    <div class="notif-text">${item.text}</div>
+                    <div style="display:flex;gap:6px;position:absolute;top:10px;right:10px;">
+                        <button class="btn-del-notif" style="position:static;" onclick="restoreNotif('${item.id}')" title="Ripristina">
+                            <span class="material-icons-round" style="font-size:18px">unarchive</span>
+                        </button>
+                        <button class="btn-del-notif" style="position:static;color:#ef4444" onclick="permanentlyDeleteNotif('${item.id}')" title="Elimina definitivamente">
+                            <span class="material-icons-round" style="font-size:18px">delete_forever</span>
+                        </button>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function restoreNotif(id) {
+            vibrate();
+            let idx = notifArchive.findIndex(n => n.id === id);
+            if (idx !== -1) {
+                let [moved] = notifArchive.splice(idx, 1);
+                delete moved.archivedAt;
+                moved.read = true;
+                notifHistory.unshift(moved);
+                saveNotifications();
+                saveNotifArchive();
+                renderNotifArchiveList();
+                updateBadge();
+            }
+        }
+
+        function permanentlyDeleteNotif(id) {
+            vibrate();
+            notifArchive = notifArchive.filter(n => n.id !== id);
+            saveNotifArchive();
+            renderNotifArchiveList();
         }
 
         function showChangeAlert(changes) {
@@ -2699,6 +2852,14 @@
                     // Logica appuntamenti veicoli
                     let dateKeyForVehicles = `${mName}-${dNum}`;
                     let vehicleTasks = appuntamentiVeicoli[dateKeyForVehicles] || null;
+
+                    // Bordo lampeggiante viola/bianco se questo autista è destinatario di una nota in questo giorno
+                    let dayNotesForCell = (typeof notesByDate !== 'undefined' && notesByDate[dateKeyForVehicles]) ? notesByDate[dateKeyForVehicles] : [];
+                    if (dayNotesForCell.length > 0) {
+                        let dNameNorm = normalizeRepName(d.name);
+                        let isNoteRecipient = dayNotesForCell.some(n => n.destinatari === 'all' || (Array.isArray(n.destinatari) && n.destinatari.some(x => normalizeRepName(x) === dNameNorm)));
+                        if (isNoteRecipient) td.classList.add('note-target-cell');
+                    }
 
                     let repBarHtml = getRepBarHtml(d.name, mName, dNum);
                     td.innerHTML = formatCell(cellInfo, showDog, showAmbulance, vehicleTasks, repBarHtml);
@@ -3979,8 +4140,11 @@ function initNotesSystem() {
 
         notesInitialLoad = false;
 
-        // Aggiorna badge in tabella e, se aperto, il modal del giorno / vista generale
-        if (typeof finalData !== 'undefined' && finalData.length) refreshNoteBadges();
+        // Aggiorna badge in tabella (e i bordi lampeggianti sulle celle destinatarie) e,
+        // se aperto, il modal del giorno / vista generale
+        if (typeof finalData !== 'undefined' && finalData.length) {
+            renderTable();
+        }
         if (currentNoteDateKey === '__overview__') renderNotesOverviewList();
         else if (currentNoteDateKey) renderDayNotesList();
         if (typeof buildTicker === 'function') buildTicker();
@@ -4070,6 +4234,7 @@ function buildTicker() {
 
     if (items.length === 0) {
         wrap.style.display = 'none';
+        requestAnimationFrame(syncHeaderHeight);
         return;
     }
 
@@ -4083,7 +4248,24 @@ function buildTicker() {
     const textLen = (contentEl.innerText || contentEl.textContent || '').length;
     const duration = Math.max(18, Math.min(90, textLen * 0.16));
     track.style.animationDuration = duration + 's';
+
+    // L'header ha altezza variabile (il ticker può essere presente o meno): ricalcola
+    // subito lo spazio riservato in cima, altrimenti la barra dei mesi e l'intestazione
+    // della tabella finiscono sovrapposte al ticker.
+    requestAnimationFrame(syncHeaderHeight);
 }
+
+// Misura l'altezza reale dell'header (logo+menu, barra autisti, ticker se presente) e la
+// riporta nella variabile CSS --header-h usata da tutti gli elementi "sticky" sotto di esso,
+// così non si sovrappongono mai indipendentemente da quante righe ha l'header in quel momento.
+function syncHeaderHeight() {
+    const header = document.querySelector('header');
+    if (!header) return;
+    const h = header.offsetHeight;
+    if (h > 0) document.documentElement.style.setProperty('--header-h', h + 'px');
+}
+window.addEventListener('resize', () => requestAnimationFrame(syncHeaderHeight));
+window.addEventListener('orientationchange', () => setTimeout(syncHeaderHeight, 250));
 
 /* ══════════════════════════════════════════════════════════════════
    AREA ADMIN — tracciamento sessioni (chi accede, quando, cosa guarda,
@@ -4360,6 +4542,7 @@ function isoFromDateKey(dateKey) {
 function openNewNoteFromShiftModal() {
     if (!shiftModalCurrentMonth || !shiftModalCurrentDay) return;
     if (!turniUserName) { showWhoModal(); return; }
+    if (turniUserName === 'OSPITE') { alert('Modalità Ospite: sola consultazione. Accedi con il tuo nome da Opzioni per creare note.'); return; }
     vibrate();
     currentNoteDateKey = shiftModalCurrentMonth + '-' + shiftModalCurrentDay;
     closeShiftModal();
@@ -4368,6 +4551,7 @@ function openNewNoteFromShiftModal() {
 
 function openNewNoteModal() {
     if (!turniUserName) { showWhoModal(); return; }
+    if (turniUserName === 'OSPITE') { alert('Modalità Ospite: sola consultazione. Accedi con il tuo nome da Opzioni per creare note.'); return; }
     vibrate();
     // Chiude il modal del giorno/vista generale se aperto, per non sovrapporli
     const dm = document.getElementById('appt-modal');
