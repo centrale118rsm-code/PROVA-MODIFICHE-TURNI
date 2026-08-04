@@ -417,6 +417,9 @@
         .spec-red { background: #fee2e2 !important; color: #b91c1c !important; border: 1px solid #fca5a5 !important; font-size: 0.75rem; }
         .spec-nl { background: #e0f7fa !important; color: #006064 !important; border: 1px solid #b2ebf2 !important; font-size: 0.65rem; }
         .spec-purple { background: #8b5cf6 !important; color: #ffffff !important; border: 1px solid #7c3aed !important; font-size: 0.65rem; }
+        /* Permesso notte: verde scuro, distinto dal permesso straordinario (verde chiaro) */
+        .spec-darkgreen { background: #14532d !important; color: #ffffff !important; border: 1px solid #166534 !important; font-size: 0.65rem; }
+        body.dark-mode .spec-darkgreen { background: #052e16 !important; color: #bbf7d0 !important; border-color: #14532d !important; }
         
         .empty { background: transparent; box-shadow: none; color: #cbd5e1; font-weight: 400;}
 
@@ -2945,7 +2948,11 @@
                     }
 
                     let repBarHtml = getRepBarHtml(d.name, mName, dNum);
-                    td.innerHTML = formatCell(cellInfo, showDog, showAmbulance, vehicleTasks, repBarHtml);
+                    // Il permesso notte ("pn") inizia un giorno e finisce il successivo (marcato "x"
+                    // nel file): serve conoscere la cella del giorno precedente per colorare anche
+                    // il secondo giorno.
+                    let prevCellInfo = (i > 1 && finalData[i - 1]) ? finalData[i - 1][d.idx] : null;
+                    td.innerHTML = formatCell(cellInfo, showDog, showAmbulance, vehicleTasks, repBarHtml, prevCellInfo);
                     
                     if(["M", "P", "N", "R", "MN", "SM"].includes(sType)) {
                         td.onclick = () => openShiftModal(i, sType, mName, dNum, dayWeek);
@@ -3066,6 +3073,20 @@
             function isNurseAbsent(cellData) {
                 if (!cellData) return true;
                 let val = (cellData.v || "").toString().trim();
+
+                // ── Codici della SOTTORIGA del file infermieri ──
+                // Nel file degli infermieri le assenze non sono scritte nella riga del turno ma
+                // nella riga sottostante, con codici di una lettera (i colori che si vedono in
+                // Excel sono formattazione condizionale, quindi NON arrivano qui come colore).
+                // Mappatura presa dall'app ufficiale Turni-Infermieri-2026:
+                //   m = malattia · gr = gravidanza · f = congedo · v = ferie residue
+                //   r = recupero · p = permesso · c = permesso studio · nl = festivo non lavorato
+                //   pn = permesso notte
+                // Restano invece PRESENTI: z (sostituzione coordinatore) e ng (festivo non goduto).
+                let subRaw = (cellData.subV || "").toString().trim().toLowerCase();
+                const SUB_ASSENZE = ['m', 'gr', 'f', 'v', 'r', 'p', 'c', 'nl', 'pn'];
+                if (SUB_ASSENZE.includes(subRaw)) return true;
+
                 if (isAbsenceOrEmpty(val)) return true;
                 let u = val.toUpperCase();
                 // Codici extra usati nel file infermieri
@@ -3291,12 +3312,13 @@
             return null; 
         }
 
-        function formatCell(info, showDog, showAmbulance, vehicleTasks, repBarHtml) {
+        function formatCell(info, showDog, showAmbulance, vehicleTasks, repBarHtml, prevInfo) {
             let val = info.v ? info.v.toString().trim() : "";
             let color = info.c || "";
             let subColor = info.subC || ""; 
             let u = val.toUpperCase();
             let subVal = info.subV ? info.subV.toString().trim().toUpperCase() : "";
+            let prevSubVal = (prevInfo && prevInfo.subV) ? prevInfo.subV.toString().trim().toUpperCase() : "";
 
             const dogHtml = '<img src="cane.png" class="dog-icon" alt="dog" onclick="playDogSound(event)">';
             const ambHtml = '<img src="ambulanza.png" class="ambulance-icon" alt="game" onclick="openGameModal(event)">';
@@ -3307,6 +3329,15 @@
                             <div class="time-tag">6:30-13:15</div>
                             <div class="time-tag">19:45-00:00</div>
                         </div>`;
+            }
+
+            // PERMESSO NOTTE: nel file è "pn" sul giorno in cui la notte inizia e "x" sul giorno
+            // dopo, in cui la notte finisce. Va mostrato in verde scuro su ENTRAMBI i giorni.
+            if(subVal === "PN") {
+                return renderSpecial("PERMESSO<br>NOTTE", "spec-darkgreen");
+            }
+            if(subVal === "X" && prevSubVal === "PN") {
+                return renderSpecial("PERMESSO<br>NOTTE", "spec-darkgreen");
             }
 
             if(u === "NL" || subVal === "NL") return renderSpecial("FESTIVO<br>NON LAVORATO", "spec-nl");
@@ -3729,6 +3760,9 @@
 
                 if (subVal === "NL" || u === "NL") { ms.NL++; totals.NL++; isSpecial = true; }
                 else if (subVal === "NG") { ms.NG++; totals.NG++; isSpecial = true; }
+                // Permesso notte: conteggiato una sola volta, sul giorno in cui la notte inizia
+                // (il giorno successivo è marcato "x" ed è la stessa notte, non un permesso in più)
+                else if (subVal === "PN") { ms.PERM++; totals.PERM++; isSpecial = true; }
                 else if (subVal === "M" || subVal === "MAL" || u === "MALATTIA" || u === "MAL") { ms.MAL++; totals.MAL++; isSpecial = true; }
                 else if (subVal === "F" || subVal.includes("CONG") || u === "F") {
                     if (!isRestDay) { ms.CONG++; totals.CONG++; isSpecial = true; }
