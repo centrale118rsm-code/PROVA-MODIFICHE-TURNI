@@ -184,8 +184,9 @@
         }
         .ticker-track { display: inline-flex; will-change: transform; animation: ticker-scroll linear infinite; }
         .ticker-track span { display: inline-flex; align-items: center; }
-        .ticker-item { color: #fff; font-size: 0.74rem; font-weight: 700; letter-spacing: 0.1px; padding: 0 22px; opacity: 0.96; }
+        .ticker-item { color: #fff; font-size: 0.74rem; font-weight: 500; letter-spacing: 0.1px; padding: 0 22px; opacity: 0.96; }
         .ticker-item b { font-weight: 900; }
+        .ticker-item i { font-style: italic; font-weight: 500; opacity: 0.95; }
         .ticker-sep { opacity: 0.4; padding: 0 4px; }
         @keyframes ticker-scroll {
             from { transform: translateX(0); }
@@ -535,8 +536,11 @@
         .note-field input[type="date"], .note-field textarea { width:100%; padding:12px; border-radius:10px; border:1px solid var(--border); font-size:0.95rem; font-weight:600; background:var(--bg); color:var(--text-main); font-family:inherit; }
         .note-field textarea { resize:vertical; min-height:80px; }
         .note-recipients-toggle { display:flex; gap:8px; margin-bottom:10px; }
-        .note-recipients-toggle button { flex:1; padding:10px; border-radius:10px; border:2px solid var(--border); background:var(--bg); color:var(--text-main); font-weight:700; font-size:0.82rem; cursor:pointer; }
+        .note-recipients-toggle button { flex:1; padding:10px 8px; border-radius:10px; border:2px solid var(--border); background:var(--bg); color:var(--text-main); font-weight:700; font-size:0.8rem; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:4px; font-family:inherit; }
+        .note-recipients-toggle button .material-icons-round { font-size:20px; }
         .note-recipients-toggle button.active { border-color:var(--primary); background:#eff6ff; color:var(--primary); }
+        .note-recip-help { display:flex; align-items:flex-start; gap:8px; background:var(--bg); border:1px solid var(--border); border-radius:10px; padding:10px 12px; margin-bottom:10px; font-size:0.76rem; line-height:1.35; color:var(--text-sec); font-weight:600; }
+        .note-recip-help .material-icons-round { font-size:17px; flex-shrink:0; margin-top:1px; }
         .note-recipients-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
         .note-recip-chip { padding:10px 8px; border-radius:10px; border:2px solid var(--border); background:var(--bg); color:var(--text-main); font-weight:700; font-size:0.82rem; cursor:pointer; text-align:center; }
         .note-recip-chip.active { border-color:#7c3aed; background:#ede9fe; color:#7c3aed; }
@@ -1139,10 +1143,20 @@
                     <textarea id="note-text-input" placeholder="Scrivi qui la nota o l'appuntamento..." maxlength="500"></textarea>
                 </div>
                 <div class="note-field">
-                    <label>Destinatari</label>
+                    <label>Destinatari e visibilità</label>
                     <div class="note-recipients-toggle">
-                        <button type="button" id="note-recip-all-btn" class="active" onclick="setNoteRecipMode('all')">Tutti i colleghi</button>
-                        <button type="button" id="note-recip-custom-btn" onclick="setNoteRecipMode('custom')">Seleziona</button>
+                        <button type="button" id="note-recip-all-btn" class="active" onclick="setNoteRecipMode('all')">
+                            <span class="material-icons-round">public</span>
+                            Tutti i colleghi
+                        </button>
+                        <button type="button" id="note-recip-custom-btn" onclick="setNoteRecipMode('custom')">
+                            <span class="material-icons-round">lock</span>
+                            Solo selezionati
+                        </button>
+                    </div>
+                    <div id="note-recip-help" class="note-recip-help">
+                        <span class="material-icons-round" id="note-recip-help-icon">public</span>
+                        <span id="note-recip-help-text"></span>
                     </div>
                     <div class="note-recipients-grid" id="note-recipients-grid" style="display:none;"></div>
                 </div>
@@ -1225,6 +1239,16 @@
                     </div>
                     <label class="switch">
                         <input type="checkbox" id="dark-mode-toggle" onchange="toggleDarkMode()">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="option-item">
+                    <div style="display:flex; flex-direction:column">
+                        <span style="font-size:1rem">Barra scorrevole</span>
+                        <span style="font-size:0.8rem; color:var(--text-sec); font-weight:400">Mostra in alto turni, note e veicoli di oggi</span>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="ticker-toggle" onchange="toggleTicker()" checked>
                         <span class="slider"></span>
                     </label>
                 </div>
@@ -2270,6 +2294,7 @@
             // mostra a cascata l'eventuale changelog.
             setTimeout(checkWhoIAm, 700);
             initNotesSystem();
+            initTickerOption();
             setTimeout(buildTicker, 900);
             if (typeof startSessionTracking === 'function') startSessionTracking();
         }
@@ -2731,15 +2756,33 @@
             return headerH + thH + monthH;
         }
 
+        // Margine di sicurezza sotto le barre fisse, così la riga di oggi non risulta
+        // mai tagliata in alto anche se le barre cambiano leggermente altezza.
+        const TODAY_TOP_MARGIN = 10;
+
         function scrollToToday(smooth) {
             const el = document.getElementById('today-row');
             if (!el) return;
             const bodyRect = document.body.getBoundingClientRect().top;
-            const elementRect = el.getBoundingClientRect().top;
-            const elementPosition = elementRect - bodyRect;
-            // 6px di margine per staccare leggermente la riga dalla barra soprastante
-            const offsetPosition = elementPosition - getStickyTopOffset() - 6;
-            window.scrollTo({ top: Math.max(0, offsetPosition), behavior: smooth === false ? 'auto' : 'smooth' });
+            const elementPosition = el.getBoundingClientRect().top - bodyRect;
+            const offsetPosition = elementPosition - getStickyTopOffset() - TODAY_TOP_MARGIN;
+            const useSmooth = smooth !== false;
+            window.scrollTo({ top: Math.max(0, offsetPosition), behavior: useSmooth ? 'smooth' : 'auto' });
+
+            // Le barre fisse (header con ticker, intestazione colonne, barra del mese) possono
+            // cambiare altezza proprio mentre si scorre, lasciando la riga parzialmente coperta.
+            // Qui si verifica la posizione REALE raggiunta e si corregge la differenza residua.
+            const correct = () => {
+                const target = getStickyTopOffset() + TODAY_TOP_MARGIN;
+                const actual = el.getBoundingClientRect().top;
+                const delta = actual - target;
+                if (Math.abs(delta) > 2) {
+                    window.scrollBy({ top: delta, behavior: 'auto' });
+                }
+            };
+            // Una correzione subito dopo il posizionamento e una a scorrimento concluso
+            setTimeout(correct, useSmooth ? 500 : 60);
+            setTimeout(correct, useSmooth ? 900 : 350);
         }
 
         function filterDriver(val, btnEl) {
@@ -4215,12 +4258,37 @@ function refreshNoteBadges() {
    TICKER SCORREVOLE — riepilogo rapido del giorno: chi è in turno oggi,
    se ci sono note per oggi, se ci sono veicoli dal meccanico oggi.
    ══════════════════════════════════════════════════════════════════ */
+const TICKER_ENABLED_KEY = 'as26_ticker_enabled';
+
+function isTickerEnabled() {
+    return localStorage.getItem(TICKER_ENABLED_KEY) !== '0'; // attiva per impostazione predefinita
+}
+
+// Attiva/disattiva la barra scorrevole dalle Opzioni
+function toggleTicker() {
+    vibrate();
+    const tg = document.getElementById('ticker-toggle');
+    const enabled = tg ? tg.checked : true;
+    localStorage.setItem(TICKER_ENABLED_KEY, enabled ? '1' : '0');
+    buildTicker();
+}
+
+function initTickerOption() {
+    const tg = document.getElementById('ticker-toggle');
+    if (tg) tg.checked = isTickerEnabled();
+}
+
 function buildTicker() {
     const wrap = document.getElementById('ticker-wrap');
     const contentEl = document.getElementById('ticker-content');
     const contentDupEl = document.getElementById('ticker-content-dup');
     const track = document.getElementById('ticker-track');
     if (!wrap || !contentEl || !contentDupEl || !track) return;
+    if (!isTickerEnabled()) {
+        wrap.style.display = 'none';
+        requestAnimationFrame(syncHeaderHeight);
+        return;
+    }
     if (typeof finalData === 'undefined' || !finalData || finalData.length < 2) { wrap.style.display = 'none'; return; }
 
     const today = new Date();
@@ -4247,9 +4315,9 @@ function buildTicker() {
             if (st === "P") byShift.P.push(displayName);
             if (st === "N" || st === "SM" || st === "MN") byShift.N.push(displayName);
         });
-        if (byShift.M.length) items.push('<span class="ticker-item">Mattina: <b>' + escapeHtmlNote(byShift.M.join(', ')) + '</b></span>');
-        if (byShift.P.length) items.push('<span class="ticker-item">Pomeriggio: <b>' + escapeHtmlNote(byShift.P.join(', ')) + '</b></span>');
-        if (byShift.N.length) items.push('<span class="ticker-item">Notte: <b>' + escapeHtmlNote(byShift.N.join(', ')) + '</b></span>');
+        if (byShift.M.length) items.push('<span class="ticker-item"><b>Mattina:</b> <i>' + escapeHtmlNote(byShift.M.join(', ')) + '</i></span>');
+        if (byShift.P.length) items.push('<span class="ticker-item"><b>Pomeriggio:</b> <i>' + escapeHtmlNote(byShift.P.join(', ')) + '</i></span>');
+        if (byShift.N.length) items.push('<span class="ticker-item"><b>Notte:</b> <i>' + escapeHtmlNote(byShift.N.join(', ')) + '</i></span>');
     }
 
     if (todayMonthName) {
@@ -4259,7 +4327,7 @@ function buildTicker() {
         let notes = (typeof notesByDate !== 'undefined' && notesByDate[todayKey]) ? notesByDate[todayKey] : [];
         if (notes.length > 0) {
             let preview = notes.slice(0, 3).map(n => (n.testo || '').slice(0, 44)).join(' • ');
-            items.push('<span class="ticker-item">' + notes.length + (notes.length > 1 ? ' note' : ' nota') + ' oggi: <b>' + escapeHtmlNote(preview) + '</b></span>');
+            items.push('<span class="ticker-item"><b>' + notes.length + (notes.length > 1 ? ' note' : ' nota') + ' oggi:</b> <i>' + escapeHtmlNote(preview) + '</i></span>');
         }
 
         // Veicoli dal meccanico / gestionale oggi
@@ -4268,7 +4336,7 @@ function buildTicker() {
             let v = t.veicolo || 'Veicolo';
             let op = t.operazione || 'Manutenzione';
             let ora = t.ora ? (' alle ' + t.ora) : '';
-            items.push('<span class="ticker-item">Officina — ' + escapeHtmlNote(v) + ': ' + escapeHtmlNote(op) + escapeHtmlNote(ora) + '</span>');
+            items.push('<span class="ticker-item"><b>Officina — ' + escapeHtmlNote(v) + ':</b> <i>' + escapeHtmlNote(op) + escapeHtmlNote(ora) + '</i></span>');
         });
     }
 
@@ -4286,7 +4354,7 @@ function buildTicker() {
 
     // Velocità proporzionale alla lunghezza del testo, per un ritmo di lettura costante
     const textLen = (contentEl.innerText || contentEl.textContent || '').length;
-    const duration = Math.max(9, Math.min(40, textLen * 0.075));
+    const duration = Math.max(6, Math.min(24, textLen * 0.042));
     track.style.animationDuration = duration + 's';
 
     // L'header ha altezza variabile (il ticker può essere presente o meno): ricalcola
@@ -4521,11 +4589,68 @@ function openDayNotes(mName, dNum, dayWeek) {
     }
     const key = mName + '-' + dNum;
     currentNoteDateKey = key;
+
+    // Se il giorno ha già delle note visibili a me, mostro subito il loro testo in un popup,
+    // invece di costringere a leggerle dentro l'elenco.
+    const dayNotes = notesByDate[key] || [];
+    if (dayNotes.length > 0) {
+        showDayNotesPopup(key, mName, dNum, dayWeek);
+        return;
+    }
+
+    openDayNotesList(mName, dNum, dayWeek);
+}
+
+// Elenco completo delle note del giorno (con possibilità di aggiungerne/eliminarne)
+function openDayNotesList(mName, dNum, dayWeek) {
+    currentNoteDateKey = mName + '-' + dNum;
     document.getElementById('appt-modal-title').innerText = 'Note del giorno';
     document.getElementById('appt-date-sub').innerText = `${dayWeek ? dayWeek + ' ' : ''}${dNum} ${mName}`;
     renderDayNotesList();
     const m = document.getElementById('appt-modal');
     m.style.display = 'flex'; setTimeout(() => m.classList.add('open'), 10);
+}
+
+// Popup immediato col testo delle note del giorno
+let pendingNotesPopupContext = null;
+function showDayNotesPopup(key, mName, dNum, dayWeek) {
+    const notes = notesByDate[key] || [];
+    if (notes.length === 0) return;
+    pendingNotesPopupContext = { mName, dNum, dayWeek };
+
+    const titleEl = document.getElementById('alert-title-text');
+    const bodyEl = document.getElementById('alert-message-text');
+    if (!titleEl || !bodyEl) { openDayNotesList(mName, dNum, dayWeek); return; }
+
+    titleEl.innerHTML = `📝 ${notes.length > 1 ? notes.length + ' NOTE' : 'NOTA'} — ${dNum} ${mName}`;
+
+    bodyEl.innerHTML = notes.map(n => {
+        const destLabel = n.destinatari === 'all'
+            ? 'Tutti i colleghi'
+            : (Array.isArray(n.destinatari) ? n.destinatari.join(', ') : '');
+        return `<div style="background:#faf5ff;border:1px solid #e9d5ff;border-left:4px solid #7c3aed;border-radius:10px;padding:12px;margin-top:8px;text-align:left;">
+            <div style="font-weight:700;color:var(--text-main);white-space:pre-wrap;word-break:break-word;font-size:0.92rem;">${escapeHtmlNote(n.testo || '')}</div>
+            <div style="margin-top:8px;font-size:0.72rem;color:var(--text-sec);font-weight:600;">
+                ✍️ ${escapeHtmlNote(n.autore || 'Anonimo')} &nbsp;·&nbsp; 👥 ${escapeHtmlNote(destLabel)}
+            </div>
+        </div>`;
+    }).join('')
+    + `<div style="margin-top:12px;text-align:center">
+         <span onclick="closeAlertAndSave(); setTimeout(reopenNotesListFromPopup, 260);"
+               style="color:var(--primary);cursor:pointer;font-weight:800;font-size:0.8rem;">
+           Apri elenco note del giorno
+         </span>
+       </div>`;
+
+    const alertModal = document.getElementById('alert-modal');
+    alertModal.style.display = 'flex';
+    setTimeout(() => alertModal.classList.add('open'), 50);
+}
+
+function reopenNotesListFromPopup() {
+    if (!pendingNotesPopupContext) return;
+    const c = pendingNotesPopupContext;
+    openDayNotesList(c.mName, c.dNum, c.dayWeek);
 }
 
 function renderDayNotesList() {
@@ -4652,7 +4777,7 @@ function closeNewNoteModal(e) {
         if (currentNoteDateKey === '__overview__') openNotesOverview();
         else if (currentNoteDateKey) {
             const [mName, dNum] = [currentNoteDateKey.split('-')[0], currentNoteDateKey.split('-').slice(1).join('-')];
-            openDayNotes(mName, parseInt(dNum, 10), '');
+            openDayNotesList(mName, parseInt(dNum, 10), '');
         }
     }, 250);
 }
@@ -4662,6 +4787,19 @@ function setNoteRecipMode(mode) {
     document.getElementById('note-recip-all-btn').classList.toggle('active', mode === 'all');
     document.getElementById('note-recip-custom-btn').classList.toggle('active', mode === 'custom');
     document.getElementById('note-recipients-grid').style.display = mode === 'custom' ? 'grid' : 'none';
+
+    // Spiega cosa comporta la scelta della visibilità
+    const helpIcon = document.getElementById('note-recip-help-icon');
+    const helpText = document.getElementById('note-recip-help-text');
+    if (helpIcon && helpText) {
+        if (mode === 'all') {
+            helpIcon.innerText = 'public';
+            helpText.innerHTML = '<b>Nota pubblica:</b> la vedranno tutti i colleghi e la Centrale, e a tutti arriverà una notifica.';
+        } else {
+            helpIcon.innerText = 'lock';
+            helpText.innerHTML = '<b>Nota riservata:</b> la vedranno solo i colleghi che selezioni qui sotto (oltre a te e alla Centrale). Gli altri non la vedranno né riceveranno notifiche.';
+        }
+    }
 }
 
 function buildNoteRecipientsGrid() {
