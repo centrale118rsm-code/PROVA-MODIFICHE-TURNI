@@ -272,8 +272,13 @@
         .td-date { 
             text-align: center; font-weight: 800; color: var(--text-main); font-size: 1.1rem; 
             border-right: 2px solid var(--border); background: var(--bg);
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            height: var(--cell-h); 
+            /* Niente display:flex con altezza fissa: la cella deve allungarsi fino all'altezza
+               reale della riga (che varia con la barra reperibilità), altrimenti resta uno spazio
+               vuoto fra un giorno e l'altro e il numero non è allineato al resto della riga. */
+            vertical-align: middle;
+            height: auto;
+            min-height: var(--cell-h);
+            padding: 4px 2px;
         }
         .td-date small { display: block; font-weight: 600; font-size: 0.7rem; text-transform: uppercase; color: var(--text-sec); margin-top: 2px; }
         
@@ -415,7 +420,10 @@
         .empty { background: transparent; box-shadow: none; color: #cbd5e1; font-weight: 400;}
 
         tr.today td { background: #fff7ed !important; border-bottom: 2px solid #f97316 !important; }
-        tr.today .td-date { color: #ea580c; border-left: 6px solid #ea580c; background: #fff7ed; border-right: 2px solid #f97316; }
+        /* La riga di oggi usa un'ombra interna invece di border-left: con box-sizing:border-box
+           un bordo di 6px ridurrebbe lo spazio interno solo di questa cella, spostando il numero
+           a destra e disallineandolo rispetto agli altri giorni. */
+        tr.today .td-date { color: #ea580c; box-shadow: inset 6px 0 0 0 #ea580c; background: #fff7ed; border-right: 2px solid #f97316; }
         
         body.dark-mode tr.today td { background: #431407 !important; border-bottom: 2px solid #ea580c !important; }
         body.dark-mode tr.today .td-date { background: #431407; color: #fdba74; }
@@ -452,9 +460,15 @@
         #shift-modal.open, #dinner-modal.open, #options-modal.open, #notif-center-modal.open, #month-select-modal.open, #admin-pw-modal.open { opacity: 1; }
         .modal-content { background: var(--bg-card); width: 100%; max-width: 600px; border-radius: 24px 24px 0 0; box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.3); overflow: hidden; transform: translateY(100%); transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1); max-height: 85vh; display: flex; flex-direction: column; }
         #shift-modal.open .modal-content, #dinner-modal.open .modal-content, #options-modal.open .modal-content, #notif-center-modal.open .modal-content, #month-select-modal.open .modal-content, #admin-pw-modal.open .modal-content { transform: translateY(0); }
-        #admin-pw-modal .modal-content { align-items: flex-end; }
+        /* Finestra password: centrata a schermo, non ancorata in basso */
+        #admin-pw-modal { align-items: center; }
+        #admin-pw-modal .modal-content { border-radius: 24px; max-width: 360px; width: calc(100% - 40px); }
         #admin-modal { display: none; position: fixed; inset: 0; background: var(--bg-card); z-index: 4000; flex-direction: column; overflow: hidden; animation: slideInRight 0.3s ease; }
         #admin-modal.open { display: flex; }
+        /* Senza questo il contenuto resterebbe traslato fuori schermo (transform di .modal-content)
+           e il pannello admin apparirebbe completamente bianco. */
+        #admin-modal .modal-content { transform: none; max-height: 100%; height: 100%; border-radius: 0; }
+        #admin-modal .modal-body { flex: 1; min-height: 0; padding-bottom: 24px; }
         .admin-session-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px; padding: 14px 16px; margin: 0 16px 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
         .admin-view-chip { display: inline-flex; align-items: center; gap: 4px; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 3px 8px; font-size: 0.68rem; font-weight: 700; color: var(--text-sec); margin: 2px 4px 0 0; }
         .admin-live-dot { width: 8px; height: 8px; border-radius: 50%; background: #16a34a; display: inline-block; margin-right: 5px; animation: rep-blink-live 1.4s ease-in-out infinite; }
@@ -492,10 +506,12 @@
         .who-name-btn.who-name-taken { opacity:0.5; cursor:not-allowed; background:var(--border); color:var(--text-sec); }
 
         /* Cella destinataria di una nota: bordo lampeggiante viola/bianco */
-        .note-target-cell { position: relative; z-index: 1; animation: note-target-blink 0.9s step-start infinite; }
+        /* Destinatario di una nota: lampeggia il BORDO del riquadro colorato del turno,
+           non l'intera casella, così resta leggibile il colore del turno sottostante. */
+        .note-target-cell .cell { animation: note-target-blink 0.9s step-start infinite; }
         @keyframes note-target-blink {
-            0%, 49%   { box-shadow: inset 0 0 0 3px #7c3aed; }
-            50%, 100% { box-shadow: inset 0 0 0 3px #ffffff; }
+            0%, 49%   { box-shadow: 0 0 0 3px #7c3aed inset, 0 1px 2px rgba(0,0,0,0.05); }
+            50%, 100% { box-shadow: 0 0 0 3px #ffffff inset, 0 1px 2px rgba(0,0,0,0.05); }
         }
         .who-name-btn:active { transform:scale(0.96); }
         .who-centrale-btn { width:100%; padding:14px; border-radius:14px; border:none; background:linear-gradient(135deg,#0f172a,#1e3a8a); color:#fff; font-weight:800; font-size:0.95rem; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; touch-action:manipulation; }
@@ -1232,7 +1248,7 @@
 
     <!-- MODAL PASSWORD ADMIN -->
     <div id="admin-pw-modal" onclick="closeAdminPwModal(event)">
-        <div class="modal-content" onclick="event.stopPropagation()" style="border-radius:24px;max-width:360px;margin:auto;">
+        <div class="modal-content" onclick="event.stopPropagation()">
             <div class="modal-header">
                 <div class="header-text">
                     <h3><span class="material-icons-round" style="margin-right:8px">lock</span> Area Admin</h3>
@@ -1256,7 +1272,7 @@
 
     <!-- MODAL AREA ADMIN -->
     <div id="admin-modal">
-        <div class="modal-content" style="height:100%;max-height:100%;border-radius:0;max-width:100%;">
+        <div class="modal-content">
             <div class="modal-header" style="background:linear-gradient(135deg,#0f172a,#1e3a8a);border-bottom:none;flex-shrink:0;">
                 <div class="header-text">
                     <h3 style="color:#fff"><span class="material-icons-round" style="margin-right:8px">admin_panel_settings</span> Area Admin</h3>
@@ -2242,7 +2258,12 @@
             calculateAmbulanceDates();
             renderTable();
             startLiveClock();
-            setTimeout(scrollToToday, 600);
+            // All'apertura l'app si posiziona subito sul giorno corrente, senza animazione,
+            // così è già lì appena la tabella compare. Il riposizionamento successivo corregge
+            // eventuali spostamenti dovuti al ticker che appare o ai font che finiscono di caricare.
+            requestAnimationFrame(() => scrollToToday(false));
+            setTimeout(() => scrollToToday(false), 300);
+            setTimeout(() => scrollToToday(false), 1100);
             setTimeout(checkForScheduleChanges, 2000);
             setTimeout(checkRepNotifications, 3000);
             // Al primo avvio chiede "Chi sei?"; una volta risposto (o se già scelto in passato)
@@ -2697,18 +2718,28 @@
             setTimeout(() => { modal.style.display = 'none'; }, 300);
         }
 
-        function scrollToToday() {
+        // Calcola quanto spazio è occupato in cima dagli elementi fissi/sticky sovrapposti
+        // alla tabella: header (con eventuale ticker), intestazione colonne e barra del mese.
+        // Serve per far comparire una riga subito sotto di essi, interamente visibile.
+        function getStickyTopOffset() {
+            const headerEl = document.querySelector('header');
+            const headerH = headerEl ? headerEl.getBoundingClientRect().height : 100;
+            const thEl = document.querySelector('thead th');
+            const thH = thEl ? thEl.getBoundingClientRect().height : 40;
+            const monthEl = document.querySelector('tr.month-header td');
+            const monthH = monthEl ? monthEl.getBoundingClientRect().height : 44;
+            return headerH + thH + monthH;
+        }
+
+        function scrollToToday(smooth) {
             const el = document.getElementById('today-row');
-            if (el) {
-                const headerEl = document.querySelector('header');
-                const headerHeight = (headerEl ? headerEl.getBoundingClientRect().height : 100) + 60;
-                const extraOffset = 100; 
-                const bodyRect = document.body.getBoundingClientRect().top;
-                const elementRect = el.getBoundingClientRect().top;
-                const elementPosition = elementRect - bodyRect;
-                const offsetPosition = elementPosition - headerHeight - extraOffset;
-                window.scrollTo({ top: offsetPosition, behavior: "smooth" });
-            }
+            if (!el) return;
+            const bodyRect = document.body.getBoundingClientRect().top;
+            const elementRect = el.getBoundingClientRect().top;
+            const elementPosition = elementRect - bodyRect;
+            // 6px di margine per staccare leggermente la riga dalla barra soprastante
+            const offsetPosition = elementPosition - getStickyTopOffset() - 6;
+            window.scrollTo({ top: Math.max(0, offsetPosition), behavior: smooth === false ? 'auto' : 'smooth' });
         }
 
         function filterDriver(val, btnEl) {
@@ -4255,7 +4286,7 @@ function buildTicker() {
 
     // Velocità proporzionale alla lunghezza del testo, per un ritmo di lettura costante
     const textLen = (contentEl.innerText || contentEl.textContent || '').length;
-    const duration = Math.max(18, Math.min(90, textLen * 0.16));
+    const duration = Math.max(9, Math.min(40, textLen * 0.075));
     track.style.animationDuration = duration + 's';
 
     // L'header ha altezza variabile (il ticker può essere presente o meno): ricalcola
