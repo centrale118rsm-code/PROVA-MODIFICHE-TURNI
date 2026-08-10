@@ -202,14 +202,14 @@
         .chip-driver.active { background: rgba(255,255,255,0.95); color: #1e3a8a; border-color: transparent; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
 
         /* TABLE */
-        .container { padding: 0; max-width: 100%; margin: 0 auto; padding-bottom: 80px; }
-        table { width: 100%; border-collapse: separate; border-spacing: 0; table-layout: fixed; }
+        .container { padding: 0; max-width: 100%; margin: 0 auto; padding-bottom: 80px; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        table { width: auto; min-width: 100%; border-collapse: separate; border-spacing: 0; table-layout: fixed; }
 
         thead th {
             background: var(--bg); color: var(--text-sec); padding: 5px; font-size: 0.7rem; 
             text-transform: uppercase; font-weight: 800; letter-spacing: 0.5px;
             position: sticky; top: var(--header-h); z-index: 90; 
-            border-bottom: 1px solid var(--border); text-align: center; min-width: 115px;
+            border-bottom: 1px solid var(--border); text-align: center; width: 115px; min-width: 115px;
             height: var(--th-h); backdrop-filter: blur(5px);
             white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
         }
@@ -1601,29 +1601,29 @@
             function segGreen(label) {
                 return `<div class="rep-bar-seg green">${label}</div>`;
             }
-            function segCeduta(rawName) {
-                return `<div class="rep-bar-seg red">${escapeHtmlNote((rawName || "").trim())}</div>`;
+            function segCeduta(label, rawName) {
+                return `<div class="rep-bar-seg red">${label}<br>${escapeHtmlNote((rawName || "").trim())}</div>`;
             }
-            function segAcquisita(rawTitolareName) {
-                return `<div class="rep-bar-seg rep-sub">${escapeHtmlNote((rawTitolareName || "").trim())}</div>`;
+            function segAcquisita(label, rawTitolareName) {
+                return `<div class="rep-bar-seg rep-sub">${label}<br>${escapeHtmlNote((rawTitolareName || "").trim())}</div>`;
             }
 
             // ── Fascia 00-07 di oggi: coda del turno iniziato IERI ──
             if (fascieX[0]) {
                 let who = normalizeRepName(fascieX[0]);
                 if (titolareIeri === dNorm) {
-                    segs.push(who === dNorm ? segGreen('00-07') : segCeduta(fascieX[0]));
+                    segs.push(who === dNorm ? segGreen('00-07') : segCeduta('00-07', fascieX[0]));
                 } else if (who === dNorm && titolareIeri !== "" && titolareIeri !== dNorm) {
-                    segs.push(segAcquisita(fascieXprev[2]));
+                    segs.push(segAcquisita('00-07', fascieXprev[2]));
                 }
             }
             // ── Fascia 07-13 di oggi: coda del turno iniziato IERI ──
             if (fascieX[1]) {
                 let who = normalizeRepName(fascieX[1]);
                 if (titolareIeri === dNorm) {
-                    segs.push(who === dNorm ? segGreen('07-13') : segCeduta(fascieX[1]));
+                    segs.push(who === dNorm ? segGreen('07-13') : segCeduta('07-13', fascieX[1]));
                 } else if (who === dNorm && titolareIeri !== "" && titolareIeri !== dNorm) {
-                    segs.push(segAcquisita(fascieXprev[2]));
+                    segs.push(segAcquisita('07-13', fascieXprev[2]));
                 }
             }
             // ── Fascia 13-20 di oggi: inizio del turno di OGGI (mai "ceduta" per definizione) ──
@@ -1634,9 +1634,9 @@
             if (fascieX[3]) {
                 let who = normalizeRepName(fascieX[3]);
                 if (titolareOggi === dNorm) {
-                    segs.push(who === dNorm ? segGreen('20-00') : segCeduta(fascieX[3]));
+                    segs.push(who === dNorm ? segGreen('20-00') : segCeduta('20-00', fascieX[3]));
                 } else if (who === dNorm && titolareOggi !== "" && titolareOggi !== dNorm) {
-                    segs.push(segAcquisita(fascieX[2]));
+                    segs.push(segAcquisita('20-00', fascieX[2]));
                 }
             }
 
