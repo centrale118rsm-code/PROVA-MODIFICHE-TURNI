@@ -22,6 +22,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&display=swap" rel="stylesheet">
     
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
     
@@ -61,7 +62,17 @@
             --bg-fest: #f0f9ff; --t-fest: #0284c7; --b-fest: #7dd3fc;
             --bg-mal: #8c8b8b; --t-mal: #bcbcbc; --b-mal: #f70000;
 
-            --month-bar-bg: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            /* --- PALETTE HEADER/BARRA DATA — blu notte sfumato + due accenti che si
+               intonano fra loro: corallo per festivi/weekend/reperibile, oro per "oggi" --- */
+            --navy-deep: #0a1128;
+            --navy-mid: #142a5c;
+            --navy-light: #1e3f82;
+            --coral: #e34b34;
+            --coral-soft: #fbe4df;
+            --gold: #e0a929;
+            --gold-soft: #fdf0d7;
+
+            --month-bar-bg: linear-gradient(120deg, var(--navy-deep) 0%, var(--navy-mid) 55%, var(--navy-light) 100%);
             --shadow-soft: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
         }
 
@@ -86,7 +97,8 @@
         /* HEADER */
         header {
             position: fixed; top: 0; left: 0; right: 0;
-            background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 60%, #2563eb 100%);
+            background: linear-gradient(120deg, var(--navy-deep) 0%, var(--navy-mid) 55%, var(--navy-light) 100%);
+            border-bottom: 3px solid var(--coral);
             box-shadow: 0 2px 20px rgba(0,0,0,0.25);
             z-index: 1000;
             /* Altezza automatica: il contenuto (barra superiore, elenco autisti e ticker,
@@ -99,7 +111,7 @@
             padding-top: env(safe-area-inset-top);
             transition: box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        body.dark-mode header { background: linear-gradient(135deg, #020617 0%, #0f172a 60%, #1e3a8a 100%); }
+        body.dark-mode header { background: linear-gradient(120deg, #05070f 0%, #0d1c3e 55%, #14284f 100%); border-bottom-color: var(--coral); }
         
         .top-bar { 
             padding: 0 12px; 
@@ -145,17 +157,17 @@
             backdrop-filter: blur(8px);
         }
         .btn-action span.material-icons-round { font-size: 1.2rem; }
-        .btn-action:active { transform: scale(0.92); background: rgba(255,255,255,0.22); }
-        .btn-action:hover { background: rgba(255,255,255,0.2); }
+        .btn-action:active { transform: scale(0.92); background: rgba(227,75,52,0.28); }
+        .btn-action:hover { background: rgba(227,75,52,0.2); }
         
         .badge-dot {
             position: absolute; top: 5px; right: 5px;
-            width: 8px; height: 8px; background: #f97316;
+            width: 8px; height: 8px; background: #e34b34;
             border-radius: 50%; border: 2px solid transparent;
-            display: none; box-shadow: 0 0 0 2px rgba(249,115,22,0.4);
+            display: none; box-shadow: 0 0 0 2px rgba(227,75,52,0.4);
         }
         .badge-dot.visible { display: block; animation: pulse-dot 2s infinite; }
-        @keyframes pulse-dot { 0%,100% { box-shadow: 0 0 0 2px rgba(249,115,22,0.4); } 50% { box-shadow: 0 0 0 4px rgba(249,115,22,0.2); } }
+        @keyframes pulse-dot { 0%,100% { box-shadow: 0 0 0 2px rgba(227,75,52,0.4); } 50% { box-shadow: 0 0 0 4px rgba(227,75,52,0.2); } }
 
         /* MENU DROPDOWN */
         #menu-dropdown { 
@@ -172,13 +184,99 @@
         
         @keyframes scaleIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
 
-        .driver-scroller { flex: 1; display: flex; gap: 7px; overflow-x: auto; padding: 0 12px; align-items: center; scrollbar-width: none; -webkit-overflow-scrolling: touch; border-top: 1px solid rgba(255,255,255,0.12); height: 40px; background: rgba(0,0,0,0.15); }
-        .driver-scroller::-webkit-scrollbar { display: none; }
+        /* PANNELLO A TENDINA — elenco autisti in colonna, chiuso di default. Si apre verso
+           il basso premendo l'icona "groups" in alto; tocca fuori dal pannello (o "X") per
+           richiuderlo. Riusa #driver-nav e filterDriver(), solo disposti in verticale. */
+        #driver-dropdown-panel {
+            position: fixed; left: 0; right: 0; top: var(--header-h);
+            background: linear-gradient(160deg, var(--navy-deep) 0%, var(--navy-mid) 100%);
+            border-bottom: 3px solid var(--coral);
+            box-shadow: 0 12px 30px -8px rgba(0,0,0,0.4);
+            max-height: 0; overflow: hidden;
+            transition: max-height 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 999;
+        }
+        #driver-dropdown-panel.open { max-height: 70vh; overflow-y: auto; }
+        .driver-dropdown-header {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 10px 14px; color: rgba(255,255,255,0.5); font-size: 0.7rem; font-weight: 800; letter-spacing: 1px;
+        }
+        .driver-dropdown-header .btn-action { width: 30px; height: 30px; }
+
+        .driver-scroller { display: flex; flex-direction: column; gap: 6px; padding: 0 14px 14px; }
+        .driver-scroller .chip { width: 100%; justify-content: flex-start; padding: 12px 14px; border-radius: 10px; font-size: 0.85rem; }
+        .driver-scroller .chip-driver { background: rgba(255,255,255,0.06); }
+        .driver-scroller .chip-driver.active { background: #e34b34; color: #fff; border-color: #e34b34; }
+        .driver-scroller .chip-driver.active::after { content: 'check'; font-family: 'Material Icons Round'; margin-left: auto; font-size: 1.1rem; }
+
+        /* Pillola "REPERIBILE ORA" nella barra data, accanto all'orologio */
+        .rep-now-pill {
+            display: inline-flex; align-items: center; gap: 6px;
+            background: rgba(227,75,52,0.16);
+            border: 1px solid rgba(227,75,52,0.4);
+            border-radius: 999px;
+            padding: 3px 10px;
+        }
+        .rep-now-dot {
+            width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0;
+            background: #e34b34; box-shadow: 0 0 0 3px rgba(227,75,52,0.22);
+            animation: rep-now-pulse 1.8s ease-in-out infinite;
+        }
+        @keyframes rep-now-pulse {
+            0%,100% { box-shadow: 0 0 0 3px rgba(227,75,52,0.22); }
+            50%     { box-shadow: 0 0 0 6px rgba(227,75,52,0.06); }
+        }
+        .rep-now-label { font-size: 0.68rem; font-weight: 600; color: rgba(255,236,232,0.7); }
+        .rep-now-name { font-size: 0.82rem; font-weight: 800; color: #ffece8; }
+        .rep-now-slot { font-size: 0.68rem; font-weight: 600; color: rgba(255,236,232,0.6); }
+        .rep-now-slot::before { content: '"'; }
+        .rep-now-slot::after { content: '"'; }
+
+        /* MANIGLIA COMPRIMI/ESPANDI HEADER — trascinabile, segue il dito. Ancorata al bordo
+           inferiore dell'header (position:absolute dentro <header>, che è già fixed), quindi
+           quando l'header si accorcia la maniglia resta comunque a portata di dito. */
+        #header-drag-handle {
+            position: absolute; left: 50%; bottom: 2px; transform: translateX(-50%);
+            width: 46px; height: 18px; border-radius: 9px;
+            background: rgba(255,255,255,0.14); border: 1px solid rgba(255,255,255,0.22);
+            display: flex; align-items: center; justify-content: center;
+            cursor: grab; touch-action: none; z-index: 1300;
+        }
+        #header-drag-handle .material-icons-round { font-size: 16px; color: rgba(255,255,255,0.75); transition: transform 0.25s ease; }
+        #header-drag-handle.is-collapsed .material-icons-round { transform: rotate(180deg); }
+
+        /* MANIGLIA LATERALE — apre/chiude il pannello Richieste trascinando orizzontalmente.
+           Resta sempre nella stessa posizione sul bordo destro, così si trova facilmente sia
+           per aprire che per richiudere il pannello. */
+        #side-drag-handle {
+            position: fixed; top: 50%; right: 0; transform: translateY(-50%);
+            width: 24px; height: 60px; border-radius: 12px 0 0 12px;
+            background: var(--navy-mid); box-shadow: -3px 0 12px rgba(0,0,0,0.25);
+            display: flex; align-items: center; justify-content: center;
+            cursor: grab; touch-action: none; z-index: 2500;
+        }
+        #side-drag-handle .material-icons-round { font-size: 18px; color: #fff; transition: transform 0.25s ease; }
+        #side-drag-handle.is-open .material-icons-round { transform: rotate(180deg); }
+
+        #richieste-panel {
+            position: fixed; top: 0; right: 0; bottom: 0; width: 100%;
+            background: var(--bg); z-index: 2400;
+            transform: translateX(100%);
+            box-shadow: -10px 0 30px rgba(0,0,0,0.25);
+            display: flex; flex-direction: column;
+        }
+        .richieste-panel-header {
+            height: 46px; flex-shrink: 0; display: flex; align-items: center; gap: 8px;
+            padding: 0 8px 0 14px; background: var(--navy-mid); color: #fff;
+            font-weight: 800; font-size: 0.78rem; letter-spacing: 0.6px;
+        }
+        .richieste-panel-header .btn-action { margin-left: auto; width: 32px; height: 32px; }
+        #richieste-iframe { flex: 1; border: none; width: 100%; background: #fff; }
 
         /* TICKER SCORREVOLE — riepilogo rapido del giorno */
         .ticker-wrap {
             width: 100%; overflow: hidden; white-space: nowrap;
-            background: linear-gradient(90deg, #0f172a, #1e3a8a 60%, #2563eb);
+            background: var(--navy-deep);
             border-top: 1px solid rgba(255,255,255,0.1);
             padding: 7px 0;
         }
@@ -206,19 +304,32 @@
         table { width: auto; min-width: 100%; border-collapse: separate; border-spacing: 0; table-layout: fixed; }
 
         thead th {
-            background: var(--bg); color: var(--text-sec); padding: 5px; font-size: 0.7rem; 
-            text-transform: uppercase; font-weight: 800; letter-spacing: 0.5px;
+            background: var(--bg-card); color: var(--navy-mid); padding: 5px; font-size: 0.92rem; 
+            font-family: 'Barlow Condensed', 'Inter', sans-serif; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 0.8px;
             position: sticky; top: var(--header-h); z-index: 90; 
-            border-bottom: 1px solid var(--border); text-align: center; width: 115px; min-width: 115px;
+            border-bottom: 2px solid var(--border); text-align: center; width: 115px; min-width: 115px;
             height: var(--th-h); backdrop-filter: blur(5px);
             white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
         }
-        thead th:first-child, .td-date { width: 60px !important; min-width: 60px !important; max-width: 60px !important; }
+        body.dark-mode thead th { color: #93b4ff; }
+        thead th:first-child {
+            font-family: 'Inter', sans-serif; font-size: 0.68rem; font-weight: 800; color: var(--text-sec); letter-spacing: 0.5px;
+        }
+        thead th:first-child, .td-date { width: 48px !important; min-width: 48px !important; max-width: 48px !important; }
         thead th:first-child {
             position: -webkit-sticky !important;
             position: sticky !important;
             left: 0; z-index: 96 !important;
             background: var(--bg) !important;
+            border-right: 3px solid var(--gold);
+            animation: date-divider-blink 3s ease-in-out infinite;
+        }
+        /* Linea che separa la colonna data dai turni: oro, lampeggio lento (dissolvenza,
+           non uno scatto secco) su tutta l'altezza della tabella. */
+        @keyframes date-divider-blink {
+            0%, 100% { border-right-color: var(--gold); }
+            50%      { border-right-color: transparent; }
         }
         .td-date {
             position: -webkit-sticky !important;
@@ -233,6 +344,7 @@
             box-shadow: 0 4px 15px rgba(0,0,0,0.2); 
             padding: 0; 
             border: none;
+            border-bottom: 2px solid var(--coral);
             line-height: 1;
         }
         .sticky-month-text { 
@@ -271,26 +383,55 @@
         }
         
         .td-date { 
-            text-align: center; font-weight: 800; color: var(--text-main); font-size: 1.1rem; 
-            border-right: 2px solid var(--border); background: var(--bg);
+            text-align: center; font-weight: 700; color: var(--text-main); font-size: 0.95rem; 
+            border-right: 3px solid var(--gold); background: var(--bg);
+            animation: date-divider-blink 3s ease-in-out infinite;
             /* Niente display:flex con altezza fissa: la cella deve allungarsi fino all'altezza
                reale della riga (che varia con la barra reperibilità), altrimenti resta uno spazio
                vuoto fra un giorno e l'altro e il numero non è allineato al resto della riga. */
             vertical-align: middle;
             height: auto;
             min-height: var(--cell-h);
-            padding: 4px 2px;
+            padding: 6px 2px;
         }
-        .td-date small { display: block; font-weight: 600; font-size: 0.7rem; text-transform: uppercase; color: var(--text-sec); margin-top: 2px; }
-        
-        .td-date.date-red { color: #dc2626; background: #fef2f2; border-right-color: #fca5a5; }
-        .td-date.date-red small { color: #ef4444; }
-        
-        body.dark-mode .td-date.date-red { background: #450a0a; color: #fca5a5; border-right-color: #7f1d1d; }
-        body.dark-mode .td-date.date-red small { color: #fecaca; }
 
-        .holiday-name { font-size: 0.48rem; color: #dc2626; font-weight: 900; line-height: 1; margin-top: 1px; max-width: 54px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        body.dark-mode .holiday-name { color: #f87171; }
+        /* Il numero+giorno-settimana vivono in un piccolo "chip" arrotondato dentro la
+           cella, così ogni giorno si distingue nettamente dal successivo invece di essere
+           un blocco piatto senza confini. */
+        .date-chip {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            gap: 1px; border-radius: 8px; padding: 3px 0 4px; margin: 0 auto;
+            width: 34px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            box-shadow: 0 1px 2px rgba(15,23,41,0.05);
+        }
+        .date-num { font-size: 0.95rem; font-weight: 800; line-height: 1; color: var(--navy-mid); }
+        .date-dow { font-weight: 700; font-size: 0.54rem; letter-spacing: 0.2px; text-transform: uppercase; color: var(--text-sec); }
+        body.dark-mode .date-chip { background: rgba(255,255,255,0.04); border-color: var(--border); }
+        body.dark-mode .date-num { color: #93b4ff; }
+
+        /* Weekend (sabato + domenica): chip corallo tenue, sempre riconoscibile a colpo
+           d'occhio senza gridare — coerente con l'accento corallo usato in tutta l'app. */
+        .td-date.date-weekend { background: var(--coral-soft); }
+        .td-date.date-weekend .date-chip { background: #fff; border-color: #f3b7ab; }
+        .td-date.date-weekend .date-num { color: var(--coral); }
+        .td-date.date-weekend .date-dow { color: #c2492f; }
+        body.dark-mode .td-date.date-weekend { background: #3a1712; }
+        body.dark-mode .td-date.date-weekend .date-chip { background: #2a100c; border-color: #6b2a1e; }
+        body.dark-mode .td-date.date-weekend .date-num { color: #ff9a80; }
+        body.dark-mode .td-date.date-weekend .date-dow { color: #e08a76; }
+
+        /* Festivo: un giro in più — chip pieno corallo, testo bianco, con il nome della
+           festività ben leggibile sotto (si applica anche sopra un giorno feriale). */
+        .td-date.date-holiday { background: var(--coral-soft); }
+        .td-date.date-holiday .date-chip { background: var(--coral); border-color: var(--coral); box-shadow: 0 3px 8px -2px rgba(227,75,52,0.5); }
+        .td-date.date-holiday .date-num,
+        .td-date.date-holiday .date-dow { color: #fff; }
+        body.dark-mode .td-date.date-holiday { background: #3a1712; }
+
+        .holiday-name { font-size: 0.46rem; color: var(--coral); font-weight: 800; line-height: 1.15; margin: 3px auto 0; width: 44px; white-space: normal; text-align: center; }
+        body.dark-mode .holiday-name { color: #ff9a80; }
 
         .shift-dots { display: flex; flex-direction: row; gap: 3px; margin-top: 3px; justify-content: center; }
         .sd {
@@ -423,14 +564,18 @@
         
         .empty { background: transparent; box-shadow: none; color: #cbd5e1; font-weight: 400;}
 
-        tr.today td { background: #fff7ed !important; border-bottom: 2px solid #f97316 !important; }
+        tr.today td { background: #eaf1ff !important; border-bottom: 2px solid var(--navy-light) !important; }
         /* La riga di oggi usa un'ombra interna invece di border-left: con box-sizing:border-box
            un bordo di 6px ridurrebbe lo spazio interno solo di questa cella, spostando il numero
            a destra e disallineandolo rispetto agli altri giorni. */
-        tr.today .td-date { color: #ea580c; box-shadow: inset 6px 0 0 0 #ea580c; background: #fff7ed; border-right: 2px solid #f97316; }
+        tr.today .td-date { background: #eaf1ff; box-shadow: inset 6px 0 0 0 var(--navy-light); border-right: 2px solid var(--navy-light); }
+        tr.today .td-date .date-chip { background: var(--navy-mid); border-color: var(--navy-mid); box-shadow: 0 3px 8px -2px rgba(20,42,92,0.5); }
+        tr.today .td-date .date-num, tr.today .td-date .date-dow { color: #fff; }
         
-        body.dark-mode tr.today td { background: #431407 !important; border-bottom: 2px solid #ea580c !important; }
-        body.dark-mode tr.today .td-date { background: #431407; color: #fdba74; }
+        body.dark-mode tr.today td { background: #12203f !important; border-bottom: 2px solid var(--navy-light) !important; }
+        body.dark-mode tr.today .td-date { background: #12203f; }
+        body.dark-mode tr.today .td-date .date-chip { background: var(--navy-light); }
+        body.dark-mode tr.today .td-date .date-num, body.dark-mode tr.today .td-date .date-dow { color: #fff; }
 
         /* LOADER */
         #loader {
@@ -460,6 +605,44 @@
         input[type="file"] { display: none; }
         
         /* MODALI */
+        /* VIGNETTA NOTA — bolla viola centrata (diversa dai fogli che salgono dal basso):
+           appare appena clicchi una casella turno che lampeggia in viola, mostra il testo
+           della nota, e solo chiudendola (X o pulsante) apre il normale riepilogo turni. */
+        #note-callout-modal {
+            display: none; position: fixed; inset: 0; background: rgba(15,10,30,0.6);
+            z-index: 3600; backdrop-filter: blur(6px);
+            align-items: center; justify-content: center; opacity: 0; transition: opacity 0.25s;
+            padding: 24px;
+        }
+        #note-callout-modal.open { display: flex; opacity: 1; }
+        .note-callout-content {
+            background: var(--bg-card); border-radius: 20px; max-width: 380px; width: 100%;
+            box-shadow: 0 25px 60px -12px rgba(124,58,237,0.5);
+            border: 2px solid #7c3aed;
+            transform: scale(0.9) translateY(10px);
+            transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            overflow: hidden;
+        }
+        #note-callout-modal.open .note-callout-content { transform: scale(1) translateY(0); }
+        .note-callout-header {
+            display: flex; align-items: center; gap: 8px;
+            padding: 14px 12px 14px 16px; background: #7c3aed; color: #fff;
+            font-weight: 800; font-size: 0.78rem; letter-spacing: 0.6px;
+        }
+        .note-callout-header .btn-close-modal { margin-left: auto; width: 28px; height: 28px; background: rgba(255,255,255,0.22); color: #fff; }
+        .note-callout-body { padding: 16px; max-height: 45vh; overflow-y: auto; }
+        .note-callout-item { padding: 10px 0; border-bottom: 1px solid var(--border); }
+        .note-callout-item:last-child { border-bottom: none; }
+        .note-callout-author { font-size: 0.7rem; font-weight: 800; color: #7c3aed; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.3px; }
+        .note-callout-text { font-size: 0.92rem; color: var(--text-main); white-space: pre-wrap; word-break: break-word; line-height: 1.4; }
+        .note-callout-footer { padding: 4px 16px 16px; }
+        .note-callout-ok-btn {
+            width: 100%; padding: 12px; border: none; border-radius: 12px;
+            background: #7c3aed; color: #fff; font-weight: 800; font-size: 0.85rem;
+            display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer;
+        }
+        .note-callout-ok-btn:active { transform: scale(0.98); }
+
         #shift-modal, #dinner-modal, #options-modal, #notif-center-modal, #month-select-modal, #admin-pw-modal { display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.6); z-index: 3000; backdrop-filter: blur(8px); align-items: flex-end; justify-content: center; opacity: 0; transition: opacity 0.3s; }
         #shift-modal.open, #dinner-modal.open, #options-modal.open, #notif-center-modal.open, #month-select-modal.open, #admin-pw-modal.open { opacity: 1; }
         .modal-content { background: var(--bg-card); width: 100%; max-width: 600px; border-radius: 24px 24px 0 0; box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.3); overflow: hidden; transform: translateY(100%); transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1); max-height: 85vh; display: flex; flex-direction: column; }
@@ -1172,6 +1355,24 @@
         </div>
     </div>
 
+    <div id="note-callout-modal" onclick="closeNoteCallout(event)">
+        <div class="note-callout-content" onclick="event.stopPropagation()">
+            <div class="note-callout-header">
+                <span class="material-icons-round">chat_bubble</span>
+                <span>NOTA PER TE</span>
+                <button class="btn-close-modal" onclick="closeNoteCallout()">
+                    <span class="material-icons-round">close</span>
+                </button>
+            </div>
+            <div class="note-callout-body" id="note-callout-body"></div>
+            <div class="note-callout-footer">
+                <button class="note-callout-ok-btn" onclick="closeNoteCallout()">
+                    <span class="material-icons-round">event</span> Vedi turni del giorno
+                </button>
+            </div>
+        </div>
+    </div>
+
     <div id="shift-modal" onclick="closeShiftModal(event)">
         <div class="modal-content" onclick="event.stopPropagation()">
             <div class="modal-header" id="modal-header-bg">
@@ -1412,6 +1613,10 @@
                 <button class="btn-action" onclick="vibrate(); scrollToToday()">
                     <span class="material-icons-round">home</span>
                 </button>
+                <button class="btn-action" onclick="toggleDriverDropdown()" style="position:relative" title="Filtra autisti">
+                    <span class="material-icons-round">groups</span>
+                    <span id="driver-filter-badge" class="badge-dot"></span>
+                </button>
                 <button class="btn-action" onclick="openMonthModal()">
                    <span class="material-icons-round">calendar_month</span>
                 </button>
@@ -1449,14 +1654,54 @@
                 </div>
             </div>
         </div>
-        <div class="driver-scroller" id="driver-nav"></div>
+
+        <!-- Pannello a tendina con l'elenco autisti in colonna: si apre premendo l'icona
+             "groups" in alto. Riusa lo stesso #driver-nav e la stessa logica filterDriver()
+             di sempre — qui è solo disposto in verticale invece che come fascia orizzontale
+             sempre visibile, per liberare spazio al calendario quando è chiuso. -->
+        <div id="driver-dropdown-panel">
+            <div class="driver-dropdown-header">
+                <span>FILTRA AUTISTI</span>
+                <button class="btn-action" onclick="toggleDriverDropdown()">
+                    <span class="material-icons-round">close</span>
+                </button>
+            </div>
+            <div class="driver-scroller" id="driver-nav"></div>
+        </div>
+
         <div class="ticker-wrap" id="ticker-wrap" style="display:none;">
             <div class="ticker-track" id="ticker-track">
                 <span id="ticker-content"></span>
                 <span id="ticker-content-dup" aria-hidden="true"></span>
             </div>
         </div>
+
+        <!-- Maniglia di trascinamento: tocca e trascina in alto per nascondere la barra
+             superiore e vedere più calendario. Resta agganciata al bordo inferiore
+             dell'header, quindi quando è compresso rimane comunque a portata di dito per
+             ritirarla giù di nuovo. -->
+        <div id="header-drag-handle" title="Trascina per nascondere/mostrare la barra">
+            <span class="material-icons-round" id="header-drag-icon">expand_less</span>
+        </div>
     </header>
+
+    <!-- Maniglia laterale: trascina verso sinistra per aprire l'area Richieste, verso
+         destra per tornare ai turni. È uno switch fra due pagine già caricate (un iframe
+         tenuto vivo fuori schermo), non una navigazione — niente ricaricamenti. -->
+    <div id="side-drag-handle" title="Trascina per aprire/chiudere Richieste">
+        <span class="material-icons-round" id="side-drag-icon">chevron_left</span>
+    </div>
+    <div id="richieste-panel">
+        <div class="richieste-panel-header">
+            <span class="material-icons-round">assignment</span>
+            <span>RICHIESTE</span>
+            <button class="btn-action" onclick="closeRichiestePanel()">
+                <span class="material-icons-round">chevron_right</span>
+            </button>
+        </div>
+        <iframe id="richieste-iframe" title="Richieste"></iframe>
+    </div>
+
 
     <div class="container">
         <table id="main-table">
@@ -2847,6 +3092,8 @@
                     btn.classList.remove('active');
                 }
             });
+            const filterBadge = document.getElementById('driver-filter-badge');
+            if (filterBadge) filterBadge.classList.toggle('visible', selectedDrivers.size > 0);
         }
 
         function startLiveClock() {
@@ -2857,7 +3104,46 @@
                 const fullStr = `${dateStr} • ${timeStr}`;
                 document.querySelectorAll('.live-clock').forEach(el => { el.innerText = fullStr; });
             }, 1000);
+            updateRepNowPill();
+            setInterval(updateRepNowPill, 30000);
         }
+
+        // ── "REPERIBILE ORA" — nella barra data, accanto all'orologio ──────────────────
+        // Calcola, in base all'orario reale del dispositivo, chi copre la fascia di
+        // reperibilità in questo preciso momento. Aggiorna TUTTE le barre mese presenti
+        // in pagina (una per mese, stesso pattern usato per l'orologio live).
+        function updateRepNowPill() {
+            const now = new Date();
+            const mNum = now.getMonth() + 1;
+            const dNum = now.getDate();
+            const hour = now.getHours();
+            let slotIndex, slotLabel;
+            if (hour >= 20)      { slotIndex = 3; slotLabel = "20:00–00:00"; }
+            else if (hour >= 13) { slotIndex = 2; slotLabel = "13:00–20:00"; }
+            else if (hour >= 7)  { slotIndex = 1; slotLabel = "07:00–13:00"; }
+            else                 { slotIndex = 0; slotLabel = "00:00–07:00"; }
+
+            const fasce = (typeof REPERIBILITA !== 'undefined') ? (REPERIBILITA[mNum + "_" + dNum] || null) : null;
+            const raw = fasce ? (fasce[slotIndex] || "") : "";
+            const nameTxt = raw ? normalizeRepName(raw) : "—";
+
+            document.querySelectorAll('.rep-now-pill .rep-now-name').forEach(el => { el.textContent = nameTxt; });
+            document.querySelectorAll('.rep-now-pill .rep-now-slot').forEach(el => { el.textContent = slotLabel; });
+        }
+
+        // ── Pannello a tendina filtro autisti ───────────────────────────────────────────
+        function toggleDriverDropdown() {
+            vibrate();
+            const panel = document.getElementById('driver-dropdown-panel');
+            panel.classList.toggle('open');
+        }
+        document.addEventListener('click', function(event) {
+            const panel = document.getElementById('driver-dropdown-panel');
+            const btn = document.querySelector('.btn-action[onclick="toggleDriverDropdown()"]');
+            if (panel.classList.contains('open') && !panel.contains(event.target) && !btn.contains(event.target)) {
+                panel.classList.remove('open');
+            }
+        });
 
         function renderTable() {
             const thead = document.getElementById('table-head');
@@ -2899,6 +3185,12 @@
                         <div class="sticky-month-text">
                             <span class="month-label">${mName} ${year}</span>
                             <span class="live-clock"></span>
+                            <span class="rep-now-pill">
+                                <span class="rep-now-dot"></span>
+                                <span class="rep-now-label">Reperibile ora</span>
+                                <span class="rep-now-name"></span>
+                                <span class="rep-now-slot"></span>
+                            </span>
                         </div>
                     </td>`;
                     tbody.appendChild(trM);
@@ -2911,8 +3203,9 @@
                 let dayIdx = dateObj.getDay(); 
                 let holKey = `${mIdx}-${dNum}`;
                 let holidayName = HOLIDAYS[holKey];
-                let isRed = (dayIdx === 0 || dayIdx === 6 || holidayName);
-                let dateClass = isRed ? "td-date date-red" : "td-date";
+                let isWeekend = (dayIdx === 0 || dayIdx === 6);
+                let isHoliday = !!holidayName;
+                let dateClass = "td-date" + (isWeekend ? " date-weekend" : "") + (isHoliday ? " date-holiday" : "");
                 
                 if(mIdx === curM && dNum === curD && today.getFullYear() === year) {
                     tr.className = "today";
@@ -2920,8 +3213,10 @@
                 }
 
                 let dateHtml = `
-                    ${dNum}
-                    <small>${dayWeek}</small>
+                    <div class="date-chip">
+                        <span class="date-num">${dNum}</span>
+                        <span class="date-dow">${dayWeek}</span>
+                    </div>
                     ${holidayName ? `<div class="holiday-name">${holidayName}</div>` : ""}
                 `;
                 tr.innerHTML = `<td class="${dateClass}" data-note-key="${mName}-${dNum}">${dateHtml}</td>`;
@@ -2968,10 +3263,11 @@
 
                     // Bordo lampeggiante viola/bianco se questo autista è destinatario di una nota in questo giorno
                     let dayNotesForCell = (typeof notesByDate !== 'undefined' && notesByDate[dateKeyForVehicles]) ? notesByDate[dateKeyForVehicles] : [];
+                    let cellNotesForRecipient = [];
                     if (dayNotesForCell.length > 0) {
                         let dNameNorm = normalizeRepName(d.name);
-                        let isNoteRecipient = dayNotesForCell.some(n => n.destinatari === 'all' || (Array.isArray(n.destinatari) && n.destinatari.some(x => normalizeRepName(x) === dNameNorm)));
-                        if (isNoteRecipient) td.classList.add('note-target-cell');
+                        cellNotesForRecipient = dayNotesForCell.filter(n => n.destinatari === 'all' || (Array.isArray(n.destinatari) && n.destinatari.some(x => normalizeRepName(x) === dNameNorm)));
+                        if (cellNotesForRecipient.length > 0) td.classList.add('note-target-cell');
                     }
 
                     let repBarHtml = getRepBarHtml(d.name, mName, dNum);
@@ -2982,13 +3278,18 @@
                     td.innerHTML = formatCell(cellInfo, showDog, showAmbulance, vehicleTasks, repBarHtml, prevCellInfo);
                     
                     if(["M", "P", "N", "R", "MN", "SM"].includes(sType)) {
-                        td.onclick = () => openShiftModal(i, sType, mName, dNum, dayWeek);
+                        if (cellNotesForRecipient.length > 0) {
+                            td.onclick = () => showNoteCallout(cellNotesForRecipient, i, sType, mName, dNum, dayWeek);
+                        } else {
+                            td.onclick = () => openShiftModal(i, sType, mName, dNum, dayWeek);
+                        }
                     }
                     tr.appendChild(td);
                 });
                 tbody.appendChild(tr);
             }
             if (typeof refreshNoteBadges === 'function') refreshNoteBadges();
+            updateRepNowPill();
         }
 
         function normalizeShift(val) {
@@ -3097,6 +3398,22 @@
 
             // Filtraggio aggiuntivo specifico per infermieri:
             // rileva assenze anche quando la cella ha colore/bg invece di testo esplicito
+            // Come isNurseAbsent, ma riconosce SOLO la malattia (non ferie/permessi/altro),
+            // per poterla mostrare sempre in modale invece di nasconderla come le altre assenze.
+            function isNurseSick(cellData) {
+                if (!cellData) return false;
+                let subRaw = (cellData.subV || "").toString().trim().toLowerCase();
+                if (subRaw === 'm') return true; // codice sottoriga = malattia
+                let val = (cellData.v || "").toString().trim().toUpperCase();
+                if (val === 'MA' || val === 'ML' || val.startsWith('MAL')) return true;
+                let bg = cellData.c;
+                if (bg && bg.length >= 8 && !bg.startsWith('THEME')) {
+                    let r = parseInt(bg.substring(2,4), 16), g = parseInt(bg.substring(4,6), 16), b = parseInt(bg.substring(6,8), 16);
+                    if (!isNaN(r) && !isNaN(g) && !isNaN(b) && r > 180 && g < 100 && b < 100) return true; // rosso = malattia
+                }
+                return false;
+            }
+
             function isNurseAbsent(cellData) {
                 if (!cellData) return true;
                 let val = (cellData.v || "").toString().trim();
@@ -3258,6 +3575,16 @@
                     nd.innerHTML = `<span class="material-icons-round" style="font-size:16px;color:var(--text-sec)">event_busy</span> Nessun dato infermieri per questa data`;
                     list.appendChild(nd);
                 } else {
+                    // ── DEBUG TEMPORANEO — da rimuovere una volta risolto il problema malattia.
+                    // Stampa in console il valore grezzo letto per ogni infermiere in questo
+                    // giorno, così vediamo cosa arriva davvero dal file live (val = riga turno,
+                    // subV = sottoriga con i codici assenza).
+                    console.log(`[DEBUG infermieri] ${month} ${day} — colonna trovata, dump celle:`);
+                    nurses.forEach(n => {
+                        let cd = nurseRow[n.idx];
+                        console.log(`  ${n.name}: val="${cd?.v}" subV="${cd?.subV}"`);
+                    });
+
                     let nurseFound = 0;
                     nurses.forEach(n => {
                         let cellData = nurseRow[n.idx];
@@ -3269,6 +3596,10 @@
                         let firstChar = val.charAt(0);
                         let specificTime = meta.time;
                         let isDiurno = false;
+                        // Sostituzione coordinatore: codice "z" in sottoriga. Chi la fa risulta
+                        // comunque "presente" (non è un'assenza), ma va etichettato per quello che
+                        // sta facendo davvero invece che come un normale diurnista.
+                        let isCoordSub = (cellData?.subV || "").toString().trim().toLowerCase() === 'z';
 
                         // Controlliamo se la prima lettera è minuscola (Diurnista)
                         if (firstChar === 'm') {
@@ -3290,12 +3621,11 @@
                             <span class="c-name nurse-name">
                                 <span class="material-icons-round" style="font-size:14px;color:#059669;margin-right:5px;vertical-align:middle">local_hospital</span>
                                 ${n.name}
-                                ${isDiurno ? '<span style="font-size:0.65rem; background:var(--bg); color:var(--text-sec); padding:3px 6px; border-radius:6px; margin-left:6px; font-weight:800; border:1px solid var(--border); letter-spacing:0.5px;">DIURNO</span>' : ''}
+                                ${isCoordSub ? '<span style="font-size:0.65rem; background:#7c3aed; color:#fff; padding:3px 6px; border-radius:6px; margin-left:6px; font-weight:800; letter-spacing:0.5px;">SOST. COORDINATORE</span>' : (isDiurno ? '<span style="font-size:0.65rem; background:var(--bg); color:var(--text-sec); padding:3px 6px; border-radius:6px; margin-left:6px; font-weight:800; border:1px solid var(--border); letter-spacing:0.5px;">DIURNO</span>' : '')}
                                 ${isRep ? ' <span class="rep-badge" style="margin-left:6px">REP</span>' : ''}
                             </span>
                             <span class="nurse-shift-tag" style="text-align:right;">
-                                ${meta.name}<br>
-                                <span style="font-size:0.68rem;opacity:0.75">${specificTime}</span>
+                                ${isCoordSub ? 'Sostituzione<br>Coordinatore' : meta.name + '<br><span style="font-size:0.68rem;opacity:0.75">' + specificTime + '</span>'}
                             </span>`;
                         list.appendChild(div);
                     });
@@ -3304,6 +3634,27 @@
                         nd.className = "nurse-loading";
                         nd.innerHTML = `<span class="material-icons-round" style="font-size:16px;color:var(--text-sec)">sentiment_satisfied</span> Nessun infermiere in ${meta.name}`;
                         list.appendChild(nd);
+                    }
+
+                    // ══ INFERMIERI IN MALATTIA — sempre visibili, a prescindere dal turno
+                    // cliccato, taggati "MATTINA" perché è lì che il file li registra. ══
+                    let sickNurses = nurses.filter(n => isNurseSick(nurseRow[n.idx]));
+                    if (sickNurses.length > 0) {
+                        let sHeader = document.createElement('div');
+                        sHeader.className = "modal-section-header modal-section-nurse";
+                        sHeader.innerHTML = `<span class="material-icons-round" style="font-size:17px">sick</span> INFERMIERI IN MALATTIA`;
+                        list.appendChild(sHeader);
+                        sickNurses.forEach(n => {
+                            let div = document.createElement('div');
+                            div.className = "colleague-item";
+                            div.innerHTML = `
+                                <span class="c-name nurse-name">
+                                    <span class="material-icons-round" style="font-size:14px;color:#dc2626;margin-right:5px;vertical-align:middle">sick</span>
+                                    ${n.name}
+                                </span>
+                                <span class="nurse-shift-tag" style="text-align:right;">MATTINA</span>`;
+                            list.appendChild(div);
+                        });
                     }
                 }
             }
@@ -4328,6 +4679,35 @@ function escapeHtmlNote(s) {
     return String(s || '').replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
 }
 
+// ── VIGNETTA NOTA — apre la bolla viola con il testo della nota quando si tocca una
+// casella turno che lampeggia (destinatario di una nota per quel giorno). Solo chiudendola
+// (X, tasto "Vedi turni del giorno", o tocco fuori) si apre il normale riepilogo turni:
+// così la nota non passa mai inosservata prima di vedere il turno.
+let pendingShiftAfterNote = null;
+
+function showNoteCallout(notes, rowIndex, sType, month, day, weekDay) {
+    vibrate();
+    pendingShiftAfterNote = { rowIndex, sType, month, day, weekDay };
+    const body = document.getElementById('note-callout-body');
+    body.innerHTML = notes.map(n => `
+        <div class="note-callout-item">
+            <div class="note-callout-author">${escapeHtmlNote(n.autore || 'Un collega')}</div>
+            <div class="note-callout-text">${escapeHtmlNote(n.testo || '')}</div>
+        </div>
+    `).join('');
+    document.getElementById('note-callout-modal').classList.add('open');
+}
+
+function closeNoteCallout(e) {
+    if (e && e.target !== e.currentTarget) return;
+    document.getElementById('note-callout-modal').classList.remove('open');
+    if (pendingShiftAfterNote) {
+        const p = pendingShiftAfterNote;
+        pendingShiftAfterNote = null;
+        setTimeout(() => openShiftModal(p.rowIndex, p.sType, p.month, p.day, p.weekDay), 180);
+    }
+}
+
 // Aggiunge/rimuove il pallino viola sulle celle data che hanno note visibili
 function refreshNoteBadges() {
     document.querySelectorAll('.td-date[data-note-key]').forEach(td => {
@@ -4457,6 +4837,7 @@ function buildTicker() {
 // riporta nella variabile CSS --header-h usata da tutti gli elementi "sticky" sotto di esso,
 // così non si sovrappongono mai indipendentemente da quante righe ha l'header in quel momento.
 function syncHeaderHeight() {
+    if (window.__headerDragActive) return; // durante il trascinamento comando io l'altezza, non l'observer
     const header = document.querySelector('header');
     if (!header) return;
     const h = Math.ceil(header.getBoundingClientRect().height);
@@ -5024,6 +5405,7 @@ async function deleteNote(id) {
         (function setupBackButtonClosesModals() {
             const MODAL_CLOSERS = {
                 'shift-modal': 'closeShiftModal',
+                'note-callout-modal': 'closeNoteCallout',
                 'options-modal': 'closeOptionsModal',
                 'month-select-modal': 'closeMonthModal',
                 'notif-center-modal': 'closeNotifCenter',
@@ -5088,6 +5470,171 @@ async function deleteNote(id) {
             });
 
             try { history.replaceState({ as26Base: true }, ''); } catch(e) {}
+        })();
+
+        // ══════════════════════════════════════════════════════════════════
+        // MANIGLIA COMPRIMI/ESPANDI HEADER — trascinamento verticale che segue il dito.
+        // ══════════════════════════════════════════════════════════════════
+        (function setupHeaderDragHandle() {
+            const header = document.querySelector('header');
+            const handle = document.getElementById('header-drag-handle');
+            if (!header || !handle) return;
+
+            const COLLAPSED_H = 20; // striscia minima: giusto lo spazio per riafferrare la maniglia
+            let naturalH = null;    // altezza "a riposo" dell'header, misurata prima di comprimere
+            let dragging = false;
+            let collapsed = false;
+            let startY = 0;
+            let startH = 0;
+
+            function currentH() { return header.getBoundingClientRect().height; }
+
+            function applyHeight(px) {
+                header.style.transition = 'none';
+                header.style.height = px + 'px';
+                header.style.overflow = 'hidden';
+                document.documentElement.style.setProperty('--header-h', px + 'px');
+            }
+
+            function snapTo(px, isCollapsed) {
+                header.style.transition = 'height 0.25s cubic-bezier(0.4,0,0.2,1)';
+                header.style.height = px + 'px';
+                header.style.overflow = 'hidden';
+                document.documentElement.style.setProperty('--header-h', px + 'px');
+                handle.classList.toggle('is-collapsed', isCollapsed);
+                collapsed = isCollapsed;
+                setTimeout(() => {
+                    window.__headerDragActive = false;
+                    if (!isCollapsed) {
+                        // Torna al layout naturale: l'header riprende a dimensionarsi da solo
+                        // (serve per quando compare/scompare il ticker più avanti).
+                        header.style.height = '';
+                        header.style.overflow = '';
+                        syncHeaderHeight();
+                    }
+                }, 260);
+            }
+
+            function onDown(e) {
+                dragging = true;
+                window.__headerDragActive = true;
+                if (!collapsed) naturalH = currentH();
+                startH = currentH();
+                startY = (e.touches ? e.touches[0].clientY : e.clientY);
+                header.style.transition = 'none';
+                e.preventDefault();
+            }
+            function onMove(e) {
+                if (!dragging) return;
+                const y = (e.touches ? e.touches[0].clientY : e.clientY);
+                let h = startH + (y - startY);
+                h = Math.max(COLLAPSED_H, Math.min(naturalH || startH, h));
+                applyHeight(h);
+                e.preventDefault();
+            }
+            function onUp() {
+                if (!dragging) return;
+                dragging = false;
+                const h = currentH();
+                const full = naturalH || h;
+                const threshold = full - (full - COLLAPSED_H) * 0.4;
+                if (h < threshold) snapTo(COLLAPSED_H, true);
+                else snapTo(full, false);
+            }
+
+            handle.addEventListener('pointerdown', onDown);
+            window.addEventListener('pointermove', onMove);
+            window.addEventListener('pointerup', onUp);
+
+            // Tocco secco sulla maniglia già collassata: la riapre senza dover trascinare.
+            handle.addEventListener('click', () => {
+                if (collapsed && !dragging) {
+                    window.__headerDragActive = true;
+                    snapTo(naturalH || 100, false);
+                }
+            });
+        })();
+
+        // ══════════════════════════════════════════════════════════════════
+        // MANIGLIA LATERALE — apre/chiude il pannello Richieste trascinando in orizzontale.
+        // Il pannello contiene un iframe caricato una sola volta e mai più ricaricato: è
+        // uno switch fra due pagine attive, non una navigazione.
+        // ══════════════════════════════════════════════════════════════════
+        (function setupRichiestePanel() {
+            const handle = document.getElementById('side-drag-handle');
+            const icon = document.getElementById('side-drag-icon');
+            const panel = document.getElementById('richieste-panel');
+            const iframe = document.getElementById('richieste-iframe');
+            if (!handle || !panel || !iframe) return;
+
+            const RICHIESTE_URL = "https://centrale118rsm-code.github.io/Richieste-A.S.-118/";
+            let iframeLoaded = false;
+            let dragging = false;
+            let panelOpen = false;
+            let startX = 0;
+            let startTranslate = 0;
+
+            function W() { return window.innerWidth; }
+
+            function ensureLoaded() {
+                if (!iframeLoaded) {
+                    iframe.src = RICHIESTE_URL;
+                    iframeLoaded = true;
+                }
+            }
+
+            function setTranslate(px) {
+                panel.style.transition = 'none';
+                panel.style.transform = `translateX(${px}px)`;
+            }
+            function snapTo(px, isOpen) {
+                panel.style.transition = 'transform 0.28s cubic-bezier(0.4,0,0.2,1)';
+                panel.style.transform = `translateX(${px}px)`;
+                icon.parentElement.classList.toggle('is-open', isOpen);
+                panelOpen = isOpen;
+            }
+            function currentTranslate() {
+                const m = new DOMMatrixReadOnly(getComputedStyle(panel).transform);
+                return m.m41;
+            }
+
+            function onDown(e) {
+                dragging = true;
+                ensureLoaded();
+                startX = (e.touches ? e.touches[0].clientX : e.clientX);
+                startTranslate = panelOpen ? 0 : W();
+                panel.style.transition = 'none';
+                e.preventDefault();
+            }
+            function onMove(e) {
+                if (!dragging) return;
+                const x = (e.touches ? e.touches[0].clientX : e.clientX);
+                let t = startTranslate + (x - startX);
+                t = Math.max(0, Math.min(W(), t));
+                setTranslate(t);
+                e.preventDefault();
+            }
+            function onUp() {
+                if (!dragging) return;
+                dragging = false;
+                const t = currentTranslate();
+                if (t < W() * 0.6) snapTo(0, true);
+                else snapTo(W(), false);
+            }
+
+            handle.addEventListener('pointerdown', onDown);
+            window.addEventListener('pointermove', onMove);
+            window.addEventListener('pointerup', onUp);
+
+            // Tocco secco: apre se chiuso, chiude se aperto — non serve sempre trascinare.
+            handle.addEventListener('click', () => {
+                if (dragging) return;
+                ensureLoaded();
+                if (panelOpen) snapTo(W(), false);
+                else snapTo(0, true);
+            });
+
+            window.closeRichiestePanel = function() { snapTo(W(), false); };
         })();
 
     </script>
