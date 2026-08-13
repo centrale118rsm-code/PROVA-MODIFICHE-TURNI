@@ -267,8 +267,9 @@
         }
         .richieste-panel-header {
             height: 46px; flex-shrink: 0; display: flex; align-items: center; gap: 8px;
-            padding: 0 8px 0 14px; background: var(--navy-mid); color: #fff;
+            padding: env(safe-area-inset-top) 8px 0 14px; background: var(--navy-mid); color: #fff;
             font-weight: 800; font-size: 0.78rem; letter-spacing: 0.6px;
+            height: calc(46px + env(safe-area-inset-top));
         }
         .richieste-panel-header .btn-action { margin-left: auto; width: 32px; height: 32px; }
         #richieste-iframe { flex: 1; border: none; width: 100%; background: #fff; }
@@ -601,10 +602,13 @@
             position: relative; z-index: 2;
             pointer-events: none;
             text-align: center;
+            padding: 0 24px;
+            max-width: 100%;
         }
         #loader-text h3 {
             margin: 0; font-size: 1.35rem; font-weight: 900;
             color: #0f172a; letter-spacing: -0.5px;
+            word-wrap: break-word; overflow-wrap: break-word;
         }
         .loader-name-accent { color: var(--primary); }
         .loader-sub-wrap { display: flex; align-items: center; justify-content: center; gap: 9px; margin-top: 7px; }
@@ -643,10 +647,10 @@
             padding: 9px 0; border-bottom: 1px solid var(--border);
         }
         .admin-color-row:last-child { border-bottom: none; }
-        .admin-color-row label { font-size: 0.82rem; font-weight: 700; color: var(--text-main); }
+        .admin-color-row label { font-size: 0.82rem; font-weight: 700; color: var(--text-main); flex: 1; min-width: 0; }
         .admin-color-row input[type="color"] {
             width: 42px; height: 32px; border-radius: 8px; border: 1px solid var(--border);
-            background: none; cursor: pointer; padding: 0;
+            background: none; cursor: pointer; padding: 0; flex-shrink: 0;
         }
         .admin-op-row {
             display: flex; align-items: center; gap: 10px; padding: 10px 12px;
@@ -703,18 +707,40 @@
         @keyframes prankWiggle { 0%,100%{ transform: rotate(-8deg); } 50%{ transform: rotate(8deg); } }
         #prank-banner {
             position: fixed; left: 50%; bottom: 18px; transform: translateX(-50%);
-            z-index: 10001; background: linear-gradient(120deg,#f472b6,#a855f7,#60a5fa);
-            color: #fff; font-weight: 900; font-size: 0.85rem; padding: 12px 20px; border-radius: 999px;
+            z-index: 1500; background: linear-gradient(120deg,#f472b6,#a855f7,#60a5fa);
+            color: #fff; font-weight: 900; font-size: 0.82rem; padding: 12px 18px; border-radius: 18px;
             box-shadow: 0 10px 30px rgba(168,85,247,0.5); display: none; align-items: center; gap: 8px;
             animation: prankBounce 1.6s ease-in-out infinite;
+            pointer-events: none; max-width: min(92vw, 420px); text-align: center;
+            white-space: normal; line-height: 1.3;
         }
         #prank-banner.show { display: flex; }
         @keyframes prankBounce { 0%,100%{ transform: translateX(-50%) translateY(0); } 50%{ transform: translateX(-50%) translateY(-6px); } }
 
+        /* MODALITÀ VELOCE — per chi ha lag (soprattutto Safari su iPhone meno recenti):
+           spegne sfocature (le più pesanti da calcolare per Safari), animazioni e
+           transizioni non essenziali in tutta l'app, mantenendo intatti i dati e le
+           funzioni. Attivabile/disattivabile dalle Opzioni, ricordata sul dispositivo. */
+        body.lite-mode, body.lite-mode * {
+            animation: none !important;
+            transition: none !important;
+        }
+        body.lite-mode header,
+        body.lite-mode thead th,
+        body.lite-mode #shift-modal, body.lite-mode #dinner-modal, body.lite-mode #options-modal,
+        body.lite-mode #notif-center-modal, body.lite-mode #month-select-modal, body.lite-mode #admin-pw-modal,
+        body.lite-mode #appt-modal, body.lite-mode #newappt-modal, body.lite-mode #note-callout,
+        body.lite-mode #changelog-modal {
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+        }
+        body.lite-mode #ticker-wrap { display: none !important; }
+        body.lite-mode thead th:first-child { border-right-color: var(--gold) !important; }
+
         /* WELCOME TOAST — comparsa "Benvenuto, Nome" + "Autisti Soccorritori 118" dopo il
            caricamento del file turni. Non blocca l'interfaccia, sparisce da sola. */
         #welcome-toast {
-            position: fixed; left: 50%; top: 14px; z-index: 10000;
+            position: fixed; left: 50%; top: 14px; z-index: 1500;
             transform: translate(-50%, -20px); opacity: 0;
             pointer-events: none;
             background: linear-gradient(120deg, #0f172a 0%, #14284f 100%);
@@ -724,10 +750,10 @@
             padding: 12px 22px;
             text-align: center;
             transition: opacity 0.35s ease, transform 0.35s ease;
-            max-width: 90vw;
+            max-width: min(90vw, 360px);
         }
         #welcome-toast.show { opacity: 1; transform: translate(-50%, 0); }
-        .welcome-toast-name { font-size: 1rem; font-weight: 900; color: #fff; letter-spacing: -0.3px; white-space: nowrap; }
+        .welcome-toast-name { font-size: 1rem; font-weight: 900; color: #fff; letter-spacing: -0.3px; white-space: normal; line-height: 1.3; }
         .welcome-toast-sub { font-size: 0.68rem; font-weight: 700; color: var(--coral); text-transform: uppercase; letter-spacing: 0.6px; margin-top: 3px; }
         .spinner { border: 4px solid rgba(255,255,255,0.15); border-top: 4px solid var(--primary); border-radius: 50%; width: 40px; height: 40px; animation: spin 0.8s linear infinite; margin-bottom: 20px; }
         @keyframes spin { to { transform: rotate(360deg); } }
@@ -783,6 +809,7 @@
         #admin-pw-modal { align-items: center; }
         #admin-pw-modal .modal-content { border-radius: 24px; max-width: 360px; width: calc(100% - 40px); }
         #admin-modal { display: none; position: fixed; inset: 0; background: var(--bg-card); z-index: 4000; flex-direction: column; overflow: hidden; animation: slideInRight 0.3s ease; }
+        #admin-modal .modal-header { padding-top: calc(15px + env(safe-area-inset-top)); }
         #admin-modal.open { display: flex; }
         /* Senza questo il contenuto resterebbe traslato fuori schermo (transform di .modal-content)
            e il pannello admin apparirebbe completamente bianco. */
@@ -948,7 +975,7 @@
         #stats-modal.open { display: flex; }
         @keyframes slideInRight { from { transform: translateX(100%); } to { transform: translateX(0); } }
         
-        .stats-header { padding: 18px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); background: var(--bg-card); flex-shrink: 0; }
+        .stats-header { padding: 18px 20px; padding-top: calc(18px + env(safe-area-inset-top)); display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); background: var(--bg-card); flex-shrink: 0; }
         .stats-body { flex: 1; overflow-y: auto; background: var(--bg); -webkit-overflow-scrolling: touch; }
         
         .driver-list-item { padding: 18px; border-bottom: 1px solid var(--border); font-weight: 700; color: var(--text-main); cursor: pointer; display: flex; justify-content: space-between; align-items: center; background: var(--bg-card); margin-bottom: 10px; border-radius: 14px; box-shadow: var(--shadow-soft); transition: 0.2s; }
@@ -1170,6 +1197,16 @@
     </style>
 </head>
 <body>
+    <script>
+        // Applica SUBITO la "Modalità Veloce" (se l'utente l'ha attivata in precedenza),
+        // prima ancora che il loader compaia: niente sfocature/animazioni pesanti fin
+        // dal primo istante su dispositivi che soffrono di lag (tipicamente iPhone più
+        // datati su Safari, dove il backdrop-filter e troppe animazioni contemporanee
+        // appesantiscono molto la resa).
+        if (localStorage.getItem('as26_lite_mode') === '1') {
+            document.body.classList.add('lite-mode');
+        }
+    </script>
 
     <audio id="dog-audio" src="cane.mp3" preload="auto"></audio>
 
@@ -1611,6 +1648,22 @@
                         <input type="checkbox" id="ticker-toggle" onchange="toggleTicker()" checked>
                         <span class="slider"></span>
                     </label>
+                </div>
+                <div class="option-item" style="display:block; background:linear-gradient(120deg,#fff7ed,#fef3c7); border-radius:14px; margin:10px 14px; padding:16px; border-bottom:none;">
+                    <div style="display:flex; align-items:center; justify-content:space-between; gap:10px;">
+                        <div style="display:flex; flex-direction:column; flex:1; min-width:0;">
+                            <span style="font-size:1rem; font-weight:800; color:#92400e; display:flex; align-items:center; gap:6px;">
+                                <span class="material-icons-round" style="font-size:19px">bolt</span> Modalità Veloce
+                            </span>
+                            <span style="font-size:0.78rem; color:#92400e; font-weight:500; margin-top:2px; line-height:1.35;">
+                                Consigliata su iPhone se l'app risulta lenta: spegne sfocature e animazioni non essenziali.
+                            </span>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="lite-mode-toggle" onchange="toggleLiteMode()">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
                 </div>
                 <div class="option-item" style="cursor:pointer" onclick="openChangelog()">
                     <div style="display:flex; flex-direction:column">
@@ -2764,6 +2817,7 @@
             // serve più mostrarlo di nuovo qui a caricamento ultimato.
             initNotesSystem();
             initTickerOption();
+            initLiteModeOption();
             setTimeout(buildTicker, 900);
             if (typeof startSessionTracking === 'function') startSessionTracking();
         }
@@ -2849,7 +2903,7 @@
             const el = document.getElementById('turni-user-status');
             if(!el) return;
             if(turniUserName === 'CENTRALE') {
-                el.innerHTML = `<span style="color:#059669;">✓ Accesso come <b>📻 Centrale Operativa 118</b></span>`;
+                el.innerHTML = `<span style="color:#059669;">✓ Accesso come <b>📻 Centrale Operativa 118</b></span><br><span style="color:#d97706;">⚡ Riceverai anche notifiche nuove richieste</span>`;
             } else if(turniUserName === 'OSPITE') {
                 el.innerHTML = `<span style="color:#64748b;">👁️ Accesso come <b>Ospite</b> — solo consultazione, nessuna notifica personale</span>`;
             } else if(turniUserName) {
@@ -4742,7 +4796,7 @@ function buildRequestCard(richiesta, docId) {
  
 db.collection('richieste_turni').onSnapshot((snapshot) => {
     const userName = turniUserName;
-    const isOperatore = (userName === 'Pazzaglia' || userName === 'Barbieri');
+    const isOperatore = (userName === 'Pazzaglia' || userName === 'Barbieri' || userName === 'CENTRALE');
  
     let pendingNewRequests = [];
     let pendingNotifs = [];
@@ -5020,6 +5074,25 @@ const TICKER_ENABLED_KEY = 'as26_ticker_enabled';
 
 function isTickerEnabled() {
     return localStorage.getItem(TICKER_ENABLED_KEY) !== '0'; // attiva per impostazione predefinita
+}
+
+// ══════════════════════════════════════════════════════════════
+// MODALITÀ VELOCE — per chi ha lag (tipicamente iPhone su Safari): spegne sfocature
+// e animazioni non essenziali in tutta l'app. La classe viene già applicata il prima
+// possibile (script subito dopo <body>), qui gestiamo solo l'interruttore in Opzioni.
+// ══════════════════════════════════════════════════════════════
+function toggleLiteMode() {
+    vibrate();
+    const tg = document.getElementById('lite-mode-toggle');
+    const enabled = tg ? tg.checked : false;
+    document.body.classList.toggle('lite-mode', enabled);
+    localStorage.setItem('as26_lite_mode', enabled ? '1' : '0');
+    if (enabled) buildTicker(); // nasconde subito la barra scorrevole se era visibile
+}
+
+function initLiteModeOption() {
+    const tg = document.getElementById('lite-mode-toggle');
+    if (tg) tg.checked = (localStorage.getItem('as26_lite_mode') === '1');
 }
 
 // Attiva/disattiva la barra scorrevole dalle Opzioni
