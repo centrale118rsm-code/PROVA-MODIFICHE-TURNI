@@ -216,7 +216,11 @@
             border: 1px solid rgba(227,75,52,0.4);
             border-radius: 999px;
             padding: 3px 10px;
+            max-width: 100%;
+            flex-shrink: 1;
+            min-width: 0;
         }
+        .rep-now-name { font-size: 0.82rem; font-weight: 800; color: #ffece8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 140px; }
         .rep-now-dot {
             width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0;
             background: #e34b34; box-shadow: 0 0 0 3px rgba(227,75,52,0.22);
@@ -226,9 +230,8 @@
             0%,100% { box-shadow: 0 0 0 3px rgba(227,75,52,0.22); }
             50%     { box-shadow: 0 0 0 6px rgba(227,75,52,0.06); }
         }
-        .rep-now-label { font-size: 0.68rem; font-weight: 600; color: rgba(255,236,232,0.7); }
-        .rep-now-name { font-size: 0.82rem; font-weight: 800; color: #ffece8; }
-        .rep-now-slot { font-size: 0.68rem; font-weight: 600; color: rgba(255,236,232,0.6); }
+        .rep-now-label { font-size: 0.68rem; font-weight: 600; color: rgba(255,236,232,0.7); white-space: nowrap; }
+        .rep-now-slot { font-size: 0.68rem; font-weight: 600; color: rgba(255,236,232,0.6); white-space: nowrap; }
         .rep-now-slot::before { content: '"'; }
         .rep-now-slot::after { content: '"'; }
 
@@ -353,11 +356,14 @@
         .sticky-month-text { 
             position: sticky; left: 0; width: 100vw; 
             text-align: left; 
-            padding: 4px 0 4px 16px; 
+            padding: 4px 12px 4px 16px; 
             display: flex; 
             align-items: center;
-            gap: 12px;
+            flex-wrap: wrap;
+            row-gap: 4px;
+            gap: 10px;
             min-height: 40px;
+            box-sizing: border-box;
         }
         .month-label {
             font-weight: 900;
@@ -365,6 +371,7 @@
             text-transform: uppercase;
             letter-spacing: -0.5px;
             text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            flex-shrink: 0;
         }
         .live-clock { 
             font-variant-numeric: tabular-nums; 
@@ -377,6 +384,12 @@
             letter-spacing: 0.5px;
             box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
             text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+            flex-shrink: 0;
+        }
+        @media (max-width: 420px) {
+            .month-label { font-size: 1.15rem; }
+            .live-clock { font-size: 0.85rem; padding: 2px 8px; }
+            .sticky-month-text { gap: 8px; padding-right: 8px; }
         }
 
         tbody td { 
@@ -433,7 +446,7 @@
         .td-date.date-holiday .date-dow { color: #fff; }
         body.dark-mode .td-date.date-holiday { background: #3a1712; }
 
-        .holiday-name { font-size: 0.46rem; color: var(--coral); font-weight: 800; line-height: 1.15; margin: 3px auto 0; width: 44px; white-space: normal; text-align: center; }
+        .holiday-name { font-size: 0.46rem; color: var(--coral); font-weight: 800; line-height: 1.15; margin: 3px auto 0; width: 44px; max-width: 44px; white-space: normal; text-align: center; overflow: hidden; word-break: break-word; overflow-wrap: anywhere; hyphens: auto; }
         body.dark-mode .holiday-name { color: #ff9a80; }
 
         .shift-dots { display: flex; flex-direction: row; gap: 3px; margin-top: 3px; justify-content: center; }
@@ -667,19 +680,18 @@
         .admin-prank-row {
             display: flex; align-items: center; justify-content: space-between; gap: 10px;
             padding: 12px; background: var(--bg); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 8px;
+            flex-wrap: wrap;
         }
         .admin-prank-name { font-weight: 800; font-size: 0.88rem; color: var(--text-main); display:flex; align-items:center; gap:8px; }
-        .admin-switch { position: relative; width: 46px; height: 26px; flex-shrink: 0; }
-        .admin-switch input { opacity: 0; width: 0; height: 0; }
-        .admin-switch .admin-switch-track {
-            position: absolute; inset: 0; background: #cbd5e1; border-radius: 999px; cursor: pointer; transition: 0.2s;
+        .admin-prank-modes { display: flex; gap: 6px; flex-shrink: 0; }
+        .admin-prank-mode-btn {
+            border: 1px solid var(--border); background: var(--bg-card); color: var(--text-sec);
+            font-size: 0.72rem; font-weight: 800; padding: 7px 10px; border-radius: 9px; cursor: pointer;
+            display: flex; align-items: center; gap: 4px; white-space: nowrap;
         }
-        .admin-switch .admin-switch-track::before {
-            content: ''; position: absolute; width: 20px; height: 20px; left: 3px; top: 3px;
-            background: #fff; border-radius: 50%; transition: 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.3);
-        }
-        .admin-switch input:checked + .admin-switch-track { background: #ec4899; }
-        .admin-switch input:checked + .admin-switch-track::before { transform: translateX(20px); }
+        .admin-prank-mode-btn.active[data-mode="off"] { background: #64748b; color: #fff; border-color: #64748b; }
+        .admin-prank-mode-btn.active[data-mode="kid"] { background: #ec4899; color: #fff; border-color: #ec4899; }
+        .admin-prank-mode-btn.active[data-mode="demon"] { background: #7f1d1d; color: #fff; border-color: #7f1d1d; }
         .admin-save-btn {
             width: 100%; padding: 13px; border-radius: 12px; border: none; background: var(--primary);
             color: #fff; font-weight: 900; font-size: 0.85rem; cursor: pointer; margin-top: 4px;
@@ -716,6 +728,62 @@
         }
         #prank-banner.show { display: flex; }
         @keyframes prankBounce { 0%,100%{ transform: translateX(-50%) translateY(0); } 50%{ transform: translateX(-50%) translateY(-6px); } }
+
+        /* MODALITÀ SCHERZO — STILE DEMONIACO: rosso/nero cupo, tremolio inquietante. */
+        body.prank-demon {
+            --primary: #dc2626 !important;
+            --coral: #7f1d1d !important;
+            --gold: #b91c1c !important;
+            --navy-mid: #1a0000 !important;
+            --navy-deep: #000000 !important;
+            --navy-light: #450a0a !important;
+        }
+        body.prank-demon header {
+            background: radial-gradient(circle at 50% 0%, #7f1d1d 0%, #1a0000 75%) !important;
+            animation: demonFlicker 2.4s infinite !important;
+        }
+        @keyframes demonFlicker {
+            0%,44%,52%,100% { filter: brightness(1); }
+            46% { filter: brightness(1.5); }
+            48% { filter: brightness(0.75); }
+            50% { filter: brightness(1.2); }
+        }
+        body.prank-demon .logo img {
+            filter: drop-shadow(0 0 10px #ff0000) saturate(1.6);
+            animation: demonPulse 1.4s ease-in-out infinite;
+        }
+        @keyframes demonPulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+        body.prank-demon .logo-title, body.prank-demon .logo-sub { color: #fecaca !important; }
+        #prank-banner.prank-banner-demon {
+            background: linear-gradient(120deg, #450a0a, #7f1d1d, #000) !important;
+            box-shadow: 0 0 30px rgba(220,38,38,0.65) !important;
+            animation: prankBounce 1.6s ease-in-out infinite, demonFlicker 2.4s infinite !important;
+        }
+        .prank-particle-demon { text-shadow: 0 0 10px #ff0000, 0 0 18px #7f1d1d; filter: saturate(1.4); }
+        .prank-train-demon { text-shadow: 0 0 12px #ff0000, 0 0 24px #000; filter: saturate(1.3); }
+
+        /* Coriandoli/palloncini che compaiono dove tocchi lo schermo, e il trenino con
+           animaletti che ogni tanto attraversa lo schermo — solo in Modalità Scherzo. */
+        .prank-particle {
+            position: fixed; z-index: 1600; pointer-events: none;
+            font-size: 22px; left: 0; top: 0;
+            animation: prankParticleFly 1.05s ease-out forwards;
+            will-change: transform, opacity;
+        }
+        @keyframes prankParticleFly {
+            0%   { transform: translate(-50%, -50%) scale(0.5) rotate(0deg); opacity: 1; }
+            100% { transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(1.15) rotate(var(--rot)); opacity: 0; }
+        }
+        .prank-train {
+            position: fixed; left: -160px; z-index: 1600;
+            font-size: 32px; pointer-events: none; white-space: nowrap;
+            animation: prankTrainMove 8s linear forwards;
+            text-shadow: 0 2px 6px rgba(0,0,0,0.25);
+        }
+        @keyframes prankTrainMove {
+            from { left: -160px; }
+            to   { left: 110%; }
+        }
 
         /* MODALITÀ VELOCE — per chi ha lag (soprattutto Safari su iPhone meno recenti):
            spegne sfocature (le più pesanti da calcolare per Safari), animazioni e
@@ -4676,38 +4744,49 @@ db.collection('admin_config').doc('ordine_autisti').onSnapshot((docSnap) => {
 
 // ─── MODALITÀ SCHERZO (Area Admin → Scherzo) ───────────────────────────────────────
 // Ogni dispositivo ascolta SOLO il proprio documento (nome dell'operatore loggato) e
-// reagisce in tempo reale quando l'admin attiva/disattiva l'interruttore.
+// reagisce in tempo reale quando l'admin cambia lo stile. Il campo salvato è "mode":
+// 'off' | 'kid' (giocoso) | 'demon' (demoniaco). I documenti più vecchi con solo il
+// campo "enabled" (versione precedente, solo giocoso) restano compatibili.
 let prankModeUnsub = null;
 function setupPrankListener() {
     if (prankModeUnsub) { prankModeUnsub(); prankModeUnsub = null; }
     if (!turniUserName || turniUserName === 'OSPITE' || turniUserName === 'CENTRALE') {
-        applyPrankMode(false);
+        applyPrankMode('off');
         return;
     }
     const key = turniUserName.toString().toUpperCase().trim();
     prankModeUnsub = db.collection('prank_mode').doc(key).onSnapshot((docSnap) => {
-        const enabled = !!(docSnap.exists && docSnap.data().enabled);
-        applyPrankMode(enabled, turniUserName);
+        let mode = 'off';
+        if (docSnap.exists) {
+            const d = docSnap.data();
+            mode = d.mode || (d.enabled ? 'kid' : 'off');
+        }
+        applyPrankMode(mode, turniUserName);
     });
 }
 setupPrankListener();
 
-// Applica/rimuove la "modalità bambino" sull'interfaccia — scritte allegre, colori
-// vivaci, animazioni giocose. Nessun dato viene toccato: è solo un vestito divertente
-// sopra l'app, reversibile all'istante quando l'admin la disattiva.
-function applyPrankMode(active, name) {
-    document.body.classList.toggle('prank-mode', active);
+// Applica/rimuove lo stile scherzoso sull'interfaccia — 'kid' (scritte allegre, colori
+// vivaci, animazioni giocose) o 'demon' (tema rosso/nero cupo, scritte inquietanti).
+// Nessun dato viene toccato: è solo un vestito diverso sopra l'app, reversibile
+// all'istante quando l'admin lo disattiva.
+let prankCurrentMode = 'off';
+function applyPrankMode(mode, name) {
+    mode = (mode === 'kid' || mode === 'demon') ? mode : 'off';
+    prankCurrentMode = mode;
+    document.body.classList.toggle('prank-mode', mode === 'kid');
+    document.body.classList.toggle('prank-demon', mode === 'demon');
     const banner = document.getElementById('prank-banner');
     const logoTitle = document.querySelector('.logo-title');
     const logoSub = document.getElementById('last-update-badge');
     const loaderMsg = document.getElementById('loader-msg');
     const loaderSub = document.getElementById('loader-sub');
+    const niceName = (name || 'campione').split(' ')[0];
 
-    if (active) {
-        const niceName = (name || 'campione').split(' ')[0];
+    if (mode === 'kid') {
         if (banner) {
             banner.innerHTML = `🎈 Ciao ${escapeHtmlNote(niceName)}! Oggi giochiamo insieme! 🚂✨`;
-            banner.classList.add('show');
+            banner.className = 'show';
         }
         if (logoTitle) logoTitle.innerHTML = '🚂 Trenino Turni 🎈';
         if (logoSub && !logoSub.dataset.prankOrig) {
@@ -4719,15 +4798,108 @@ function applyPrankMode(active, name) {
             loaderMsg.dataset.prankApplied = '1';
         }
         if (loaderSub) loaderSub.textContent = 'Si parteee! 🎉';
+        enablePrankEffects();
+    } else if (mode === 'demon') {
+        if (banner) {
+            banner.innerHTML = `😈 ${escapeHtmlNote(niceName)}... non puoi sfuggirmi 🔥`;
+            banner.className = 'show prank-banner-demon';
+        }
+        if (logoTitle) logoTitle.innerHTML = '😈 Turni Infernali 🔥';
+        if (logoSub && !logoSub.dataset.prankOrig) {
+            logoSub.dataset.prankOrig = logoSub.textContent;
+            logoSub.textContent = 'Non c\'è scampo... 💀';
+        }
+        if (loaderMsg && loaderMsg.dataset.prankApplied !== '1') {
+            loaderMsg.innerHTML = `Ti aspettavo, <span class="loader-name-accent">${escapeHtmlNote(niceName)}</span>... 😈`;
+            loaderMsg.dataset.prankApplied = '1';
+        }
+        if (loaderSub) loaderSub.textContent = 'Entra, se hai coraggio... 🔥';
+        enablePrankEffects();
     } else {
-        if (banner) { banner.classList.remove('show'); banner.innerHTML = ''; }
+        if (banner) { banner.classList.remove('show'); banner.className = ''; banner.innerHTML = ''; }
         if (logoTitle) logoTitle.textContent = 'A.S. 26';
         if (logoSub && logoSub.dataset.prankOrig) {
             logoSub.textContent = logoSub.dataset.prankOrig;
             delete logoSub.dataset.prankOrig;
         }
         if (loaderMsg) delete loaderMsg.dataset.prankApplied;
+        disablePrankEffects();
     }
+}
+
+// ── Effetti al tocco (coriandoli/palloncini in modalità Giocosa, fiamme/teschi in
+// modalità Demoniaca) + "carovana" che ogni tanto attraversa lo schermo ──
+const PRANK_PARTICLE_EMOJI = ['🎈','🎊','✨','🎉','🌟','🦄','🍭','🌈'];
+const PRANK_DEMON_PARTICLE_EMOJI = ['🔥','💀','😈','⚡','🖤','👹'];
+const PRANK_TRAIN_EMOJI = ['🚂🐶🐱🐰🦊', '🚂🐻🐼🐨🐵', '🚂🐥🐣🐤🦆', '🚂🦁🐯🐮🐷'];
+const PRANK_DEMON_TRAIN_EMOJI = ['👹🔥💀🔥👹', '😈🦇🕷️🦇😈', '💀⚰️👹⚰️💀'];
+
+function spawnPrankParticles(x, y) {
+    const demon = prankCurrentMode === 'demon';
+    const emojiSet = demon ? PRANK_DEMON_PARTICLE_EMOJI : PRANK_PARTICLE_EMOJI;
+    const count = 6;
+    for (let i = 0; i < count; i++) {
+        const el = document.createElement('div');
+        el.className = 'prank-particle' + (demon ? ' prank-particle-demon' : '');
+        el.textContent = emojiSet[Math.floor(Math.random() * emojiSet.length)];
+        const angle = Math.random() * Math.PI * 2;
+        const dist = 40 + Math.random() * 70;
+        el.style.setProperty('--dx', Math.cos(angle) * dist + 'px');
+        el.style.setProperty('--dy', (Math.sin(angle) * dist - 35) + 'px'); // leggera spinta verso l'alto
+        el.style.setProperty('--rot', (Math.random() * 360 - 180) + 'deg');
+        el.style.left = x + 'px';
+        el.style.top = y + 'px';
+        document.body.appendChild(el);
+        setTimeout(() => el.remove(), 1100);
+    }
+}
+
+let prankTapHandler = null;
+function handlePrankTap(e) {
+    if (prankCurrentMode === 'off') return;
+    const point = (e.touches && e.touches[0]) ? e.touches[0] : e;
+    spawnPrankParticles(point.clientX, point.clientY);
+}
+
+let prankTrainTimer = null;
+function spawnPrankTrain() {
+    if (prankCurrentMode === 'off') return;
+    const demon = prankCurrentMode === 'demon';
+    const emojiSet = demon ? PRANK_DEMON_TRAIN_EMOJI : PRANK_TRAIN_EMOJI;
+    const el = document.createElement('div');
+    el.className = 'prank-train' + (demon ? ' prank-train-demon' : '');
+    el.textContent = emojiSet[Math.floor(Math.random() * emojiSet.length)];
+    el.style.top = (100 + Math.random() * 140) + 'px';
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 8300);
+}
+
+function scheduleNextPrankTrain() {
+    const delay = 18000 + Math.random() * 17000; // ogni 18-35 secondi circa
+    prankTrainTimer = setTimeout(() => {
+        spawnPrankTrain();
+        scheduleNextPrankTrain();
+    }, delay);
+}
+
+function enablePrankEffects() {
+    if (!prankTapHandler) {
+        prankTapHandler = handlePrankTap;
+        document.addEventListener('pointerdown', prankTapHandler, { passive: true });
+    }
+    if (!prankTrainTimer) {
+        setTimeout(spawnPrankTrain, 2500); // il primo passa presto, così si vede subito
+        scheduleNextPrankTrain();
+    }
+}
+
+function disablePrankEffects() {
+    if (prankTapHandler) {
+        document.removeEventListener('pointerdown', prankTapHandler);
+        prankTapHandler = null;
+    }
+    if (prankTrainTimer) { clearTimeout(prankTrainTimer); prankTrainTimer = null; }
+    document.querySelectorAll('.prank-particle, .prank-train').forEach(el => el.remove());
 }
 
  
@@ -5558,35 +5730,50 @@ function renderAdminScherzo() {
     panel.innerHTML = '<div class="note-empty">Caricamento...</div>';
     db.collection('prank_mode').get().then(function(snapshot) {
         const states = {};
-        snapshot.forEach(d => { states[d.id] = !!d.data().enabled; });
+        snapshot.forEach(d => {
+            const data = d.data();
+            states[d.id] = data.mode || (data.enabled ? 'kid' : 'off');
+        });
         let rowsHtml = STATIC_DRIVER_NAMES.map(name => {
             const key = name.toUpperCase();
-            const checked = states[key] ? 'checked' : '';
+            const current = states[key] || 'off';
+            function btn(mode, icon, label) {
+                return `<button type="button" class="admin-prank-mode-btn ${current === mode ? 'active' : ''}" data-mode="${mode}" onclick="setPrankMode('${key}','${mode}', this)">${icon} ${label}</button>`;
+            }
             return `
             <div class="admin-prank-row">
-                <div class="admin-prank-name">🎈 ${name}</div>
-                <label class="admin-switch">
-                    <input type="checkbox" ${checked} onchange="togglePrankMode('${key}', this.checked)">
-                    <span class="admin-switch-track"></span>
-                </label>
+                <div class="admin-prank-name">${current === 'demon' ? '😈' : current === 'kid' ? '🎈' : '👤'} ${name}</div>
+                <div class="admin-prank-modes">
+                    ${btn('off', '⛔', 'Off')}
+                    ${btn('kid', '🎈', 'Giocoso')}
+                    ${btn('demon', '😈', 'Demoniaco')}
+                </div>
             </div>`;
         }).join('');
         panel.innerHTML = `
             <div class="admin-section">
                 <div class="admin-section-title"><span class="material-icons-round" style="font-size:16px">mood</span> Modalità scherzo per operatore</div>
                 <div style="font-size:0.76rem;color:var(--text-sec);margin-bottom:12px;line-height:1.4;">
-                    Attivandola, il programma dell'operatore selezionato diventa colorato e giocoso,
-                    con scritte allegre come se si parlasse a un bambino. Puoi disattivarla in
-                    qualsiasi momento con lo stesso interruttore — l'effetto sparisce all'istante.
+                    <b>🎈 Giocoso:</b> colori vivaci, scritte allegre, coriandoli/palloncini a ogni tocco e ogni tanto un trenino con animaletti attraversa lo schermo.<br>
+                    <b>😈 Demoniaco:</b> tema rosso e nero, scritte inquietanti, fiamme/teschi a ogni tocco e una "carovana" spaventosa che ogni tanto attraversa lo schermo.<br>
+                    Puoi cambiare o disattivare in qualsiasi momento — l'effetto cambia all'istante sul dispositivo dell'operatore.
                 </div>
                 ${rowsHtml}
             </div>`;
     }).catch(function(e) { console.error(e); panel.innerHTML = '<div class="note-empty">Errore di caricamento.</div>'; });
 }
 
-function togglePrankMode(nameKey, enabled) {
+function setPrankMode(nameKey, mode, btnEl) {
     vibrate();
-    db.collection('prank_mode').doc(nameKey).set({ enabled: enabled, updatedAt: new Date().toISOString() })
+    db.collection('prank_mode').doc(nameKey).set({ mode: mode, updatedAt: new Date().toISOString() })
+        .then(function() {
+            if (btnEl && btnEl.parentElement) {
+                btnEl.parentElement.querySelectorAll('.admin-prank-mode-btn').forEach(b => b.classList.remove('active'));
+                btnEl.classList.add('active');
+                const nameEl = btnEl.closest('.admin-prank-row').querySelector('.admin-prank-name');
+                if (nameEl) nameEl.textContent = (mode === 'demon' ? '😈 ' : mode === 'kid' ? '🎈 ' : '👤 ') + nameEl.textContent.replace(/^[^\s]+\s/, '');
+            }
+        })
         .catch(function(e) { console.error(e); alert('Errore nel salvataggio.'); });
 }
 
