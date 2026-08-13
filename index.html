@@ -311,7 +311,9 @@
             border-bottom: 2px solid var(--border); text-align: center; width: 115px; min-width: 115px;
             height: var(--th-h); backdrop-filter: blur(5px);
             white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+            border-right: 1px solid var(--border);
         }
+        thead th:last-child { border-right: none; }
         body.dark-mode thead th { color: #93b4ff; }
         thead th:first-child {
             font-family: 'Inter', sans-serif; font-size: 0.68rem; font-weight: 800; color: var(--text-sec); letter-spacing: 0.5px;
@@ -577,26 +579,42 @@
         body.dark-mode tr.today .td-date .date-chip { background: var(--navy-light); }
         body.dark-mode tr.today .td-date .date-num, body.dark-mode tr.today .td-date .date-dow { color: #fff; }
 
-        /* LOADER */
+        /* LOADER — schermata "Benvenuto" iniziale, stessa impostazione grafica di
+           Turni-Infermieri-2026 (badge logo + titolo + sottotitolo + puntini), con il
+           logo di A.S. 26 al posto dell'icona generica. Compare SUBITO, prima ancora
+           che il file turni sia stato caricato. */
         #loader {
             position: fixed; inset: 0; z-index: 9999;
-            background: #0f172a;
+            background: radial-gradient(circle at 50% 32%, #eef2ff 0%, #dde6f7 45%, #c9d6ec 100%);
             display: flex; align-items: center; justify-content: center;
             flex-direction: column;
         }
+        .loader-logo-badge {
+            width: 84px; height: 84px; border-radius: 20px;
+            background: linear-gradient(135deg, #1e3a8a 0%, var(--primary) 55%, #3b82f6 100%);
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 12px 30px rgba(37,99,235,0.35);
+            margin-bottom: 22px;
+        }
+        .loader-logo-badge img { width: 58px; height: 58px; object-fit: contain; border-radius: 12px; }
         #loader-text {
             position: relative; z-index: 2;
-            margin-top: 20px;
             pointer-events: none;
             text-align: center;
         }
         #loader-text h3 {
-            margin: 0; font-size: 1rem; font-weight: 900;
-            color: #f1f5f9; text-shadow: 0 2px 12px rgba(0,0,0,0.8);
-            animation: lblink 0.7s ease-in-out infinite alternate;
+            margin: 0; font-size: 1.35rem; font-weight: 900;
+            color: #0f172a; letter-spacing: -0.5px;
         }
-        #loader-text p { margin: 5px 0 0; font-size: 0.72rem; color: rgba(255,255,255,0.4); font-weight: 500; }
-        @keyframes lblink { from { opacity:0.5; } to { opacity:1; } }
+        .loader-name-accent { color: var(--primary); }
+        .loader-sub-wrap { display: flex; align-items: center; justify-content: center; gap: 9px; margin-top: 7px; }
+        .loader-sub-line { width: 22px; height: 1px; background: rgba(15,23,42,0.18); }
+        #loader-sub { font-size: 0.68rem; font-weight: 800; letter-spacing: 1.6px; text-transform: uppercase; color: var(--text-sec); }
+        .loader-dots { display: flex; gap: 6px; justify-content: center; margin-top: 20px; }
+        .loader-dots span { width: 6px; height: 6px; border-radius: 50%; background: var(--primary); opacity: 0.3; animation: loaderDotPulse 1.2s ease-in-out infinite; }
+        .loader-dots span:nth-child(2) { animation-delay: 0.2s; }
+        .loader-dots span:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes loaderDotPulse { 0%,80%,100% { opacity:0.25; transform:scale(0.8); } 40% { opacity:1; transform:scale(1); } }
 
         /* WELCOME TOAST — comparsa "Benvenuto, Nome" + "Autisti Soccorritori 118" dopo il
            caricamento del file turni. Non blocca l'interfaccia, sparisce da sola. */
@@ -1243,15 +1261,21 @@
     <div id="welcome-toast"></div>
 
     <div id="loader">
-        <img src="logo.png" alt="Logo" style="width:80px;height:80px;border-radius:18px;box-shadow:0 4px 20px rgba(0,0,0,0.4);position:relative;z-index:2;margin-bottom:20px;" onerror="this.style.display='none'">
-        <div class="spinner" style="position:relative;z-index:2;"></div>
+        <div class="loader-logo-badge">
+            <img src="logo.png" alt="Logo" onerror="this.style.display='none'">
+        </div>
         <div id="loader-text">
-            <h3 id="loader-msg">🚑 Caricamento in corso...</h3>
-            <p>A.S. 26 — San Marino</p>
+            <h3 id="loader-msg">Benvenuto</h3>
+            <div class="loader-sub-wrap">
+                <span class="loader-sub-line"></span>
+                <span id="loader-sub">Autisti Soccorritori 118</span>
+                <span class="loader-sub-line"></span>
+            </div>
+            <div class="loader-dots"><span></span><span></span><span></span></div>
         </div>
         <div id="manual-upload">
-            <p style="color:#ef4444; font-weight:bold; font-size:1.1rem; margin-bottom:10px">&#x26A0; File automatico non trovato</p>
-            <p style="color:rgba(255,255,255,0.7); font-size:0.9rem; margin:0">Carica manualmente il file Excel</p>
+            <p style="color:#dc2626; font-weight:bold; font-size:1.1rem; margin-bottom:10px">&#x26A0; File automatico non trovato</p>
+            <p style="color:#475569; font-size:0.9rem; margin:0">Carica manualmente il file Excel</p>
             <label for="file-input" class="file-label">
                 <span class="material-icons-round">upload_file</span>
                 CARICA FILE (.xlsx)
@@ -1259,6 +1283,21 @@
             <input type="file" id="file-input" accept=".xlsx">
         </div>
     </div>
+
+    <script>
+        // Popola SUBITO il messaggio di benvenuto nel loader, leggendo l'identità già
+        // salvata su questo dispositivo (se presente) — non deve aspettare il caricamento
+        // del file turni, deve comparire nello stesso istante in cui appare "Caricamento".
+        (function() {
+            var saved = localStorage.getItem('turni_user_name') || '';
+            var msgEl = document.getElementById('loader-msg');
+            if (!msgEl) return;
+            if (saved) {
+                var displayName = saved === 'CENTRALE' ? 'Centrale Operativa 118' : (saved === 'OSPITE' ? 'Ospite' : saved);
+                msgEl.innerHTML = 'Benvenuto, <span class="loader-name-accent">' + displayName + '</span>';
+            }
+        })();
+    </script>
 
     <script>
     // ═══════════════════════════════════════════
@@ -2589,10 +2628,8 @@
             // Al primo avvio chiede "Chi sei?"; una volta risposto (o se già scelto in passato)
             // mostra a cascata l'eventuale changelog.
             setTimeout(checkWhoIAm, 700);
-            // Se l'identità è già nota (utente già passato dal "Chi sei?" in passato), mostra
-            // subito il benvenuto. Se invece deve ancora rispondere, saveTurniUser() lo mostrerà
-            // non appena sceglie il proprio nome (vedi sotto).
-            if (turniUserName) setTimeout(showWelcomeToast, 550);
+            // Il benvenuto ora compare già nella schermata di caricamento (#loader), non
+            // serve più mostrarlo di nuovo qui a caricamento ultimato.
             initNotesSystem();
             initTickerOption();
             setTimeout(buildTicker, 900);
