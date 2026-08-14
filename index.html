@@ -2318,6 +2318,12 @@
         let nursesLoaded = false;
         let appuntamentiVeicoli = {}; // Variabile per gli appuntamenti veicoli
 
+        // Dichiarate qui in cima (non più vicino a dove vengono usate) apposta: sono lette
+        // da funzioni collegate a listener Firestore che possono scattare in qualunque
+        // momento, quindi devono esistere fin dal primissimo istante in cui lo script parte.
+        let driverOrderOverride = null; // Area Admin → Operatori: ordine colonne personalizzato
+        let prankCurrentMode = 'off';   // Area Admin → Scherzo: 'off' | 'kid' | 'demon' per l'utente corrente
+
         // ==============================================
         // GESTIONE CHANGELOG / PRIMO AVVIO
         // ==============================================
@@ -4810,8 +4816,7 @@ function getEffectiveCellInfo(row, d, dateKey) {
 // 'off' | 'kid' (giocoso) | 'demon' (demoniaco). I documenti più vecchi con solo il
 // campo "enabled" (versione precedente, solo giocoso) restano compatibili.
 let prankModeUnsub = null;
-let prankCurrentMode = 'off'; // dichiarata PRIMA di setupPrankListener(): viene chiamata subito,
-                               // sotto, e applyPrankMode() la legge già alla primissima esecuzione.
+// (prankCurrentMode è dichiarata in cima al file insieme alle altre variabili globali)
 function setupPrankListener() {
     if (prankModeUnsub) { prankModeUnsub(); prankModeUnsub = null; }
     if (!turniUserName || turniUserName === 'OSPITE' || turniUserName === 'CENTRALE') {
@@ -5776,7 +5781,7 @@ function saveAdminOperatoriOrder() {
 
 // Riordina l'array "drivers" secondo l'ordine salvato dall'admin (se presente).
 // Va chiamata in initApp() subito dopo aver costruito "drivers" dall'header Excel.
-let driverOrderOverride = null;
+// (driverOrderOverride è dichiarata in cima al file insieme alle altre variabili globali)
 function applyDriverOrder() {
     if (!driverOrderOverride || !Array.isArray(driverOrderOverride) || typeof drivers === 'undefined' || !drivers) return;
     const orderIndex = {};
