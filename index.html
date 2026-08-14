@@ -395,7 +395,7 @@
         tbody td { 
             padding: 2px; height: var(--cell-h); vertical-align: middle; 
             border-bottom: 1px solid var(--border); border-right: 1px dashed var(--border); 
-            transition: height 0.3s ease;
+            transition: height 0.3s ease; overflow: visible;
         }
         
         .td-date { 
@@ -475,7 +475,7 @@
             font-size: var(--font-base); text-transform: uppercase; position: relative; 
             line-height: 1.1; text-align: center; cursor: pointer;
             box-shadow: 0 1px 2px rgba(0,0,0,0.05); transition: transform 0.1s;
-            padding-bottom: 2px; 
+            padding-bottom: 2px; overflow: visible;
         }
         .cell:active { transform: scale(0.96); }
         
@@ -1800,6 +1800,9 @@
                 <button class="admin-tab" data-tab="scherzo" onclick="switchAdminTab('scherzo')">
                     <span class="material-icons-round">mood</span> Scherzo
                 </button>
+                <button class="admin-tab" data-tab="bibbia" onclick="switchAdminTab('bibbia')">
+                    <span class="material-icons-round">menu_book</span> Bibbia
+                </button>
             </div>
             <div class="modal-body" style="background:var(--bg); padding:0;">
                 <div id="admin-tab-sessioni" class="admin-tab-panel">
@@ -1808,6 +1811,7 @@
                 <div id="admin-tab-grafica" class="admin-tab-panel" style="display:none; padding:16px;"></div>
                 <div id="admin-tab-operatori" class="admin-tab-panel" style="display:none; padding:16px;"></div>
                 <div id="admin-tab-scherzo" class="admin-tab-panel" style="display:none; padding:16px;"></div>
+                <div id="admin-tab-bibbia" class="admin-tab-panel" style="display:none; padding:16px;"></div>
             </div>
         </div>
     </div>
@@ -3560,7 +3564,7 @@
                 // ──────────────────────────────────────────────────────
                 let countM = 0, countP = 0;
                 drivers.forEach(dr => {
-                    let val = (row[dr.idx]?.v || "").toString().trim();
+                    let val = (getEffectiveCellInfo(row, dr, holKey)?.v || "").toString().trim();
                     let sType = normalizeShift(val);
                     if(sType === "M" || sType === "MN") countM++;
                     if(sType === "P") countP++;
@@ -3575,7 +3579,7 @@
                 }
 
                 cols.forEach(d => {
-                    let cellInfo = row[d.idx];
+                    let cellInfo = getEffectiveCellInfo(row, d, holKey);
                     let td = document.createElement('td');
                     let val = cellInfo.v ? cellInfo.v.toString().trim() : "";
                     let sType = normalizeShift(val);
@@ -4039,51 +4043,52 @@
                             <div>MAT+NOT</div>
                             <div class="time-tag">6:30-13:15</div>
                             <div class="time-tag">19:45-00:00</div>
+                            ${repBarHtml || ""}
                         </div>`;
             }
 
             // PERMESSO NOTTE: nel file è "pn" sul giorno in cui la notte inizia e "x" sul giorno
             // dopo, in cui la notte finisce. Va mostrato in verde scuro su ENTRAMBI i giorni.
             if(subVal === "PN") {
-                return renderSpecial("PERMESSO<br>NOTTE", "spec-darkgreen");
+                return renderSpecial("PERMESSO<br>NOTTE", "spec-darkgreen", repBarHtml);
             }
             if(subVal === "X" && prevSubVal === "PN") {
-                return renderSpecial("PERMESSO<br>NOTTE", "spec-darkgreen");
+                return renderSpecial("PERMESSO<br>NOTTE", "spec-darkgreen", repBarHtml);
             }
 
-            if(u === "NL" || subVal === "NL") return renderSpecial("FESTIVO<br>NON LAVORATO", "spec-nl");
-            if(subVal === "NG") return renderSpecial("FESTIVO<br>NON GODUTO", "spec-blue");
+            if(u === "NL" || subVal === "NL") return renderSpecial("FESTIVO<br>NON LAVORATO", "spec-nl", repBarHtml);
+            if(subVal === "NG") return renderSpecial("FESTIVO<br>NON GODUTO", "spec-blue", repBarHtml);
             if(subVal === "M" || subVal === "MALATTIA" || subVal === "MAL" || u === "MALATTIA" || u === "MAL") {
-                return renderSpecial("MALATTIA", "spec-red");
+                return renderSpecial("MALATTIA", "spec-red", repBarHtml);
             }
-            if(subVal === "K" || u === "K") return renderSpecial("DISTACCO<br>SPECIALE", "spec-purple");
+            if(subVal === "K" || u === "K") return renderSpecial("DISTACCO<br>SPECIALE", "spec-purple", repBarHtml);
             
             if (subColor && !subColor.startsWith('FFFFFFFF') && subColor !== 'FF000000' && subColor.length >= 6) {
                 let subCat = detectColorCategory(subColor);
                 if (subCat && (subCat.cls === "spec-blue" || subCat.cls === "spec-red")) {
-                    return `<div class="cell ${subCat.cls}">${subCat.lbl}</div>`;
+                    return `<div class="cell ${subCat.cls}">${subCat.lbl}${repBarHtml || ""}</div>`;
                 }
             }
 
             let hasColor = (color && !color.startsWith('FFFFFFFF') && color !== 'FF000000' && color.length >= 6); 
             if(hasColor) {
                 let cat = detectColorCategory(color);
-                if(cat) return `<div class="cell ${cat.cls}">${cat.lbl}</div>`;
+                if(cat) return `<div class="cell ${cat.cls}">${cat.lbl}${repBarHtml || ""}</div>`;
             }
 
             let isEmpty = (val === "-" || val === "." || val === "0" || val === "");
             
-            if(subVal === "F" || subVal.includes("CONG")) return renderSpecial("CONGEDO<br>ORDINARIO", "spec-yellow");
-            if(subVal === "V" || subVal.includes("FER")) return renderSpecial("FERIE<br>RESIDUE", "spec-orange");
-            if(subVal === "R" || subVal.includes("REC")) return renderSpecial("RECUPERO", "spec-pink");
-            if(subVal === "P" || subVal.includes("PER")) return renderSpecial("PERMESSO<br>STRAORD.", "spec-green");
+            if(subVal === "F" || subVal.includes("CONG")) return renderSpecial("CONGEDO<br>ORDINARIO", "spec-yellow", repBarHtml);
+            if(subVal === "V" || subVal.includes("FER")) return renderSpecial("FERIE<br>RESIDUE", "spec-orange", repBarHtml);
+            if(subVal === "R" || subVal.includes("REC")) return renderSpecial("RECUPERO", "spec-pink", repBarHtml);
+            if(subVal === "P" || subVal.includes("PER")) return renderSpecial("PERMESSO<br>STRAORD.", "spec-green", repBarHtml);
             
-            if(u === "F" || u.includes("CONG")) return `<div class="cell spec-yellow">CONGEDO<br>ORDINARIO</div>`;
-            if(u === "V" || u.includes("FER")) return `<div class="cell spec-orange">FERIE<br>RESIDUE</div>`;
-            if(u.includes("REC")) return `<div class="cell spec-pink">RECUPERO</div>`;
-            if(u.includes("PERM")) return `<div class="cell spec-green">PERMESSO<br>STRAORD.</div>`;
+            if(u === "F" || u.includes("CONG")) return `<div class="cell spec-yellow">CONGEDO<br>ORDINARIO${repBarHtml || ""}</div>`;
+            if(u === "V" || u.includes("FER")) return `<div class="cell spec-orange">FERIE<br>RESIDUE${repBarHtml || ""}</div>`;
+            if(u.includes("REC")) return `<div class="cell spec-pink">RECUPERO${repBarHtml || ""}</div>`;
+            if(u.includes("PERM")) return `<div class="cell spec-green">PERMESSO<br>STRAORD.${repBarHtml || ""}</div>`;
             
-            if(isEmpty) return `<div class="cell empty">-</div>`;
+            if(isEmpty) return `<div class="cell empty">${repBarHtml ? repBarHtml : "-"}</div>`;
 
             let display = u;
             let cls = "cell";
@@ -4667,8 +4672,8 @@
             return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
         }
 
-        function renderSpecial(text, cssClass) {
-            return `<div class="cell ${cssClass}">${text}</div>`;
+        function renderSpecial(text, cssClass, repBarHtml) {
+            return `<div class="cell ${cssClass}">${text}${repBarHtml || ""}</div>`;
         }
      // PATCH — Notifiche richieste turni: popup una sola volta
 // Sostituisce il blocco Firebase onSnapshot in index.html
@@ -4741,6 +4746,63 @@ db.collection('admin_config').doc('ordine_autisti').onSnapshot((docSnap) => {
         renderTable();
     }
 });
+
+// ─── BIBBIA (Area Admin → Bibbia) → regole e automazioni, lette in tempo reale ───
+let BIBBIA_CONFIG = { tipiRichiesta: {}, autoSyncReperibilita: true, autoApplyCambioTurno: false };
+db.collection('admin_config').doc('bibbia').onSnapshot((docSnap) => {
+    BIBBIA_CONFIG = Object.assign(
+        { tipiRichiesta: {}, autoSyncReperibilita: true, autoApplyCambioTurno: false },
+        docSnap.exists ? docSnap.data() : {}
+    );
+    if (typeof drivers !== 'undefined' && drivers && drivers.length && document.getElementById('table-body').innerHTML !== "") {
+        renderTable();
+    }
+});
+
+// ─── CAMBI TURNO AUTOMATICI (Area Admin → Bibbia → "Cambio turno automatico") ───
+// Ogni documento in "turno_overrides" (scritto da Richieste-A.S.-118 dopo aver validato
+// che i turni dichiarati dai due operatori corrispondono davvero a quelli in Excel)
+// descrive uno scambio di turno fra due autisti in un giorno preciso: qualunque cosa
+// abbiano quel giorno, se la scambiano. Applicato SOLO se l'automazione è attiva nella
+// Bibbia — altrimenti la richiesta resta visibile ma il calendario non cambia da solo.
+let turnoOverrides = {}; // "mIdx-day" (0-indexed mese, come holKey) -> [{a, b}, ...]
+db.collection('turno_overrides').onSnapshot((snapshot) => {
+    const map = {};
+    snapshot.forEach((docSnap) => {
+        const d = docSnap.data();
+        if (!d.date || !d.driverA || !d.driverB) return;
+        const parts = d.date.split("-"); // YYYY-MM-DD
+        if (parts.length !== 3) return;
+        const key = (parseInt(parts[1]) - 1) + "-" + parseInt(parts[2]); // 0-indexed mese, come holKey
+        if (!map[key]) map[key] = [];
+        map[key].push({ a: normalizeRepName(d.driverA), b: normalizeRepName(d.driverB) });
+    });
+    turnoOverrides = map;
+    if (typeof drivers !== 'undefined' && drivers && drivers.length && document.getElementById('table-body').innerHTML !== "") {
+        renderTable();
+    }
+});
+
+// Ritorna la cella EFFETTIVA da mostrare per l'autista "d" in quel giorno, tenendo conto
+// di eventuali cambi turno automatici confermati (vedi sopra). Se l'automazione è
+// disattivata nella Bibbia, o non c'è nessuno scambio per quel giorno/autista, ritorna
+// semplicemente la sua cella originale.
+function getEffectiveCellInfo(row, d, dateKey) {
+    if (!BIBBIA_CONFIG.autoApplyCambioTurno) return row[d.idx];
+    const swaps = turnoOverrides[dateKey];
+    if (!swaps || !swaps.length) return row[d.idx];
+    const dNorm = normalizeRepName(d.name);
+    for (const s of swaps) {
+        let otherNorm = null;
+        if (s.a === dNorm) otherNorm = s.b;
+        else if (s.b === dNorm) otherNorm = s.a;
+        if (otherNorm) {
+            const other = drivers.find(x => normalizeRepName(x.name) === otherNorm);
+            if (other) return row[other.idx];
+        }
+    }
+    return row[d.idx];
+}
 
 // ─── MODALITÀ SCHERZO (Area Admin → Scherzo) ───────────────────────────────────────
 // Ogni dispositivo ascolta SOLO il proprio documento (nome dell'operatore loggato) e
@@ -5557,6 +5619,11 @@ function switchAdminTab(tab) {
         sub.textContent = 'Modalità scherzo per un operatore';
         if (adminSessionsUnsub) { adminSessionsUnsub(); adminSessionsUnsub = null; }
         renderAdminScherzo();
+    } else if (tab === 'bibbia') {
+        document.getElementById('admin-tab-bibbia').style.display = 'block';
+        sub.textContent = 'Regole e automazioni del sistema';
+        if (adminSessionsUnsub) { adminSessionsUnsub(); adminSessionsUnsub = null; }
+        renderAdminBibbia();
     }
 }
 
@@ -5775,6 +5842,117 @@ function setPrankMode(nameKey, mode, btnEl) {
             }
         })
         .catch(function(e) { console.error(e); alert('Errore nel salvataggio.'); });
+}
+
+// ══════════════════════════════════════════════════════════════
+// AREA ADMIN — TAB "BIBBIA": regole e automazioni del sistema, organizzate in
+// sezioni e sottosezioni. Configurazione unica salvata in Firestore
+// (admin_config/bibbia) e letta sia da questo programma sia dal portale Richieste.
+// ══════════════════════════════════════════════════════════════
+const REQUEST_TYPE_CATEGORIES = [
+    { label: '🏖️ Ferie / Congedo', types: [
+        { key: 'ferie', label: 'Congedo ordinario' },
+        { key: 'ferie_anno_prec', label: 'Congedo ordinario anno precedente' }
+    ]},
+    { label: '⏱️ Permessi e Recuperi', types: [
+        { key: 'permesso_ore', label: 'Permesso straordinario fruibile a ore' },
+        { key: 'permesso', label: 'Permesso straordinario' },
+        { key: 'recupero_ore', label: 'Recupero Ore' }
+    ]},
+    { label: '⚖️ Permessi Speciali', types: [
+        { key: 'permesso_matrimonio', label: 'Permesso Matrimonio' },
+        { key: 'permesso_studio', label: 'Permesso Studio' },
+        { key: 'permesso_sportivo', label: 'Permesso Sportivo' },
+        { key: 'permesso_notte', label: 'Permesso straordinario Notte' },
+        { key: 'permesso_lutto', label: 'Permesso Lutto' },
+        { key: 'aspettativa', label: 'Aspettativa' }
+    ]},
+    { label: '🔄 Cambi e Coperture', types: [
+        { key: 'copertura_reperibilita', label: 'Cessione reperibilità' },
+        { key: 'cambio_turno', label: 'Cambio Turno' }
+    ]}
+];
+const BIBBIA_DEFAULTS = {
+    tipiRichiesta: {}, // vuoto = tutti abilitati (vedi isRequestTypeEnabled)
+    autoSyncReperibilita: true,
+    autoApplyCambioTurno: false
+};
+
+function renderAdminBibbia() {
+    const panel = document.getElementById('admin-tab-bibbia');
+    panel.innerHTML = '<div class="note-empty">Caricamento...</div>';
+    db.collection('admin_config').doc('bibbia').get().then(function(docSnap) {
+        const cfg = Object.assign({}, BIBBIA_DEFAULTS, docSnap.exists ? docSnap.data() : {});
+        const tipi = Object.assign({}, cfg.tipiRichiesta || {});
+
+        let categoriesHtml = REQUEST_TYPE_CATEGORIES.map(cat => {
+            let itemsHtml = cat.types.map(t => {
+                const checked = (tipi[t.key] !== false) ? 'checked' : '';
+                return `<label class="checkbox-wrapper" style="display:flex;align-items:center;gap:8px;padding:6px 0;">
+                            <input type="checkbox" data-bibbia-tipo="${t.key}" ${checked}> ${t.label}
+                        </label>`;
+            }).join('');
+            return `<div style="margin-bottom:14px;">
+                        <div style="font-size:0.72rem;font-weight:900;color:var(--text-sec);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">${cat.label}</div>
+                        ${itemsHtml}
+                    </div>`;
+        }).join('');
+
+        panel.innerHTML = `
+            <div class="admin-section">
+                <div class="admin-section-title"><span class="material-icons-round" style="font-size:16px">rule</span> Tipi di richiesta abilitati</div>
+                <div style="font-size:0.76rem;color:var(--text-sec);margin-bottom:14px;line-height:1.4;">
+                    Le voci disattivate qui non compaiono più tra le scelte disponibili sul sito Richieste.
+                </div>
+                ${categoriesHtml}
+                <button class="admin-save-btn" onclick="saveAdminBibbiaTipi()">
+                    <span class="material-icons-round">save</span> Salva tipi di richiesta
+                </button>
+            </div>
+            <div class="admin-section">
+                <div class="admin-section-title"><span class="material-icons-round" style="font-size:16px">bolt</span> Automazioni</div>
+                <div class="option-item" style="padding:10px 0; border-bottom:1px solid var(--border);">
+                    <div style="display:flex; flex-direction:column">
+                        <span style="font-size:0.9rem; font-weight:700;">Cessione reperibilità automatica</span>
+                        <span style="font-size:0.76rem; color:var(--text-sec); font-weight:400;">Quando attiva, le cessioni di reperibilità approvate sul sito Richieste si applicano da sole al calendario turni.</span>
+                    </div>
+                    <label class="switch" style="flex-shrink:0;">
+                        <input type="checkbox" id="bibbia-auto-rep" ${cfg.autoSyncReperibilita !== false ? 'checked' : ''} onchange="saveAdminBibbiaAutomazioni()">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="option-item" style="padding:10px 0; border-bottom:none;">
+                    <div style="display:flex; flex-direction:column">
+                        <span style="font-size:0.9rem; font-weight:700;">Cambio turno automatico</span>
+                        <span style="font-size:0.76rem; color:var(--text-sec); font-weight:400;">Quando attiva, i cambi turno richiesti (con controllo di corrispondenza) si applicano da soli al calendario turni.</span>
+                    </div>
+                    <label class="switch" style="flex-shrink:0;">
+                        <input type="checkbox" id="bibbia-auto-cambio" ${cfg.autoApplyCambioTurno === true ? 'checked' : ''} onchange="saveAdminBibbiaAutomazioni()">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>`;
+    }).catch(function(e) { console.error(e); panel.innerHTML = '<div class="note-empty">Errore di caricamento.</div>'; });
+}
+
+function saveAdminBibbiaTipi() {
+    vibrate();
+    const tipi = {};
+    document.querySelectorAll('[data-bibbia-tipo]').forEach(cb => { tipi[cb.dataset.bibbiaTipo] = cb.checked; });
+    db.collection('admin_config').doc('bibbia').set({ tipiRichiesta: tipi, updatedAt: new Date().toISOString() }, { merge: true })
+        .then(function() { alert('Tipi di richiesta salvati!'); })
+        .catch(function(e) { console.error(e); alert('Errore nel salvataggio.'); });
+}
+
+function saveAdminBibbiaAutomazioni() {
+    vibrate();
+    const autoRep = document.getElementById('bibbia-auto-rep').checked;
+    const autoCambio = document.getElementById('bibbia-auto-cambio').checked;
+    db.collection('admin_config').doc('bibbia').set({
+        autoSyncReperibilita: autoRep,
+        autoApplyCambioTurno: autoCambio,
+        updatedAt: new Date().toISOString()
+    }, { merge: true }).catch(function(e) { console.error(e); alert('Errore nel salvataggio.'); });
 }
 
 function renderAdminSessions() {
