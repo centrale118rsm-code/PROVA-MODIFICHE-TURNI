@@ -2323,6 +2323,13 @@
         // momento, quindi devono esistere fin dal primissimo istante in cui lo script parte.
         let driverOrderOverride = null; // Area Admin → Operatori: ordine colonne personalizzato
         let prankCurrentMode = 'off';   // Area Admin → Scherzo: 'off' | 'kid' | 'demon' per l'utente corrente
+        let prankModeUnsub = null;
+        let prankTapHandler = null;
+        let prankTrainTimer = null;
+        const PRANK_PARTICLE_EMOJI = ['🎈','🎊','✨','🎉','🌟','🦄','🍭','🌈'];
+        const PRANK_DEMON_PARTICLE_EMOJI = ['🔥','💀','😈','⚡','🖤','👹'];
+        const PRANK_TRAIN_EMOJI = ['🚂🐶🐱🐰🦊', '🚂🐻🐼🐨🐵', '🚂🐥🐣🐤🦆', '🚂🦁🐯🐮🐷'];
+        const PRANK_DEMON_TRAIN_EMOJI = ['👹🔥💀🔥👹', '😈🦇🕷️🦇😈', '💀⚰️👹⚰️💀'];
 
         // ==============================================
         // GESTIONE CHANGELOG / PRIMO AVVIO
@@ -4815,8 +4822,7 @@ function getEffectiveCellInfo(row, d, dateKey) {
 // reagisce in tempo reale quando l'admin cambia lo stile. Il campo salvato è "mode":
 // 'off' | 'kid' (giocoso) | 'demon' (demoniaco). I documenti più vecchi con solo il
 // campo "enabled" (versione precedente, solo giocoso) restano compatibili.
-let prankModeUnsub = null;
-// (prankCurrentMode è dichiarata in cima al file insieme alle altre variabili globali)
+// (prankModeUnsub e prankCurrentMode sono dichiarate in cima al file)
 function setupPrankListener() {
     if (prankModeUnsub) { prankModeUnsub(); prankModeUnsub = null; }
     if (!turniUserName || turniUserName === 'OSPITE' || turniUserName === 'CENTRALE') {
@@ -4897,11 +4903,7 @@ function applyPrankMode(mode, name) {
 
 // ── Effetti al tocco (coriandoli/palloncini in modalità Giocosa, fiamme/teschi in
 // modalità Demoniaca) + "carovana" che ogni tanto attraversa lo schermo ──
-const PRANK_PARTICLE_EMOJI = ['🎈','🎊','✨','🎉','🌟','🦄','🍭','🌈'];
-const PRANK_DEMON_PARTICLE_EMOJI = ['🔥','💀','😈','⚡','🖤','👹'];
-const PRANK_TRAIN_EMOJI = ['🚂🐶🐱🐰🦊', '🚂🐻🐼🐨🐵', '🚂🐥🐣🐤🦆', '🚂🦁🐯🐮🐷'];
-const PRANK_DEMON_TRAIN_EMOJI = ['👹🔥💀🔥👹', '😈🦇🕷️🦇😈', '💀⚰️👹⚰️💀'];
-
+// (le liste PRANK_*_EMOJI sono dichiarate in cima al file)
 function spawnPrankParticles(x, y) {
     const demon = prankCurrentMode === 'demon';
     const emojiSet = demon ? PRANK_DEMON_PARTICLE_EMOJI : PRANK_PARTICLE_EMOJI;
@@ -4922,14 +4924,14 @@ function spawnPrankParticles(x, y) {
     }
 }
 
-let prankTapHandler = null;
+// (prankTapHandler è dichiarata in cima al file)
 function handlePrankTap(e) {
     if (prankCurrentMode === 'off') return;
     const point = (e.touches && e.touches[0]) ? e.touches[0] : e;
     spawnPrankParticles(point.clientX, point.clientY);
 }
 
-let prankTrainTimer = null;
+// (prankTrainTimer è dichiarata in cima al file)
 function spawnPrankTrain() {
     if (prankCurrentMode === 'off') return;
     const demon = prankCurrentMode === 'demon';
