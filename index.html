@@ -4810,6 +4810,8 @@ function getEffectiveCellInfo(row, d, dateKey) {
 // 'off' | 'kid' (giocoso) | 'demon' (demoniaco). I documenti più vecchi con solo il
 // campo "enabled" (versione precedente, solo giocoso) restano compatibili.
 let prankModeUnsub = null;
+let prankCurrentMode = 'off'; // dichiarata PRIMA di setupPrankListener(): viene chiamata subito,
+                               // sotto, e applyPrankMode() la legge già alla primissima esecuzione.
 function setupPrankListener() {
     if (prankModeUnsub) { prankModeUnsub(); prankModeUnsub = null; }
     if (!turniUserName || turniUserName === 'OSPITE' || turniUserName === 'CENTRALE') {
@@ -4832,7 +4834,6 @@ setupPrankListener();
 // vivaci, animazioni giocose) o 'demon' (tema rosso/nero cupo, scritte inquietanti).
 // Nessun dato viene toccato: è solo un vestito diverso sopra l'app, reversibile
 // all'istante quando l'admin lo disattiva.
-let prankCurrentMode = 'off';
 function applyPrankMode(mode, name) {
     mode = (mode === 'kid' || mode === 'demon') ? mode : 'off';
     prankCurrentMode = mode;
