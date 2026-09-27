@@ -1958,6 +1958,105 @@
         }
         #richieste-iframe { flex: 1; border: none; width: 100%; background: #fff; }
     </style>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Barlow+Condensed:wght@600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* ══════════════════════════════════════════════════════════════════
+           STILE AUTISTI — ripreso dall'app autisti originale (blu notte, corallo e oro,
+           Inter + Barlow Condensed, colori dei turni degli autisti). Sta in fondo al foglio
+           di stile così prevale sulla grafica della base infermieri.
+           ══════════════════════════════════════════════════════════════════ */
+        :root {
+            --primary: #2563eb; --bg: #f8fafc; --bg-card: #ffffff; --text-main: #0f172a; --text-sec: #64748b; --border: #e2e8f0;
+            --navy-deep: #0a1128; --navy-mid: #142a5c; --navy-light: #1e3f82; --coral: #e34b34; --gold: #e0a929;
+            --c-M: #026bfe; --t-M: #ffffff; --b-M: #bae6fd;
+            --c-P: #56a2ff; --t-P: #ffffff; --b-P: #c7d2fe;
+            --c-N: #003785; --t-N: #ffffff; --b-N: #c7d2fe;
+            --c-R: #ecfdf5; --t-R: #059669; --b-R: #6ee7b7;
+            --c-SM: #10004f; --t-SM: #ffffff; --b-SM: #cbd5e1;
+            --c-dM: #fff1f2; --t-dM: #4b5563; --b-dM: #cc506983;
+            --c-dP: #fff1f2; --t-dP: #4b5563; --b-dP: #cc506983;
+            --c-dR: #ecfdf5; --t-dR: #059669; --b-dR: #6ee7b7;
+            --bg-ferie: #ff782f; --t-ferie: #ffffff; --b-ferie: #a15300;
+            --bg-perm: #00e749; --t-perm: #000000; --b-perm: #004e1c;
+            --bg-cong: #ffea00; --t-cong: #000000; --b-cong: #fbff00;
+            --bg-rec: #d00173; --t-rec: #ffe8f2; --b-rec: #c3006b;
+            --bg-mal: #fee2e2; --t-mal: #b91c1c; --b-mal: #fca5a5;
+            --bg-ng: #e0f2fe; --t-ng: #0369a1; --b-ng: #7dd3fc;
+            --bg-nl: #e0f7fa; --t-nl: #006064; --b-nl: #b2ebf2;
+            --bg-pn: #14532d; --t-pn: #ffffff; --b-pn: #166534;
+            --bg-stu: #8b5cf6; --t-stu: #ffffff; --b-stu: #7c3aed;
+            --bg-coord: #8b5cf6; --t-coord: #ffffff; --b-coord: #7c3aed;
+            --month-bar-bg: linear-gradient(120deg, #0a1128 0%, #142a5c 55%, #1e3f82 100%);
+            --top-grad: linear-gradient(120deg, #0a1128 0%, #142a5c 55%, #1e3f82 100%);
+            --date-col-bg: #f8fafc; --date-col-line: #e0a929;
+        }
+        body.dark-mode {
+            --bg: #0f172a; --bg-card: #1e293b; --text-main: #f1f5f9; --text-sec: #94a3b8; --border: #334155;
+            --c-dM: #334155; --t-dM: #e2e8f0; --b-dM: #475569; --c-dP: #334155; --t-dP: #e2e8f0; --b-dP: #475569;
+            --c-dR: #0f2a22; --t-dR: #6ee7b7; --b-dR: #065f46;
+            --top-grad: linear-gradient(120deg, #05070f 0%, #0d1c3e 55%, #14284f 100%);
+            --date-col-bg: #0f172a;
+        }
+        body.dark-mode .t-M { background: #1e40af; border-color: #1e3a8a; }
+        body.dark-mode .t-P { background: #3b82f6; border-color: #2563eb; }
+        body.dark-mode .t-N { background: #172554; border-color: #0f172a; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); }
+        /* barra in alto: blu notte con filo corallo */
+        header { background: var(--top-grad); border-bottom: 3px solid var(--coral); box-shadow: 0 2px 20px rgba(0,0,0,0.25); }
+        header::after { display: none; }
+        .app-brand img { border-radius: 10px; border: 2px solid rgba(255,255,255,0.2); box-shadow: 0 2px 6px rgba(0,0,0,0.3); background: #fff; }
+        .app-title-text { font-family: 'Inter', sans-serif; font-size: 1.15rem; font-weight: 900; letter-spacing: -0.5px; text-shadow: 0 1px 3px rgba(0,0,0,0.3); }
+        .app-subtitle-text { display: none !important; }
+        .as-updated { display: block; font-size: 0.62rem; font-weight: 600; color: rgba(255,255,255,0.65); margin-top: 2px; letter-spacing: 0.5px; text-transform: uppercase; white-space: nowrap; }
+        .hdr-sep { display: none; }
+        .app-actions { gap: 6px; }
+        .hdr-btn { width: 40px; min-width: 40px; height: 40px; padding: 0 !important; border-radius: 11px; background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2); }
+        .hdr-btn .hdr-lbl { display: none !important; }
+        .hdr-btn .material-icons-round { font-size: 1.25rem; color: rgba(255,255,255,0.92); }
+        .hdr-btn:hover, .hdr-btn:active { background: rgba(227,75,52,0.22); }
+        .hdr-btn.as-inf-btn { background: #16a34a; border-color: #22c55e; }
+        .hdr-btn.as-inf-btn .material-icons-round { color: #fff; }
+        .app-actions > [onclick*="scrollToToday"] { order: 1; }
+        .app-actions > .driver-filter-btn { order: 2; }
+        .app-actions > [onclick*="toggleMonthDropdown"] { order: 3; }
+        .app-actions > .as-inf-btn { order: 4; }
+        .app-actions > [onclick*="openNotifCenter"] { order: 5; }
+        .app-actions > .menu-trigger { order: 6; }
+        .app-actions > #driver-filter-dropdown, .app-actions > #menu-dropdown { order: 9; }
+        .badge-dot { background: var(--coral); border-color: transparent; box-shadow: 0 0 0 2px rgba(227,75,52,0.4); }
+        @media (max-width: 420px) { .hdr-btn { width: 36px; min-width: 36px; height: 36px; } .app-actions { gap: 4px; } }
+        /* barra scorrevole subito sotto la barra in alto, sopra il filo corallo */
+        #as-ticker { top: calc(var(--header-base-h) + var(--safe-top)); bottom: auto; height: 32px; z-index: 1001; background: var(--navy-deep); border-top: 1px solid rgba(255,255,255,0.1); border-bottom: 3px solid var(--coral); font: 500 12px/29px 'Inter', sans-serif; padding-bottom: 0; }
+        body.as-has-ticker { --header-h: calc(var(--header-base-h) + var(--safe-top) + 32px); }
+        body.as-has-ticker header { border-bottom: none; }
+        body.as-has-ticker .container { padding-bottom: 80px; }
+        .as-tk-track b { color: #fff; font-weight: 900; margin-right: 4px; }
+        .as-tk-track span { font-style: italic; }
+        .as-tk-track b, .as-tk-sep { font-style: normal; }
+        /* intestazione dei nomi: bianca, carattere stretto blu notte */
+        #main-table thead th { background: var(--bg-card); color: var(--navy-mid); font-family: 'Barlow Condensed', 'Inter', sans-serif; font-weight: 700; font-size: 0.95rem; letter-spacing: 0.8px; border-bottom: 2px solid var(--border); border-right: 1px solid var(--border); backdrop-filter: none; }
+        body.dark-mode #main-table thead th { color: #93b4ff; }
+        #main-table thead th:not(:first-child)::before { display: none; }
+        #main-table thead th:first-child { font-family: 'Inter', sans-serif; font-size: 0.68rem; font-weight: 800; color: var(--text-sec); }
+        /* colonna data con il filo oro dell'app autisti */
+        #main-table thead th:first-child, #main-table .td-date { background: var(--date-col-bg); border-right: 3px solid var(--gold); box-shadow: none; }
+        #main-table .td-date.date-red { background: #fdf2f0; color: var(--coral); border-right-color: var(--gold); }
+        body.dark-mode #main-table .td-date.date-red { background: #2a1512; }
+        /* barra del mese: blu notte, filo corallo, orologio scuro */
+        tr.month-header td { background: var(--month-bar-bg); border-bottom: 2px solid var(--coral); }
+        .month-label { font-family: 'Inter', sans-serif; font-weight: 900; font-size: 1.4rem; letter-spacing: -0.5px; }
+        .live-clock { background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; padding: 3px 10px; box-shadow: none; }
+        .live-clock .material-icons-round { display: none; }
+        .live-clock .lc-date::after { content: ' \2022'; opacity: 0.7; }
+        /* caselle */
+        .cell { border-radius: 10px; font-family: 'Inter', sans-serif; font-weight: 800; }
+        .rep-text { border-radius: 4px; }
+        .rep-bar-seg.green { background: #15803d; }
+        .sticky-month-text { flex-wrap: nowrap; }
+        .month-label, .live-clock { white-space: nowrap; flex-shrink: 0; }
+        .rep-now-pill { min-width: 0; flex-shrink: 1; overflow: hidden; }
+        @media (max-width: 420px) { .month-label { font-size: 1.1rem; } .live-clock { font-size: 0.8rem; padding: 2px 7px; } .live-clock .lc-date { display: none; } }
+    </style>
 </head>
 <body>
 
@@ -2714,8 +2813,9 @@
         <div class="app-brand">
             <img src="logo.png" alt="Logo" onclick="asShowLastUpload()" title="Quando è stato caricato il file turni" onerror="this.style.display='none'">
             <div class="brand-text">
-                <span class="app-title-text">Turni Autisti</span>
+                <span class="app-title-text">A.S. 26</span>
                 <span class="app-subtitle-text">Calendario 2026</span>
+                <span class="as-updated" id="as-updated">Turni autisti · prova</span>
             </div>
             <button id="hdr-coord-exit" class="hdr-coord-exit" onclick="coordExitFromHeader()" title="Chiude l’accesso coordinatore: per rientrare servirà la password">
                 <span class="material-icons-round">logout</span><span>Esci da coordinatore</span>
@@ -2723,7 +2823,7 @@
         </div>
         <div class="app-actions">
             <button class="hdr-btn" onclick="vibrate();scrollToToday()" title="Vai a oggi">
-                <span class="material-icons-round">today</span><span class="hdr-lbl">Oggi</span>
+                <span class="material-icons-round">home</span><span class="hdr-lbl">Oggi</span>
             </button>
             <button class="hdr-btn hdr-hide-sm" onclick="toggleMonthDropdown(event)" title="Vai a un mese">
                 <span class="material-icons-round">calendar_month</span><span class="hdr-lbl">Mesi</span>
@@ -2733,15 +2833,15 @@
                 <span id="driver-filter-badge" class="badge-dot"></span>
             </button>
             <span class="hdr-sep hdr-hide-sm"></span>
-            <button class="hdr-btn hdr-link hdr-hide-sm" onclick="vibrate();window.open('https://centrale118rsm-code.github.io/Turni-Infermieri-2026/','_blank')" title="Apri i turni degli infermieri">
-                <span class="hdr-as">INF</span><span class="hdr-lbl">Infermieri</span>
+            <button class="hdr-btn hdr-link as-inf-btn" onclick="vibrate();window.open('https://centrale118rsm-code.github.io/Turni-Infermieri-2026/','_blank')" title="Apri i turni degli infermieri">
+                <span class="material-icons-round">medical_services</span><span class="hdr-lbl">Infermieri</span>
             </button>
             <button class="hdr-btn" onclick="openNotifCenter()" title="Notifiche">
                 <span class="material-icons-round">notifications</span>
                 <span id="notif-badge" class="badge-dot"></span>
             </button>
             <button class="hdr-btn menu-trigger" id="hdr-menu-btn" onclick="toggleMenu()" title="Menu" aria-haspopup="true">
-                <span class="material-icons-round">menu</span>
+                <span class="material-icons-round">more_vert</span>
             </button>
             <div id="driver-filter-dropdown" onclick="event.stopPropagation()">
                 <div class="driver-filter-title"><span class="material-icons-round" style="font-size:14px">groups</span> Filtra Operatori</div>
@@ -5443,7 +5543,7 @@
     function asMe() { return (userIdentity && userIdentity !== 'Ospite') ? String(userIdentity).toUpperCase() : ''; }
     function asDateKeyOfRow(r) { const row = finalData[r]; return row ? row[0].v + '-' + parseInt(row[1].v) : ''; }
     function asMonthName(mi) { return Object.keys(MONTH_MAP).find(k => MONTH_MAP[k] === mi) || ''; }
-    function asStart() { asListenNotes(); asListenVehicles(); asListenPrank(); asListenMyRequests(); asLoadNurses(); }
+    function asStart() { asListenNotes(); asListenVehicles(); asListenPrank(); asListenMyRequests(); asLoadNurses(); asFetchUpdated(); }
 
     // ── Note sui giorni ─────────────────────────────────────────────────
     // Documento prova_note: { items: { id: { dateKey, iso, mese, giorno, testo, autore,
@@ -5813,6 +5913,14 @@
         if(!td || coordEditModeActive) return;
         const tr = td.closest('tr[data-row]'); if(tr) asOpenDayNotes(+tr.dataset.row);
     });
+    // Sotto "A.S. 26": quando è stato caricato l'ultimo file turni (come nell'app originale).
+    async function asFetchUpdated() {
+        const el = document.getElementById('as-updated'); if(!el) return;
+        let when = null;
+        try { const r = await fetch('https://api.github.com/repos/centrale118rsm-code/PROVA-MODIFICHE-TURNI/commits?path=turni.xlsx&per_page=1'); if(r.ok) { const j = await r.json(); when = j && j[0] && j[0].commit && j[0].commit.committer && j[0].commit.committer.date; } } catch(e) {}
+        const d = new Date(when || document.lastModified); if(isNaN(d)) return;
+        el.textContent = 'Aggiornato ' + d.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: '2-digit' }) + ' ' + d.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
+    }
     // ═══ SALDI ASSENZE PER IL PORTALE RICHIESTE ══════════════════════════
     // Documento "saldi" (C.O., permessi straordinari e notte usati/spettanti di ognuno):
     // il portale Richieste lo legge per mostrare quanti giorni restano. Si scrive solo se
@@ -9296,7 +9404,7 @@
         blocks.forEach((b, bi) => {
             if(lite && (bi < liteFrom || bi > liteTo)) return;   // modalità leggera: solo i mesi della finestra
             let mh = document.createElement('tr'); mh.className = 'month-header'; mh.id = 'm-' + b.start;
-            mh.innerHTML = `<td colspan="${rtCols.length+1}"><div class="sticky-month-text"><span class="month-label">${b.name}</span><span class="live-clock"></span><span class="rep-now-pill"></span></div></td>`;
+            mh.innerHTML = `<td colspan="${rtCols.length+1}"><div class="sticky-month-text"><span class="month-label">${b.name} ${shiftRowYear(b.start)}</span><span class="live-clock"></span><span class="rep-now-pill"></span></div></td>`;
             frag.appendChild(mh);
             for(let i = b.start; i <= b.end; i++) frag.appendChild(buildDayRow(i, today));
         });
