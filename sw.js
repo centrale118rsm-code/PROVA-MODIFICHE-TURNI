@@ -1,11 +1,13 @@
 // v3: nuova app (generata dall'app infermieri PROVA), si butta la cache vecchia
-const CACHE_NAME = 'turni-autisti-cache-v3';
+const CACHE_NAME = 'turni-autisti-cache-v4';
 
 const urlsToCache = [
   './',
   './index.html',
   './manifest.json',
-  './logo.png'
+  './logo.png',
+  './icon-118.png',
+  './icon-118-192.png'
 ];
 
 // Installazione del Service Worker
