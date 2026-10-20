@@ -101,7 +101,9 @@ function buildMessages(X, old) {
     const seen = new Set(old.reqIds);
     for (const r of X.requests.filter(r => !seen.has(r.id)).reverse()) {
       const when = r.dateFrom ? ' dal ' + dayLabel(r.dateFrom) + (r.dateTo && r.dateTo !== r.dateFrom ? ' al ' + dayLabel(r.dateTo) : '') : '';
-      out.push({ owner: '*coord*', title: 'Nuova richiesta', body: `${r.name || '—'}: ${r.type}${when}`, tag: 'req-' + r.id });
+      // cessione di reperibilità: è già nel calendario, al coordinatore arriva solo come informazione
+      if (r.kind === 'copertura_reperibilita' && r.auto !== false) out.push({ owner: '*coord*', title: 'Cessione di reperibilità (già inserita)', body: `${r.name || '—'} cede a ${r.swapWith || '—'}${r.dateFrom ? ' il ' + dayLabel(r.dateFrom) : ''}${r.timeSlot ? ' (' + r.timeSlot + ')' : ''}. Inserita in automatico: non serve fare nulla.`, tag: 'req-' + r.id });
+      else out.push({ owner: '*coord*', title: 'Nuova richiesta dal portale', body: `${r.name || '—'}: ${r.type}${r.swapWith ? ' con ' + r.swapWith : ''}${when}`, tag: 'req-' + r.id });
     }
   }
   return out;
@@ -110,8 +112,11 @@ function buildMessages(X, old) {
 async function sendAll(X, messages, state) {
   const subs = Object.entries(X.subs || {});
   if (!messages.length) { log('nessuna notifica da mandare'); return []; }
-  if (!VAPID_PRIVATE) { log(`${messages.length} notifiche pronte ma manca il secret VAPID_PRIVATE: non mandate`); return []; }
-  webpush.setVapidDetails('mailto:centrale118rsm-code@users.noreply.github.com', VAPID_PUBLIC, VAPID_PRIVATE);
+  if (!VAPID_PRIVATE) { log(`${messages.length} notifiche pronte ma manca il secret VAPID_PRIVATE: non mandate`); state.problem = 'Manca il secret VAPID_PRIVATE: le notifiche non partono.'; return []; }
+  // una chiave sbagliata non deve fermare tutto: i calendari si salvano lo stesso e il problema resta scritto
+  // in push/state.json (lo mostra il pannello admin dell'app)
+  try { webpush.setVapidDetails('mailto:centrale118rsm-code@users.noreply.github.com', VAPID_PUBLIC, VAPID_PRIVATE); }
+  catch (e) { log('CHIAVE VAPID_PRIVATE NON VALIDA:', e.message, '- nel secret va solo la chiave privata, senza spazi ne scritte'); state.problem = 'Chiave VAPID_PRIVATE non valida (' + e.message + '): le notifiche non partono.'; return []; }
   const coords = new Set(X.coordinators || []);
   const matches = (owner, p) => { const o = String(owner || '').toUpperCase(); return o && (o === String(p).toUpperCase() || X.people.some(x => x.orig === p && x.name.toUpperCase() === o)); };
   const dead = new Set();
@@ -146,7 +151,9 @@ async function main() {
     const state = { schedule: X.schedule, reqIds: X.requests.map(r => r.id), sent: {} };
     const limit = Date.now() - 4 * 86400000;
     Object.entries(old.sent || {}).forEach(([k, t]) => { if (t > limit) state.sent[k] = t; });
-    const dead = await sendAll(X, buildMessages(X, old), state);
+    let dead = [];
+    try { dead = await sendAll(X, buildMessages(X, old), state); }
+    catch (e) { log('invio delle notifiche non riuscito:', e.message); state.problem = 'Invio delle notifiche non riuscito: ' + e.message; }
     if (dead.length) await app.removeSubs(dead);
     fs.mkdirSync(path.dirname(STATE_FILE), { recursive: true });
     const json = JSON.stringify(state, null, 1);
