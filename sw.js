@@ -1,5 +1,12 @@
-// v6: icone con nome nuovo (logo 118 degli infermieri con contorno giallo), si butta la cache vecchia
-const CACHE_NAME = 'turni-autisti-cache-v6';
+// Service worker dell'app autisti di PROVA: notifiche sul telefono e MODALITÀ OFFLINE.
+// Senza rete l'app si apre lo stesso con l'ultimo calendario scaricato (sola lettura):
+// pagina, librerie, caratteri ed Excel restano in una copia sul dispositivo.
+// Con la rete si scarica sempre la versione nuova (pagina ed Excel: prima Internet, poi la copia).
+// v7: modalità offline. Il nome della cache è solo di questa app: le app dello stesso sito
+// (ufficiale autisti, infermieri) hanno le loro cache e non si toccano.
+const CACHE_PREFIX = 'prova-autisti-';
+const CACHE_NAME = CACHE_PREFIX + 'v7';
+const OLD_CACHES = ['turni-autisti-cache-v3', 'turni-autisti-cache-v4', 'turni-autisti-cache-v5', 'turni-autisti-cache-v6'];   // vecchie cache di questa app (la v2 è dell'app ufficiale)
 
 const urlsToCache = [
   './',
@@ -9,74 +16,54 @@ const urlsToCache = [
   './icon-autisti-512.png',
   './icon-autisti-192.png'
 ];
+// librerie e caratteri presi da Internet che servono anche senza rete
+const CDN_HOSTS = ['www.gstatic.com', 'cdnjs.cloudflare.com', 'fonts.googleapis.com', 'fonts.gstatic.com'];
 
-// Installazione del Service Worker
 self.addEventListener('install', (event) => {
-  // Forza il nuovo service worker a prendere il controllo immediatamente
   self.skipWaiting();
-  event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then((cache) => {
-        console.log('Cache aperta');
-        return cache.addAll(urlsToCache);
-      })
-  );
+  // una risorsa che non si scarica non blocca l'installazione
+  event.waitUntil(caches.open(CACHE_NAME).then((cache) => Promise.all(urlsToCache.map((u) => cache.add(u).catch(() => {})))));
 });
 
-// Attivazione e pulizia vecchie cache
 self.addEventListener('activate', (event) => {
-  event.waitUntil(
-    caches.keys().then((cacheNames) => {
-      return Promise.all(
-        cacheNames.map((cacheName) => {
-          if (cacheName !== CACHE_NAME) {
-            console.log('Cancellazione vecchia cache:', cacheName);
-            return caches.delete(cacheName);
-          }
-        })
-      );
-    })
-  );
-  // Dice al service worker di controllare le pagine attive immediatamente
+  event.waitUntil(caches.keys().then((names) => Promise.all(names
+    .filter((n) => n !== CACHE_NAME && (n.startsWith(CACHE_PREFIX) || OLD_CACHES.includes(n)))
+    .map((n) => caches.delete(n)))));
   return self.clients.claim();
 });
 
-// STRATEGIA DI RECUPERO DATI
-self.addEventListener('fetch', (event) => {
-  
-  // STRATEGIA: NETWORK FIRST (Internet prima, Cache se offline)
-  // La usiamo per il file Excel E per la pagina principale (index.html)
-  // Così se fai modifiche al codice, l'utente le vede subito.
-  if (event.request.url.includes('.xlsx') || event.request.mode === 'navigate') {
-    event.respondWith(
-      fetch(event.request)
-        .then((response) => {
-            // Se scarichiamo con successo una nuova versione, aggiorniamo la cache
-            const responseClone = response.clone();
-            caches.open(CACHE_NAME).then((cache) => {
-                cache.put(event.request, responseClone);
-            });
-            return response;
-        })
-        .catch(() => {
-          // Se sei offline o GitHub non va, usa la cache
-          return caches.match(event.request);
-        })
-    );
-    return;
-  }
+// chiave senza "?v=123": l'app aggiunge un numero diverso a ogni apertura per evitare copie vecchie
+function bareKey(url) { const u = new URL(url); u.search = ''; u.hash = ''; return u.href; }
+function storable(res) { return res && (res.ok || res.type === 'opaque'); }
 
-  // STRATEGIA: CACHE FIRST (Cache prima, Internet se manca)
-  // Per immagini, librerie, font (cose che non cambiano mai)
-  event.respondWith(
-    caches.match(event.request)
-      .then((response) => {
-        if (response) {
-          return response;
-        }
-        return fetch(event.request);
-      })
-  );
+// Prima Internet; senza rete (o se il sito non risponde) la copia sul dispositivo
+function networkFirst(event, key) {
+  return fetch(event.request).then((res) => {
+    if (res.ok) { const copy = res.clone(); event.waitUntil(caches.open(CACHE_NAME).then((c) => c.put(key, copy)).catch(() => {})); }
+    return res;
+  }).catch(() => caches.open(CACHE_NAME)
+    .then((c) => c.match(key).then((r) => r || (event.request.mode === 'navigate' ? c.match(new URL('./index.html', self.registration.scope).href) : null)))
+    .then((r) => r || Response.error()));
+}
+// Prima la copia (icone, librerie con il numero di versione, caratteri); se manca si scarica e si conserva
+function cacheFirst(event) {
+  return caches.open(CACHE_NAME).then((c) => c.match(event.request).then((hit) => hit || fetch(event.request).then((res) => {
+    if (storable(res)) { const copy = res.clone(); event.waitUntil(c.put(event.request, copy).catch(() => {})); }
+    return res;
+  })));
+}
+
+self.addEventListener('fetch', (event) => {
+  const req = event.request;
+  if (req.method !== 'GET' || req.headers.has('range')) return;   // salvataggi, audio/video a pezzi: niente copia
+  const url = new URL(req.url);
+  const sameSite = url.origin === self.location.origin;
+  // Firebase (turni, accessi), GitHub e il resto vanno sempre in rete: i turni offline li tiene Firestore
+  if (!sameSite && !CDN_HOSTS.includes(url.hostname)) return;
+  if (url.hostname === 'www.gstatic.com' && !url.pathname.startsWith('/firebasejs/')) return;
+  if (req.mode === 'navigate' || /\.(xlsx|xlsm|html?)$/i.test(url.pathname)) { event.respondWith(networkFirst(event, bareKey(req.url))); return; }
+  if (sameSite && !/(\.(png|jpe?g|gif|svg|webp|ico|mp3)|\/manifest\.json)$/i.test(url.pathname)) { event.respondWith(networkFirst(event, bareKey(req.url))); return; }
+  event.respondWith(cacheFirst(event));
 });
 
 // ═══ NOTIFICHE SUL TELEFONO (Web Push) ═══
