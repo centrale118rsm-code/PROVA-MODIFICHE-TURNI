@@ -1,13 +1,13 @@
-// v3: nuova app (generata dall'app infermieri PROVA), si butta la cache vecchia
-const CACHE_NAME = 'turni-autisti-cache-v5';
+// v6: icone con nome nuovo (logo 118 degli infermieri con contorno giallo), si butta la cache vecchia
+const CACHE_NAME = 'turni-autisti-cache-v6';
 
 const urlsToCache = [
   './',
   './index.html',
-  './manifest.json',
+  './manifest.json?v=6',
   './logo.png',
-  './icon-118.png',
-  './icon-118-192.png'
+  './icon-autisti-512.png',
+  './icon-autisti-192.png'
 ];
 
 // Installazione del Service Worker
@@ -87,8 +87,8 @@ self.addEventListener('push', (event) => {
   const title = d.title || 'Turni 118';
   event.waitUntil(self.registration.showNotification(title, {
     body: d.body || '',
-    icon: 'icon-118-192.png',
-    badge: 'icon-118-192.png',
+    icon: 'icon-autisti-192.png',
+    badge: 'icon-autisti-192.png',
     tag: d.tag || undefined,
     renotify: !!d.tag,
     data: { url: d.url || './' }
