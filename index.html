@@ -13018,8 +13018,10 @@
     // Titolari letti dal file Excel (una cella con "/R" = reperibile dalle 13:00 di quel giorno).
     function repExcelMap() {
         if(repExcelFor === rawFinalData && repExcelCache) return repExcelCache;
-        // autisti: titolare = chi ha la fascia 13-20 nelle righe 29-32 del file
-        if(TEAM_AS) { const o = {}; Object.keys(asRepFasce).forEach(d => { const n = asRepFasce[d][2]; if(n) o[d] = repToOrig(asNorm(n)); }); repExcelCache = o; repExcelFor = rawFinalData; return o; }
+        // autisti: titolare = chi ha "/R" nel proprio turno (es. M/R). Chi riceve la fascia 13-20
+        // con una cessione NON diventa titolare (era una regola del file Excel, non serve più):
+        // la fascia scritta nelle righe 29-32 diversa dal titolare resta una cessione.
+        // Solo nei giorni senza nessun "/R" vale ancora chi ha la fascia 13-20.
         const out = {}; const header = rawFinalData[0] || [];
         for(let r = 1; r < rawFinalData.length; r++) {
             const row = rawFinalData[r]; const mi = MONTH_MAP[row[0].v], dn = parseInt(row[1].v);
@@ -13029,6 +13031,7 @@
                 if([x.v, x.subV, x.supV].some(v => isRepStr((v || '').toString()))) { out[ymd(new Date(shiftRowYear(r), mi, dn))] = header[c]; break; }
             }
         }
+        if(TEAM_AS) Object.keys(asRepFasce).forEach(d => { const n = asRepFasce[d][2]; if(n && !out[d]) out[d] = repToOrig(asNorm(n)); });
         repExcelCache = out; repExcelFor = rawFinalData;
         return out;
     }
