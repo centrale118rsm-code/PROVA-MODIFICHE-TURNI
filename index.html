@@ -4154,6 +4154,7 @@
         listenConfigChanges();
         listenReperibilita();   // le richieste in arrivo si ascoltano solo sul telefono del coordinatore
         listenOpNotes();        // note degli operatori per il coordinatore
+        listenAbsMinutes();     // ore delle assenze importate dal file Excel principale
         asListenProduction(); asStart();   // autisti: dati dell'app in uso (sola lettura), note, veicoli, scherzi
         try {
             await asNoopRef().doc(sessionId).set({
@@ -6200,8 +6201,57 @@
         if(isDiurnoDay(rowIdx, colIdx)) return dt.getDay() === 0 ? 0 : wh * 60 / 6;
         return isContractDay(dt) ? wh * 60 / CONTRACT_WORKDAYS : 0;
     }
+    // ── Ore delle assenze come nel file Excel principale (Autisti 2026.xlsm, foglio CONTEGGI ORARI) ──
+    // Un'assenza (ferie, permesso, malattia…) vale l'orario del turno che l'autista avrebbe fatto quel
+    // giorno, non 7 h 12 fisse. 1) Se è stato importato il file principale, si usano le sue ore
+    // (al minuto). 2) Altrimenti per i turnisti si ricava il turno dal ciclo P › M › N › S › R guardando
+    // i giorni vicini; 3) per i diurnisti, o se il ciclo non si capisce, la giornata di contratto.
+    // Un'assenza su un riposo (R sopra, f sotto) non conta.
+    let absMinImported = {};   // "YYYY-MM-DD|NOME" -> minuti, dal file principale (documento prova_ore_assenze)
+    const ABS_CYCLE = ['P', 'M', 'N', 'SM', 'R'];
+    function absCycleCode(cell) {
+        if(!cell) return null;
+        const sub = String(cell.subV || '').trim().toLowerCase();
+        if(sub && Object.prototype.hasOwnProperty.call(SPECIAL_SUBCODES, sub)) return null;
+        let v = String(cell.v || '').trim(); const si = v.indexOf('/'); if(si !== -1) v = v.slice(0, si).trim();
+        if(!v || v !== v.toUpperCase()) return null;   // minuscoli = diurnista
+        const u = v.replace(/\s+/g, '');
+        if(u === 'M+N' || u === 'MN') return 'M';
+        if(u === 'S') return 'SM';
+        return ABS_CYCLE.includes(u) ? u : null;
+    }
+    function plannedShiftMinutes(rowIdx, colIdx) {
+        // turno previsto dal ciclo dei turnisti: il giorno valido più vicino (prima o dopo, fino a 5 giorni)
+        for(let k = 1; k <= 5; k++) {
+            for(const dir of [-1, 1]) {
+                const c = absCycleCode((finalData[rowIdx + dir * k] || [])[colIdx]);
+                if(!c) continue;
+                const code = ABS_CYCLE[((ABS_CYCLE.indexOf(c) - dir * k) % 5 + 5) % 5];
+                return code === 'R' ? 0 : minutesFromRange(SCHEDULE[code]);
+            }
+        }
+        return null;
+    }
+    function absImportedMinutes(rowIdx, colIdx) {
+        const iso = repRowDate(rowIdx), d = getDriverByIdx(colIdx);
+        if(!iso || !d) return null;
+        const v = absMinImported[iso + '|' + d.originalName];
+        return typeof v === 'number' ? v : null;
+    }
     function justifiedDayMinutes(rowIdx, colIdx) {
+        const cell = (finalData[rowIdx] || [])[colIdx] || {};
+        const own = String(cell.v || '').split('/')[0].trim();
+        if(/^(r|riposo)$/i.test(own)) return 0;
+        const imp = absImportedMinutes(rowIdx, colIdx); if(imp !== null) return imp;
+        if(!isDiurnoDay(rowIdx, colIdx)) { const pm = plannedShiftMinutes(rowIdx, colIdx); if(pm !== null) return pm; }
         return contractDayMinutesAt(rowIdx, colIdx);
+    }
+    function listenAbsMinutes() {
+        if(!fbReady) return;
+        cfgRef('ore_assenze').onSnapshot(doc => {
+            absMinImported = doc.exists ? ((doc.data() || {}).min || {}) : {};
+            refreshAfterRemoteOverrides();
+        }, err => console.error('Errore ascolto ore assenze:', err));
     }
     // Il giorno dopo un permesso notte è libero se non ha un turno suo né un'altra assenza
     function pnTailFree(cell) {
@@ -6301,11 +6351,11 @@
         if(rawU === "M+N" || rawU === "MN") return minutesFromRange(SCHEDULE["M"]) + minutesFromRange(SCHEDULE["N"]);
         let sub = (cell.subV||"").toString().trim().toLowerCase();
         if(Object.prototype.hasOwnProperty.call(SPECIAL_SUBCODES, sub)) {
-            // assenza giustificata: copre la giornata di contratto (7 h 12 lun–ven; diurnisti dal 5/10: 6 h lun–sab)
-            return contractDayMinutesAt(rowIdx, colIdx);
+            // assenza giustificata: l'orario del turno che avrebbe fatto (come nel file Excel principale)
+            return justifiedDayMinutes(rowIdx, colIdx);
         }
         let v = raw; let si = v.indexOf('/'); if(si !== -1) v = v.substring(0,si).trim();
-        if(!v || v === "-") return 0;
+        if(!v || v === "-") { const imp = absImportedMinutes(rowIdx, colIdx); return imp !== null ? imp : 0; }   // es. permesso legge di un giorno senza turno (/R)
         let fc = v.charAt(0); let isD = fc>='a' && fc<='z';
         if(!isD && customCodes[v.toUpperCase()]) { const cc = customCodes[v.toUpperCase()]; return cc.kind === 'abs' ? justifiedDayMinutes(rowIdx, colIdx) : customMinutes(cc); }
         let t = isD ? diurniSched(v, repRowDate(rowIdx)) : SCHEDULE[v.toUpperCase()];
@@ -6456,7 +6506,7 @@
         if(/^\d+([.,]\d+)?$/.test(subRaw) && !(cell.perm && cell.perm.k)) {
             const h = parseFloat(subRaw.replace(',', '.'));
             if(h > 0 && h <= 24) {
-                let v = (cell.v || '').toString().trim(); if(isRepStr(v)) v = v.slice(0, v.indexOf('/')).trim();
+                let v = (cell.v || '').toString().trim(); if(isRepStr(v) || /^\/\s*r$/i.test(v)) v = v.slice(0, v.indexOf('/')).trim();   // "/R" da solo = solo reperibile, nessun turno
                 const onShift = v && v !== '-' && !/^r(iposo)?$/i.test(v);
                 return Object.assign({}, cell, onShift ? { subV: '', perm: { k: 'pl', h } } : { subV: 'pl', perm: { k: 'pl', h } }, { writtenAs: subRaw });
             }
@@ -7804,6 +7854,94 @@
         importLast = null; closeCoordConsole();
         ccToast(`Dal file Excel: ${cells.length} caselle${reps.length ? ` e ${reps.length} reperibilità` : ''} nel calendario. Controlla (sono evidenziate), poi Salva o Annulla.`);
         return n;
+    }
+    // ═══ FILE EXCEL PRINCIPALE (Autisti 2026.xlsm) ══════════════════════════
+    // Dal file principale si leggono: i turni dal foglio CARTELLINO (stesso contenuto del file
+    // piccolo turni.xlsx, spostato di 3 colonne) e le ore delle assenze dal foglio CONTEGGI ORARI
+    // (per ogni autista: codice assenza, turno, ore lavorate, ore di assenza). Le ore delle assenze si
+    // salvano subito (documento prova_ore_assenze) e il conteggio orario dell'app le usa al minuto;
+    // i turni passano dal solito confronto di "Importa da Excel" prima di finire nel calendario.
+    function xlCellVal(v) {
+        if(v && typeof v === 'object' && !(v instanceof Date)) v = v.result !== undefined ? v.result : (v.richText ? v.richText.map(t => t.text).join('') : (v.text || ''));
+        return v === undefined || v === null ? '' : v;
+    }
+    function xlMinutes(v) {
+        v = xlCellVal(v);
+        if(v instanceof Date) return Math.round(((v.getTime() / 60000) % 1440 + 1440) % 1440);
+        if(typeof v === 'number') return Math.round(v * 1440);
+        const m = String(v).trim().match(/^(-?)(\d{1,2}):(\d{2})/); if(!m) return null;
+        return (m[1] ? -1 : 1) * (+m[2] * 60 + +m[3]);
+    }
+    function mainParseWorkbook(wb) {
+        const ct = wb.getWorksheet('CONTEGGI ORARI'), car = wb.getWorksheet('CARTELLINO'), tur = wb.getWorksheet('TURNI');
+        if(!ct || !car) throw new Error('non è il file principale: mancano i fogli CONTEGGI ORARI o CARTELLINO');
+        const year = parseInt(xlCellVal(tur && tur.getCell('A4').value)) || activeYear;
+        // ore delle assenze: riga 2 = nomi (uno ogni 6 colonne), dalla riga 6 un giorno per riga
+        const people = [];
+        for(let c = 1; c <= 60; c++) {
+            const n = String(xlCellVal(ct.getCell(2, c).value)).trim(); if(!n || n.length < 3) continue;
+            const d = drivers.find(x => normalizeNameForMatch(x.originalName) === normalizeNameForMatch(n) || normalizeNameForMatch(x.name) === normalizeNameForMatch(n))
+                || drivers.find(x => normalizeNameForMatch(x.originalName).startsWith(normalizeNameForMatch(n).replace(/\.$/, '').slice(0, 7)));
+            if(d && !people.some(p => p.d === d)) people.push({ c, d });
+        }
+        const min = {}; let y = year, month = -1, nAbs = 0;
+        for(let r = 6; r <= ct.rowCount; r++) {
+            const mTxt = String(xlCellVal(ct.getCell(r, 1).value)).toUpperCase();
+            const mk = Object.keys(MONTH_MAP).find(m => mTxt.includes(m));
+            if(mk !== undefined) { const mi = MONTH_MAP[mk]; if(mi < month) y++; month = mi; }
+            const dn = parseInt(xlCellVal(ct.getCell(r, 2).value)); if(month < 0 || isNaN(dn) || dn < 1 || dn > 31) continue;
+            const iso = ymd(new Date(y, month, dn));
+            people.forEach(p => {
+                const code = String(xlCellVal(ct.getCell(r, p.c).value)).trim();
+                if(!code || code === '0') return;
+                const m = xlMinutes(ct.getCell(r, p.c + 3).value); if(m === null) return;
+                min[iso + '|' + p.d.originalName] = m; nAbs++;
+            });
+        }
+        // turni: CARTELLINO righe 1-28, colonne spostate di 3 rispetto al file piccolo; i nomi stanno in colonna A
+        const raw = [];
+        for(let r = 1; r <= 28; r++) {
+            const line = [];
+            const nc = car.getCell(r, 1);   // nome unito su due righe: vale solo la prima
+            line[1] = { v: nc.isMerged && nc.master && nc.master.address !== nc.address ? '' : xlCellVal(nc.value) };
+            for(let c = 2; c <= car.columnCount - 3; c++) line[c] = { v: xlCellVal(car.getCell(r, c + 3).value) };
+            raw[r] = line;
+        }
+        raw[2][1] = { v: year };
+        return { raw, min, nAbs, people: people.length };
+    }
+    async function importMainBuffer(buf, fileName) {
+        ccToast('Leggo il file principale… (qualche secondo)');
+        try {
+            await loadLib('excel');
+            const wb = new ExcelJS.Workbook(); await wb.xlsx.load(buf);
+            const res = mainParseWorkbook(wb);
+            if(!res.people) throw new Error('nel foglio CONTEGGI ORARI non trovo gli autisti dell’app');
+            absMinImported = res.min; refreshAfterRemoteOverrides();
+            if(fbReady) await cfgRef('ore_assenze').set({ min: res.min, fileName, importedAt: new Date().toISOString(), by: whoAmI() });
+            if(dataSourceMode === 'firebase') {
+                importAnalyze(importParseRaw(res.raw), fileName);
+                ccGo('importa');
+                ccToast(`Ore di ${res.nAbs} assenze prese dal file principale. Controlla qui sotto i turni che cambiano, poi Porta nel calendario.`);
+            } else {
+                ccToast(`Ore di ${res.nAbs} assenze prese dal file principale: il conteggio orario ora le usa al minuto. I turni restano quelli di turni.xlsx.`);
+                ccRefreshIfOpen();
+            }
+        } catch(e) { console.error(e); ccToast('File principale non leggibile: ' + (e.message || e), true); }
+    }
+    function importPickMain() {
+        const inp = document.createElement('input'); inp.type = 'file'; inp.accept = '.xlsm,.xlsx';
+        inp.onchange = () => { const f = inp.files[0]; if(!f) return; const r = new FileReader(); r.onload = () => importMainBuffer(r.result, f.name); r.readAsArrayBuffer(f); };
+        inp.click();
+    }
+    function importPickSmall() {
+        if(dataSourceMode !== 'firebase') { ccToast('L’app legge già turni.xlsx da sola: per aggiornarla basta caricare il file nuovo su GitHub. Il caricamento da qui serve dopo il passaggio a Firebase.', true); return; }
+        ccGo('importa'); importPickFile();
+    }
+    function absImportInfoHtml() {
+        const n = Object.keys(absMinImported).length;
+        return n ? `<p class="cc-note" style="margin-top:10px">Ore delle assenze dal file principale: <b>${n}</b> giorni. Il conteggio orario usa queste ore, al minuto; per le assenze inserite dopo ricava il turno dai giorni vicini.</p>`
+            : `<p class="cc-note" style="margin-top:10px">Ore delle assenze dal file principale: non ancora importate. Finché non lo carichi, per le assenze l’app ricava il turno che l’autista avrebbe fatto dai giorni vicini.</p>`;
     }
     function renderCcImport() {
         const main = document.getElementById('cc-main'); if(!main) return;
@@ -11313,6 +11451,14 @@
                     <button class="cc-btn" onclick="takeSnapshot('manuale').then(id => { if(id) { ccToast('Copia creata'); ccRefreshIfOpen(); } })"><span class="msym">save_as</span>Crea copia adesso</button>
                     <button class="cc-btn danger" onclick="pickBackupFile()"><span class="msym">upload</span>Ripristina da file…</button>
                 </div>
+            </div></div>
+            <div class="cc-panel"><div class="cc-panel-head"><h3>Importa da Excel</h3></div><div class="cc-panel-body">
+                <p class="cc-note" style="margin-bottom:12px">Il file principale porta anche le ore esatte di ferie, permessi e malattie (il turno che l’autista avrebbe fatto), così il conteggio orario è uguale a quello dell’Excel. Il file piccolo è quello che finora si caricava su GitHub per aggiornare l’app.</p>
+                <div class="cc-inline-form">
+                    <button class="cc-btn primary" onclick="importPickMain()"><span class="msym">upload_file</span>File principale (Autisti 2026.xlsm)</button>
+                    <button class="cc-btn" onclick="importPickSmall()"><span class="msym">upload_file</span>File piccolo (turni.xlsx)</button>
+                </div>
+                ${absImportInfoHtml()}
             </div></div>
             <div class="cc-panel"><div class="cc-panel-head"><h3>Copie automatiche</h3><span class="cc-hint">una al giorno, ultime 14</span></div><div class="cc-panel-body" id="dat-snaps"><p class="cc-note">Carico…</p></div></div>
             <div class="cc-panel"><div class="cc-panel-head"><h3>Storico modifiche</h3><span class="cc-hint">ultimi 7 giorni</span></div><div class="cc-panel-body" id="dat-log"><p class="cc-note">Carico…</p></div></div>
