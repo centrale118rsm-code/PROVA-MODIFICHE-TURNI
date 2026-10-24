@@ -3340,7 +3340,7 @@
                     <span><i style="background:rgba(34,197,94,.38)"></i>sopra le ore</span>
                 </div>
                 <div class="hg-wrap" id="hg-grid"></div>
-                <p class="hg-note">Ogni settimana: ore fatte e differenza rispetto al contratto (7 h 12 al giorno, lunedì–venerdì; ferie e assenze giustificate contano come giornata). Il colore segue l’andamento: rosso sotto, verde sopra. Tocca un nome per il dettaglio.</p>
+                <p class="hg-note">Ogni settimana: ore fatte e differenza rispetto al contratto (7 h 12 al giorno, lunedì–venerdì; i diurnisti dal 5 ottobre 6 h, lunedì–sabato; ferie e assenze giustificate contano come giornata). Il colore segue l’andamento: rosso sotto, verde sopra. Tocca un nome per il dettaglio.</p>
             </div>
             <div id="hc-detail-view" style="display:none;">
                 <div class="hc-back-row">
@@ -3862,7 +3862,9 @@
     const DEFAULT_SCHEDULE = Object.assign({}, SCHEDULE);
     const DEFAULT_SCHEDULE_DIURNI = Object.assign({}, SCHEDULE_DIURNI);
     // Orari dei diurnisti che cambiano da una data in poi (prima valgono quelli sopra o delle impostazioni).
-    const DIURNI_FROM = [];   // autisti: nessun cambio di orario dei diurnisti (quello del 1° ottobre 2026 è degli infermieri)
+    // Autisti: dal 5 ottobre 2026 i diurnisti fanno turni da 6 ore, 6 giorni a settimana (i turnisti restano uguali).
+    const DIURNI_FROM = [ { from: '2026-10-05', m: '07:00 - 13:00', p: '13:00 - 19:00' } ];
+    const DIURNI6_FROM = '2026-10-05';
     let fmtDateCtx = null;   // giorno della riga che si sta disegnando (per gli orari dei diurnisti)
     function diurniSched(code, when) {
         code = String(code || '').toLowerCase();
@@ -6169,14 +6171,37 @@
     }
 
     // Assenze giustificate (ferie, recupero, congedo, malattia, permessi, festivi, gravidanza,
-    // sostituzione coordinatore…): coprono l'intera giornata di contratto, cioè ore settimanali
-    // ÷ 6 nei giorni lun–sab (6 h con 36 h); la domenica non matura ore e vale 0.
+    // sostituzione coordinatore…): coprono l'intera giornata di contratto (vedi contractDayMinutesAt).
+    // Autisti: dal 5/10/2026 chi in quei giorni fa il diurnista lavora 6 giorni (lun–sab) da 6 ore,
+    // quindi un'assenza giustificata vale ore settimanali ÷ 6 anche il sabato; i turnisti restano
+    // a ÷ 5 dal lunedì al venerdì. Diurnista o turnista si capisce dai turni vicini (m/p/r minuscoli).
+    function isDiurnoDay(rowIdx, colIdx) {
+        const iso = repRowDate(rowIdx); if(!iso || iso < DIURNI6_FROM) return false;
+        const kind = r => {
+            const c = finalData[r] && finalData[r][colIdx]; if(!c) return null;
+            const v = (c.v || '').toString().split('/')[0].trim();
+            if(/^[mpr]$/.test(v)) return 'd';
+            if(/^(M|P|N|S|SM|R|M\+N|MN)$/.test(v.toUpperCase().replace(/\s+/g, '')) && v !== v.toLowerCase()) return 't';
+            return null;
+        };
+        const base = new Date(iso + 'T12:00:00'), wd = (base.getDay() + 6) % 7;   // 0 = lunedì
+        const at = k => { const dt = new Date(base); dt.setDate(dt.getDate() + k); const r = repRowOfDate(ymd(dt)); return r ? kind(r) : null; };
+        // prima la stessa settimana (lun–dom): basta un m/p/r per essere diurnista
+        const week = []; for(let k = -wd; k <= 6 - wd; k++) week.push(at(k));
+        if(week.includes('d')) return true;
+        if(week.includes('t')) return false;
+        // settimana tutta di assenze: decide il turno più vicino prima o dopo
+        for(let k = 1; k <= 21; k++) { const a = at(-wd - k), b = at(6 - wd + k); if(a || b) return (a || b) === 'd'; }
+        return false;
+    }
+    function contractDayMinutesAt(rowIdx, colIdx) {
+        const iso = repRowDate(rowIdx); if(!iso) return 0;
+        const dt = new Date(iso + 'T12:00:00'), wh = getContractHours(colIdx);
+        if(isDiurnoDay(rowIdx, colIdx)) return dt.getDay() === 0 ? 0 : wh * 60 / 6;
+        return isContractDay(dt) ? wh * 60 / CONTRACT_WORKDAYS : 0;
+    }
     function justifiedDayMinutes(rowIdx, colIdx) {
-        const row = finalData[rowIdx]; if(!row) return 0;
-        const mi = MONTH_MAP[row[0].v], dn = parseInt(row[1].v);
-        if(mi === undefined || isNaN(dn)) return 0;
-        if(!isContractDay(new Date(shiftRowYear(rowIdx), mi, dn))) return 0;
-        return getContractHours(colIdx) * 60 / CONTRACT_WORKDAYS;
+        return contractDayMinutesAt(rowIdx, colIdx);
     }
     // Il giorno dopo un permesso notte è libero se non ha un turno suo né un'altra assenza
     function pnTailFree(cell) {
@@ -6276,10 +6301,8 @@
         if(rawU === "M+N" || rawU === "MN") return minutesFromRange(SCHEDULE["M"]) + minutesFromRange(SCHEDULE["N"]);
         let sub = (cell.subV||"").toString().trim().toLowerCase();
         if(Object.prototype.hasOwnProperty.call(SPECIAL_SUBCODES, sub)) {
-            // assenza giustificata: copre la giornata (6 h con 36 h/sett.), la domenica 0
-            const r = finalData[rowIdx], mi = MONTH_MAP[r[0].v], dn = parseInt(r[1].v);
-            if(mi === undefined || isNaN(dn) || !isContractDay(new Date(shiftRowYear(rowIdx), mi, dn))) return 0;
-            return getContractHours(colIdx) * 60 / CONTRACT_WORKDAYS;
+            // assenza giustificata: copre la giornata di contratto (7 h 12 lun–ven; diurnisti dal 5/10: 6 h lun–sab)
+            return contractDayMinutesAt(rowIdx, colIdx);
         }
         let v = raw; let si = v.indexOf('/'); if(si !== -1) v = v.substring(0,si).trim();
         if(!v || v === "-") return 0;
@@ -6326,7 +6349,7 @@
     }
     // Cartellino orario: settimana lavorativa su 6 giorni (lunedì–sabato). Con un
     // contratto da 36 h ogni giorno lun–sab matura 6 h; la domenica non matura ore.
-    // Autisti: 36 h su 5 giorni (7 h 12 al giorno), dal lunedì al venerdì.
+    // Autisti: 36 h su 5 giorni (7 h 12 al giorno), dal lunedì al venerdì; dal 5/10/2026 i diurnisti 6 h lun–sab (contractDayMinutesAt).
     const CONTRACT_WORKDAYS = 5;
     function isContractDay(date) { const g = date.getDay(); return g !== 0 && g !== 6; }
     // Il contratto conta solo nel periodo in servizio: dal primo all'ultimo giorno dell'anno in cui la
@@ -12083,7 +12106,7 @@
             </div>
             ${check}
             <div class="cc-legend">
-                <span>Contratto su 5 giorni: ore settimanali \u00f7 5 per ogni giorno dal luned\u00ec al venerd\u00ec (36 h = 7 h 12 al giorno); sabato e domenica non maturano ore.</span>
+                <span>Contratto su 5 giorni: ore settimanali \u00f7 5 per ogni giorno dal luned\u00ec al venerd\u00ec (36 h = 7 h 12 al giorno); sabato e domenica non maturano ore. Dal 5 ottobre 2026 i diurnisti fanno 6 h al giorno, dal luned\u00ec al sabato: le loro assenze valgono 6 h.</span>
                 <span>Le assenze giustificate (ferie, recupero, congedo, malattia, permessi, festivi, gravidanza\u2026) coprono la giornata: contano le ore di contratto del giorno (6 h), la domenica 0.</span>
                 <span>Le ore settimanali di ciascuno si cambiano in Operatori.</span>
             </div>`;
