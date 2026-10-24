@@ -9124,12 +9124,14 @@
     // chi di meno; reperibilità di domenica o festivo. Sul telefono una scheda per persona.
     EQ_COLS.splice(5, 0, { k: 'repF', label: 'Rep. festive', sub: 'dom. e festivi' });
     EQ_COLS.splice(3, 0, { k: 'we', label: 'Weekend', sub: 'sab. + dom.' });
+    // ore di reperibilità coperte per un collega: fasce fatte quando il titolare era un altro
+    EQ_COLS.splice(EQ_COLS.findIndex(c => c.k === 'repH') + 1, 0, { k: 'repC', label: 'Rep. coperte', sub: 'ore a colleghi', fmt: m => Math.round(m / 60) });
     function computeEquity() {
         const today = absTodayDate();
         const all = buildDaysIndex(), days = eqPeriod === 'oggi' ? all.filter(dd => dd.date <= today) : all;
         const R = repData(), me = prefMe();
         const rows = drivers.filter(d => !d.hidden).map(d => {
-            const r = { d, isMe: !!me && me.idx === d.idx, notti: 0, dom: 0, sab: 0, we: 0, fest: 0, repT: 0, repF: 0, repH: 0, worked: 0, active: false };
+            const r = { d, isMe: !!me && me.idx === d.idx, notti: 0, dom: 0, sab: 0, we: 0, fest: 0, repT: 0, repF: 0, repH: 0, repC: 0, worked: 0, active: false };
             days.forEach(dd => {
                 const info = computeDayInfo(dd.rowIdx, d.idx); r.worked += info.minutes || 0; if(info.code) r.active = true;
                 const c = info.justified ? '' : info.code;
@@ -9142,7 +9144,8 @@
                 }
                 const iso = ymd(dd.date);
                 if(R.tit[iso] === d.originalName) { r.repT++; if(repIsFestive(iso)) r.repF++; }
-                (R.days[iso] || []).forEach((who, s) => { if(who === d.originalName) r.repH += REP_SLOTS[s].minutes; });
+                (R.days[iso] || []).forEach((who, s) => { if(who !== d.originalName) return; r.repH += REP_SLOTS[s].minutes;
+                    const tit = repTitolareOfSlot(R, iso, s); if(tit && tit !== who) r.repC += REP_SLOTS[s].minutes; });
             });
             r.we = r.sab + r.dom;
             r.saldo = r.worked - contractMinutesFor(getContractHours(d.idx), days.map(dd => dd.date), d.idx);
@@ -9185,9 +9188,9 @@
             <div class="eq-card-g">${EQ_COLS.map(c => { const v = r[c.k], dv = eqDev(c, r, avg);
                 if(c.signed) return `<div class="eq-m ${Math.abs(v) < 30 ? '' : (v < 0 ? 'neg' : 'pos')}"><small>${c.label}</small><b>${txt(c, v)}</b></div>`;
                 return `<div class="eq-m ${dv.cls}"><small>${c.label}</small><b>${txt(c, v)}${dv.d && dv.d !== '=' ? `<sup>${dv.d}</sup>` : ''}</b><i style="width:${Math.round(Math.abs(v) / max[c.k] * 100)}%"></i></div>`; }).join('')}</div></div>`).join('');
-        document.getElementById('eq-grid').innerHTML = summary + `<div class="eq-wide">${xgHtml('eq-table', headL, headR, items, 860)}</div><div class="eq-cards">${cards}</div>`;
+        document.getElementById('eq-grid').innerHTML = summary + `<div class="eq-wide">${xgHtml('eq-table', headL, headR, items, 940)}</div><div class="eq-cards">${cards}</div>`;
         const pw = document.getElementById('eq-pairs'); if(pw) pw.innerHTML = pairsHtml(eqPeriod, 'eq');
-        document.getElementById('eq-note').innerHTML = `${days.length} giorni considerati. Il numerino accanto è lo scarto dalla media della squadra. <span class="eq-key hi"></span> oltre il 20% sopra la media, <span class="eq-key lo"></span> oltre il 20% sotto. Per le notti la media conta solo chi ne fa. Tocca un titolo o un riquadro in alto per ordinare.`;
+        document.getElementById('eq-note').innerHTML = `${days.length} giorni considerati. Il numerino accanto è lo scarto dalla media della squadra. <span class="eq-key hi"></span> oltre il 20% sopra la media, <span class="eq-key lo"></span> oltre il 20% sotto. Per le notti la media conta solo chi ne fa. <b>Rep. coperte</b> sono le ore di fasce di reperibilità fatte al posto di un collega titolare (cessioni ricevute). Tocca un titolo o un riquadro in alto per ordinare.`;
     }
 
     // ═══ NOTE: AL COORDINATORE, AI COLLEGHI, A TUTTI ════════════════════════
