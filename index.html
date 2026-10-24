@@ -5727,6 +5727,7 @@
         setCurrentView("Tabella Turni");
         if(prefs.startToday !== false) setTimeout(scrollToToday, 600);
         setTimeout(loadOtherTeam, 3000);   // turni dell'altra squadra per il riepilogo del turno
+        startAutoYearWatch();              // a capodanno l'anno nuovo si apre da solo
         if(prefs.startPage === 'insieme') setTimeout(() => setCalView('insieme'), 350);
         setTimeout(async () => {
             if(SERVER_MODE) return;
@@ -6202,36 +6203,10 @@
         return isContractDay(dt) ? wh * 60 / CONTRACT_WORKDAYS : 0;
     }
     // ── Ore delle assenze come nel file Excel principale (Autisti 2026.xlsm, foglio CONTEGGI ORARI) ──
-    // Un'assenza (ferie, permesso, malattia…) vale l'orario del turno che l'autista avrebbe fatto quel
-    // giorno, non 7 h 12 fisse. 1) Se è stato importato il file principale, si usano le sue ore
-    // (al minuto). 2) Altrimenti per i turnisti si ricava il turno dal ciclo P › M › N › S › R guardando
-    // i giorni vicini; 3) per i diurnisti, o se il ciclo non si capisce, la giornata di contratto.
-    // Un'assenza su un riposo (R sopra, f sotto) non conta.
+    // Si usano solo dati certi, senza indovinare il turno: 1) le ore importate dal file principale
+    // (al minuto); 2) il permesso notte vale la parte della notte prima di mezzanotte; 3) altrimenti
+    // la giornata di contratto come prima. Un'assenza su un riposo (R sopra, f sotto) non conta.
     let absMinImported = {};   // "YYYY-MM-DD|NOME" -> minuti, dal file principale (documento prova_ore_assenze)
-    const ABS_CYCLE = ['P', 'M', 'N', 'SM', 'R'];
-    function absCycleCode(cell) {
-        if(!cell) return null;
-        const sub = String(cell.subV || '').trim().toLowerCase();
-        if(sub && Object.prototype.hasOwnProperty.call(SPECIAL_SUBCODES, sub)) return null;
-        let v = String(cell.v || '').trim(); const si = v.indexOf('/'); if(si !== -1) v = v.slice(0, si).trim();
-        if(!v || v !== v.toUpperCase()) return null;   // minuscoli = diurnista
-        const u = v.replace(/\s+/g, '');
-        if(u === 'M+N' || u === 'MN') return 'M';
-        if(u === 'S') return 'SM';
-        return ABS_CYCLE.includes(u) ? u : null;
-    }
-    function plannedShiftMinutes(rowIdx, colIdx) {
-        // turno previsto dal ciclo dei turnisti: il giorno valido più vicino (prima o dopo, fino a 5 giorni)
-        for(let k = 1; k <= 5; k++) {
-            for(const dir of [-1, 1]) {
-                const c = absCycleCode((finalData[rowIdx + dir * k] || [])[colIdx]);
-                if(!c) continue;
-                const code = ABS_CYCLE[((ABS_CYCLE.indexOf(c) - dir * k) % 5 + 5) % 5];
-                return code === 'R' ? 0 : minutesFromRange(SCHEDULE[code]);
-            }
-        }
-        return null;
-    }
     function absImportedMinutes(rowIdx, colIdx) {
         const iso = repRowDate(rowIdx), d = getDriverByIdx(colIdx);
         if(!iso || !d) return null;
@@ -6243,7 +6218,7 @@
         const own = String(cell.v || '').split('/')[0].trim();
         if(/^(r|riposo)$/i.test(own)) return 0;
         const imp = absImportedMinutes(rowIdx, colIdx); if(imp !== null) return imp;
-        if(!isDiurnoDay(rowIdx, colIdx)) { const pm = plannedShiftMinutes(rowIdx, colIdx); if(pm !== null) return pm; }
+        if(String(cell.subV || '').trim().toLowerCase() === 'pn') return minutesFromRange(SCHEDULE["N"]);
         return contractDayMinutesAt(rowIdx, colIdx);
     }
     function listenAbsMinutes() {
@@ -10465,7 +10440,8 @@
             if(HOLIDAYS[`${dd.date.getMonth()}-${dd.date.getDate()}`]) add('fest', dd);
             if(info.code === 'N' || info.code === 'M+N') add('notti', dd);
         });
-        // conteggio dell'anno intero: le ferie (C.O.) messe a gennaio-marzo dell'anno dopo contano su quest'anno
+        // conteggio dell'anno intero: contano su quest'anno le ferie (C.O.) messe a gennaio-marzo
+        // dell'anno dopo e le "ferie residue" segnate nell'anno dopo (sono ferie di quest'anno)
         let nextF = 0;
         const lastDay = days[days.length - 1];
         if(lastDay && lastDay.monthIdx === 11 && lastDay.day === 31) {
@@ -10473,7 +10449,7 @@
                 if(shiftRowYear(r) !== SHIFT_YEAR + 1) continue;
                 const cell = finalData[r][d.idx] || {}, sub = (cell.subV || '').toString().trim().toLowerCase();
                 let v = (cell.v || '').toString().trim(); if(isRepStr(v)) v = v.slice(0, v.indexOf('/')).trim();
-                if(sub === 'f' && !/^r(iposo)?$/i.test(v) && MONTH_MAP[finalData[r][0].v] < CO_CARRY_MONTHS) { add('f', { date: new Date(SHIFT_YEAR + 1, MONTH_MAP[finalData[r][0].v], parseInt(finalData[r][1].v)) }); nextF++; }
+                if(!/^r(iposo)?$/i.test(v) && (sub === 'v' || (sub === 'f' && MONTH_MAP[finalData[r][0].v] < CO_CARRY_MONTHS))) { add('f', { date: new Date(SHIFT_YEAR + 1, MONTH_MAP[finalData[r][0].v], parseInt(finalData[r][1].v)) }); nextF++; }
             }
         }
         const n = k => counts[k] || 0;
@@ -11328,11 +11304,11 @@
     }
     // Anno nuovo: l'anno attivo viene chiuso (sola lettura, con la sua squadra e le ore di contratto)
     // e si apre il successivo, vuoto, con la stessa squadra.
-    async function ccStartNewYear() {
+    async function ccStartNewYear(skipConfirm) {
         if(dataSourceMode !== 'firebase' || isViewingArchive()) return;
         if(pendingChangesCount()) { ccToast('Prima salva o scarta le modifiche in sospeso.', true); return; }
         const next = activeYear + 1;
-        const ok = await ccConfirm(`Aprire il ${next}?`, `Il ${activeYear} viene chiuso: resta consultabile da tutti in sola lettura. Il ${next} parte con i turni già inseriti, la stessa squadra e le stesse ore di contratto; le ferie del ${activeYear} messe tra gennaio e marzo del ${next} diventano «ferie residue anno prima». Prima faccio una copia di sicurezza.`, `Apri il ${next}`, 'solid-danger');
+        const ok = skipConfirm || await ccConfirm(`Aprire il ${next}?`, `Il ${activeYear} viene chiuso: resta consultabile da tutti in sola lettura. Il ${next} parte con i turni già inseriti, la stessa squadra e le stesse ore di contratto; le ferie del ${activeYear} messe tra gennaio e marzo del ${next} diventano «ferie residue anno prima». Prima faccio una copia di sicurezza.`, `Apri il ${next}`, 'solid-danger');
         if(!ok) return;
         try {
             await takeSnapshot('prima-del-nuovo-anno');
@@ -11353,6 +11329,31 @@
             setTimeout(() => location.reload(), 1000);
         } catch(e) { console.error(e); ccToast('Operazione non riuscita: ' + (e.code || e.message), true); }
     }
+    // ── Capodanno: l'anno nuovo si apre da solo ──────────────────────────────
+    // Al primo avvio dopo il 31 dicembre (o allo scoccare della mezzanotte con l'app aperta) l'anno
+    // finito si chiude e resta consultabile in sola lettura da menu › Calendario › Anni passati.
+    // Se l'app legge ancora turni.xlsx, prima i turni (anno finito e anno nuovo) vengono copiati su
+    // Firebase, dove vivono gli anni archiviati; dopo il ricaricamento si chiude l'anno.
+    let autoYearBusy = false, autoYearTimer = null;
+    async function autoYearRollover() {
+        if(autoYearBusy || !fbReady || !appBooted || isViewingArchive()) return;
+        if(new Date().getFullYear() <= (dataSourceMode === 'firebase' ? activeYear : SHIFT_YEAR)) return;
+        if(coordEditModeActive || pendingChangesCount() || !fbMonthsReady()) return;   // si riprova al prossimo controllo
+        autoYearBusy = true;
+        try {
+            const doc = await cfgRef('settings').get(), st = doc.exists ? doc.data() : {};
+            const fbMode = st.dataSource === 'firebase';
+            // un altro dispositivo l'ha appena fatto: basta ricaricare
+            if(fbMode !== (dataSourceMode === 'firebase') || (fbMode && +st.activeYear !== activeYear)) { location.reload(); return; }
+            if(fbMode) await ccStartNewYear(true); else await ccMigrateToFirebase(true);
+        } catch(e) { console.error('Cambio anno automatico non riuscito:', e); }
+        finally { autoYearBusy = false; }
+    }
+    function startAutoYearWatch() {
+        if(autoYearTimer) return;
+        setTimeout(autoYearRollover, 8000);
+        autoYearTimer = setInterval(autoYearRollover, 10 * 60000);
+    }
 
     // ── Consultazione degli anni passati (per tutti, sola lettura) ──────────
     let ccArchiveBackup = null;
@@ -11364,18 +11365,23 @@
         try {
             const meta = await cfgRef('anno_' + year).get();
             if(!meta.exists) { alert(`Nessun dato salvato per il ${year}.`); return; }
-            const m = meta.data(), cells = {};
-            for(let mi = 0; mi < 12; mi++) { const d = await cfgRef(monthDocName(year, mi)).get(); if(d.exists) Object.assign(cells, d.data().cells || {}); }
+            const m = meta.data(), cells = {}, tag = '@' + (year + 1);
+            const docs = await Promise.all(Array.from({ length: 12 }, (_, mi) => cfgRef(monthDocName(year, mi)).get()));
+            docs.forEach(d => { if(d.exists) Object.assign(cells, d.data().cells || {}); });
+            // anche l'anno dopo, come nell'anno attivo: lì ci sono le ferie dell'anno godute dopo dicembre
+            const nextDocs = await Promise.all(Array.from({ length: NEXT_YEAR_MONTHS }, (_, mi) => cfgRef(monthDocName(year + 1, mi)).get().catch(() => null)));
+            nextDocs.forEach(d => { if(d && d.exists) { const src = d.data().cells || {}; Object.keys(src).forEach(k => { cells[k.includes('@') ? k : k + tag] = src[k]; }); } });
             if(!isViewingArchive()) ccArchiveBackup = { finalData, rawFinalData, drivers, operatorConfig, excelParsedData, SHIFT_YEAR, selectedDrivers };
             const baseNames = (m.baseNames || []).filter(n => !(m.removed || {})[n]);
             setShiftYear(year);
-            excelParsedData = buildBlankYearData(year, baseNames);
+            excelParsedData = buildBlankYearData(year, baseNames, NEXT_YEAR_MONTHS);
             rawFinalData = JSON.parse(JSON.stringify(excelParsedData));
             finalData = JSON.parse(JSON.stringify(rawFinalData));
             const header = finalData[0];
             for(let r = 1; r < finalData.length; r++) {
                 const mName = finalData[r][0].v, dNum = finalData[r][1].v;
-                for(let i = 3; i < header.length; i++) { const ov = cells[overrideKey(header[i], mName, dNum)]; if(ov) finalData[r][i] = normalizeWrittenAbsence(Object.assign({}, finalData[r][i], { v: ov.v || '', subV: ov.subV || '', customMinutes: ov.customMinutes, perm: ov.perm })); }
+                const ry = shiftRowYear(r);
+                for(let i = 3; i < header.length; i++) { const ov = cells[overrideKey(header[i], mName, dNum, ry)]; if(ov) finalData[r][i] = normalizeWrittenAbsence(Object.assign({}, finalData[r][i], { v: ov.v || '', subV: ov.subV || '', customMinutes: ov.customMinutes, perm: ov.perm })); }
             }
             drivers = baseNames.map((name, i) => ({ name: (m.nameOverrides || {})[name] || nameOverrides[name] || name, idx: i + 3, originalName: name, virtual:false, hidden:false }));
             operatorConfig = normalizeOperatorConfig({ contract: m.contract || {}, baseNames });
@@ -11471,6 +11477,7 @@
                         ${archivedYears.length ? `<button class="cc-btn" onclick="openYearPicker()"><span class="msym">history</span>Consulta un anno passato</button>` : ''}
                         <button class="cc-btn danger" ${isViewingArchive() ? 'disabled' : ''} onclick="ccStartNewYear()"><span class="msym">event_upcoming</span>Chiudi il ${activeYear} e apri il ${activeYear + 1}</button>
                     </div></div>` : ''}
+                <p class="cc-note" style="margin-top:12px">A capodanno l’anno nuovo si apre da solo, al primo avvio dell’app dopo il 31 dicembre: il ${dataSourceMode === 'firebase' ? activeYear : SHIFT_YEAR} si chiude e resta consultabile in sola lettura da menu › Calendario › Anni passati${dataSourceMode === 'firebase' ? '' : ' (prima i turni vengono copiati su Firebase, perché gli anni archiviati vivono lì)'}. Prima viene fatta una copia di sicurezza.</p>
             </div></div>`;
         maybeDailySnapshot();
         // copie e storico si caricano dopo, senza bloccare la pagina
@@ -14069,8 +14076,10 @@
             return `<div class="cell spec-pn"><div style="flex:1;display:flex;align-items:center;text-align:center;">PERMESSO<br>NOTTE</div>${repHtml}</div>`;
         if(subVal === "z")
             return `<div class="cell spec-coord"><div style="flex:1;display:flex;align-items:center;text-align:center;">SOSTITUZIONE<br>COORD.</div>${repHtml}</div>`;
-        if(subVal === "v")
-            return `<div class="cell spec-ferie"><div style="flex:1;display:flex;align-items:center;text-align:center;">FERIE<br>RESIDUE</div>${repHtml}</div>`;
+        if(subVal === "v") {
+            const prevV = fmtDateCtx && +fmtDateCtx.slice(0, 4) > SHIFT_YEAR;   // nell'anno dopo: ferie di quest'anno
+            return `<div class="cell spec-ferie"${prevV ? ` title="Ferie residue del ${SHIFT_YEAR}"` : ''}><div style="flex:1;display:flex;align-items:center;text-align:center;">FERIE<br>${prevV ? 'RES. ' + SHIFT_YEAR : 'RESIDUE'}</div>${repHtml}</div>`;
+        }
         if(subVal === "r")
             return `<div class="cell spec-rec"><div style="flex:1;display:flex;align-items:center;text-align:center;">RECUPERO</div>${repHtml}</div>`;
 
