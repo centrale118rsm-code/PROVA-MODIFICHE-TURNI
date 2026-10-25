@@ -7704,7 +7704,9 @@
         try { const p = await cfgRef('prefs').get(); prefsDoc = p.exists ? p.data() : {}; } catch(e) {}
         try { const p = await cfgRef('push').get(); subs = p.exists ? (p.data().subs || {}) : {}; } catch(e) {}
         try {
-            const q = await db.collection('richieste_turni').orderBy('timestamp', 'desc').limit(80).get();
+            // il motore gira ogni 15 minuti: per riconoscere le richieste nuove bastano le ultime 15
+            // (ogni documento letto è una lettura Firebase, e il giro si ripete ~90 volte al giorno)
+            const q = await db.collection('richieste_turni').orderBy('timestamp', 'desc').limit(15).get();
             requests = q.docs.map(x => { const r = x.data(); return { id: x.id, name: r.name || '', type: (RICHIESTE_TYPE_LABELS && RICHIESTE_TYPE_LABELS[r.type]) || String(r.type || '').replace(/_/g, ' '), kind: r.type || '', timeSlot: r.timeSlot || '', auto: reqIsAutoCessione(r), dateFrom: r.dateFrom || '', dateTo: r.dateTo || '', swapWith: r.swapWith || '', inserted: !!r.insertedInShifts }; });
         } catch(e) {}
         // note degli operatori ancora da gestire: al coordinatore arrivano come le richieste (id nuovo se la nota cambia)
