@@ -4108,8 +4108,9 @@
     function consKey(path) {
         const seg = String(path || '?').split('/').filter(Boolean);
         const col = seg.length % 2 === 0 ? seg[seg.length - 2] : seg[seg.length - 1];
-        const k = seg.length % 2 === 0 && CONS_DOC_COLS.includes(col) ? seg[seg.length - 1] : col;
-        return String(k || '?').replace(/\d{4}-\d{2}-\d{2}/g, '#data').replace(/\d+/g, '#').replace(/[^A-Za-z0-9_#-]+/g, '-').slice(0, 60) || '?';
+        // i nomi dei documenti con date e numeri (log_2026-10-25, turni_2026-03) diventano uno solo
+        const k = seg.length % 2 === 0 && CONS_DOC_COLS.includes(col) ? String(seg[seg.length - 1]).replace(/\d{4}-\d{2}-\d{2}/g, '#data').replace(/\d+/g, '#') : col;
+        return String(k || '?').replace(/[^A-Za-z0-9_#-]+/g, '-').slice(0, 60) || '?';
     }
     function consPath(ref) {
         try { return ref.path || (ref._delegate && ref._delegate._query && ref._delegate._query.path.canonicalString()) || '?'; } catch(e) { return '?'; }
