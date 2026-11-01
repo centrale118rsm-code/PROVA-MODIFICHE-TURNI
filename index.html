@@ -433,6 +433,15 @@
             box-shadow: 0 1px 2px rgba(0,0,0,0.05); transition: transform 0.1s; padding: 4px 5px;
         }
         .cell:active { transform: scale(0.96); }
+        /* Grandezza delle scritte scelta nelle Opzioni */
+        body.pref-text-big .cell { font-size: 0.88rem; }
+        body.pref-text-big .time-tag { font-size: 0.72rem; }
+        body.pref-text-big .rep-text { font-size: 0.72rem; }
+        body.pref-text-big #main-table thead th:not(:first-child) { font-size: 1.08rem; }
+        body.pref-text-xbig .cell { font-size: 1rem; }
+        body.pref-text-xbig .time-tag { font-size: 0.82rem; }
+        body.pref-text-xbig .rep-text { font-size: 0.8rem; }
+        body.pref-text-xbig #main-table thead th:not(:first-child) { font-size: 1.2rem; }
         body.dark-mode .cell.empty { color: #475569; }
         body.dark-mode .cell { box-shadow: none; border: 1px solid rgba(255,255,255,0.05); }
         .time-tag {
@@ -1712,6 +1721,16 @@
         .dat-status li .msym { font-size:20px; }
         .dat-log li { align-items:flex-start; }
         .dat-log li small { margin-top:2px; }
+        .hist-form { align-items:flex-end; }
+        .hist-form .cc-field { flex:1 1 160px; }
+        .hist-form .hist-q { flex:2 1 220px; }
+        .hist-day { margin:14px 0 6px; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; color:var(--cc-muted); }
+        .hist-day:first-child { margin-top:0; }
+        .hist-time { flex:none; min-width:44px; font-weight:700; font-variant-numeric:tabular-nums; color:var(--cc-text); }
+        .sep-hist { display:flex; flex-direction:column; gap:6px; padding:2px 2px 6px; }
+        .sep-hist-row { font-size:12.5px; line-height:1.35; padding:7px 10px; border:1px solid var(--cc-line, var(--border)); border-radius:8px; }
+        .sep-hist-row span { color:var(--cc-muted, var(--text-sec)); }
+        .sep-hist-none { color:var(--cc-muted, var(--text-sec)); }
 
         /* pannelli e sezioni */
         .cc-panel { background:var(--cc-surface); border:1px solid var(--cc-line); border-radius:var(--cc-r); margin-bottom:18px; }
@@ -2903,6 +2922,15 @@
             --top-grad: linear-gradient(120deg, #05070f 0%, #0d1c3e 55%, #14284f 100%);
             --date-col-bg: #0f172a;
         }
+        body.dark-mode {
+            --c-R: #0f2a22; --t-R: #6ee7b7; --b-R: #065f46;
+            --bg-mal: #3b1212; --t-mal: #fca5a5; --b-mal: #7f1d1d;
+            --bg-ng: #0c2a3d; --t-ng: #7dd3fc; --b-ng: #075985;
+            --bg-nl: #0b3036; --t-nl: #80deea; --b-nl: #0e7490;
+            --bg-cong: #e6cf00; --b-cong: #a39200;
+            --bg-perm: #16c24a; --b-perm: #0b5d27;
+        }
+        body.dark-mode #main-table .td-date { color: #e2e8f0; }
         body.dark-mode .t-M { background: #1e40af; border-color: #1e3a8a; }
         body.dark-mode .t-P { background: #3b82f6; border-color: #2563eb; }
         body.dark-mode .t-N { background: #172554; border-color: #0f172a; }
@@ -2964,6 +2992,28 @@
         @media (max-width: 420px) { .month-label { font-size: 1.1rem; } .live-clock { font-size: 0.8rem; padding: 2px 7px; } .live-clock .lc-date { display: none; } }
     </style>
     <style>
+        /* Legenda dei colori */
+        #legend-modal { display:none; position:fixed; inset:0; z-index:6300; background:rgba(0,0,0,.6); backdrop-filter:blur(6px); align-items:flex-end; justify-content:center; opacity:0; transition:opacity .2s; }
+        #legend-modal.open { opacity:1; }
+        @media (min-width:700px) { #legend-modal { align-items:center; } }
+        .lg-card { width:100%; max-width:720px; max-height:92vh; display:flex; flex-direction:column; background:var(--bg-card); color:var(--text-main); border-radius:20px 20px 0 0; overflow:hidden; box-shadow:0 -10px 40px rgba(0,0,0,.3); }
+        @media (min-width:700px) { .lg-card { border-radius:18px; } }
+        .lg-head { display:flex; align-items:center; gap:12px; padding:16px 18px; background:var(--top-grad); color:#fff; border-bottom:3px solid var(--coral); }
+        .lg-head > .material-icons-round { font-size:26px; color:var(--gold); }
+        .lg-head b { display:block; font-size:1.05rem; font-weight:900; }
+        .lg-head small { display:block; font-size:.75rem; opacity:.75; }
+        .lg-head button { margin-left:auto; width:38px; height:38px; border-radius:11px; border:1px solid rgba(255,255,255,.25); background:rgba(255,255,255,.12); color:#fff; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+        .lg-body { overflow:auto; padding:6px 16px 22px; -webkit-overflow-scrolling:touch; }
+        .lg-group { margin:16px 2px 8px; font-size:.7rem; font-weight:800; text-transform:uppercase; letter-spacing:.08em; color:var(--text-sec); }
+        .lg-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(200px, 1fr)); gap:8px; }
+        .lg-row { display:flex; align-items:center; gap:10px; padding:7px 9px; border:1px solid var(--border); border-radius:12px; min-width:0; }
+        .lg-sw { flex:none; min-width:46px; height:34px; padding:0 6px; border-radius:9px; display:flex; align-items:center; justify-content:center; font-weight:900; font-size:.8rem; border:1px solid rgba(0,0,0,.08); }
+        .lg-mark { flex:none; min-width:46px; display:flex; align-items:center; justify-content:center; }
+        .lg-txt { min-width:0; }
+        .lg-txt b { display:block; font-size:.85rem; font-weight:700; line-height:1.2; }
+        .lg-txt small { display:block; font-size:.72rem; color:var(--text-sec); line-height:1.25; margin-top:1px; }
+        .lg-bars { display:flex; gap:2px; } .lg-bars i { font-style:normal; font-size:.6rem; font-weight:800; color:#fff; background:#15803d; border-radius:4px; padding:3px 5px; }
+        .lg-date { display:flex; flex-direction:column; align-items:center; font-weight:900; font-size:1.2rem; color:var(--coral); line-height:1; } .lg-date small { font-size:.6rem; font-weight:700; }
         /* Modalità offline: avviso in basso quando manca la rete */
         #net-offline { position:fixed; left:50%; bottom:calc(14px + env(safe-area-inset-bottom,0px)); transform:translateX(-50%); z-index:9940; display:none; align-items:center; gap:6px; max-width:calc(100% - 32px); padding:6px 12px; border-radius:999px; background:#7c2d12; color:#fff; font:600 12.5px/1.25 system-ui,-apple-system,'Segoe UI',sans-serif; box-shadow:0 4px 14px rgba(0,0,0,.25); cursor:pointer; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
         #net-offline.show { display:flex; }
@@ -3519,6 +3569,7 @@
                 <button data-sec="reperibilita" onclick="ccGo('reperibilita')"><span class="msym">phone_in_talk</span><span>Report reperibilità</span></button>
                 <button data-sec="ferie" onclick="ccGo('ferie')"><span class="msym">beach_access</span><span>Regole ferie</span></button>
                 <div class="cc-nav-group">Sistema</div>
+                <button data-sec="storico" onclick="ccGo('storico')"><span class="msym">history</span><span>Storico dei cambi</span></button>
                 <button data-sec="dati" onclick="ccGo('dati')"><span class="msym">shield</span><span>Dati e backup</span></button>
                 <button data-sec="impostazioni" onclick="ccGo('impostazioni')"><span class="msym">settings</span><span>Impostazioni</span></button>
             </nav>
@@ -4516,6 +4567,7 @@
             // senza rete un documento che manca dalla copia sul dispositivo non vuol dire che non esista: niente copia iniziale
             if(!doc.exists) { if(!doc.metadata.fromCache) seedNamespaceSettings(); resolveConfigReady(); return; }
             const data = doc.data();
+            if(!doc.metadata.fromCache) snapSettingsOk = true;
             if(data.dataSource !== undefined) dataSourceMode = data.dataSource === 'firebase' ? 'firebase' : 'excel';
             if(data.activeYear !== undefined && data.activeYear) activeYear = +data.activeYear;
             if(data.archivedYears !== undefined) archivedYears = (data.archivedYears || []).map(Number);
@@ -4671,6 +4723,7 @@
     function applyColorOverrides() {
         Object.entries(colorOverrides).forEach(([varName, val]) => {
             document.documentElement.style.setProperty(varName, val);
+            document.body.style.setProperty(varName, val);   // altrimenti il tema scuro li coprirebbe
         });
     }
     function applyNameOverrides() {
@@ -5559,7 +5612,7 @@
     var PREF_DEFAULTS = {
         theme:'light', startPage:'calendario', startToday:true, lite: IS_IOS,
         myColFirst:false, highlightMe:true, showTimes:true, showRepBars:true, filter:null,
-        notifyChanges:true, notifyRep:true, notifyTomorrow:false, haptics:true, ticker:true
+        notifyChanges:true, notifyRep:true, notifyTomorrow:false, haptics:true, ticker:true, textSize:'normal'
     };
     var prefs = null, prefsOwnerLoaded = null, prefsRemoteTimer = null;
     function prefOwner() { return (userIdentity && userIdentity !== 'Ospite') ? String(userIdentity).toUpperCase() : 'OSPITE'; }
@@ -5601,6 +5654,8 @@
         document.body.classList.toggle('pref-no-times', !prefs.showTimes);
         document.body.classList.toggle('pref-no-repbar', !prefs.showRepBars);
         document.body.classList.toggle('lite', !!prefs.lite);
+        document.body.classList.toggle('pref-text-big', prefs.textSize === 'big');
+        document.body.classList.toggle('pref-text-xbig', prefs.textSize === 'xbig');
     }
     function prefsApplyFilter() {
         if(prefs.filter == null) {   // prima volta: si riprende il filtro che c'era su questo dispositivo
@@ -5617,7 +5672,7 @@
         if(noApply) return;
         if(k === 'theme') applyTheme();
         else if(k === 'ticker') asBuildTicker();
-        else if(['myColFirst','highlightMe','showTimes','showRepBars','lite'].includes(k)) {
+        else if(['myColFirst','highlightMe','showTimes','showRepBars','lite','textSize'].includes(k)) {
             applyBodyPrefClasses();
             if(k === 'lite') liteFrom = null;
             if(finalData.length) { renderTable(); if(k === 'lite') setTimeout(scrollToToday, 60); }
@@ -5663,6 +5718,7 @@
                 { id:'today', icon:'today', label:'Vai a oggi', desc:'Torna al giorno corrente', color: MN_COLORS.cal, run: () => scrollToToday() },
                 { id:'month', icon:'event', label:'Vai a un mese', desc:'Scegli il mese da vedere', color: MN_COLORS.cal, run: () => toggleMonthDropdown() },
                 { id:'filter', icon:'groups', label:'Filtra operatori', desc:'Mostra solo alcuni colleghi', color: MN_COLORS.cal, run: () => toggleDriverFilterDropdown() },
+                { id:'legend', icon:'palette', label:'Legenda dei colori', desc:'Cosa vuol dire ogni colore e segno', color: MN_COLORS.cal, run: () => openColorLegend() },
                 { id:'print', icon:'print', label:'Stampa del mese', desc:'PDF dei turni per la bacheca', color: MN_COLORS.cal, run: () => printMonthPick() },
                 hasYears ? { id:'years', icon:'history', label:'Anni passati', desc:'Consulta gli anni archiviati (sola lettura)', color: MN_COLORS.cal, run: () => openYearPicker() } : null
             ] },
@@ -5788,7 +5844,7 @@
             const lastUpText = `${lastUp.toLocaleDateString('it-IT',{day:'2-digit',month:'short',year:'numeric'})} - ${lastUp.toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'})}`;
             const optUpd = document.getElementById('options-last-update'); if(optUpd) optUpd.innerText = lastUpText;
         } catch(e) {}
-        const splashMinTime = new Promise(resolve => setTimeout(resolve, 2000));
+        const splashMinTime = new Promise(resolve => setTimeout(resolve, 900));
         // l'Excel si scarica in parallelo; intanto si chiede a Firebase se i turni vivono ormai solo lì
         // se l'ultima volta i turni erano già su Firebase, l'Excel (300 KB) non si scarica nemmeno
         let lastDs = null; try { lastDs = localStorage.getItem('data_source_' + DATA_NS); } catch(e) {}
@@ -5813,20 +5869,47 @@
         const reader = new FileReader(); reader.onload = evt => loadWorkbook(evt.target.result); reader.readAsArrayBuffer(file);
     });
 
+    // ── Copia dell'Excel già letto sul dispositivo (IndexedDB) ─────────────────
+    // Leggere il file Excel chiede una libreria pesante (più di 1 MB) e tempo: se il file è lo
+    // stesso dell'ultima apertura (stessa impronta) si usa la lettura già fatta.
+    function xlIdb() {
+        return new Promise((res, rej) => {
+            const r = indexedDB.open('as26p-turni-cache', 1);
+            r.onupgradeneeded = () => r.result.createObjectStore('kv');
+            r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error);
+        });
+    }
+    async function xlCacheGet() {
+        try { const d = await xlIdb(); return await new Promise(res => { const q = d.transaction('kv').objectStore('kv').get('xlsx'); q.onsuccess = () => res(q.result || null); q.onerror = () => res(null); }); }
+        catch(e) { return null; }
+    }
+    async function xlCachePut(v) {
+        try { const d = await xlIdb(); d.transaction('kv', 'readwrite').objectStore('kv').put(v, 'xlsx'); } catch(e) {}
+    }
+    async function xlHash(buffer) {
+        try { const h = await crypto.subtle.digest('SHA-1', buffer); return Array.from(new Uint8Array(h)).map(b => b.toString(16).padStart(2, '0')).join('') + ':' + buffer.byteLength; }
+        catch(e) { return null; }
+    }
     async function loadWorkbook(buffer, splashMinTime) {
         try {
-            await loadLib('excel');
-            const workbook = new ExcelJS.Workbook(); await workbook.xlsx.load(buffer);
-            let ws = workbook.getWorksheet('Foglio2') || workbook.worksheets[0]; let rawData = [];
-            ws.eachRow({ includeEmpty:true }, (row, rowNumber) => {
-                let rowData = [];
-                row.eachCell({ includeEmpty:true }, (cell, colNumber) => {
-                    let val = cell.value;
-                    if(typeof val === 'object' && val !== null) val = val.result || val.richText?.[0]?.text || "";
-                    rowData[colNumber] = { v: val };
+            let rawData = null;
+            const hash = await xlHash(buffer);
+            if(hash) { const c = await xlCacheGet(); if(c && c.v === 1 && c.h === hash && Array.isArray(c.raw)) rawData = c.raw; }
+            if(!rawData) {
+                await loadLib('excel');
+                const workbook = new ExcelJS.Workbook(); await workbook.xlsx.load(buffer);
+                let ws = workbook.getWorksheet('Foglio2') || workbook.worksheets[0]; rawData = [];
+                ws.eachRow({ includeEmpty:true }, (row, rowNumber) => {
+                    let rowData = [];
+                    row.eachCell({ includeEmpty:true }, (cell, colNumber) => {
+                        let val = cell.value;
+                        if(typeof val === 'object' && val !== null) val = val.result || val.richText?.[0]?.text || "";
+                        rowData[colNumber] = { v: val };
+                    });
+                    rawData[rowNumber] = rowData;
                 });
-                rawData[rowNumber] = rowData;
-            });
+                if(hash) xlCachePut({ v: 1, h: hash, raw: rawData, at: Date.now() });   // copiato subito, prima di ogni modifica
+            }
             excelParsedData = asParseWorkbook(rawData);   // formato del file autisti
             rebuildDataFromExcel();            // aggiunge le colonne create dal coordinatore + modifiche manuali
             initApp();
@@ -5887,6 +5970,46 @@
         return processed;
     }
 
+    // ── Legenda dei colori del calendario ──────────────────────────────────
+    // Fatta con gli stessi colori delle caselle (anche quelli cambiati dall'admin e le caselle personalizzate).
+    function openColorLegend() {
+        vibrate();
+        let m = document.getElementById('legend-modal');
+        if(!m) {
+            m = document.createElement('div'); m.id = 'legend-modal';
+            m.onclick = e => { if(e.target === m) closeColorLegend(); };
+            document.body.appendChild(m);
+        }
+        const items = wheelPaletteItems();
+        const row = it => `<div class="lg-row"><span class="lg-sw" style="background:var(${it.colors ? it.colors.bg : '--bg-card'});color:var(${it.colors ? it.colors.fg : '--text-main'})">${esc(it.short)}</span><span class="lg-txt"><b>${esc(it.label)}</b>${it.time ? `<small>${esc(it.time)}</small>` : ''}</span></div>`;
+        const group = (title, arr) => arr.length ? `<div class="lg-group">${title}</div><div class="lg-grid">${arr.map(row).join('')}</div>` : '';
+        const sign = (html, title, txt) => `<div class="lg-row lg-sign"><span class="lg-mark">${html}</span><span class="lg-txt"><b>${title}</b><small>${txt}</small></span></div>`;
+        m.innerHTML = `<div class="lg-card" role="dialog" aria-label="Legenda dei colori">
+            <div class="lg-head"><span class="material-icons-round">palette</span><div><b>Legenda dei colori</b><small>Cosa vuol dire ogni casella del calendario</small></div><button onclick="closeColorLegend()" aria-label="Chiudi"><span class="material-icons-round">close</span></button></div>
+            <div class="lg-body">
+                ${group('Turni', items.filter(i => i.group === 0))}
+                ${group('Diurnisti e turni combinati', items.filter(i => i.group === 1))}
+                ${group('Assenze e permessi', items.filter(i => i.group === 2))}
+                ${group('Caselle personalizzate', items.filter(i => i.group === 3))}
+                <div class="lg-group">Segni nel calendario</div>
+                <div class="lg-grid">
+                    ${sign('<span class="rep-text" style="animation:none;margin:0">REPERIBILE</span>', 'Reperibile del giorno', 'Il titolare della reperibilità (“/R” nel turno).')}
+                    ${sign('<span class="lg-bars"><i>13-20</i><i>20-00</i></span>', 'Fasce di reperibilità', 'Le fasce orarie che quell’autista copre.')}
+                    ${sign('<span class="day-staff-counts" style="margin:0"><span class="dsc-m">M<b>2</b></span><span class="dsc-p">P<b>2</b></span></span>', 'Ambulanze del giorno', 'Quanti autisti di mattina (M) e di pomeriggio (P).')}
+                    ${sign('<span class="day-staff-counts" style="margin:0"><span class="dsc-m dsc-alert-3" style="animation:none">M<b>1</b></span></span>', 'Una sola ambulanza', 'Il numero diventa rosso e lampeggia.')}
+                    ${sign('<span class="day-staff-counts" style="margin:0"><span class="dsc-n">N<b>0</b></span></span>', 'Manca la notte', 'Compare solo quando di notte manca l’autista.')}
+                    ${sign('<img src="cane.png" alt="" style="width:30px;height:auto">', 'Graziella', 'In quel turno c’è una sola ambulanza: toccala!')}
+                    ${sign('<span class="lg-date">7<small>SAB</small></span>', 'Giorno in rosso', 'Sabato, domenica o festivo.')}
+                </div>
+            </div></div>`;
+        m.style.display = 'flex';
+        requestAnimationFrame(() => m.classList.add('open'));
+    }
+    function closeColorLegend() {
+        const m = document.getElementById('legend-modal'); if(!m) return;
+        m.classList.remove('open'); setTimeout(() => { m.style.display = 'none'; }, 200);
+    }
+
     function closeWelcomeModal() {
         let m = document.getElementById('welcome-modal');
         m.classList.remove('open');
@@ -5910,6 +6033,7 @@
         if(prefs.startToday !== false) startAtToday();
         setTimeout(loadOtherTeam, 3000);   // turni dell'altra squadra per il riepilogo del turno
         startAutoYearWatch();              // a capodanno l'anno nuovo si apre da solo
+        autoSnapshotsAtBoot();             // copia del giorno e della settimana
         if(prefs.startPage === 'insieme') setTimeout(() => setCalView('insieme'), 350);
         setTimeout(async () => {
             if(SERVER_MODE) return;
@@ -6953,7 +7077,7 @@
     function saveCoverageMin() {
         const v = k => Math.max(0, Math.min(15, parseInt(document.getElementById('cov-' + k).value) || 0));
         coverageMin = { M: v('M'), P: v('P'), N: v('N') }; dayChecksCache = null;
-        if(fbReady) cfgRef('settings').set({ coverageMin }, { merge:true }).then(() => ccToast('Soglie salvate')).catch(() => ccToast('Salvataggio non riuscito.', true));
+        if(fbReady) cfgRef('settings').set({ coverageMin }, { merge:true }).then(() => { ccToast('Soglie salvate'); logNote('Impostazioni: ambulanze minime per turno cambiate'); }).catch(() => ccToast('Salvataggio non riuscito.', true));
     }
 
     // ═══ GRIGLIE CON COLONNA DEI NOMI SEPARATA ═══════════════════════════
@@ -6989,6 +7113,10 @@
             <div class="option-category-header"><span class="material-icons-round">palette</span> Aspetto</div>
             <div class="opt-block"><div class="opt-txt"><span>Tema</span><small>Automatico segue l’impostazione del telefono.</small></div>
                 ${seg('theme', [['light', 'Chiaro', 'light_mode'], ['dark', 'Scuro', 'dark_mode'], ['auto', 'Automatico', 'brightness_auto']])}</div>
+            <div class="opt-block"><div class="opt-txt"><span>Grandezza delle scritte</span><small>Scritte più grandi nelle caselle del calendario: le caselle si allargano da sole.</small></div>
+                ${seg('textSize', [['normal', 'Normale', 'text_fields'], ['big', 'Grande', 'format_size'], ['xbig', 'Molto grande', 'zoom_in']])}</div>
+            <div class="opt-block"><div class="opt-txt"><span>Legenda dei colori</span><small>Cosa vuol dire ogni colore e ogni segno del calendario.</small></div>
+                <div class="opt-seg"><button onclick="closeOptionsModal();setTimeout(openColorLegend,220)"><span class="material-icons-round">palette</span>Apri la legenda</button></div></div>
 
             <div class="option-category-header"><span class="material-icons-round">speed</span> Velocità</div>
             ${sw('lite', 'Modalità leggera' + (IS_IOS ? ' · consigliata su iPhone' : ''), 'Il calendario mostra due mesi alla volta (gli altri si caricano scorrendo) e toglie animazioni ed effetti: molto più fluido su iPhone e sui telefoni meno recenti.')}
@@ -7039,7 +7167,7 @@
         vibrate();
         if(k === 'myColFirst' && v && !prefMe()) { ccToast('Scegli prima chi sei', true); renderOptions(); return; }
         setPref(k, v);
-        if(k === 'theme' || k === 'startPage') renderOptions();
+        if(k === 'theme' || k === 'startPage' || k === 'textSize') renderOptions();
     }
     async function optReset() {
         const ok = await ccConfirm('Ripristinare le preferenze?', 'Tema, calendario, colleghi visibili e notifiche tornano come all’inizio.', 'Ripristina');
@@ -7462,7 +7590,7 @@
         if(!fbReady) { ccToast('Nessuna connessione: regole non salvate, riprova tra poco.', true); return; }
         ferieRules = JSON.parse(JSON.stringify(frDraft));
         if(calOverview) renderOverview(true);
-        cfgRef('settings').set({ ferieRules }, { merge:true }).then(() => ccToast('Regole salvate')).catch(() => ccToast('Salvataggio non riuscito.', true));
+        cfgRef('settings').set({ ferieRules }, { merge:true }).then(() => { ccToast('Regole salvate'); logNote('Regole ferie e permessi cambiate'); }).catch(() => ccToast('Salvataggio non riuscito.', true));
     }
     function frOpenOverview() { closeCoordConsole(); setTimeout(() => setCalView('insieme', { advice:true }), 200); }
 
@@ -9280,7 +9408,7 @@
             if(nm === null) return;
             const v = nm.trim().toUpperCase().replace(/\s+/g, ' ');
             if(!v || v === orig) delete nameOverrides[orig]; else nameOverrides[orig] = v;
-            saveSettingsFields({ nameOverrides }).then(() => ccToast('Nome aggiornato')).catch(() => ccToast('Salvataggio non riuscito.', true));
+            saveSettingsFields({ nameOverrides }).then(() => { ccToast('Nome aggiornato'); logNote('Operatori: nome mostrato cambiato'); }).catch(() => ccToast('Salvataggio non riuscito.', true));
             applyNameOverrides(); refreshAfterOperatorChange();
         } else if(coordOpTool === 'hide') {
             if(!selectedDrivers.size) selectedDrivers = new Set(drivers.filter(x => !x.hidden).map(x => x.idx));
@@ -11358,7 +11486,7 @@
             const n = 0;   // il promemoria "riporta su Excel" non serve più
             ccToast(n ? `Salvato. Ricorda di riportare ${n} ${n===1?'modifica':'modifiche'} su Excel.` : 'Salvato: le modifiche sono visibili a tutti.');
         }
-        maybeDailySnapshot(); publishSaldiSoon();
+        logInvalidateToday(); maybeDailySnapshot(); publishSaldiSoon();
         return true;
     }
     function markLastSave() { try { localStorage.setItem('coord_last_save_' + DATA_NS, new Date().toISOString()); } catch(e) {} }
@@ -11421,10 +11549,10 @@
         } else content.settings.manualOverrides = saved;
         return content;
     }
-    async function takeSnapshot(kind) {
+    async function takeSnapshot(kind, fixedId) {
         if(!fbReady || isViewingArchive()) return null;
         const now = new Date();
-        const id = kind === 'daily' ? 'snap_' + ymd(now) : 'snap_' + ymd(now) + '_' + String(now.getHours()).padStart(2,'0') + String(now.getMinutes()).padStart(2,'0') + String(now.getSeconds()).padStart(2,'0');
+        const id = fixedId || (kind === 'daily' ? 'snap_' + ymd(now) : 'snap_' + ymd(now) + '_' + String(now.getHours()).padStart(2,'0') + String(now.getMinutes()).padStart(2,'0') + String(now.getSeconds()).padStart(2,'0'));
         const content = buildSnapshotContent(); content.kind = kind;
         const json = JSON.stringify(content);
         if(json.length > 950000) { console.warn('Istantanea troppo grande:', json.length); ccToast('Copia di sicurezza troppo grande per Firebase: scarica il backup completo da Dati e backup.', true); return null; }
@@ -11435,8 +11563,42 @@
     }
     // Una copia al giorno (la prima volta che il coordinatore apre la console o salva) e pulizia
     // delle copie giornaliere più vecchie di 14 giorni.
+    // Le copie automatiche si fanno solo quando sono arrivati dal server sia le impostazioni sia la
+    // reperibilità (e, con i turni su Firebase, tutti i mesi): una copia a metà non deve mai finire tra le copie.
+    let snapSettingsOk = false, snapRepOk = false;
+    function snapDataReady() { return fbReady && appBooted && !SERVER_MODE && !isViewingArchive() && snapSettingsOk && snapRepOk && fbMonthsReady() && navigator.onLine !== false; }
+    function weekStartYmd(d) { const x = new Date(d.getFullYear(), d.getMonth(), d.getDate()); x.setDate(x.getDate() - ((x.getDay() + 6) % 7)); return ymd(x); }
+    // Copia della settimana (una per settimana, dal lunedì), tenuta 12 settimane. La crea la prima
+    // apertura dell'app della settimana, di chiunque: non serve che il coordinatore entri.
+    function maybeWeeklySnapshot() {
+        if(!snapDataReady()) return;
+        const id = 'snap_w_' + weekStartYmd(new Date()), key = 'snap_done_' + DATA_NS + id;
+        try { if(localStorage.getItem(key)) return; } catch(e) {}
+        cfgRef(id).get().then(d => d.exists ? null : takeSnapshot('settimanale', id)).then(() => {
+            try { localStorage.setItem(key, '1'); } catch(e) {}
+            return cleanupWeeklySnapshots();
+        }).catch(e => console.warn('Copia settimanale non riuscita:', e));
+    }
+    async function cleanupWeeklySnapshots() {
+        const limit = new Date(); limit.setDate(limit.getDate() - 7 * 12); const cut = 'snap_w_' + weekStartYmd(limit);
+        const list = await listSnapshots();
+        for(const s of list.filter(s => /^snap_w_\d{4}-\d{2}-\d{2}$/.test(s.id) && s.id < cut)) {
+            await cfgRef(s.id).delete().catch(() => {});
+            await cfgRef('snapindex').update({ ['items.' + s.id]: firebase.firestore.FieldValue.delete() }).catch(() => {});
+        }
+    }
+    // All'apertura dell'app (chiunque sia): copia del giorno e della settimana, quando i dati sono arrivati.
+    function autoSnapshotsAtBoot() {
+        if(SERVER_MODE) return;
+        let tries = 0;
+        const go = () => {
+            if(snapDataReady()) { maybeDailySnapshot(); setTimeout(maybeWeeklySnapshot, 4000); return; }
+            if(++tries < 12) setTimeout(go, 15000);   // dati non ancora arrivati: si riprova per qualche minuto
+        };
+        setTimeout(go, 20000);
+    }
     function maybeDailySnapshot() {
-        if(!fbReady || isViewingArchive() || !appBooted) return;
+        if(!snapDataReady()) return;
         const key = 'snap_done_' + DATA_NS + ymd(new Date());
         try { if(localStorage.getItem(key)) return; } catch(e) {}
         const id = 'snap_' + ymd(new Date());
@@ -11544,13 +11706,87 @@
 
     // ── Storico delle modifiche ─────────────────────────────────────────────
     let ccLogCache = [];
+    const logDayCache = {};   // "AAAA-MM-GG" -> { at, list }: i giorni passati si leggono una volta sola
     async function loadRecentLogs(days) {
-        const out = [];
+        const today = ymd(new Date()), jobs = [];
         for(let i = 0; i < days; i++) {
-            const dt = new Date(); dt.setDate(dt.getDate() - i);
-            try { const d = await cfgRef('log_' + ymd(dt)).get(); if(d.exists) Object.entries(d.data().entries || {}).forEach(([id, e]) => out.push(Object.assign({ id }, e))); } catch(e) {}
+            const dt = new Date(); dt.setDate(dt.getDate() - i); const day = ymd(dt);
+            const c = logDayCache[day];
+            if(c && (day !== today || Date.now() - c.at < 30000)) { jobs.push(Promise.resolve(c.list)); continue; }
+            jobs.push(cfgRef('log_' + day).get().then(d => {
+                const list = d.exists ? Object.entries(d.data().entries || {}).map(([id, e]) => Object.assign({ id }, e)) : [];
+                logDayCache[day] = { at: Date.now(), list }; return list;
+            }).catch(() => []));
         }
+        const out = [].concat(...(await Promise.all(jobs)));
         return out.sort((a, b) => (b.t || '').localeCompare(a.t || ''));
+    }
+    function logInvalidateToday() { delete logDayCache[ymd(new Date())]; }
+    // Nota nello storico per i cambi che non sono caselle (operatori, regole, impostazioni)
+    function logNote(note) {
+        if(!fbReady || SERVER_MODE || !note) return;
+        try { const b = db.batch(); addLogWrite(b, [], note); b.commit().then(logInvalidateToday).catch(() => {}); } catch(e) {}
+    }
+
+    // ── Sezione "Storico dei cambi" dell'Area Coordinatore ──────────────────
+    let histDays = 7, histWho = '', histQuery = '';
+    function histMatches(e) {
+        if(histWho) {
+            const d = drivers.find(x => x.originalName === histWho), nm = (d ? d.name : histWho).toUpperCase();
+            const hit = (e.items || []).some(it => (it.k === 'cell' && it.key.startsWith(histWho + '__')) || describeLogItem(it).toUpperCase().includes(nm)) || (e.note || '').toUpperCase().includes(nm);
+            if(!hit) return false;
+        }
+        if(histQuery) {
+            const q = histQuery.toUpperCase();
+            const txt = [e.who, e.note].concat((e.items || []).map(describeLogItem)).join(' ').toUpperCase();
+            if(!txt.includes(q)) return false;
+        }
+        return true;
+    }
+    function histSet(k, v) { if(k === 'days') histDays = +v; else if(k === 'who') histWho = v; else histQuery = v; renderCcHistory(k === 'q'); }
+    let histQueryTimer = null;
+    function histQueryInput(v) { clearTimeout(histQueryTimer); histQueryTimer = setTimeout(() => histSet('q', v), 300); }
+    async function renderCcHistory(keepForm) {
+        const main = document.getElementById('cc-main');
+        if(!keepForm || !document.getElementById('hist-list')) {
+            const ops = drivers.filter(d => !d.removed).map(d => `<option value="${esc(d.originalName)}" ${histWho === d.originalName ? 'selected' : ''}>${esc(d.name)}</option>`).join('');
+            main.innerHTML = `
+                <div class="cc-panel"><div class="cc-panel-body">
+                    <div class="cc-inline-form hist-form">
+                        <label class="cc-field">Periodo<select class="cc-input" onchange="histSet('days', this.value)">${[[7, 'Ultimi 7 giorni'], [30, 'Ultimi 30 giorni'], [90, 'Ultimi 3 mesi']].map(([v, l]) => `<option value="${v}" ${histDays === v ? 'selected' : ''}>${l}</option>`).join('')}</select></label>
+                        <label class="cc-field">Autista<select class="cc-input" onchange="histSet('who', this.value)"><option value="">Tutti</option>${ops}</select></label>
+                        <label class="cc-field hist-q">Cerca<input class="cc-input" type="search" placeholder="es. ferie, notte, MOSCA, 12/11" value="${esc(histQuery)}" oninput="histQueryInput(this.value)"></label>
+                    </div>
+                    <p class="cc-note" style="margin-top:10px">Ogni salvataggio resta qui con chi l’ha fatto e da quale dispositivo. “Annulla” rimette i valori di prima come modifiche da salvare: le controlli e premi Salva.</p>
+                </div></div>
+                <div class="cc-panel"><div class="cc-panel-body" id="hist-list"><p class="cc-note">Carico…</p></div></div>`;
+        }
+        const list = await loadRecentLogs(histDays);
+        ccLogCache = list;
+        const el = document.getElementById('hist-list'); if(!el || ccSection !== 'storico') return;
+        const shown = list.map((e, i) => ({ e, i })).filter(x => histMatches(x.e));
+        if(!shown.length) { el.innerHTML = `<p class="cc-note">${list.length ? 'Nessun cambio con questi filtri.' : 'Nessun cambio salvato in questo periodo.'}</p>`; return; }
+        const dayLbl = iso => { const d = new Date(iso), t = new Date(), y = new Date(); y.setDate(t.getDate() - 1);
+            return ymd(d) === ymd(t) ? 'Oggi' : ymd(d) === ymd(y) ? 'Ieri' : d.toLocaleDateString('it-IT', { weekday:'long', day:'numeric', month:'long' }); };
+        let html = '', lastDay = '';
+        shown.slice(0, 300).forEach(({ e, i }) => {
+            const day = dayLbl(e.t);
+            if(day !== lastDay) { html += `${lastDay ? '</ul>' : ''}<div class="hist-day">${esc(day)}</div><ul class="cc-list dat-log">`; lastDay = day; }
+            const [who, dev] = String(e.who || '').split(' \u00b7 ');
+            const its = e.items || [];
+            html += `<li><span class="hist-time">${esc(new Date(e.t).toLocaleTimeString('it-IT', { hour:'2-digit', minute:'2-digit' }))}</span><span class="cc-grow"><b style="font-weight:600">${esc(who || '')}</b>${dev ? ` <small style="display:inline">· ${esc(dev)}</small>` : ''}${e.note ? `<small>${esc(e.note)}</small>` : ''}${its.slice(0, 8).map(it => `<small>${esc(describeLogItem(it))}</small>`).join('')}${its.length > 8 ? `<small>… e altre ${its.length - 8}</small>` : ''}</span>${its.length ? `<button class="cc-btn sm" onclick="revertLogEntry(${i})"><span class="msym">undo</span>Annulla</button>` : ''}</li>`;
+        });
+        el.innerHTML = html + '</ul>' + (shown.length > 300 ? `<p class="cc-note">Mostrati i 300 cambi più recenti: restringi il periodo o cerca.</p>` : '');
+    }
+    // Storico della singola casella, nella finestra di modifica del coordinatore
+    async function sepHistoryLoad(key) {
+        const list = await loadRecentLogs(30);
+        const el = document.getElementById('sep-hist'); if(!el || el.dataset.key !== key) return;
+        const rows = [];
+        list.forEach(e => (e.items || []).forEach(it => { if(it.k === 'cell' && it.key === key) rows.push({ e, it }); }));
+        const val = v => v ? (describeOverrideValue(v) || '—') : 'come da Excel';
+        el.innerHTML = rows.length ? rows.slice(0, 12).map(({ e, it }) => `<div class="sep-hist-row"><b>${esc(new Date(e.t).toLocaleString('it-IT', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' }))}</b> · ${esc(String(e.who || '').split(' \u00b7 ')[0])}<br><span>${esc(val(it.prev))} → ${esc(val(it.next))}</span></div>`).join('')
+            : `<small class="sep-hist-none">Nessun cambio salvato negli ultimi 30 giorni.</small>`;
     }
     function describeLogItem(it) {
         const val = v => v ? (v.v !== undefined ? (describeOverrideValue(v) || '—') : repDisplayName(v)) : '—';
@@ -11852,7 +12088,7 @@
                 </ul>
             </div>
             <div class="cc-panel"><div class="cc-panel-head"><h3>Backup</h3></div><div class="cc-panel-body">
-                <p class="cc-note" style="margin-bottom:12px">Un file con turni, reperibilità, operatori e anni archiviati. Tienilo su Google Drive: con quello si recupera tutto anche se Firebase venisse svuotato.</p>
+                <p class="cc-note" style="margin-bottom:12px">L’app fa da sola una copia al giorno e una alla settimana, alla prima apertura di chiunque (le trovi qui sotto, con il pulsante Ripristina). Questo invece è un file con turni, reperibilità, operatori e anni archiviati. Tienilo su Google Drive: con quello si recupera tutto anche se Firebase venisse svuotato.</p>
                 <div class="cc-inline-form">
                     <button class="cc-btn primary" onclick="downloadFullBackup()"><span class="msym">download</span>Scarica backup completo</button>
                     <button class="cc-btn" onclick="takeSnapshot('manuale').then(id => { if(id) { ccToast('Copia creata'); ccRefreshIfOpen(); } })"><span class="msym">save_as</span>Crea copia adesso</button>
@@ -11867,8 +12103,8 @@
                 </div>
                 ${absImportInfoHtml()}
             </div></div>
-            <div class="cc-panel"><div class="cc-panel-head"><h3>Copie automatiche</h3><span class="cc-hint">una al giorno, ultime 14</span></div><div class="cc-panel-body" id="dat-snaps"><p class="cc-note">Carico…</p></div></div>
-            <div class="cc-panel"><div class="cc-panel-head"><h3>Storico modifiche</h3><span class="cc-hint">ultimi 7 giorni</span></div><div class="cc-panel-body" id="dat-log"><p class="cc-note">Carico…</p></div></div>
+            <div class="cc-panel"><div class="cc-panel-head"><h3>Copie automatiche</h3><span class="cc-hint">una al giorno (ultime 14) e una a settimana (ultime 12)</span></div><div class="cc-panel-body" id="dat-snaps"><p class="cc-note">Carico…</p></div></div>
+            <div class="cc-panel"><div class="cc-panel-head"><h3>Storico dei cambi</h3></div><div class="cc-panel-body"><p class="cc-note" style="margin-bottom:12px">Chi ha cambiato cosa e quando, fino a 3 mesi indietro, con la ricerca per autista e il pulsante Annulla.</p><button class="cc-btn" onclick="ccGo('storico')"><span class="msym">history</span>Apri lo storico dei cambi</button></div></div>
             <div class="cc-panel"><div class="cc-panel-head"><h3>Origine dei turni e anni</h3></div><div class="cc-panel-body">
                 ${ccSourcePanelHtml()}
                 ${dataSourceMode === 'firebase' ? `<div style="margin-top:14px"><div class="cc-inline-form">
@@ -11881,12 +12117,7 @@
         // copie e storico si caricano dopo, senza bloccare la pagina
         listSnapshots().then(list => {
             const el = document.getElementById('dat-snaps'); if(!el) return;
-            el.innerHTML = list.length ? `<ul class="cc-list">${list.map(sn => `<li><span class="msym">backup</span><span class="cc-grow">${esc(fmt(sn.createdAt))}<small>${esc({ daily:'copia giornaliera', manuale:'copia manuale' }[sn.kind] || (sn.kind || '').replace(/-/g, ' '))} · ${Math.round((sn.size || 0) / 1024)} KB</small></span><button class="cc-btn sm" onclick="downloadSnapshot('${sn.id}')" title="Scarica"><span class="msym">download</span></button><button class="cc-btn sm danger" onclick="restoreSnapshot('${sn.id}')"><span class="msym">restore</span>Ripristina</button></li>`).join('')}</ul>` : `<p class="cc-note">Ancora nessuna copia: la prima si crea oggi.</p>`;
-        });
-        loadRecentLogs(7).then(list => {
-            ccLogCache = list;
-            const el = document.getElementById('dat-log'); if(!el) return;
-            el.innerHTML = list.length ? `<ul class="cc-list dat-log">${list.slice(0, 60).map((e, i) => `<li><span class="cc-grow"><b style="font-weight:600">${esc(fmt(e.t))}</b> · ${esc(e.who || '')}${e.note ? `<small>${esc(e.note)}</small>` : ''}${(e.items || []).slice(0, 6).map(it => `<small>${esc(describeLogItem(it))}</small>`).join('')}${(e.items || []).length > 6 ? `<small>… e altre ${(e.items || []).length - 6}</small>` : ''}</span>${(e.items || []).length ? `<button class="cc-btn sm" onclick="revertLogEntry(${i})"><span class="msym">undo</span>Annulla</button>` : ''}</li>`).join('')}</ul>` : `<p class="cc-note">Nessuna modifica salvata negli ultimi 7 giorni.</p>`;
+            el.innerHTML = list.length ? `<ul class="cc-list">${list.map(sn => `<li><span class="msym">backup</span><span class="cc-grow">${esc(fmt(sn.createdAt))}<small>${esc({ daily:'copia giornaliera', settimanale:'copia della settimana', manuale:'copia manuale' }[sn.kind] || (sn.kind || '').replace(/-/g, ' '))} · ${Math.round((sn.size || 0) / 1024)} KB</small></span><button class="cc-btn sm" onclick="downloadSnapshot('${sn.id}')" title="Scarica"><span class="msym">download</span></button><button class="cc-btn sm danger" onclick="restoreSnapshot('${sn.id}')"><span class="msym">restore</span>Ripristina</button></li>`).join('')}</ul>` : `<p class="cc-note">Ancora nessuna copia: la prima si crea oggi.</p>`;
         });
     }
 
@@ -12020,7 +12251,7 @@
     }
     function saveOperatorConfig(msg) {
         return saveSettingsFields({ operatorConfig })
-            .then(() => { if(msg) ccToast(msg); })
+            .then(() => { if(msg) { ccToast(msg); logNote('Operatori: ' + msg); } })
             .catch(e => { console.error('Errore salvataggio operatori:', e); ccToast('Salvataggio non riuscito: controlla la connessione.', true); });
     }
 
@@ -12104,7 +12335,8 @@
         reperibilita: { title:'Report reperibilità', sub:'Ore di reperibilità di ogni operatore, giorno per giorno, per l’ufficio personale.' },
         ferie:        { title:'Regole ferie e permessi', sub:'Quante persone in ferie insieme, assenze incompatibili e periodi bloccati: gli operatori vedono i periodi consigliati.' },
         riportare:    { title:'Da riportare su Excel', sub:'Modifiche fatte nell\u2019app che vanno inserite anche nel file turni.xlsx.' },
-        dati:         { title:'Dati e backup', sub:'Protezione dei turni: backup, copie automatiche, storico delle modifiche, anni e origine dei dati.' },
+        storico:      { title:'Storico dei cambi', sub:'Chi ha cambiato cosa e quando: turni, reperibilità e impostazioni, con la possibilità di annullare.' },
+        dati:         { title:'Dati e backup', sub:'Protezione dei turni: backup, copie automatiche, anni e origine dei dati.' },
         impostazioni: { title:'Impostazioni', sub:'Coordinatore designato, consigli sulle ore, ruota e sessione.' }
     };
     function ccGo(section) {
@@ -12125,7 +12357,7 @@
     function ccRenderSection() {
         const main = document.getElementById('cc-main'); if(!main) return;
         if(!finalData.length) { main.innerHTML = `<div class="cc-empty"><span class="msym">hourglass_top</span>Sto caricando il file dei turni…</div>`; return; }
-        ({ panoramica:renderCcOverview, modifica:renderCcEdit, bozza:renderCcDraft, importa:renderCcImport, operatori:renderCcOperators, ore:renderCcHours, reperibilita:renderCcReperibilita, coppie:renderCcPairs, note:renderCcNotes, messaggi:renderCcMessages, ferie:renderCcFerie, riportare:renderCcSync, dati:renderCcData, impostazioni:renderCcSettings })[ccSection]();
+        ({ panoramica:renderCcOverview, modifica:renderCcEdit, bozza:renderCcDraft, importa:renderCcImport, operatori:renderCcOperators, ore:renderCcHours, reperibilita:renderCcReperibilita, coppie:renderCcPairs, note:renderCcNotes, messaggi:renderCcMessages, ferie:renderCcFerie, riportare:renderCcSync, storico:renderCcHistory, dati:renderCcData, impostazioni:renderCcSettings })[ccSection]();
         ccUpdateNavCounts();
     }
     function ccRefreshIfOpen() {
@@ -12513,7 +12745,7 @@
             if(save) {
                 const nm = inp.value.trim().toUpperCase().replace(/\s+/g,' ');
                 if(!nm || nm === orig) delete nameOverrides[orig]; else nameOverrides[orig] = nm;
-                saveSettingsFields({ nameOverrides }).then(() => ccToast('Nome aggiornato')).catch(() => ccToast('Salvataggio non riuscito.', true));
+                saveSettingsFields({ nameOverrides }).then(() => { ccToast('Nome aggiornato'); logNote('Operatori: nome mostrato cambiato'); }).catch(() => ccToast('Salvataggio non riuscito.', true));
                 applyNameOverrides(); refreshAfterOperatorChange();
             }
             renderCcOperators();
@@ -13292,7 +13524,10 @@
             group('Diurni e combinati', items.filter(i => i.group === 1)) +
             group('Assenze e permessi', items.filter(i => i.group === 2)) +
             (items.some(i => i.group === 3) ? group('Caselle personalizzate', items.filter(i => i.group === 3)) : '');
-        document.getElementById('sep-perm').innerHTML = sepPermHtml(rowIdx, colIdx) + sepManHtml(rowIdx, colIdx);
+        const hKey = cellKey(rowIdx, colIdx);
+        document.getElementById('sep-perm').innerHTML = sepPermHtml(rowIdx, colIdx) + sepManHtml(rowIdx, colIdx)
+            + `<div class="sep-group-label">Storico di questa casella</div><div class="sep-hist" id="sep-hist" data-key="${esc(hKey)}"><small class="sep-hist-none">Carico…</small></div>`;
+        if(fbReady) sepHistoryLoad(hKey); else document.getElementById('sep-hist').innerHTML = '<small class="sep-hist-none">Storico non disponibile senza Firebase.</small>';
         const m = document.getElementById('shift-edit-popup'); m.style.display = 'flex';
         requestAnimationFrame(() => m.classList.add('open'));
     }
@@ -13793,6 +14028,7 @@
     function listenReperibilita() {
         if(!fbReady) return;
         repDocRef().onSnapshot(doc => {
+            if(!doc.metadata.fromCache) snapRepOk = true;
             const data = doc.exists ? (doc.data() || {}) : {};
             const t = data.turni;
             repTurniSaved = (t && typeof t === 'object') ? Object.assign({}, t) : {};
