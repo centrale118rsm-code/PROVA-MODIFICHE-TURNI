@@ -25,9 +25,9 @@
     })();
     </script>
     <meta name="description" content="Gestione Turni Autisti Soccorritori 2026 (prova)">
-    <link rel="manifest" href="manifest.json?v=6">
-    <link rel="apple-touch-icon" href="apple-touch-icon-autisti.png">
-    <link rel="icon" type="image/png" href="icon-autisti-192.png">
+    <link rel="manifest" href="manifest.json?v=7">
+    <link rel="apple-touch-icon" href="apple-touch-icon-autisti2.png">
+    <link rel="icon" type="image/png" href="icon-autisti2-192.png">
     <title>AUTISTI 2026</title>
     <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
@@ -695,12 +695,12 @@
         @keyframes splashDotPulse { 0%,100%{opacity:0.25; transform:scale(0.8);} 50%{opacity:1; transform:scale(1.15);} }
 
         /* MODALI */
-        #shift-modal,#dinner-modal,#options-modal,#notif-center-modal,#wheel-modal {
+        #shift-modal,#dinner-modal,#options-modal,#notif-center-modal,#wheel-modal,#coin-modal {
             display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:3000;
             backdrop-filter:blur(8px); align-items:flex-end; justify-content:center;
             opacity:0; transition:opacity 0.3s;
         }
-        #shift-modal.open,#dinner-modal.open,#options-modal.open,#notif-center-modal.open,#wheel-modal.open { opacity:1; }
+        #shift-modal.open,#dinner-modal.open,#options-modal.open,#notif-center-modal.open,#wheel-modal.open,#coin-modal.open { opacity:1; }
         .modal-content {
             background:var(--bg-card); width:100%; max-width:600px; border-radius:24px 24px 0 0;
             box-shadow:0 -10px 40px rgba(0,0,0,0.3); overflow:hidden;
@@ -709,7 +709,7 @@
         }
         #shift-modal.open .modal-content,#dinner-modal.open .modal-content,
         #options-modal.open .modal-content,#notif-center-modal.open .modal-content,
-        #wheel-modal.open .modal-content { transform:translateY(0); }
+        #wheel-modal.open .modal-content,#coin-modal.open .modal-content { transform:translateY(0); }
         .modal-header { background:var(--bg); color:var(--text-main); padding:20px 24px; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); }
         .header-text h3 { margin:0; font-size:1.3rem; font-weight:800; color:var(--text-main); display:flex; align-items:center; gap:10px; }
         .header-text span { display:block; font-size:0.9rem; font-weight:600; color:var(--text-sec); margin-top:4px; }
@@ -1020,6 +1020,33 @@
         .eq-m.hi { background:#fff1e6; } .eq-m.hi b, .eq-m.hi b sup { color:#c2410c; } .eq-m.hi i { background:#fb923c; }
         .eq-m.lo { background:#e8f4ff; } .eq-m.lo b, .eq-m.lo b sup { color:#1d4ed8; } .eq-m.lo i { background:#60a5fa; }
         .eq-m.pos b { color:#15803d; } .eq-m.neg b { color:#b91c1c; }
+        /* equità: categorie e tabella diurnisti/turnisti */
+        #eq-grid:empty, #eq-note:empty { display:none; }
+        .eq-cats { display:flex; flex-wrap:wrap; justify-content:center; gap:6px; padding:6px 12px 10px; }
+        .eq-cats button { display:flex; align-items:center; gap:6px; height:34px; padding:0 12px; border-radius:999px; border:1px solid var(--border); background:var(--bg-card); color:var(--text-sec); font:inherit; font-size:0.8rem; font-weight:700; cursor:pointer; }
+        .eq-cats button .material-icons-round { font-size:17px; }
+        .eq-cats button.on { background:var(--primary); border-color:var(--primary); color:#fff; box-shadow:0 2px 8px rgba(29,78,216,.3); }
+        .eq-cat-h { display:flex; flex-wrap:wrap; align-items:center; gap:2px 8px; margin:2px 0 6px; font-size:0.95rem; font-weight:900; color:var(--text-main); }
+        .eq-cat-h small { flex-basis:100%; font-size:0.74rem; font-weight:600; color:var(--text-sec); }
+        .rt-v { display:flex; flex-direction:column; align-items:center; line-height:1.15; }
+        .rt-v b { font-size:0.95rem; font-weight:800; }
+        .rt-v small { font-size:0.62rem; font-weight:700; color:var(--text-sec); white-space:nowrap; }
+        .rt-v.d b { color:#e11d48; } .rt-v.t b { color:var(--c-M); }
+        body.dark-mode .rt-v.d b { color:#fb7185; } body.dark-mode .rt-v.t b { color:#60a5fa; }
+        .rt-bar { display:flex; height:12px; min-width:110px; border-radius:6px; overflow:hidden; background:var(--bg); }
+        .rt-bar i { display:block; height:100%; }
+        .rt-bar i.d, .rt-key.d, .rt-mm i.d { background:#fb7185; } .rt-bar i.t, .rt-key.t, .rt-mm i.t { background:var(--c-P); } .rt-bar i.a, .rt-key.a, .rt-mm i.a { background:#cbd5e1; }
+        .rt-pct { font-size:0.62rem; font-weight:800; color:var(--text-sec); margin-top:3px; white-space:nowrap; }
+        .rt-mm { display:grid; grid-template-columns:repeat(12, 1fr); gap:2px; min-width:150px; }
+        .rt-mm span { display:flex; flex-direction:column-reverse; height:22px; background:var(--bg); border-radius:3px; overflow:hidden; }
+        .rt-mm i { display:block; }
+        .rt-mm em { font-style:normal; font-size:0.5rem; font-weight:700; color:var(--text-sec); text-align:center; text-transform:uppercase; }
+        .rt-table tbody tr { height:62px; }
+        .rt-key { display:inline-block; width:12px; height:12px; border-radius:3px; vertical-align:-2px; }
+        .eq-m .rt-v { align-items:flex-start; }
+        .eq-m .rt-v small { text-transform:none; white-space:normal; font-size:0.6rem; line-height:1.25; }
+        .rt-card-b { display:flex; flex-direction:column; gap:8px; }
+        .rt-card-b .eq-card-g { grid-template-columns:repeat(3, 1fr); }
         body.dark-mode .eq-m.hi { background:rgba(251,146,60,.15); } body.dark-mode .eq-m.lo { background:rgba(96,165,250,.15); }
         .ab-meter b { font-size:0.82rem; font-weight:800; color:var(--text-main); font-variant-numeric:tabular-nums; }
         .ab-meter b small { font-weight:600; color:var(--text-sec); }
@@ -1204,6 +1231,16 @@
         body.pref-hl-me #main-table td.me-col { background: rgba(37,99,235,.09); box-shadow: inset 2px 0 0 rgba(37,99,235,.55), inset -2px 0 0 rgba(37,99,235,.55); }
         body.dark-mode.pref-hl-me #main-table td.me-col { background: rgba(96,165,250,.13); }
         body.pref-hl-me #main-table thead th.me-col { color: var(--primary); box-shadow: inset 0 -3px 0 var(--primary); }
+        /* nomi toccati nell'intestazione: quelle colonne in evidenza, le altre sbiadite */
+        #main-table thead th[data-col] { cursor: pointer; }
+        #main-table td.col-dim { opacity: .28; }
+        /* intestazione: resta piena (è fissa in alto, sbiadita lascerebbe vedere sotto), sbiadisce solo il contenuto */
+        #main-table thead th.col-dim { color: color-mix(in srgb, var(--text-sec) 40%, transparent); }
+        #main-table thead th.col-dim > * { opacity: .4; }
+        #main-table thead th.col-dim:hover { color: var(--text-sec); }
+        #main-table thead th.col-focus { color: var(--primary); box-shadow: inset 0 -3px 0 var(--primary); }
+        #main-table td.col-focus-end, #main-table thead th.col-focus-end { border-right: 3px solid var(--primary); }
+        #main-table thead th.th-focus-clear { cursor: pointer; color: var(--primary); }
         body.pref-no-times #main-table .time-tag, body.pref-no-times #cell-probe .time-tag { display:none; }
         body.pref-no-repbar #main-table .rep-bar, body.pref-no-repbar #cell-probe .rep-bar { display:none; }
 
@@ -1690,6 +1727,7 @@
         .cc-empty .msym { display:block; margin:0 auto 6px; font-size:26px; color:var(--cc-line); }
         .cc-tag { display:inline-flex; align-items:center; height:20px; padding:0 7px; border-radius:3px; font:500 11.5px/1 var(--cc-font); background:var(--cc-surface-2); color:var(--cc-muted); border:1px solid var(--cc-line-2); white-space:nowrap; }
         .cc-tag.accent { background:var(--cc-accent-soft); color:var(--cc-accent); border-color:transparent; }
+        .cc-tag.danger { background:var(--cc-neg-soft); color:var(--cc-neg); border-color:transparent; }
         .cc-tag.warn { background:var(--cc-warn-soft); color:var(--cc-warn); border-color:transparent; }
         .cc-tag.neg { background:var(--cc-neg-soft); color:var(--cc-neg); border-color:transparent; }
         .cc-num { font-variant-numeric:tabular-nums; font-feature-settings:'tnum'; }
@@ -1779,7 +1817,7 @@
         .cc-add-form { display:grid; grid-template-columns:1fr 130px auto; gap:10px; align-items:end; }
         @media (max-width:640px) { .cc-add-form { grid-template-columns:1fr 110px; } .cc-add-form .cc-btn { grid-column:1 / -1; justify-content:center; } }
         .cc-op-list { border:1px solid var(--cc-line); border-radius:var(--cc-r); background:var(--cc-surface); overflow:hidden; }
-        .cc-op-head, .cc-op-row { display:grid; grid-template-columns:32px 30px minmax(160px,1fr) 120px 240px 150px; align-items:center; gap:10px; padding:0 12px; }
+        .cc-op-head, .cc-op-row { display:grid; grid-template-columns:32px 30px minmax(160px,1fr) 120px 186px 240px 150px; align-items:center; gap:10px; padding:0 12px; }
         .cc-op-head { height:36px; background:var(--cc-surface-2); border-bottom:1px solid var(--cc-line); font:500 12px/1 var(--cc-font-c); color:var(--cc-muted); }
         .cc-op-row { min-height:58px; border-bottom:1px solid var(--cc-line-2); background:var(--cc-surface); position:relative; }
         .cc-op-row:last-child { border-bottom:none; }
@@ -1795,17 +1833,23 @@
         .cc-op-name .cc-input { height:32px; }
         .cc-op-hours { display:flex; align-items:center; gap:6px; font-size:12.5px; color:var(--cc-muted); }
         .cc-op-hours input { width:64px; height:32px; text-align:right; font-variant-numeric:tabular-nums; }
+        .cc-op-allow { display:flex; gap:6px; }
+        .cc-op-allow label { display:flex; flex-direction:column; align-items:center; gap:2px; font:500 10.5px/1 var(--cc-font-c); color:var(--cc-muted); }
+        .cc-op-allow input { width:52px; height:30px; text-align:right; font-variant-numeric:tabular-nums; padding:0 6px; }
+        .cc-op-allow input.changed { border-color:var(--cc-accent); color:var(--cc-accent); font-weight:600; }
         .cc-op-vis { display:flex; align-items:center; gap:10px; font-size:13px; flex-wrap:wrap; }
         .cc-op-vis .cc-until { display:flex; align-items:center; gap:6px; color:var(--cc-muted); font-size:12.5px; }
         .cc-op-vis .cc-until input { height:30px; width:140px; font-size:12.5px; padding:0 8px; }
         .cc-op-actions { display:flex; gap:2px; justify-content:flex-end; }
         @media (max-width:980px) {
             .cc-op-head { display:none; }
-            .cc-op-row { grid-template-columns:32px 1fr auto; grid-template-areas:"grip name actions" "grip hours hours" "grip vis vis"; padding:10px 12px; row-gap:8px; }
+            .cc-op-row { grid-template-columns:32px 1fr auto; grid-template-areas:"grip name actions" "grip hours hours" "grip allow allow" "grip vis vis"; padding:10px 12px; row-gap:8px; }
             .cc-op-grip { grid-area:grip; align-self:start; }
             .cc-op-pos { display:none; }
             .cc-op-name { grid-area:name; }
             .cc-op-hours { grid-area:hours; }
+            .cc-op-allow { grid-area:allow; }
+            .cc-op-allow label { flex-direction:row; gap:5px; font-size:12px; }
             .cc-op-vis { grid-area:vis; }
             .cc-op-actions { grid-area:actions; align-self:start; }
         }
@@ -2091,7 +2135,7 @@
         #coord-console .cc-brand { border-bottom:1px solid rgba(255,255,255,.1); }
         #coord-console .cc-brand b { color:#fff; font-weight:800; }
         #coord-console .cc-brand small { color:rgba(255,255,255,.62); }
-        .cc-scope .cc-brand-mark { background:url('icon-autisti-192.png') center/cover no-repeat !important; color:transparent !important; font-size:0 !important; border-radius:11px; box-shadow:0 6px 16px -4px rgba(0,0,0,.45); }
+        .cc-scope .cc-brand-mark { background:url('icon-autisti2-192.png') center/cover no-repeat !important; color:transparent !important; font-size:0 !important; border-radius:11px; box-shadow:0 6px 16px -4px rgba(0,0,0,.45); }
         #coord-console .cc-nav-group { color:rgba(255,255,255,.5); }
         #coord-console .cc-nav button { color:rgba(255,255,255,.88); }
         #coord-console .cc-nav button .msym { background:rgba(255,255,255,.1); border:none; color:#fff; }
@@ -2565,6 +2609,54 @@
         .missing-list { display:flex; flex-wrap:wrap; gap:6px; }
         .missing-badge { background:#fee2e2; color:#b91c1c; font-size:0.75rem; font-weight:600; padding:4px 8px; border-radius:6px; }
 
+        /* ── MONETE E MERCATO DELLE FASCE ─────────────────────────────────── */
+        .coin-wbox { display:flex; align-items:center; gap:12px; margin:0 20px 16px; padding:12px 14px; border-radius:14px; border:1.5px solid var(--border); background:var(--bg); color:var(--text-main); }
+        .coin-wbox > .material-icons-round { font-size:26px; color:var(--text-sec); flex:none; }
+        .coin-wbox.on { border-color:#f59e0b; background:rgba(245,158,11,0.1); } .coin-wbox.on > .material-icons-round { color:#d97706; }
+        .coin-wbox > div { flex:1; min-width:0; } .coin-wbox b { display:block; font-size:0.88rem; font-weight:800; } .coin-wbox small { display:block; font-size:0.74rem; font-weight:600; color:var(--text-sec); margin-top:2px; }
+        label.coin-wbox { cursor:pointer; } label.coin-wbox input { display:none; }
+        .coin-check { width:24px; height:24px; border-radius:7px; border:2px solid var(--border); display:flex; align-items:center; justify-content:center; font-size:16px !important; color:transparent; flex:none; }
+        .coin-wbox.on .coin-check { background:#d97706; border-color:#d97706; color:#fff; }
+        #wheel-done-banner .coin-wbox { margin:10px 0 0; text-align:left; }
+        .coin-btn { border:none; border-radius:10px; padding:8px 14px; font-weight:800; font-size:0.8rem; background:linear-gradient(135deg,#f59e0b,#d97706); color:#fff; cursor:pointer; flex:none; font-family:inherit; }
+        .coin-btn.ghost { background:var(--bg); color:var(--text-main); border:1px solid var(--border); }
+        .coin-btn:active { transform:scale(0.96); }
+        .coin-hero { display:flex; align-items:center; gap:14px; margin:16px 20px 4px; padding:18px; border-radius:18px; background:linear-gradient(135deg,#f59e0b,#ea580c); color:#fff; box-shadow:0 14px 30px -16px rgba(234,88,12,0.9); }
+        .coin-hero > .material-icons-round { font-size:40px; } .coin-hero small { display:block; font-size:0.75rem; font-weight:700; opacity:0.9; }
+        .coin-hero b { display:block; font-size:1.7rem; font-weight:900; line-height:1.1; } .coin-hero em { display:block; font-style:normal; font-size:0.78rem; font-weight:700; opacity:0.95; margin-top:2px; }
+        .coin-note { display:flex; gap:10px; align-items:flex-start; margin:10px 20px; padding:12px 14px; border-radius:14px; background:var(--bg); border:1px solid var(--border); font-size:0.82rem; font-weight:600; color:var(--text-sec); }
+        .coin-note > .material-icons-round { color:var(--text-sec); } .coin-note b { color:var(--text-main); } .coin-note .coin-btn { margin-top:8px; }
+        .coin-card { margin:0 20px 12px; border:1px solid var(--border); border-radius:16px; overflow:hidden; background:var(--bg-card); }
+        .coin-card-h { padding:12px 14px; background:var(--bg); border-bottom:1px solid var(--border); } .coin-card-h b { display:block; font-size:0.9rem; color:var(--text-main); } .coin-card-h small { font-size:0.72rem; color:var(--text-sec); font-weight:600; }
+        .coin-slot { display:flex; align-items:center; gap:10px; padding:10px 14px; border-top:1px solid var(--border); } .coin-slot:first-of-type { border-top:none; }
+        .coin-slot.me { background:rgba(245,158,11,0.08); }
+        .coin-slot-t { width:138px; flex:none; } .coin-slot-t small { display:block; font-size:0.66rem; font-weight:800; color:#d97706; text-transform:uppercase; letter-spacing:0.03em; } .coin-slot-t b { font-size:0.86rem; color:var(--text-main); }
+        .coin-slot-w { flex:1; min-width:0; font-weight:800; font-size:0.9rem; color:var(--text-main); } .coin-slot-w i { font-style:normal; font-size:0.66rem; background:#d97706; color:#fff; padding:1px 6px; border-radius:6px; vertical-align:2px; }
+        .coin-slot-w small { display:block; font-size:0.7rem; font-weight:600; color:var(--text-sec); }
+        .coin-tag { font-size:0.7rem; font-weight:800; color:var(--text-sec); }
+        .coin-form { padding:12px 14px; background:var(--bg); border-top:1px dashed var(--border); display:flex; flex-direction:column; gap:10px; }
+        .coin-form label { display:flex; flex-direction:column; gap:4px; font-size:0.74rem; font-weight:800; color:var(--text-sec); }
+        .coin-form select, .coin-form input { padding:10px; border-radius:10px; border:1px solid var(--border); background:var(--bg-card); color:var(--text-main); font-weight:700; font-size:0.9rem; font-family:inherit; }
+        .coin-form small { font-size:0.72rem; color:var(--text-sec); font-weight:600; } .coin-form-b { display:flex; gap:8px; justify-content:flex-end; }
+        .coin-offer { display:flex; align-items:center; gap:10px; margin:0 20px 10px; padding:12px 14px; border-radius:14px; border:1.5px solid #f59e0b; background:rgba(245,158,11,0.08); }
+        .coin-offer.mine { border-color:var(--border); background:var(--bg); }
+        .coin-offer > div:first-child { flex:1; min-width:0; } .coin-offer b { font-size:0.86rem; color:var(--text-main); } .coin-offer small { display:block; font-size:0.74rem; color:var(--text-sec); font-weight:600; margin-top:2px; }
+        .coin-offer small b { font-size:inherit; } .coin-warn { color:#dc2626 !important; } .coin-offer-b { display:flex; flex-direction:column; gap:6px; }
+        .coin-list { margin:0 20px 8px; border:1px solid var(--border); border-radius:14px; overflow:hidden; }
+        .coin-mv { display:flex; align-items:center; gap:12px; padding:9px 14px; border-top:1px solid var(--border); background:var(--bg-card); } .coin-mv:first-child { border-top:none; }
+        .coin-mv.me { background:rgba(245,158,11,0.08); } .coin-mv > div { flex:1; min-width:0; } .coin-mv b { font-size:0.82rem; color:var(--text-main); display:block; } .coin-mv small { font-size:0.7rem; color:var(--text-sec); font-weight:600; }
+        .coin-d { font-weight:900; font-size:0.95rem; color:#15803d; min-width:34px; text-align:right; } .coin-d.neg { color:#dc2626; }
+        .coin-rank { width:24px; height:24px; border-radius:8px; background:var(--bg); display:flex; align-items:center; justify-content:center; font-size:0.72rem; font-weight:800; color:var(--text-sec); flex:none; }
+        .coin-help { margin:12px 20px 30px; border:1px solid var(--border); border-radius:14px; background:var(--bg); }
+        .coin-help summary { display:flex; align-items:center; gap:8px; padding:12px 14px; font-weight:800; font-size:0.85rem; color:var(--text-main); cursor:pointer; list-style:none; } .coin-help summary::-webkit-details-marker { display:none; }
+        .coin-help div { padding:0 14px 12px; font-size:0.8rem; color:var(--text-sec); font-weight:600; } .coin-help p { margin:0 0 8px; } .coin-help b { color:var(--text-main); }
+        .adm-coin-t .adm-tr, .adm-coin-o .adm-tr { grid-template-columns:1.2fr 1fr .8fr .8fr .8fr 1fr; }
+        .adm-coin-f .adm-tr { grid-template-columns:1.4fr .7fr .7fr .7fr .7fr; }
+        .adm-coin-m .adm-tr { grid-template-columns:1fr 1fr .5fr 2.4fr; } .adm-coin-e .adm-tr { grid-template-columns:.9fr 2.2fr 1fr .8fr; }
+        .adm-pos { color:#15803d; font-weight:800; } .adm-neg { color:#dc2626; font-weight:800; }
+        @media (max-width:900px) { .adm-coin-t .adm-tr, .adm-coin-o .adm-tr, .adm-coin-m .adm-tr, .adm-coin-e .adm-tr { grid-template-columns:1fr 1fr; } .adm-coin-f .adm-tr { grid-template-columns:1.4fr repeat(4, .6fr); } .adm-coin-f .adm-th { display:grid; } }
+        body.dark-mode .coin-d { color:#86efac; } body.dark-mode .coin-d.neg, body.dark-mode .adm-neg { color:#fca5a5; } body.dark-mode .adm-pos { color:#86efac; }
+
         /* ── RUOTA DELLA SFIGA ────────────────────────────────────────────── */
         .wheel-steps-nav { display:flex; align-items:center; gap:8px; padding:14px 20px 0 20px; color:var(--primary); font-weight:700; font-size:0.85rem; cursor:pointer; }
         .wheel-mode-grid { display:flex; flex-direction:column; gap:14px; padding:16px 20px 24px; }
@@ -2705,6 +2797,9 @@
         .identity-btn.locked .identity-avatar { background:#a3adc2; }
         .identity-btn.locked .identity-name { text-decoration:line-through; text-decoration-thickness:2px; color:var(--text-sec); }
         .identity-lock-tag { font-size:0.55rem; font-weight:800; color:#dc2626; text-transform:uppercase; }
+        .identity-btn.pending { opacity:0.5; pointer-events:none; animation:identityPulse 1.2s ease-in-out infinite; }
+        .identity-pending-tag { font-size:0.55rem; font-weight:800; color:var(--text-sec); text-transform:uppercase; }
+        @keyframes identityPulse { 50% { opacity:0.3; } }
         .identity-btn.current { background:linear-gradient(135deg, rgba(29,78,216,0.12), rgba(29,78,216,0.03)); border-color:var(--primary); box-shadow:0 3px 10px rgba(29,78,216,0.15); }
         .identity-btn.current .identity-avatar { box-shadow:0 0 0 2px var(--bg-card), 0 0 0 4px var(--primary); }
         .identity-current-tag { font-size:0.55rem; font-weight:800; color:var(--primary); text-transform:uppercase; letter-spacing:0.5px; }
@@ -3015,7 +3110,7 @@
         <p style="color:var(--text-sec);font-size:0.85rem;margin-top:8px">Lettura Turni 2026</p>
     </div>
     <div id="splash-brand">
-        <img class="splash-logo" src="icon-autisti-512.png" alt="118">
+        <img class="splash-logo" src="icon-autisti2-512.png" alt="118">
         <h1 class="splash-title" id="splash-welcome-title">TURNI AUTISTI</h1>
         <span class="splash-sub" id="splash-welcome-sub">2026</span>
         <div class="splash-dots"><span></span><span></span><span></span></div>
@@ -3090,6 +3185,7 @@
                 <button class="admin-tab-btn" data-tab="accessi" onclick="switchAdminTab('accessi',this)"><span class="material-icons-round">insights</span><span class="adm-nav-l">Accessi</span><b class="adm-badge" id="adm-badge-accessi"></b></button>
                 <button class="admin-tab-btn" data-tab="identita" onclick="switchAdminTab('identita',this)"><span class="material-icons-round">how_to_reg</span><span class="adm-nav-l">Nomi e identità</span><b class="adm-badge" id="adm-badge-identita"></b></button>
                 <button class="admin-tab-btn" data-tab="ruota" onclick="switchAdminTab('ruota',this)"><span class="material-icons-round">casino</span><span class="adm-nav-l">Ruota della sfiga</span></button>
+                <button class="admin-tab-btn" data-tab="monete" onclick="switchAdminTab('monete',this)"><span class="material-icons-round">savings</span><span class="adm-nav-l">Monete e mercato</span></button>
                 <button class="admin-tab-btn" data-tab="registro" onclick="switchAdminTab('registro',this)"><span class="material-icons-round">history</span><span class="adm-nav-l">Registro modifiche</span></button>
                 <div class="adm-nav-grp">Configurazione</div>
                 <button class="admin-tab-btn" data-tab="aspetto" onclick="switchAdminTab('aspetto',this)"><span class="material-icons-round">palette</span><span class="adm-nav-l">Aspetto</span></button>
@@ -3116,6 +3212,7 @@
             <div class="admin-tab-panel" id="admin-tab-errori"><div id="adm-errori"></div></div>
             <div class="admin-tab-panel" id="admin-tab-identita"><div id="adm-identita"></div></div>
             <div class="admin-tab-panel" id="admin-tab-ruota"><div id="adm-ruota"></div></div>
+            <div class="admin-tab-panel" id="admin-tab-monete"><div id="adm-monete"></div></div>
             <div class="admin-tab-panel" id="admin-tab-registro"><div id="adm-registro"></div></div>
 
             <div class="admin-tab-panel" id="admin-tab-accessi">
@@ -3280,9 +3377,9 @@
                     <button data-p="anno" onclick="eqSetPeriod('anno')">Anno intero</button>
                 </div>
             </div>
+            <div class="eq-cats" id="eq-cats"></div>
             <div class="hg-wrap" id="eq-grid"></div>
             <p class="hg-note" id="eq-note"></p>
-            <h4 class="pw-title"><span class="material-icons-round">groups</span> Chi lavora con chi</h4>
             <div id="eq-pairs"></div>
         </div>
     </div>
@@ -3608,6 +3705,21 @@
     </div>
 </div>
 
+<div id="coin-modal" onclick="closeCoinModal(event)">
+    <div class="modal-content" onclick="event.stopPropagation()" style="height:92vh;max-height:92vh;">
+        <div class="modal-header" style="background:#fffbeb;border-bottom-color:#fef3c7;">
+            <div class="header-text">
+                <h3 style="color:#d97706"><span class="material-icons-round" style="margin-right:8px">savings</span> MONETE E MERCATO</h3>
+                <span style="color:#f59e0b">Portafoglio e scambi delle fasce</span>
+            </div>
+            <button class="btn-close-modal" onclick="closeCoinModal()">
+                <span class="material-icons-round">close</span>
+            </button>
+        </div>
+        <div class="modal-body" id="coin-body" style="background:var(--bg-card);"></div>
+    </div>
+</div>
+
 <div id="wheel-modal" onclick="closeWheelModal(event)">
     <div class="modal-content" onclick="event.stopPropagation()" style="height:92vh;max-height:92vh;">
         <div class="modal-header" style="background:#fff7ed;border-bottom-color:#ffedd5;">
@@ -3665,6 +3777,7 @@
                 </div>
                 <div style="padding:0 20px 6px;font-size:0.75rem;font-weight:600;color:var(--text-sec);">Il turno verrà diviso automaticamente in 3 fasce uguali fino alle 06:30.</div>
                 <div class="slot-chip-list" id="wheel-slot-list"></div>
+                <div id="wheel-coin-box"></div>
                 <button class="btn-wheel-primary" id="wheel-slots-start-btn" onclick="startSlotWheel()" disabled>
                     <span class="material-icons-round">play_circle</span> AVVIA LA RUOTA
                 </button>
@@ -3689,6 +3802,7 @@
                 <div id="wheel-assign-list" class="wheel-assign-list"></div>
                 <div id="wheel-done-banner" class="wheel-done-banner" style="display:none;">
                     <span class="material-icons-round" style="vertical-align:middle">celebration</span> Assegnazione completata! Buona (s)fortuna a tutti.
+                    <div id="wheel-coin-done"></div>
                 </div>
                 <div class="character-reveal" id="wheel-character-reveal">
                     <div class="char-avatar" id="wheel-char-avatar">??</div>
@@ -4096,7 +4210,7 @@
     let customAnnouncements = JSON.parse(JSON.stringify(DEFAULT_ANNOUNCEMENTS_BAKED));
     let announcementQueue = [];
     // Operatori gestiti dall'Area Coordinatore (ordine colonne, nascosti, rimossi, aggiunti, ore contratto)
-    let operatorConfig = { order:[], hidden:{}, removed:{}, added:[], contract:{} };
+    let operatorConfig = { order:[], hidden:{}, removed:{}, added:[], contract:{}, allow:{} };
     let excelParsedData = [];              // dati letti dal file Excel, senza colonne aggiunte né modifiche
     applyColorOverrides();
     Object.assign(SCHEDULE, scheduleOverride.SCHEDULE || {});
@@ -4247,8 +4361,9 @@
                 if(ms && ms > cutoffMs && !(rel[d.name] && ms <= rel[d.name])) locked.add(d.name);
             });
             identityLockedCache = locked;
+            try { localStorage.setItem('infermieri_identity_locked', JSON.stringify([...locked])); } catch(e) {}
             return locked;
-        } catch(e) { console.error("Errore lettura identità attive:", e); return new Set(); }
+        } catch(e) { console.error("Errore lettura identità attive:", e); return null; }
     }
     function showIdentityInfoPopup() {
         let m = document.getElementById('identity-info-modal'); m.style.display = 'flex';
@@ -4259,16 +4374,22 @@
         let m = document.getElementById('identity-info-modal'); m.classList.remove('open');
         setTimeout(() => { m.style.display = 'none'; openIdentityModal(); }, 300);
     }
-    // La finestra si apre subito; i nomi "In uso" arrivano appena la rete risponde (al massimo 6 s).
+    // La finestra si apre subito con gli ultimi nomi "In uso" conosciuti (salvati sul telefono),
+    // poi si aggiorna appena la rete risponde (al massimo 6 s). Se non si sa ancora nulla,
+    // i nomi restano in attesa invece di sembrare tutti liberi.
     let identityLockedCache = null, identityReleases = {};
+    function savedLockedIdentities() {
+        try { const a = JSON.parse(localStorage.getItem('infermieri_identity_locked') || 'null'); return Array.isArray(a) ? new Set(a) : null; } catch(e) { return null; }
+    }
     async function openIdentityModal() {
-        renderIdentityList(identityLockedCache || new Set());
+        const known = identityLockedCache || savedLockedIdentities();
+        renderIdentityList(known || new Set(), !known);
         const m = document.getElementById('identity-modal'); m.style.display = 'flex';
         setTimeout(() => m.classList.add('open'), 20);
         const fresh = await Promise.race([getLockedIdentities(), new Promise(r => setTimeout(() => r(null), 6000))]);
-        if(fresh && m.style.display !== 'none') renderIdentityList(fresh);
+        if(m.style.display !== 'none' && (fresh || !known)) renderIdentityList(fresh || known || new Set());
     }
-    function renderIdentityList(locked) {
+    function renderIdentityList(locked, pending) {
         const names = (drivers && drivers.length) ? drivers.map(d => d.name) : [];
         const allOptions = names.concat(IDENTITY_EXTRA_OPTIONS);
         const c = document.getElementById('identity-list-container'); c.innerHTML = "";
@@ -4276,14 +4397,16 @@
             const isGuest = name === 'Ospite';
             const isCurrent = name === userIdentity;
             const isLocked = !isGuest && !isCurrent && locked.has(name);
+            const isPending = pending && !isGuest && !isCurrent;
             const initials = name.substring(0,2).toUpperCase();
             const btn = document.createElement('div');
-            btn.className = 'identity-btn' + (isGuest ? ' guest-btn' : '') + (isLocked ? ' locked' : '') + (isCurrent ? ' current' : '');
+            btn.className = 'identity-btn' + (isGuest ? ' guest-btn' : '') + (isLocked ? ' locked' : '') + (isPending ? ' pending' : '') + (isCurrent ? ' current' : '');
             let tag = '';
             if(isCurrent) tag = '<div class="identity-current-tag">TU</div>';
+            else if(isPending) tag = '<div class="identity-pending-tag">Verifica…</div>';
             else if(isLocked) tag = '<div class="identity-lock-tag">In uso</div>';
             btn.innerHTML = `<div class="identity-avatar">${isGuest ? '<span class="material-icons-round" style="font-size:20px">person</span>' : initials}</div><div class="identity-name">${name}</div>${tag}`;
-            if(!isLocked) btn.onclick = () => selectIdentity(name);
+            if(!isLocked && !isPending) btn.onclick = () => selectIdentity(name);
             c.appendChild(btn);
         });
     }
@@ -4556,7 +4679,7 @@
         let m = document.getElementById('admin-panel-modal'); m.style.display = 'flex';
         setTimeout(() => m.classList.add('open'), 10);
         switchAdminTab('panoramica', document.querySelector('.admin-tab-btn[data-tab="panoramica"]'));
-        admData = null; admRefresh(true);
+        admRefresh(true);   // si vedono subito i dati dell'ultima apertura (se ci sono), poi si aggiornano
         if(pendingAdminTab) { const t = pendingAdminTab; pendingAdminTab = null; switchAdminTab(t, document.querySelector(`.admin-tab-btn[data-tab="${t}"]`)); }
         startAdminAccessListener();
         populateAdminColorInputs();
@@ -4661,6 +4784,7 @@
         accessi:    ['Accessi', 'Chi usa l’app, da quale dispositivo e cosa guarda'],
         identita:   ['Nomi e identità', 'I nomi occupati nella schermata “Chi sei?”'],
         ruota:      ['Ruota della sfiga', 'Statistiche delle estrazioni'],
+        monete:     ['Monete e mercato', 'Crediti degli operatori, guadagni, vendite e fasce della ruota'],
         registro:   ['Registro modifiche', 'Chi ha cambiato cosa negli ultimi 7 giorni'],
         aspetto:    ['Aspetto', 'Colori dell’app per tutti'],
         operatori:  ['Nomi operatori', 'Nome mostrato nell’app per ogni colonna'],
@@ -4692,13 +4816,13 @@
         const since = firebase.firestore.Timestamp.fromMillis(Date.now() - ADM_DAYS * 864e5);
         const safe = p => p.catch(e => { console.warn('Pannello admin:', e && (e.code || e.message)); return null; });
         const dates = []; for(let i = 0; i < 7; i++) { const d = new Date(); d.setDate(d.getDate() - i); dates.push(ymd(d)); }
-        const [sess, ids, set, push, saldi, snap, req, runs, mstate, ...logs] = await Promise.all([
+        // lo stato del motore su GitHub arriva per conto suo: il pannello non lo aspetta
+        admLoadMotore();
+        const [sess, ids, set, push, saldi, snap, req, ...logs] = await Promise.all([
             safe(asSessionsGet(since)),   // autisti: sessioni dell'app in uso, sola lettura
             safe(asNoopRef().get()),
             safe(cfgRef('settings').get()), safe(cfgRef('push').get()), safe(cfgRef('saldi').get()), safe(cfgRef('snapindex').get()),
             safe(db.collection('richieste_turni').orderBy('timestamp', 'desc').limit(80).get()),
-            safe(Promise.race([fetch(`https://api.github.com/repos/${ADM_MOTORE_REPO}/actions/workflows/motore.yml/runs?per_page=40`).then(r => r.ok ? r.json() : null), new Promise(res => setTimeout(() => res(null), 7000))])),
-            safe(Promise.race([fetch(`https://raw.githubusercontent.com/${ADM_MOTORE_REPO}/main/push/state.json?t=${Date.now()}`).then(r => r.ok ? r.json() : null), new Promise(res => setTimeout(() => res(null), 7000))])),
             ...dates.map(d => safe(cfgRef('log_' + d).get()))
         ]);
         const S = set && set.exists ? (set.data() || {}) : {};
@@ -4711,15 +4835,26 @@
             saldi: saldi && saldi.exists ? (saldi.data() || {}) : null,
             snaps: snap && snap.exists ? Object.entries((snap.data() || {}).items || {}).map(([id, v]) => Object.assign({ id }, v)) : [],
             requests: req ? req.docs.map(d => Object.assign({ id: d.id }, d.data())) : [],
-            runs: runs && runs.workflow_runs ? runs.workflow_runs : null, motoreProblem: mstate && mstate.problem ? String(mstate.problem) : '',
             logs: logs.map((x, i) => ({ date: dates[i], entries: x && x.exists ? Object.entries((x.data() || {}).entries || {}).map(([id, e]) => Object.assign({ id }, e)) : [] })),
             sessionsOk: !!sess
         };
     }
+    let admMotoreData = { runs: null, motoreProblem: '', pending: false };
+    async function admLoadMotore() {
+        if(admMotoreData.pending) return;
+        admMotoreData.pending = true;
+        const get = url => Promise.race([fetch(url).then(r => r.ok ? r.json() : null).catch(() => null), new Promise(res => setTimeout(() => res(null), 7000))]);
+        const [runs, mstate] = await Promise.all([
+            get(`https://api.github.com/repos/${ADM_MOTORE_REPO}/actions/workflows/motore.yml/runs?per_page=40`),
+            get(`https://raw.githubusercontent.com/${ADM_MOTORE_REPO}/main/push/state.json?t=${Date.now()}`)
+        ]);
+        admMotoreData = { runs: runs && runs.workflow_runs ? runs.workflow_runs : null, motoreProblem: mstate && mstate.problem ? String(mstate.problem) : '', pending: false };
+        if(admData) { Object.assign(admData, { runs: admMotoreData.runs, motoreProblem: admMotoreData.motoreProblem }); admRenderTab(); admBadges(); }
+    }
     async function admRefresh(quiet) {
         if(admLoading) return admLoading;
         const btns = document.querySelectorAll('.adm-refresh'); btns.forEach(b => b.classList.add('spin'));
-        admLoading = admLoad().then(d => { if(d) admData = d; }).catch(e => console.warn(e)).finally(() => {
+        admLoading = admLoad().then(d => { if(d) admData = Object.assign(d, { runs: admMotoreData.runs, motoreProblem: admMotoreData.motoreProblem }); }).catch(e => console.warn(e)).finally(() => {
             admLoading = null; btns.forEach(b => b.classList.remove('spin'));
             admRenderTab(); admBadges();
             const u = document.getElementById('adm-updated'); if(u && admData) u.textContent = 'Dati delle ' + new Date(admData.at).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
@@ -4737,7 +4872,7 @@
     }
     function admRenderTab() {
         if(!document.getElementById('admin-panel-modal') || document.getElementById('admin-panel-modal').style.display === 'none') return;
-        const f = { panoramica: admRenderPanoramica, errori: admRenderErrori, identita: admRenderIdentita, ruota: admRenderRuota, registro: admRenderRegistro, accessi: renderAdminAccessList }[admTab];
+        const f = { panoramica: admRenderPanoramica, errori: admRenderErrori, identita: admRenderIdentita, ruota: admRenderRuota, monete: admRenderMonete, registro: admRenderRegistro, accessi: renderAdminAccessList }[admTab];
         if(f) { try { f(); } catch(e) { console.warn('Pannello admin:', e); } }
     }
     const admLoadingHtml = () => `<div class="adm-empty"><span class="material-icons-round adm-spin">autorenew</span>Carico i dati…</div>`;
@@ -4919,7 +5054,8 @@
         if(hard.length) add('err', 'bug_report', `${hard.length} ${hard.length === 1 ? 'errore' : 'errori'} nelle ultime 24 ore`, hard.slice(0, 2).map(g => g.msg.slice(0, 80)).join(' · '), "admGo('errori')", 'Vedi errori');
         else if(errs.length) add('warn', 'report', `${errs.length} ${errs.length === 1 ? 'avviso' : 'avvisi'} nelle ultime 24 ore`, errs.slice(0, 2).map(g => g.msg.slice(0, 80)).join(' · '), "admGo('errori')", 'Vedi');
         const M = admMotore();
-        if(!M) add('info', 'cloud_off', 'Motore delle notifiche: stato non disponibile', 'GitHub non ha risposto. Riprova con “Aggiorna”.', '', '');
+        if(!M && admMotoreData.pending) { /* ancora in verifica */ }
+        else if(!M) add('info', 'cloud_off', 'Motore delle notifiche: stato non disponibile', 'GitHub non ha risposto. Riprova con “Aggiorna”.', '', '');
         else if(!M.last || Date.now() - M.last > 6 * 36e5) add('err', 'notifications_off', 'Il motore delle notifiche è fermo', `Ultimo giro ${admAgo(M.last)}. Senza il motore niente notifiche ad app chiusa e i calendari del telefono non si aggiornano.`, `window.open('https://github.com/${ADM_MOTORE_REPO}/actions/workflows/motore.yml','_blank')`, 'Apri GitHub');
         else if(Date.now() - M.last > 36e5) add('warn', 'notifications_paused', 'Il motore delle notifiche è in ritardo', `Ultimo giro ${admAgo(M.last)} (dovrebbe girare ogni 15 minuti).`, `window.open('https://github.com/${ADM_MOTORE_REPO}/actions/workflows/motore.yml','_blank')`, 'Apri GitHub');
         if(admData.motoreProblem) add('err', 'notifications_off', 'Le notifiche sul telefono non partono', admData.motoreProblem + ' Rimetti il secret VAPID_PRIVATE su GitHub (Settings › Secrets › Actions): solo la chiave privata, senza spazi né scritte.', `window.open('https://github.com/${ADM_MOTORE_REPO}/settings/secrets/actions','_blank')`, 'Apri i secret');
@@ -4978,7 +5114,7 @@
                 ${admKpi('login', todayS.length, 'Accessi oggi', `${people.size} persone con nome`, 'info')}
                 ${admKpi('bug_report', errN, 'Problemi in 24 ore', errs.length ? `${errs.length} tipi diversi` : 'nessuno', errs.some(g => g.kind !== 'console') ? 'err' : errs.length ? 'warn' : 'ok')}
                 ${admKpi('notifications_active', subs.length, 'Telefoni con notifiche', coordSub ? 'coordinatore incluso' : 'coordinatore escluso', coordSub ? 'ok' : 'warn')}
-                ${admKpi('smart_toy', M ? admAgo(M.last) : '—', 'Ultimo giro motore', M ? `${M.auto24} automatici in 24 ore` : 'GitHub non risponde', !M ? 'muted' : (now - M.last > 6 * 36e5 ? 'err' : now - M.last > 36e5 ? 'warn' : 'ok'))}
+                ${admKpi('smart_toy', M ? admAgo(M.last) : '—', 'Ultimo giro motore', M ? `${M.auto24} automatici in 24 ore` : admMotoreData.pending ? 'controllo…' : 'GitHub non risponde', !M ? 'muted' : (now - M.last > 6 * 36e5 ? 'err' : now - M.last > 36e5 ? 'warn' : 'ok'))}
                 ${admKpi('inbox', pend.length, 'Richieste da gestire', admData.requests.length ? 'ultima ' + admAgo(admMs(admData.requests[0].timestamp)) : 'nessuna', pend.length ? 'warn' : 'ok')}
                 ${admKpi('fact_check', chk, 'Caselle da controllare', 'nei conteggi', chk ? 'warn' : 'ok')}
                 ${admKpi('backup', admAgo(lastSnap), 'Ultima copia', `${admData.snaps.length} copie salvate`, lastSnap && now - lastSnap < 3 * 864e5 ? 'ok' : 'warn')}
@@ -4995,7 +5131,7 @@
                 ${status('ok', 'Origine dei turni', dataSourceMode === 'firebase' ? 'solo app' : 'file Excel')}
                 ${status('ok', 'Anno attivo', activeYear + (archivedYears.length ? ` · archiviati ${archivedYears.join(', ')}` : ''))}
                 ${status(coordinatorName ? (coordSub ? 'ok' : 'warn') : 'warn', 'Coordinatore designato', coordinatorName ? coordinatorName + (coordSub ? ' · notifiche attive' : ' · notifiche spente') : 'nessuno')}
-                ${status(!M ? 'muted' : (M.ok ? (now - M.last > 36e5 ? 'warn' : 'ok') : 'err'), 'Motore notifiche (GitHub)', M ? `ultimo giro ${admWhen(M.last)} · ${M.event === 'schedule' ? 'automatico' : 'avviato a mano'} · ${M.ok ? 'riuscito' : 'fallito'}${M.running ? ' · in corso' : ''}` : 'non disponibile')}
+                ${status(!M ? 'muted' : (M.ok ? (now - M.last > 36e5 ? 'warn' : 'ok') : 'err'), 'Motore notifiche (GitHub)', M ? `ultimo giro ${admWhen(M.last)} · ${M.event === 'schedule' ? 'automatico' : 'avviato a mano'} · ${M.ok ? 'riuscito' : 'fallito'}${M.running ? ' · in corso' : ''}` : admMotoreData.pending ? 'controllo…' : 'non disponibile')}
                 ${status(admData.motoreProblem ? 'err' : 'ok', 'Invio notifiche', admData.motoreProblem ? 'bloccato: chiave non valida' : 'regolare')}
                 ${status(subs.length ? 'ok' : 'warn', 'Notifiche attive', subs.length ? [...new Set(subs.map(s => s.owner || '?'))].join(', ') : 'nessun telefono')}
                 ${status(salAt && now - salAt < 2 * 864e5 ? 'ok' : 'warn', 'Saldi per il portale', admAgo(salAt))}
@@ -5502,9 +5638,10 @@
             { id:'equita', icon:'balance', label:'Equità dell’anno', desc:'Notti, weekend, festivi e reperibilità di ognuno', color:'#0f766e', run: () => openEquity() },
             { group:'Squadra' },
             { id:'share', icon:'share', label:'Condividi l’app', desc:'Mandala su WhatsApp a chi non ce l’ha', color:'#16a34a', stay:true, run: () => shareAppWhatsApp() },
-            { id:'svago', icon:'celebration', label:'Tempo libero', desc:'Uscite di gruppo e ruota della sfiga', color: MN_COLORS.svago, children: [
+            { id:'svago', icon:'celebration', label:'Tempo libero', desc:'Uscite di gruppo, ruota della sfiga e monete', color: MN_COLORS.svago, children: [
                 { id:'dinner', icon:'restaurant', label:'Organizza un\u2019uscita', desc:'Chi è libero per colazione, pranzo, cena…', color: MN_COLORS.svago, run: () => openDinnerModal() },
-                { id:'wheel', icon:'casino', label:'La ruota della sfiga', desc:'Estrai a sorte chi tocca', color: MN_COLORS.svago, run: () => openWheelModal() }
+                { id:'wheel', icon:'casino', label:'La ruota della sfiga', desc:'Estrai a sorte chi tocca', color: MN_COLORS.svago, run: () => openWheelModal() },
+                { id:'coins', icon:'savings', label:'Monete e mercato', desc:'Il tuo portafoglio e lo scambio delle fasce', color: MN_COLORS.svago, run: () => openCoinModal() }
             ] },
             { id:'link', icon:'apps', label:'Collegamenti', desc:'Richieste e turni autisti', color: MN_COLORS.link, children: [
                 { id:'req', icon:'assignment', label:'Richieste', desc:'Ferie, permessi, cambi turno, cessioni', color: MN_COLORS.link, run: () => window.openRichiestePanel && window.openRichiestePanel() },
@@ -5658,9 +5795,7 @@
             excelParsedData = asParseWorkbook(rawData);   // formato del file autisti
             rebuildDataFromExcel();            // aggiunge le colonne create dal coordinatore + modifiche manuali
             initApp();
-            if(splashMinTime) await splashMinTime;
-            document.getElementById('loader').style.opacity = '0';
-            setTimeout(() => document.getElementById('loader').style.display = 'none', 500);
+            await hideLoader(splashMinTime);
         } catch(e) { alert("Errore file: " + e.message); }
     }
 
@@ -5737,7 +5872,7 @@
         renderDriverFilterDropdown(); updateDriverFilterBadge();
         initNotificationOptions(); loadNotificationHistory(); renderTable(); startLiveClock();
         setCurrentView("Tabella Turni");
-        if(prefs.startToday !== false) setTimeout(scrollToToday, 600);
+        if(prefs.startToday !== false) startAtToday();
         setTimeout(loadOtherTeam, 3000);   // turni dell'altra squadra per il riepilogo del turno
         startAutoYearWatch();              // a capodanno l'anno nuovo si apre da solo
         if(prefs.startPage === 'insieme') setTimeout(() => setCalView('insieme'), 350);
@@ -6084,10 +6219,40 @@
         setTimeout(() => { window.openRichiestePanel(reqId); }, 320);
     }
 
-    function scrollToToday() {
+    // oggi come prima riga: subito sotto barra in alto, nomi e barra del mese (tutti fissi)
+    function todayTopOffset(el) {
+        const hdr = document.querySelector('header'), th = document.querySelector('#main-table thead th');
+        let mh = el.previousElementSibling; while(mh && !mh.classList.contains('month-header')) mh = mh.previousElementSibling;
+        return (hdr ? hdr.offsetHeight : 0) + (th ? th.offsetHeight : 0) + (mh ? mh.offsetHeight : 0);
+    }
+    function scrollToToday(instant) {
         if(calOverview) { ovScrollToday(); return; }
         if(liteOn()) liteShowRow(liteTodayRow());
-        liteScrollTo(document.getElementById('today-row'), 240);
+        const el = document.getElementById('today-row'); if(!el) return;
+        liteScrollTo(el, todayTopOffset(el), instant);
+    }
+    // All'apertura: oggi già in cima, senza vedere i giorni scorrere. Si salta secco (mentre c'è ancora
+    // la schermata di caricamento) e si risalta finché il calendario cambia altezza (caratteri e dati
+    // che arrivano dopo, ridisegni); ci si ferma appena l'utente tocca o scorre.
+    function startAtToday() {
+        const evs = ['touchstart', 'wheel', 'mousedown', 'keydown'], tbl = document.getElementById('main-table');
+        let stopped = false, ro = null;
+        const stop = () => { stopped = true; evs.forEach(e => removeEventListener(e, stop, true)); if(ro) ro.disconnect(); };
+        evs.forEach(e => addEventListener(e, stop, { capture:true, passive:true }));
+        const pin = () => { if(!stopped) scrollToToday(true); };
+        pin();
+        if(tbl && window.ResizeObserver) { ro = new ResizeObserver(pin); ro.observe(tbl); }
+        [300, 1000, 2500].forEach(t => setTimeout(pin, t));
+        setTimeout(stop, 10000);
+    }
+    // la schermata di caricamento si toglie solo quando i caratteri sono pronti e oggi è già in cima
+    async function hideLoader(splashMinTime) {
+        if(splashMinTime) await splashMinTime;
+        try { await Promise.race([document.fonts.ready, new Promise(r => setTimeout(r, 3000))]); } catch(e) {}
+        if(prefs.startToday !== false && !calOverview) scrollToToday(true);
+        await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+        document.getElementById('loader').style.opacity = '0';
+        setTimeout(() => document.getElementById('loader').style.display = 'none', 500);
     }
 
     function filterDriver(val) {
@@ -6259,18 +6424,25 @@
     }
     function computeDayInfo(rowIdx, colIdx) {
         const info = computeDayInfoBase(rowIdx, colIdx);
-        if(info.code === 'SM' || info.code === 'S' || info.code === 'STR' || info.justified || info.unrecognized || !prevPlainNight(rowIdx, colIdx)) return info;
+        if(info.code === 'SM' || info.code === 'S' || info.code === 'STR' || info.manual || info.justified || info.unrecognized || !prevPlainNight(rowIdx, colIdx)) return info;
         const rest = !info.code || /^r$/i.test(info.code), tail = minutesFromRange(SCHEDULE["SM"]);
         return Object.assign({}, info, { minutes: (rest ? 0 : (info.minutes || 0)) + tail, code: rest ? 'SM' : info.code, label: rest ? 'SMONTO (dopo la notte)' : 'SMONTO + ' + info.label, nightTail: true });
     }
     // Metodo A (principale): rispecchia esattamente la logica usata per disegnare
     // le celle del calendario, incluso lo SMONTO automatico dopo un turno M+N.
+    // Ore a mano (customMinutes, in ore): il coordinatore scrive le ore vere di quel giorno. Il turno
+    // o l'assenza restano (il C.O. continua a contare nei giorni di ferie), cambiano solo le ore.
     function computeDayInfoBase(rowIdx, colIdx) {
         const row = finalData[rowIdx]; if(!row) return { minutes:0, code:"", label:"" };
+        const cm = (row[colIdx] || {}).customMinutes;
+        if(cm === undefined || cm === null || cm === "") return computeDayInfoAuto(rowIdx, colIdx);
+        const minutes = Math.round(Number(cm)*60) || 0, auto = computeDayInfoAuto(rowIdx, colIdx);
+        if(!auto.code || auto.unrecognized) return { minutes, code: "STR", label: "ORE A MANO", manual:true };
+        return Object.assign({}, auto, { minutes, label: auto.label + " \u00b7 ore a mano", manual:true, autoMinutes: auto.minutes });
+    }
+    function computeDayInfoAuto(rowIdx, colIdx) {
+        const row = finalData[rowIdx]; if(!row) return { minutes:0, code:"", label:"" };
         const info = row[colIdx] || {};
-        if(info.customMinutes !== undefined && info.customMinutes !== null && info.customMinutes !== "") {
-            return { minutes: Math.round(Number(info.customMinutes)*60) || 0, code: "STR", label: "STRAORDINARIO" };
-        }
         const prevRow = finalData[rowIdx-1];
         const prevInfo = prevRow ? (prevRow[colIdx] || {}) : null;
         let prevRaw = (prevInfo && prevInfo.v !== undefined && prevInfo.v !== null) ? prevInfo.v.toString().trim().toUpperCase().replace(/\s+/g,'') : "";
@@ -7323,7 +7495,7 @@
         { k: 'saldo', label: 'Saldo ore', fmt: m => fmtHM(m, true) || '0:00', signed: true }
     ];
     function openEquity() {
-        closeMenu(); vibrate(); eqSort = null; renderEquity();
+        closeMenu(); vibrate(); eqSort = null; eqCat = 'tutto'; renderEquity();
         const m = document.getElementById('eq-modal'); m.style.display = 'flex'; setTimeout(() => m.classList.add('open'), 10);
         setCurrentView('Equità');
     }
@@ -7649,7 +7821,7 @@
             const id = pushIdOf(sub.endpoint), json = sub.toJSON();
             await cfgRef('push').set({ subs: { [id]: { owner: prefOwner(), sub: { endpoint: json.endpoint, keys: json.keys }, ua: navigator.userAgent.slice(0, 120), createdAt: new Date().toISOString() } } }, { merge: true });
             try { localStorage.setItem('push_id', id); } catch(e) {}
-            reg.showNotification('Notifiche attive', { body: 'Riceverai qui gli avvisi sui tuoi turni, anche ad app chiusa.', icon: 'icon-autisti-192.png', tag: 'push-ok' });
+            reg.showNotification('Notifiche attive', { body: 'Riceverai qui gli avvisi sui tuoi turni, anche ad app chiusa.', icon: 'icon-autisti2-192.png', tag: 'push-ok' });
             ccToast('Notifiche attivate'); renderOptions();
         } catch(e) { console.error(e); ccToast('Attivazione non riuscita: ' + (e.message || e), true); }
     }
@@ -8566,6 +8738,40 @@
                 </div>
             </div>`;
     }
+    // ── Ore a mano: il coordinatore corregge le ore del giorno senza cambiare turno o assenza ──
+    function sepManHtml(rowIdx, col) {
+        const cell = finalData[rowIdx][col] || {}, has = cell.customMinutes !== undefined && cell.customMinutes !== null && cell.customMinutes !== '';
+        const info = computeDayInfo(rowIdx, col), autoMin = has ? (info.autoMinutes || 0) : info.minutes;
+        const val = has ? Number(cell.customMinutes) : Math.round(autoMin / 6) / 10;
+        return `<div class="sep-group-label">Ore a mano</div>
+            <div class="sep-perm">
+                <div class="sep-perm-row">
+                    <label>Ore del giorno <input type="number" id="sep-man-h" min="0" max="24" step="0.25" value="${val}" inputmode="decimal"></label>
+                    <small>${has ? `Scritte a mano: ${hsHM(info.minutes)} invece delle ${hsHM(autoMin)} calcolate` : `Calcolate dall\u2019app: ${hsHM(autoMin)}`}. Turno e assenza restano come sono, cambiano solo le ore.</small>
+                </div>
+                <div class="sep-perm-row">
+                    <button class="cc-btn primary" onclick="sepManApply()"><span class="msym">edit</span>Salva ore</button>
+                    ${has ? `<button class="cc-btn danger" onclick="sepManRemove()">Torna alle ore calcolate</button>` : ''}
+                </div>
+            </div>`;
+    }
+    function sepManSet(h) {
+        if(!coordEditPopupTarget) return; vibrate();
+        const { row, col } = coordEditPopupTarget, key = cellKey(row, col), cell = finalData[row][col] || {};
+        const next = { v: (cell.v || '').toString(), subV: (cell.subV || '').toString() };
+        if(cell.perm && cell.perm.k) next.perm = cell.perm;
+        if(h !== null) next.customMinutes = h;
+        const prev = setOverride(key, next);
+        pushUndo({ entries: [{ key, prev, next }] });
+        afterCoordChange([key]); closeShiftEditPopup();
+    }
+    function sepManApply() {
+        const h = parseFloat(String(document.getElementById('sep-man-h').value).replace(',', '.'));
+        if(!(h >= 0 && h <= 24)) { ccToast('Scrivi le ore (da 0 a 24).', true); return; }
+        sepManSet(Math.round(h * 100) / 100);
+        ccToast(`Ore del giorno: ${hsHM(Math.round(h * 60))} (a mano)`);
+    }
+    function sepManRemove() { sepManSet(null); ccToast('Tornano le ore calcolate.'); }
     function sepPermApply(full) {
         if(!coordEditPopupTarget) return; vibrate();
         const { row, col } = coordEditPopupTarget, key = cellKey(row, col), cell = finalData[row][col] || {};
@@ -8670,15 +8876,15 @@
     function edSumCtx() { return { days: buildDaysIndex(), R: repData(), today: ymd(new Date()), y: SHIFT_YEAR + '-' }; }
     function edSumHtmlOld(d, ctx) {
         const a = absCountFor(d, ctx.days), o = d.originalName;
-        const co = ABS_ALLOW.co - a.allow.co, sp = ABS_ALLOW.sp - a.allow.sp, pn = ABS_ALLOW.pn - a.allow.pn;
+        const co = a.max.co - a.allow.co, sp = a.max.sp - a.allow.sp, pn = a.max.pn - a.allow.pn;
         const pl = Math.round((PERM_HOURLY.pl.max - a.hours.pl) * 100) / 100;
         let rep = 0, repAll = 0, dom = 0, min = 0, minAll = 0;
         Object.keys(ctx.R.tit).forEach(dt => { if(ctx.R.tit[dt] !== o || !dt.startsWith(ctx.y)) return; repAll++; if(dt <= ctx.today) { rep++; if(repIsFestive(dt)) dom++; } });
         Object.keys(ctx.R.days).forEach(dt => { if(!dt.startsWith(ctx.y)) return; ctx.R.days[dt].forEach((w, s) => { if(w !== o) return; minAll += REP_SLOTS[s].minutes; if(dt <= ctx.today) min += REP_SLOTS[s].minutes; }); });
         const t = (lbl, val, tip, neg) => `<span class="${neg ? 'neg' : ''}" title="${esc(tip)}"><i>${lbl}</i>${val}</span>`;
         return `<div class="th-sum">
-            ${t('CO', co, `Congedo ordinario: restano ${co} giorni su ${ABS_ALLOW.co}`, co < 0)}${t('P', sp, `Permessi straordinari: restano ${sp} su ${ABS_ALLOW.sp}`, sp < 0)}
-            ${t('PN', pn, `Permessi notte: restano ${pn} su ${ABS_ALLOW.pn}`, pn < 0)}${t('PL', permHFmt(Math.max(0, pl)), `Permesso legge: restano ${permHFmt(Math.max(0, pl))} su 14h${pl < 0 ? ' (oltre di ' + permHFmt(-pl) + ')' : ''}`, pl < 0)}
+            ${t('CO', co, `Congedo ordinario: restano ${co} giorni su ${a.max.co}`, co < 0)}${t('P', sp, `Permessi straordinari: restano ${sp} su ${a.max.sp}`, sp < 0)}
+            ${t('PN', pn, `Permessi notte: restano ${pn} su ${a.max.pn}`, pn < 0)}${t('PL', permHFmt(Math.max(0, pl)), `Permesso legge: restano ${permHFmt(Math.max(0, pl))} su 14h${pl < 0 ? ' (oltre di ' + permHFmt(-pl) + ')' : ''}`, pl < 0)}
             ${t('REP', rep, `Reperibilità fatte fino a oggi: ${rep} (in calendario nell'anno: ${repAll})`)}${t('h', Math.round(min / 60), `Ore di reperibilità fatte fino a oggi: ${repHours(min)} (nell'anno: ${repHours(minAll)})`)}
             ${t('DOM', dom, `Reperibilità di domenica o festivo fatte fino a oggi: ${dom}`)}
         </div>`;
@@ -8729,9 +8935,9 @@
         const min = rep * REP_DAY_MIN, minAll = repAll * REP_DAY_MIN;
         const cesTxt = cedute || ricevute ? ` · cessioni tra colleghi non contate: ${cedute} fasce cedute, ${ricevute} ricevute` : '';
         const val = {
-            co: [ABS_ALLOW.co - a.allow.co, `Congedo ordinario: restano ${ABS_ALLOW.co - a.allow.co} giorni su ${ABS_ALLOW.co}`],
-            p: [ABS_ALLOW.sp - a.allow.sp, `Permessi straordinari: restano ${ABS_ALLOW.sp - a.allow.sp} su ${ABS_ALLOW.sp}`],
-            pn: [ABS_ALLOW.pn - a.allow.pn, `Permessi notte: restano ${ABS_ALLOW.pn - a.allow.pn} su ${ABS_ALLOW.pn}`],
+            co: [a.max.co - a.allow.co, `Congedo ordinario: restano ${a.max.co - a.allow.co} giorni su ${a.max.co}`],
+            p: [a.max.sp - a.allow.sp, `Permessi straordinari: restano ${a.max.sp - a.allow.sp} su ${a.max.sp}`],
+            pn: [a.max.pn - a.allow.pn, `Permessi notte: restano ${a.max.pn - a.allow.pn} su ${a.max.pn}`],
             pl: [pl, `Permesso legge: restano ${permHFmt(Math.max(0, pl))} su 14h${pl < 0 ? ' (oltre di ' + permHFmt(-pl) + ')' : ''}`],
             rep: [repAll, `Reperibilità inserite nell'anno: ${repAll} (fino a oggi ${rep}, in programma ${repAll - rep})${cesTxt}`],
             h: [Math.round(minAll / 60), `Ore delle reperibilità inserite nell'anno: ${repHours(minAll)} (fino a oggi ${repHours(min)})${cesTxt}`],
@@ -9015,9 +9221,9 @@
     function absQuota(r) {
         const t = absTodayDate(), past = arr => (arr || []).filter(dt => dt <= t).length;
         return {
-            co: { used: r.allow.co, done: past(r.dates.f), max: ABS_ALLOW.co, k: 'f', label: 'Ferie (C.O.)', unit: '' },
-            sp: { used: r.allow.sp, done: past(r.dates.p) + past(r.dates.pn), max: ABS_ALLOW.sp, k: 'p', label: 'Permessi straord.', unit: '' },
-            pn: { used: r.allow.pn, done: past(r.dates.pn), max: ABS_ALLOW.pn, k: 'pn', label: 'Permessi notte', unit: '' },
+            co: { used: r.allow.co, done: past(r.dates.f), max: r.max.co, k: 'f', label: 'Ferie (C.O.)', unit: '' },
+            sp: { used: r.allow.sp, done: past(r.dates.p) + past(r.dates.pn), max: r.max.sp, k: 'p', label: 'Permessi straord.', unit: '' },
+            pn: { used: r.allow.pn, done: past(r.dates.pn), max: r.max.pn, k: 'pn', label: 'Permessi notte', unit: '' },
             pl: { used: r.hours.pl, done: Math.round((r.hdates.pl || []).filter(x => x.date <= t).reduce((a, x) => a + x.h, 0) * 100) / 100, max: PERM_HOURLY.pl.max, k: 'pl', label: 'Permesso legge', unit: 'h' }
         };
     }
@@ -9047,7 +9253,7 @@
         const sum = k => rows.reduce((a, r) => a + (r.counts[k] || 0), 0);
         const t = absTodayDate(), todayRow = buildDaysIndex().find(dd => dd.date.getTime() === t.getTime());
         const absentToday = todayRow ? drivers.filter(d => !d.hidden && computeDayInfo(todayRow.rowIdx, d.idx).justified).map(d => d.name) : [];
-        const kq = (k, label, unit) => { const used = sumQ(k, 'used'), max = Q.length * Q[0][k].max, left = Math.round((max - used) * 100) / 100, done = sumQ(k, 'done');
+        const kq = (k, label, unit) => { const used = sumQ(k, 'used'), max = sumQ(k, 'max'), left = Math.round((max - used) * 100) / 100, done = sumQ(k, 'done');
             return `<div class="ab-kpi2" style="--pc:${typeColor(Q[0][k].k)}"><small>${label}</small><b>${absFmtQ(Math.round(used * 100) / 100, unit)}<span> usati</span></b>
                 <div class="ab3-bar"><i class="done" style="width:${(done / max * 100).toFixed(1)}%"></i><i class="plan" style="width:${(Math.max(0, used - done) / max * 100).toFixed(1)}%"></i></div>
                 <em>restano ${absFmtQ(left, unit)} su ${absFmtQ(max, unit)} · ${absFmtQ(Math.round(done * 100) / 100, unit)} già fatti</em></div>`; };
@@ -9073,7 +9279,7 @@
         });
         document.getElementById('ab-grid').innerHTML = xgHtml('ab2', headL, head, body, year ? 860 + (psShown ? 70 : 0) + (otherShown ? 60 : 0) : 640);
         const note = document.querySelector('#ab-view-grid .hg-note');
-        if(note) note.innerHTML = `${year ? '<span class="ab-leg"><i class="done"></i>già fatti fino a oggi</span><span class="ab-leg"><i class="plan"></i>in programma</span><span class="ab-leg"><i class="free"></i>restano</span><br>' : ''}Ogni anno: ${ABS_ALLOW.co} giorni di congedo ordinario, ${ABS_ALLOW.sp} permessi straordinari, ${ABS_ALLOW.pn} permessi notte (un permesso notte usa anche un permesso straordinario) e ${PERM_HOURLY.pl.max} ore di permesso legge. Le assenze che cadono su un riposo non contano. Tocca un nome per il dettaglio.`;
+        if(note) note.innerHTML = `${year ? '<span class="ab-leg"><i class="done"></i>già fatti fino a oggi</span><span class="ab-leg"><i class="plan"></i>in programma</span><span class="ab-leg"><i class="free"></i>restano</span><br>' : ''}Ogni anno: ${ABS_ALLOW.co} giorni di congedo ordinario, ${ABS_ALLOW.sp} permessi straordinari, ${ABS_ALLOW.pn} permessi notte (un permesso notte usa anche un permesso straordinario) e ${PERM_HOURLY.pl.max} ore di permesso legge; chi ne ha meno (es. i nuovi assunti) ha le sue spettanze in Area coordinatore › Operatori. Le assenze che cadono su un riposo non contano. Tocca un nome per il dettaglio.`;
     }
     // dettaglio della persona: contatori con fatti/in programma/restano e grafico mese per mese
     function renderAbsDetail() {
@@ -9135,11 +9341,12 @@
                     const tit = repTitolareOfSlot(R, iso, s); if(tit && tit !== who) r.repC += REP_SLOTS[s].minutes; });
             });
             r.we = r.sab + r.dom;
-            r.saldo = r.worked - contractMinutesFor(getContractHours(d.idx), days.map(dd => dd.date), d.idx);
+            r.dovute = contractMinutesFor(getContractHours(d.idx), days.map(dd => dd.date), d.idx);
+            r.saldo = r.worked - r.dovute;
             return r;
         }).filter(r => r.active);   // chi nel periodo non ha niente in calendario non entra nelle medie
         const avg = {};
-        EQ_COLS.forEach(c => { const set = c.onlyDoers ? rows.filter(r => r[c.k] > 0) : rows; avg[c.k] = set.length ? set.reduce((a, r) => a + r[c.k], 0) / set.length : 0; });
+        EQ_COLS.concat(EQ_EXTRA).forEach(c => { const set = c.onlyDoers ? rows.filter(r => r[c.k] > 0) : rows; avg[c.k] = set.length ? set.reduce((a, r) => a + r[c.k], 0) / set.length : 0; });
         return { rows, avg, days };
     }
     function eqDev(c, r, avg) {
@@ -9147,15 +9354,41 @@
         const v = c.fmt ? c.fmt(r[c.k]) : r[c.k], a = c.fmt ? c.fmt(avg[c.k]) : avg[c.k], diff = Math.round((v - a) * 10) / 10, q = r[c.k] / avg[c.k];
         return { cls: q >= 1.2 ? 'hi' : (q <= 0.8 ? 'lo' : ''), d: diff === 0 ? '=' : (diff > 0 ? '+' : '−') + Math.abs(diff).toString().replace('.', ',') };
     }
+    // ── Categorie: ognuna mostra solo i suoi dati. "Panoramica" è la vista completa di prima.
+    const EQ_EXTRA = [
+        { k: 'worked', label: 'Ore fatte', sub: 'assenze giust. comprese', fmt: m => Math.round(m / 60) },
+        { k: 'dovute', label: 'Ore dovute', sub: 'da contratto', fmt: m => Math.round(m / 60) }
+    ];
+    const EQ_CATS = [
+        { k: 'tutto', label: 'Panoramica', icon: 'dashboard', desc: 'Tutte le voci dell’equità a confronto con la media della squadra' },
+        { k: 'pesanti', label: 'Notti e weekend', icon: 'dark_mode', cols: ['notti', 'we', 'sab', 'dom', 'fest'], desc: 'Notti, sabati, domeniche e festivi lavorati' },
+        { k: 'rep', label: 'Reperibilità', icon: 'phone_in_talk', cols: ['repT', 'repF', 'repH', 'repC'], desc: 'Turni da titolare, festivi, ore di fascia e ore coperte per i colleghi' },
+        { k: 'coppie', label: 'Chi lavora con chi', icon: 'groups', desc: 'Quanti turni ognuno ha fatto con ogni collega' },
+        { k: 'ruolo', label: 'Diurnisti e turnisti', icon: 'swap_horiz', desc: 'Quanti giorni ognuno ha fatto da diurnista e da turnista' }
+    ];
+    let eqCat = 'tutto', rtSort = null;
+    function eqSetCat(k) { vibrate(); eqCat = k; eqSort = null; rtSort = null; renderEquity(); const b = document.querySelector('#eq-modal .modal-body'); const c = document.getElementById('eq-cats'); if(b && c && b.scrollTop > c.offsetTop) b.scrollTop = c.offsetTop - 8; }
+    function eqCatCols(cat) { const all = EQ_COLS.concat(EQ_EXTRA); return cat.cols ? cat.cols.map(k => all.find(c => c.k === k)).filter(Boolean) : EQ_COLS; }
     function renderEquity() {
-        const { rows, avg, days } = computeEquity();
         document.querySelectorAll('#eq-modal .ab-period button').forEach(b => b.classList.toggle('active', b.dataset.p === eqPeriod));
+        const cat = EQ_CATS.find(c => c.k === eqCat) || EQ_CATS[0];
+        document.getElementById('eq-cats').innerHTML = EQ_CATS.map(c => `<button class="${c.k === cat.k ? 'on' : ''}" onclick="eqSetCat('${c.k}')"><span class="material-icons-round">${c.icon}</span>${c.label}</button>`).join('');
+        const head = `<div class="eq-cat-h"><span class="material-icons-round">${cat.icon}</span>${cat.label}<small>${cat.desc}</small></div>`;
+        const grid = document.getElementById('eq-grid'), note = document.getElementById('eq-note'), pw = document.getElementById('eq-pairs');
+        pw.innerHTML = ''; grid.innerHTML = ''; note.innerHTML = '';
+        if(cat.k === 'coppie') { pw.innerHTML = head + pairsHtml(eqPeriod, 'eq'); return; }
+        if(cat.k === 'ruolo') { renderRoleTable(head); return; }
+        renderEquityCols(eqCatCols(cat), cat.k === 'tutto' ? '' : head);
+    }
+    function renderEquityCols(COLS, head) {
+        const { rows, avg, days } = computeEquity();
+        if(eqSort && !COLS.some(c => c.k === eqSort)) eqSort = null;
         let list = rows.slice();
         if(eqSort) list.sort((a, b) => b[eqSort] - a[eqSort]); else list.sort((a, b) => b.isMe - a.isMe);
-        const max = {}; EQ_COLS.forEach(c => max[c.k] = Math.max(1, ...rows.map(r => Math.abs(r[c.k]))));
+        const max = {}; COLS.forEach(c => max[c.k] = Math.max(1, ...rows.map(r => Math.abs(r[c.k]))));
         const txt = (c, v) => c.fmt ? c.fmt(v) : v;
         // riepilogo in alto: media, il più alto e il più basso per ogni voce
-        const sumCols = EQ_COLS.filter(c => !c.signed);
+        const sumCols = COLS.filter(c => !c.signed);
         const extreme = (c, hi) => { const set = c.onlyDoers ? rows.filter(r => r[c.k] > 0) : rows; if(!set.length) return null; return set.reduce((b, r) => (hi ? r[c.k] > b[c.k] : r[c.k] < b[c.k]) ? r : b); };
         const summary = `<div class="eq-sum">${sumCols.map(c => { const H = extreme(c, true), L = extreme(c, false);
             return `<div class="eq-sum-c ${eqSort === c.k ? 'on' : ''}" onclick="eqSortBy('${c.k}')"><small>${c.label}</small><b>${c.fmt ? c.fmt(avg[c.k]) : (Math.round(avg[c.k] * 10) / 10).toString().replace('.', ',')}<span> media</span></b>
@@ -9167,17 +9400,79 @@
             return `<td class="eq-c ${dv.cls}"><b>${txt(c, v)}</b>${dv.d && dv.d !== '=' ? `<sup>${dv.d}</sup>` : ''}<i style="width:${Math.round(Math.abs(v) / max[c.k] * 100)}%"></i></td>`;
         };
         const headL = `<th class="eq-name">${eqPeriod === 'oggi' ? 'Fino a oggi' : 'Anno ' + SHIFT_YEAR}</th>`;
-        const headR = EQ_COLS.map(c => `<th onclick="eqSortBy('${c.k}')" class="${eqSort === c.k ? 'on' : ''}">${c.label}${c.sub ? `<small>${c.sub}</small>` : ''}${eqSort === c.k ? ' ▼' : ''}</th>`).join('');
-        const items = list.map(r => ({ attrs: `class="${r.isMe ? 'me' : ''}"`, left: `<th class="eq-name"><span>${esc(r.d.name)}</span>${r.isMe ? '<em>tu</em>' : ''}</th>`, right: EQ_COLS.map(c => cell(c, r)).join('') }));
-        items.push({ attrs: 'class="eq-avg"', left: '<th class="eq-name"><span>Media</span></th>', right: EQ_COLS.map(c => `<td class="eq-c"><b>${c.signed ? '' : (c.fmt ? c.fmt(avg[c.k]) : avg[c.k].toFixed(1).replace('.', ','))}</b></td>`).join('') });
+        const headR = COLS.map(c => `<th onclick="eqSortBy('${c.k}')" class="${eqSort === c.k ? 'on' : ''}">${c.label}${c.sub ? `<small>${c.sub}</small>` : ''}${eqSort === c.k ? ' ▼' : ''}</th>`).join('');
+        const items = list.map(r => ({ attrs: `class="${r.isMe ? 'me' : ''}"`, left: `<th class="eq-name"><span>${esc(r.d.name)}</span>${r.isMe ? '<em>tu</em>' : ''}</th>`, right: COLS.map(c => cell(c, r)).join('') }));
+        items.push({ attrs: 'class="eq-avg"', left: '<th class="eq-name"><span>Media</span></th>', right: COLS.map(c => `<td class="eq-c"><b>${c.signed ? '' : (c.fmt ? c.fmt(avg[c.k]) : avg[c.k].toFixed(1).replace('.', ','))}</b></td>`).join('') });
         // telefono: una scheda per persona
         const cards = list.map(r => `<div class="eq-card ${r.isMe ? 'me' : ''}"><div class="eq-card-h"><span class="ab-av">${esc(absInitials(r.d.name))}</span><b>${esc(r.d.name)}</b>${r.isMe ? '<em>tu</em>' : ''}</div>
-            <div class="eq-card-g">${EQ_COLS.map(c => { const v = r[c.k], dv = eqDev(c, r, avg);
+            <div class="eq-card-g">${COLS.map(c => { const v = r[c.k], dv = eqDev(c, r, avg);
                 if(c.signed) return `<div class="eq-m ${Math.abs(v) < 30 ? '' : (v < 0 ? 'neg' : 'pos')}"><small>${c.label}</small><b>${txt(c, v)}</b></div>`;
                 return `<div class="eq-m ${dv.cls}"><small>${c.label}</small><b>${txt(c, v)}${dv.d && dv.d !== '=' ? `<sup>${dv.d}</sup>` : ''}</b><i style="width:${Math.round(Math.abs(v) / max[c.k] * 100)}%"></i></div>`; }).join('')}</div></div>`).join('');
-        document.getElementById('eq-grid').innerHTML = summary + `<div class="eq-wide">${xgHtml('eq-table', headL, headR, items, 940)}</div><div class="eq-cards">${cards}</div>`;
-        const pw = document.getElementById('eq-pairs'); if(pw) pw.innerHTML = pairsHtml(eqPeriod, 'eq');
-        document.getElementById('eq-note').innerHTML = `${days.length} giorni considerati. Il numerino accanto è lo scarto dalla media della squadra. <span class="eq-key hi"></span> oltre il 20% sopra la media, <span class="eq-key lo"></span> oltre il 20% sotto. Per le notti la media conta solo chi ne fa. <b>Rep. coperte</b> sono le ore di fasce di reperibilità fatte al posto di un collega titolare (cessioni ricevute). Tocca un titolo o un riquadro in alto per ordinare.`;
+        document.getElementById('eq-grid').innerHTML = head + summary + `<div class="eq-wide">${xgHtml('eq-table', headL, headR, items, Math.max(420, COLS.length * 96))}</div><div class="eq-cards">${cards}</div>`;
+        const hasDoers = COLS.some(c => c.onlyDoers), hasSaldo = COLS.some(c => c.signed);
+        document.getElementById('eq-note').innerHTML = `${days.length} giorni considerati. Il numerino accanto è lo scarto dalla media della squadra. <span class="eq-key hi"></span> oltre il 20% sopra la media, <span class="eq-key lo"></span> oltre il 20% sotto.${hasDoers ? ' Per le notti e per le reperibilità coperte (fasce ricevute da un collega con una cessione) la media conta solo chi ne fa.' : ''}${hasSaldo ? ' Il saldo è la differenza tra ore fatte (assenze giustificate comprese) e ore dovute da contratto.' : ''} Tocca un titolo o un riquadro in alto per ordinare.`;
+    }
+
+    // ── Diurnisti e turnisti: giorni passati in ognuno dei due ruoli ─────────
+    // Da diurnista = caselle in minuscolo (m, p, r); da turnista = M, P, N, M+N, smonto e R.
+    // Le assenze giustificate non sono né l'uno né l'altro e si contano a parte.
+    function computeRoles() {
+        const today = absTodayDate(), all = buildDaysIndex(), days = eqPeriod === 'oggi' ? all.filter(dd => dd.date <= today) : all, me = prefMe();
+        const rows = drivers.filter(d => !d.hidden).map(d => {
+            const r = { d, isMe: !!me && me.idx === d.idx, dM: 0, dP: 0, dR: 0, tM: 0, tP: 0, tN: 0, tSM: 0, tR: 0, abs: 0, mm: Array.from({ length: 12 }, () => ({ d: 0, t: 0, a: 0, n: 0 })) };
+            days.forEach(dd => {
+                const info = computeDayInfo(dd.rowIdx, d.idx), m = r.mm[dd.monthIdx] || r.mm[0]; m.n++;
+                let c = info.code, role = '';
+                if(info.justified) { if(info.pnTail) { r.tSM++; role = 't'; } else { r.abs++; role = 'a'; } }
+                else if(c === 'm') { r.dM++; role = 'd'; } else if(c === 'p') { r.dP++; role = 'd'; } else if(c === 'r') { r.dR++; role = 'd'; }
+                else if(c === 'M') { r.tM++; role = 't'; } else if(c === 'P') { r.tP++; role = 't'; } else if(c === 'N') { r.tN++; role = 't'; }
+                else if(c === 'M+N') { r.tM++; r.tN++; role = 't'; }
+                else if(c === 'SM' || c === 'S') { r.tSM++; role = 't'; } else if(c === 'R') { r.tR++; role = 't'; }
+                if(role) m[role]++;
+            });
+            r.dLav = r.dM + r.dP; r.dGg = r.dLav + r.dR;
+            r.tGg = r.mm.reduce((a, x) => a + x.t, 0);
+            r.tLav = r.tGg - r.tSM - r.tR;
+            r.tot = r.dGg + r.tGg;
+            return r;
+        }).filter(r => r.tot + r.abs > 0);
+        return { rows, days };
+    }
+    function rtSortBy(k) { vibrate(); rtSort = rtSort === k ? null : k; renderEquity(); }
+    function renderRoleTable(head) {
+        const { rows, days } = computeRoles();
+        const list = rows.slice();
+        if(rtSort) list.sort((a, b) => b[rtSort] - a[rtSort] || a.d.name.localeCompare(b.d.name)); else list.sort((a, b) => b.isMe - a.isMe);
+        const pct = (a, t) => t ? Math.round(a / t * 100) : 0;
+        const bar = r => { const t = r.tot + r.abs || 1;
+            return `<div class="rt-bar" title="Diurnista ${r.dGg} giorni, turnista ${r.tGg}, assenze ${r.abs}">${r.dGg ? `<i class="d" style="width:${r.dGg / t * 100}%"></i>` : ''}${r.tGg ? `<i class="t" style="width:${r.tGg / t * 100}%"></i>` : ''}${r.abs ? `<i class="a" style="width:${r.abs / t * 100}%"></i>` : ''}</div>
+                <div class="rt-pct">${r.tot ? `${pct(r.dGg, r.tot)}% diurnista · ${pct(r.tGg, r.tot)}% turnista` : 'solo assenze'}</div>`; };
+        const months = r => `<div class="rt-mm">${r.mm.map((m, i) => { const n = m.n || 1;
+            return `<div><span title="${MONTH_NAMES_IT[i]}: ${m.n ? `diurnista ${m.d}, turnista ${m.t}, assenze ${m.a}` : 'non considerato'}">${m.d ? `<i class="d" style="height:${m.d / n * 100}%"></i>` : ''}${m.t ? `<i class="t" style="height:${m.t / n * 100}%"></i>` : ''}${m.a ? `<i class="a" style="height:${m.a / n * 100}%"></i>` : ''}</span><em>${MONTH_NAMES_IT[i].charAt(0)}</em></div>`; }).join('')}</div>`;
+        const v = (cls, n, sub) => `<div class="rt-v ${cls}"><b>${n}</b>${sub ? `<small>${sub}</small>` : ''}</div>`;
+        const dSub = (r, br) => `${r.dLav} lavorati${br ? '<br>' : ' · '}${r.dR} riposi`, tSub = (r, br) => `${r.tLav} lavorati${br ? '<br>' : ' · '}${r.tN} notti`;
+        const COLS = [
+            { k: 'dGg', label: 'Da diurnista', sub: 'giorni (m, p, r)', td: r => v('d', r.dGg, dSub(r)) },
+            { k: 'tGg', label: 'Da turnista', sub: 'giorni (M, P, N, SM, R)', td: r => v('t', r.tGg, tSub(r)) },
+            { k: 'abs', label: 'Assenze', sub: 'giustificate', td: r => v('', r.abs) },
+            { k: null, label: 'Ripartizione', td: bar },
+            { k: null, label: 'Mese per mese', td: months }
+        ];
+        const th = c => c.k ? `<th onclick="rtSortBy('${c.k}')" class="${rtSort === c.k ? 'on' : ''}">${c.label}<small>${c.sub}</small>${rtSort === c.k ? ' ▼' : ''}</th>` : `<th style="cursor:default">${c.label}</th>`;
+        const headL = `<th class="eq-name">${eqPeriod === 'oggi' ? 'Fino a oggi' : 'Anno ' + SHIFT_YEAR}</th>`;
+        const items = list.map(r => ({ attrs: `class="${r.isMe ? 'me' : ''}"`, left: `<th class="eq-name"><span>${esc(r.d.name)}</span>${r.isMe ? '<em>tu</em>' : ''}</th>`, right: COLS.map(c => `<td>${c.td(r)}</td>`).join('') }));
+        const S = k => rows.reduce((a, r) => a + r[k], 0);
+        items.push({ attrs: 'class="eq-avg"', left: '<th class="eq-name"><span>Squadra</span></th>', right: `<td>${v('d', S('dGg'), S('dLav') + ' lavorati')}</td><td>${v('t', S('tGg'), S('tLav') + ' lavorati')}</td><td>${v('', S('abs'))}</td><td colspan="2"></td>` });
+        const cards = list.map(r => `<div class="eq-card ${r.isMe ? 'me' : ''}"><div class="eq-card-h"><span class="ab-av">${esc(absInitials(r.d.name))}</span><b>${esc(r.d.name)}</b>${r.isMe ? '<em>tu</em>' : ''}</div>
+            <div class="rt-card-b"><div class="eq-card-g"><div class="eq-m"><small>Da diurnista</small>${v('d', r.dGg, dSub(r, 1))}</div><div class="eq-m"><small>Da turnista</small>${v('t', r.tGg, tSub(r, 1))}</div><div class="eq-m"><small>Assenze</small>${v('', r.abs)}</div></div>
+            <div>${bar(r)}</div>${months(r)}</div></div>`).join('');
+        const nD = rows.filter(r => r.dGg > 0).length, nT = rows.filter(r => r.tGg > 0).length, both = rows.filter(r => r.dGg > 0 && r.tGg > 0).length;
+        const summary = `<div class="eq-sum">
+            <div class="eq-sum-c ${rtSort === 'dGg' ? 'on' : ''}" onclick="rtSortBy('dGg')"><small>Giorni da diurnista</small><b>${S('dGg')}<span> in tutto</span></b><span class="eq-x">${nD} persone</span></div>
+            <div class="eq-sum-c ${rtSort === 'tGg' ? 'on' : ''}" onclick="rtSortBy('tGg')"><small>Giorni da turnista</small><b>${S('tGg')}<span> in tutto</span></b><span class="eq-x">${nT} persone</span></div>
+            <div class="eq-sum-c" style="cursor:default"><small>Hanno fatto entrambi</small><b>${both}<span> persone</span></b><span class="eq-x">sia diurnista sia turnista</span></div></div>`;
+        document.getElementById('eq-grid').innerHTML = head + summary + `<div class="eq-wide">${xgHtml('eq-table rt-table', headL, COLS.map(th).join(''), items, 780)}</div><div class="eq-cards">${cards}</div>`;
+        document.getElementById('eq-note').innerHTML = `${days.length} giorni considerati. <span class="rt-key d"></span> da diurnista (caselle in minuscolo: m, p, r), <span class="rt-key t"></span> da turnista (M, P, N, M+N, smonto e R), <span class="rt-key a"></span> assenze giustificate. I giorni vuoti non contano. Tocca un titolo o un riquadro in alto per ordinare.`;
     }
 
     // ═══ NOTE: AL COORDINATORE, AI COLLEGHI, A TUTTI ════════════════════════
@@ -9938,9 +10233,9 @@
                 const ds = (dates || []).slice().sort((x, y) => x - y), dt = ds[max] || ds[ds.length - 1] || new Date(SHIFT_YEAR, 11, 31), r = rowOf[ymd(dt)] || null;
                 add('limit', String(SHIFT_YEAR), key + used, r, dt, `${what}: ${used} su ${max}. Il primo oltre il limite è il ${chkDateLbl(dt)}.`);
             };
-            over('co', a.allow.co, ABS_ALLOW.co, a.dates.f, 'Giorni di congedo ordinario');
-            over('sp', a.allow.sp, ABS_ALLOW.sp, [].concat(a.dates.p || [], a.dates.pn || []), 'Permessi straordinari (compresi i permessi notte)');
-            over('pn', a.allow.pn, ABS_ALLOW.pn, a.dates.pn, 'Permessi notte');
+            over('co', a.allow.co, a.max.co, a.dates.f, 'Giorni di congedo ordinario');
+            over('sp', a.allow.sp, a.max.sp, [].concat(a.dates.p || [], a.dates.pn || []), 'Permessi straordinari (compresi i permessi notte)');
+            over('pn', a.allow.pn, a.max.pn, a.dates.pn, 'Permessi notte');
             if(PERM_HOURLY.pl.max && a.hours.pl > PERM_HOURLY.pl.max) {
                 const hd = a.hdates.pl.slice().sort((x, y) => x.date - y.date); let t = 0, dt = hd.length ? hd[hd.length - 1].date : new Date(SHIFT_YEAR, 11, 31);
                 for(const h of hd) { t += h.h; if(t > PERM_HOURLY.pl.max) { dt = h.date; break; } }
@@ -10036,7 +10331,7 @@
         const all = buildDaysIndex(), operatori = {};
         drivers.forEach(d => {
             const a = absCountFor(d, all);
-            operatori[d.originalName] = { name: d.name, co:{ used:a.allow.co, max:ABS_ALLOW.co }, str:{ used:a.allow.sp, max:ABS_ALLOW.sp }, pn:{ used:a.allow.pn, max:ABS_ALLOW.pn } };
+            operatori[d.originalName] = { name: d.name, co:{ used:a.allow.co, max:a.max.co }, str:{ used:a.allow.sp, max:a.max.sp }, pn:{ used:a.allow.pn, max:a.max.pn } };
         });
         const json = stableJson({ year: SHIFT_YEAR, operatori });
         if(json === saldiLast) return;
@@ -10097,7 +10392,7 @@
                 <div class="me-kv"><span>Saldo da gennaio a oggi</span><b class="${bal < 0 ? 'neg' : 'pos'}">${fmtHM(bal, true) || '0:00'}</b></div>
             </div>
             <div class="me-card"><h4><span class="material-icons-round">beach_access</span>Assenze ${SHIFT_YEAR}</h4>
-                <div class="me-counters">${cnt(ab.allow.co, ABS_ALLOW.co, 'C.O.')}${cnt(ab.allow.sp, ABS_ALLOW.sp, 'Straordinari')}${cnt(ab.allow.pn, ABS_ALLOW.pn, 'Notte')}</div>
+                <div class="me-counters">${cnt(ab.allow.co, ab.max.co, 'C.O.')}${cnt(ab.allow.sp, ab.max.sp, 'Straordinari')}${cnt(ab.allow.pn, ab.max.pn, 'Notte')}</div>
                 ${(ab.counts.m || ab.counts.r) ? `<div class="me-kv"><span>Malattia \u00b7 recuperi</span><b>${ab.counts.m || 0} \u00b7 ${ab.counts.r || 0} giorni</b></div>` : ''}
             </div>
             <div class="me-card"><h4><span class="material-icons-round">phone_in_talk</span>Reperibilit\u00e0</h4>
@@ -10391,6 +10686,13 @@
     // Spettanze annue: 31 giorni di C.O., 6 permessi straordinari, 2 permessi notte; ogni
     // permesso notte consuma anche un permesso straordinario.
     const ABS_ALLOW = { co:31, sp:6, pn:2 };
+    // Spettanze della persona: quelle dell'anno salvo diverse in Area coordinatore › Operatori
+    // (es. chi è assunto in corso d'anno ha meno giorni). operatorConfig.allow[nome] = { co, sp, pn }
+    function absAllowFor(d) {
+        const o = (d && operatorConfig.allow && operatorConfig.allow[d.originalName]) || {}, out = {};
+        Object.keys(ABS_ALLOW).forEach(k => { const n = Number(o[k]); out[k] = o[k] !== undefined && o[k] !== null && o[k] !== '' && n >= 0 && n <= 99 ? n : ABS_ALLOW[k]; });
+        return out;
+    }
     const ABS_TYPES = {
         f:  { label:'Congedo ordinario', short:'C.O.',          color:'--bg-cong' },
         p:  { label:'Permessi straordinari', short:'Perm. straord.', color:'--bg-perm' },
@@ -10466,7 +10768,7 @@
         }
         const n = k => counts[k] || 0;
         return { counts, dates, total: ABS_COUNTED.reduce((a, k) => a + n(k), 0),
-                 allow: { co: n('f'), sp: n('p') + n('pn'), pn: n('pn') }, hours, hdates, nextF };
+                 allow: { co: n('f'), sp: n('p') + n('pn'), pn: n('pn') }, max: absAllowFor(d), hours, hdates, nextF };
     }
     function computeAbsences() {
         const all = buildDaysIndex(), days = absPeriod === 'anno' ? all : all.filter(dd => dd.monthIdx === absMonth);
@@ -10499,9 +10801,9 @@
             const c = k => r.counts[k] || 0, other = ABS_OTHER.reduce((a, k) => a + c(k), 0);
             return { attrs: `class="${r.isMe ? 'me' : ''}" onclick="absOpenDetail(${r.d.idx})"`,
                 left: `<th class="ab-op"><div class="ab-who"><span class="ab-av">${esc(absInitials(r.d.name))}</span><span>${esc(r.d.name)}</span>${r.isMe ? '<em>tu</em>' : ''}</div></th>`,
-                right: `<td>${year ? absMeter(r.allow.co, ABS_ALLOW.co, typeColor('f')) : absPill(c('f'), 'f')}</td>
-                <td>${year ? absMeter(r.allow.sp, ABS_ALLOW.sp, typeColor('p')) : absPill(r.allow.sp, 'p')}</td>
-                <td>${year ? absMeter(r.allow.pn, ABS_ALLOW.pn, typeColor('pn')) : absPill(c('pn'), 'pn')}</td>
+                right: `<td>${year ? absMeter(r.allow.co, r.max.co, typeColor('f')) : absPill(c('f'), 'f')}</td>
+                <td>${year ? absMeter(r.allow.sp, r.max.sp, typeColor('p')) : absPill(r.allow.sp, 'p')}</td>
+                <td>${year ? absMeter(r.allow.pn, r.max.pn, typeColor('pn')) : absPill(c('pn'), 'pn')}</td>
                 <td>${year ? permMeterHtml(r.hours.pl, PERM_HOURLY.pl.max, typeColor('pl')) : permPill(r.hours.pl, 'pl')}</td>
                 <td>${permPill(r.hours.ps, 'ps')}</td>
                 <td>${absPill(c('m'), 'm')}</td><td>${absPill(c('r'), 'r')}</td><td>${absPill(c('v'), 'v')}</td>
@@ -10550,9 +10852,9 @@
             <div class="abd-head"><button class="abd-back" onclick="absCloseDetail()" aria-label="Indietro"><span class="material-icons-round">arrow_back</span></button>
                 <span class="ab-av">${esc(absInitials(d.name))}</span><div><b>${esc(d.name)}</b><small>Anno ${SHIFT_YEAR} \u00b7 ${r.total} giorni di assenza</small></div></div>
             <div class="abd-counters">
-                ${counter('f', r.allow.co, ABS_ALLOW.co, 'Congedo ordinario')}
-                ${counter('p', r.allow.sp, ABS_ALLOW.sp, 'Permessi straordinari', (r.counts.pn || 0) ? `di cui ${r.counts.pn} per permessi notte` : '')}
-                ${counter('pn', r.allow.pn, ABS_ALLOW.pn, 'Permessi notte')}
+                ${counter('f', r.allow.co, r.max.co, 'Congedo ordinario')}
+                ${counter('p', r.allow.sp, r.max.sp, 'Permessi straordinari', (r.counts.pn || 0) ? `di cui ${r.counts.pn} per permessi notte` : '')}
+                ${counter('pn', r.allow.pn, r.max.pn, 'Permessi notte')}
                 ${permCounterHtml(r)}
             </div>
             <div class="abd-list">
@@ -11263,9 +11565,7 @@
         excelParsedData = buildBlankYearData(activeYear, operatorConfig.baseNames || [], NEXT_YEAR_MONTHS);
         rebuildDataFromExcel(); initApp(); updateYearUi();
         appBooted = true;
-        if(splashMinTime) await splashMinTime;
-        document.getElementById('loader').style.opacity = '0';
-        setTimeout(() => document.getElementById('loader').style.display = 'none', 500);
+        await hideLoader(splashMinTime);
     }
     // Passaggio definitivo: i turni del calendario (Excel + modifiche) vengono copiati su Firebase,
     // un documento per mese; le reperibilità "/R" dell'Excel diventano reperibilità dell'app.
@@ -11330,8 +11630,8 @@
             const header = (finalData[0] || []).slice(3);
             const newBase = header.filter(n => !operatorConfig.removed[n]);
             const batch = db.batch(), now = new Date().toISOString();
-            batch.set(cfgRef('anno_' + activeYear), { year: activeYear, baseNames: header, contract: operatorConfig.contract || {}, removed: operatorConfig.removed || {}, nameOverrides, closedAt: now, closedBy: whoAmI() });
-            batch.update(cfgRef('settings'), { activeYear: next, archivedYears: [...new Set(archivedYears.concat([activeYear]))], operatorConfig: Object.assign({}, operatorConfig, { baseNames: newBase, added: [], removed: {} }) });
+            batch.set(cfgRef('anno_' + activeYear), { year: activeYear, baseNames: header, contract: operatorConfig.contract || {}, allow: operatorConfig.allow || {}, removed: operatorConfig.removed || {}, nameOverrides, closedAt: now, closedBy: whoAmI() });
+            batch.update(cfgRef('settings'), { activeYear: next, archivedYears: [...new Set(archivedYears.concat([activeYear]))], operatorConfig: Object.assign({}, operatorConfig, { baseNames: newBase, added: [], removed: {}, allow: {} }) });
             let conv = 0;
             for(let m = 0; m < CO_CARRY_MONTHS; m++) {
                 const doc = await cfgRef(monthDocName(next, m)).get(); const cells = doc.exists ? (doc.data().cells || {}) : {}, upd = {};
@@ -11399,7 +11699,7 @@
                 for(let i = 3; i < header.length; i++) { const ov = cells[overrideKey(header[i], mName, dNum, ry)]; if(ov) finalData[r][i] = normalizeWrittenAbsence(Object.assign({}, finalData[r][i], { v: ov.v || '', subV: ov.subV || '', customMinutes: ov.customMinutes, perm: ov.perm })); }
             }
             drivers = baseNames.map((name, i) => ({ name: (m.nameOverrides || {})[name] || nameOverrides[name] || name, idx: i + 3, originalName: name, virtual:false, hidden:false }));
-            operatorConfig = normalizeOperatorConfig({ contract: m.contract || {}, baseNames });
+            operatorConfig = normalizeOperatorConfig({ contract: m.contract || {}, allow: m.allow || {}, baseNames });
             selectedDrivers = new Set();
             refreshAfterYearSwitch();
             setTimeout(scrollToToday, 300);
@@ -11489,8 +11789,11 @@
             <div class="cc-panel"><div class="cc-panel-head"><h3>Origine dei turni e anni</h3></div><div class="cc-panel-body">
                 ${ccSourcePanelHtml()}
                 ${dataSourceMode === 'firebase' ? `<div style="margin-top:14px"><div class="cc-inline-form">
+
                         ${archivedYears.length ? `<button class="cc-btn" onclick="openYearPicker()"><span class="msym">history</span>Consulta un anno passato</button>` : ''}
+
                         <button class="cc-btn danger" ${isViewingArchive() ? 'disabled' : ''} onclick="ccStartNewYear()"><span class="msym">event_upcoming</span>Chiudi il ${activeYear} e apri il ${activeYear + 1}</button>
+
                     </div></div>` : ''}
                 <p class="cc-note" style="margin-top:12px">A capodanno l’anno nuovo si apre da solo, al primo avvio dell’app dopo il 31 dicembre: il ${dataSourceMode === 'firebase' ? activeYear : SHIFT_YEAR} si chiude e resta consultabile in sola lettura da menu › Calendario › Anni passati${dataSourceMode === 'firebase' ? '' : ' (prima i turni vengono copiati su Firebase, perché gli anni archiviati vivono lì)'}. Prima viene fatta una copia di sicurezza.</p>
             </div></div>`;
@@ -11581,6 +11884,7 @@
             removed: (c.removed && typeof c.removed === 'object') ? Object.assign({}, c.removed) : {},
             added: Array.isArray(c.added) ? c.added.filter(o => o && o.name).map(o => Object.assign({}, o)) : [],
             contract: (c.contract && typeof c.contract === 'object') ? Object.assign({}, c.contract) : {},
+            allow: (c.allow && typeof c.allow === 'object') ? JSON.parse(JSON.stringify(c.allow)) : {},
             baseNames: Array.isArray(c.baseNames) ? c.baseNames.slice() : []
         };
     }
@@ -11849,9 +12153,9 @@
         const c = info.code || '';
         if(!c) return { short:'', kind:'empty' };
         if(info.custom && customCodes[c]) return { short: c, kind: customCodes[c].kind === 'abs' ? 'abs' : 'shift', colors: customColors(c), label: (customCodes[c].label || c).replace(/\|/g, ' ') };
-        if(SPECIAL_SUBCODES[c] !== undefined && info.label === SPECIAL_SUBCODES[c]) return { short: ABS_SHORT[c] || c.toUpperCase(), kind:'abs', colors: codeColors('abs', c), label: SPECIAL_SUBCODES[c] };
+        if(SPECIAL_SUBCODES[c] !== undefined && info.justified && !info.pnTail) return { short: ABS_SHORT[c] || c.toUpperCase(), kind:'abs', colors: codeColors('abs', c), label: SPECIAL_SUBCODES[c] + (info.manual ? ' \u00b7 ore a mano' : '') };
         if(info.unrecognized) return { short: c, kind:'unk', label:'Codice non riconosciuto' };
-        if(c === 'STR') return { short:'STR', kind:'str', label:'Ore personalizzate' };
+        if(c === 'STR') return { short:'ORE', kind:'str', label:'Ore a mano' };
         const isRest = (c === 'R' || c === 'r');
         return { short: c, kind: isRest ? 'rest' : 'shift', colors: codeColors('shift', c), label: info.label };
     }
@@ -11993,6 +12297,11 @@
             if(d.virtual) meta.push(`<span class="cc-tag accent">aggiunto</span>`);
             if(d.name !== orig) meta.push(`<span>nome originale: ${esc(orig)}</span>`);
             if(operatorConfig.contract[orig]) meta.push(`<span class="cc-tag">contratto ${getContractHours(d.idx)} h</span>`);
+            const al = absAllowFor(d), alCustom = Object.keys(ABS_ALLOW).some(k => al[k] !== ABS_ALLOW[k]);
+            if(alCustom) meta.push(`<span class="cc-tag accent">spettanze ridotte</span>`);
+            const ov = absOverList(d); if(ov.length) meta.push(`<span class="cc-tag danger" title="Ha già in calendario più di quanto gli spetta nel ${SHIFT_YEAR}">oltre: ${esc(ov.join(', '))}</span>`);
+            const alHtml = [['co', 'C.O.', 'Giorni di congedo ordinario'], ['sp', 'P', 'Permessi straordinari'], ['pn', 'PN', 'Permessi notte']].map(([k, l, t]) =>
+                `<label title="${t} di ${esc(d.name)} nel ${SHIFT_YEAR} (di norma ${ABS_ALLOW[k]})"><span>${l}</span><input type="number" class="cc-input${al[k] !== ABS_ALLOW[k] ? ' changed' : ''}" min="0" max="99" step="1" value="${al[k]}" onchange="ccOpSetAllow(${i},'${k}',this.value)" aria-label="${t} di ${esc(d.name)}"></label>`).join('');
             const visHtml = d.hidden
                 ? `<label class="cc-switch" title="Mostra di nuovo"><input type="checkbox" onchange="ccOpSetVisible(${i},this.checked)"><span></span></label><span>Nascosto</span>
                    <label class="cc-until">fino al <input type="date" class="cc-input" value="${esc(hEntry && hEntry.until || '')}" min="${ymd(new Date())}" onchange="ccOpSetUntil(${i},this.value)"></label>`
@@ -12002,6 +12311,7 @@
                 <span class="cc-op-pos">${i+1}</span>
                 <div class="cc-op-name" id="cc-op-name-${i}"><b>${esc(d.name)}</b><small>${meta.join('')}</small></div>
                 <label class="cc-op-hours"><input type="number" class="cc-input" min="1" max="60" step="0.5" value="${getContractHours(d.idx)}" onchange="ccOpSetContract(${i},this.value)" aria-label="Ore settimanali di ${esc(d.name)}"><span>h/sett.</span></label>
+                <div class="cc-op-allow">${alHtml}</div>
                 <div class="cc-op-vis">${visHtml}</div>
                 <div class="cc-op-actions">
                     <button class="cc-icon-btn" title="Sposta prima" aria-label="Sposta prima" onclick="ccOpMove(${i},-1)" ${i===0?'disabled':''}><span class="msym">arrow_upward</span></button>
@@ -12012,6 +12322,8 @@
             </div>`;
         }).join('');
         const removed = header.filter(o => operatorConfig.removed[o]);
+        const overAll = drivers.filter(d => !d.hidden).map(d => ({ d, ov: absOverList(d) })).filter(x => x.ov.length);
+        const overHtml = overAll.length ? `<div class="cc-check warn" style="margin-bottom:12px"><span class="msym">warning</span><div><b>Già oltre le spettanze del ${SHIFT_YEAR}:</b> ${overAll.map(x => `${esc(x.d.name)} (${esc(x.ov.join(', '))})`).join(' · ')}. Da sistemare in calendario: finché sono oltre non si possono aggiungere altri giorni dello stesso tipo.</div></div>` : '';
         const removedHtml = removed.length ? `
             <div class="cc-panel" style="margin-top:18px"><div class="cc-panel-head"><h3>Rimossi dal calendario</h3><span class="cc-hint">Restano nel file Excel: puoi ripristinarli quando vuoi.</span></div>
                 <ul class="cc-list">${removed.map(o => `<li><span class="cc-grow">${esc(nameOverrides[o] || o)}</span><button class="cc-btn sm" onclick="ccOpRestore('${encodeURIComponent(o)}')"><span class="msym">undo</span>Ripristina</button></li>`).join('')}</ul></div>` : '';
@@ -12024,11 +12336,12 @@
                     <button class="cc-btn primary" type="submit"><span class="msym">person_add</span>Aggiungi</button>
                 </form>
             </div>
+            ${overHtml}
             <div class="cc-op-list" id="cc-op-list">
-                <div class="cc-op-head"><span></span><span>#</span><span>Operatore</span><span>Contratto</span><span>Nel calendario</span><span style="text-align:right">Azioni</span></div>
+                <div class="cc-op-head"><span></span><span>#</span><span>Operatore</span><span>Contratto</span><span title="Giorni che spettano nel ${SHIFT_YEAR}: congedo ordinario, permessi straordinari, permessi notte">Spettanze ${SHIFT_YEAR}</span><span>Nel calendario</span><span style="text-align:right">Azioni</span></div>
                 ${rows || `<div class="cc-empty">Nessun operatore.</div>`}
             </div>
-            <p class="cc-note" style="margin-top:10px">L\u2019ordine qui è l\u2019ordine delle colonne nel calendario, per tutti. Ogni modifica viene salvata subito.</p>
+            <p class="cc-note" style="margin-top:10px">L\u2019ordine qui è l\u2019ordine delle colonne nel calendario, per tutti. Ogni modifica viene salvata subito. Spettanze: giorni di congedo ordinario (C.O.), permessi straordinari (P) e permessi notte (PN) del ${SHIFT_YEAR}; di norma ${ABS_ALLOW.co}, ${ABS_ALLOW.sp} e ${ABS_ALLOW.pn}, meno per chi è assunto in corso d\u2019anno. In Modifica turni non si possono inserire oltre questi numeri. A capodanno tornano quelle normali.</p>
             ${removedHtml}`;
         document.getElementById('cc-top-actions').innerHTML = `<span class="cc-tag cc-num">${drivers.filter(d=>!d.hidden).length} visibili \u00b7 ${drivers.filter(d=>d.hidden).length} nascosti</span>`;
     }
@@ -12096,6 +12409,19 @@
         saveOperatorConfig('Ore di contratto aggiornate');
         refreshAfterOperatorChange();
     }
+    function ccOpSetAllow(i, k, value) {
+        const orig = ccOpRows[i]; if(!orig || ABS_ALLOW[k] === undefined) return;
+        const v = String(value).trim() === '' ? ABS_ALLOW[k] : Number(String(value).replace(',', '.'));
+        if(!(Number.isInteger(v) && v >= 0 && v <= 99)) { ccToast('Scrivi un numero intero di giorni (da 0 a 99).', true); renderCcOperators(); return; }
+        const cur = Object.assign({}, (operatorConfig.allow || {})[orig] || {});
+        if(v === ABS_ALLOW[k]) delete cur[k]; else cur[k] = v;
+        operatorConfig.allow = Object.assign({}, operatorConfig.allow || {});
+        if(Object.keys(cur).length) operatorConfig.allow[orig] = cur; else delete operatorConfig.allow[orig];
+        const d = drivers.find(x => x.originalName === orig);
+        saveOperatorConfig(`Spettanze di ${d ? d.name : orig} aggiornate`);
+        refreshAfterOperatorChange(); publishSaldiSoon();
+        if(ccSection === 'operatori') renderCcOperators();
+    }
     function ccOpRename(i) {
         const orig = ccOpRows[i]; const box = document.getElementById('cc-op-name-' + i); if(!orig || !box) return;
         const cur = nameOverrides[orig] || orig;
@@ -12122,7 +12448,7 @@
             const ok = await ccConfirm(`Eliminare ${name}?`, 'La colonna sparisce dal calendario per tutti. I turni già salvati per questo operatore restano archiviati ma non saranno più visibili.', 'Elimina', 'solid-danger');
             if(!ok) return;
             operatorConfig.added = operatorConfig.added.filter(o => (o.name||'').toUpperCase() !== orig);
-            delete operatorConfig.contract[orig]; delete operatorConfig.hidden[orig];
+            delete operatorConfig.contract[orig]; delete operatorConfig.hidden[orig]; if(operatorConfig.allow) delete operatorConfig.allow[orig];
             operatorConfig.order = operatorConfig.order.filter(o => o !== orig);
             rebuildDataFromExcel();
         } else {
@@ -12561,9 +12887,9 @@
         if(valA.customMinutes === undefined) delete valA.customMinutes;
         if(valB.customMinutes === undefined) delete valB.customMinutes;
         if(cellA.perm) valA.perm = cellA.perm; if(cellB.perm) valB.perm = cellB.perm;
-        let prevA = setOverride(keyA, valB);
-        let prevB = setOverride(keyB, valA);
-        pushUndo({ entries:[{key:keyA, prev:prevA, next:valB},{key:keyB, prev:prevB, next:valA}] });
+        const done = absApplyChecked([{ key: keyA, next: valB, row: a.row, col: a.col }, { key: keyB, next: valA, row: b.row, col: b.col }]);
+        if(!done) return;
+        pushUndo({ entries: done.map(x => ({ key: x.key, prev: x.prev, next: x.next })) });
         afterCoordChange([keyA, keyB]); vibrate();
     }
     function performCoordFill(source, dest) {
@@ -12572,13 +12898,13 @@
         let valSrc = { v: cellSrc.v||"", subV: cellSrc.subV||"" };
         if(cellSrc.customMinutes !== undefined) valSrc.customMinutes = cellSrc.customMinutes;
         if(cellSrc.perm) valSrc.perm = cellSrc.perm;
-        let entries = [];
+        let list = [];
         for(let r=lo; r<=hi; r++) {
             if(!finalData[r]) continue;
-            let key = cellKey(r, source.col);
-            let prev = setOverride(key, valSrc);
-            entries.push({ key, prev, next: valSrc });
+            list.push({ key: cellKey(r, source.col), next: valSrc, row: r, col: source.col });
         }
+        const done = absApplyChecked(list); if(!done) return;
+        let entries = done.map(x => ({ key: x.key, prev: x.prev, next: x.next }));
         pushUndo({ entries });
         afterCoordChange(entries.map(en => en.key)); vibrate();
     }
@@ -12755,12 +13081,12 @@
         const cur = finalData[row][col] || {};
         const same = String(cur.v||'').trim() === String(value.v||'').trim() && String(cur.subV||'').trim() === String(value.subV||'').trim();
         if(same && !coordPaintTouchedKeys.has(key)) { coordPaintTouchedKeys.add(key); return; } // gia' uguale: nessuna modifica inutile
-        if(!coordPaintTouchedKeys.has(key)) {
-            let prev = setOverride(key, value);
-            coordPaintBatchEntries.push({ key, prev, next: value });
-            coordPaintTouchedKeys.add(key);
-        } else setOverride(key, value);
-        if(applyOverrideAt(row, col, key)) { renderTableRows([row]); scheduleTableHeadRefresh(600); }
+        if(same) return;
+        const tail = coordPaintTouchedKeys.has(cellKey(row + 1, col)) ? null : pnFreeNextDay(row, col, value.subV);   // PN: via l'assenza nascosta il giorno dopo
+        const done = absApplyChecked([{ key, next: value, row, col }].concat(tail ? [tail] : []));   // oltre le spettanze: niente
+        if(!done) { coordPaintTouchedKeys.add(key); return; }
+        done.forEach(x => { if(!coordPaintTouchedKeys.has(x.key)) { coordPaintBatchEntries.push({ key: x.key, prev: x.prev, next: x.next }); coordPaintTouchedKeys.add(x.key); } });
+        if(finalData[row] && rawFinalData[row]) { renderTableRows(tail ? [row, row + 1] : [row]); scheduleTableHeadRefresh(600); }
         else { applyManualOverrides(); renderTable(); }
         updateCoordToolbarState();
     }
@@ -12857,6 +13183,7 @@
             if(coordOpTool) { applyOpTool(colIdx); return; }
             markSelectedCell(rowIndex, colIdx); openShiftEditPopup(colIdx, rowIndex); return;
         }
+        if(afterMN(rowIndex, colIdx)) cellValue = "SM";
         let hasSub = (finalData[rowIndex] && finalData[rowIndex][colIdx] && finalData[rowIndex][colIdx].subV) ? finalData[rowIndex][colIdx].subV.toString().trim() : "";
         if(!cellValue && !hasSub) { const iso = repRowDate(rowIndex); if(iso && prefOwner() !== 'OSPITE') noteOpenEditor(iso); return; }
         if(asNoteCalloutFirst(rowIndex, colIdx, () => openShiftModal(rowIndex, cellValue, month, day, weekDay))) return;
@@ -12885,7 +13212,7 @@
             group('Diurni e combinati', items.filter(i => i.group === 1)) +
             group('Assenze e permessi', items.filter(i => i.group === 2)) +
             (items.some(i => i.group === 3) ? group('Caselle personalizzate', items.filter(i => i.group === 3)) : '');
-        document.getElementById('sep-perm').innerHTML = sepPermHtml(rowIdx, colIdx);
+        document.getElementById('sep-perm').innerHTML = sepPermHtml(rowIdx, colIdx) + sepManHtml(rowIdx, colIdx);
         const m = document.getElementById('shift-edit-popup'); m.style.display = 'flex';
         requestAnimationFrame(() => m.classList.add('open'));
     }
@@ -12900,9 +13227,61 @@
         const { row, col } = coordEditPopupTarget;
         const key = cellKey(row, col);
         const next = (v === null && subV === null) ? { v:"", subV:"" } : { v: v || "", subV: subV || "" };
-        const prev = setOverride(key, next);
-        pushUndo({ entries:[{ key, prev, next }] });
-        afterCoordChange([key]); closeShiftEditPopup();
+        const tail = pnFreeNextDay(row, col, next.subV);
+        const done = absApplyChecked([{ key, next, row, col }].concat(tail ? [tail] : []));
+        if(!done) return;
+        const entries = done.map(x => ({ key: x.key, prev: x.prev, next: x.next })), keys = entries.map(x => x.key);
+        pushUndo({ entries });
+        afterCoordChange(keys); closeShiftEditPopup();
+        if(tail) ccToast(`Il permesso notte copre anche il giorno dopo: tolto ${SPECIAL_SUBCODES[tail.was] ? SPECIAL_SUBCODES[tail.was].toLowerCase() : 'l\u2019assenza'} che c\u2019era, così torna disponibile.`);
+    }
+    // Il permesso notte occupa anche il giorno dopo (fino alle 7:20) e la casella di quel giorno
+    // mostra "PERMESSO NOTTE": un'altra assenza rimasta lì sotto (es. il C.O. di prima) non si
+    // vedrebbe ma resterebbe nel conteggio. Quando si mette un PN, quell'assenza si toglie.
+    function pnFreeNextDay(row, col, subV) {
+        if(String(subV || '').trim().toLowerCase() !== 'pn' || !finalData[row + 1]) return null;
+        const nx = finalData[row + 1][col] || {}, sub = String(nx.subV || '').trim().toLowerCase();
+        if(!sub || sub === 'pn' || SPECIAL_SUBCODES[sub] === undefined) return null;
+        const key = cellKey(row + 1, col), next = { v: String(nx.v || ''), subV: '' };
+        if(nx.customMinutes !== undefined && nx.customMinutes !== null && nx.customMinutes !== '') next.customMinutes = nx.customMinutes;
+        return { key, next, row: row + 1, col, was: sub };
+    }
+    // ── Spettanze: in Modifica turni non si va oltre i C.O. e i permessi che la persona ha ──
+    const ABS_LIMITED = { f: 1, p: 1, pn: 1 };
+    // ["P 8/6", …]: dove la persona è già oltre le spettanze dell'anno
+    function absOverList(d) {
+        const a = absCountFor(d, buildDaysIndex()), L = { co: 'C.O.', sp: 'P', pn: 'PN' };
+        return ['co', 'sp', 'pn'].filter(k => a.allow[k] > a.max[k]).map(k => `${L[k]} ${a.allow[k]}/${a.max[k]}`);
+    }
+    function absUse(col) {
+        const d = getDriverByIdx(col); if(!d) return null;
+        const a = absCountFor(d, buildDaysIndex());
+        return { d, co: a.allow.co, sp: a.allow.sp, pn: a.allow.pn, max: a.max };
+    }
+    function absOverMsg(b, a) {
+        const L = { co: 'giorni di congedo ordinario', sp: 'permessi straordinari (anche i permessi notte ne usano uno)', pn: 'permessi notte' };
+        const k = ['co', 'sp', 'pn'].find(k => a[k] > a.max[k] && a[k] > b[k]); if(!k) return '';
+        const left = Math.max(0, a.max[k] - b[k]);
+        return `${a.d.name} ha ${a.max[k]} ${L[k]} nel ${SHIFT_YEAR}${left ? `: ne restano solo ${left}` : ' e li ha già usati tutti'}. Non inserito. Se la spettanza è sbagliata si cambia in Area coordinatore › Operatori.`;
+    }
+    // Applica le caselle [{ key, next, row, col }] (alle modifiche in sospeso). Se così qualcuno
+    // supera le sue spettanze rimette tutto com'era, avvisa e restituisce null; altrimenti le
+    // voci con il valore di prima, per l'annullamento.
+    function absApplyChecked(list) {
+        const sub = x => String((x && x.subV) || '').trim().toLowerCase();
+        const check = list.some(x => ABS_LIMITED[sub(x.next)]);
+        const cols = check ? [...new Set(list.map(x => x.col))] : [], before = {};
+        cols.forEach(c => before[c] = absUse(c));
+        const done = list.map(x => Object.assign({}, x, { prev: setOverride(x.key, x.next) }));
+        done.forEach(x => applyOverrideAt(x.row, x.col, x.key));
+        for(const c of cols) {
+            const after = absUse(c), msg = before[c] && after ? absOverMsg(before[c], after) : '';
+            if(!msg) continue;
+            done.slice().reverse().forEach(x => { setOverride(x.key, x.prev); applyOverrideAt(x.row, x.col, x.key); });
+            ccToast(msg, true);
+            return null;
+        }
+        return done;
     }
     function describeOverrideValue(ov) {
         if(!ov) return "vuoto";
@@ -13816,14 +14195,42 @@
     const RT_WEEKDAY_FMT = new Intl.DateTimeFormat('it-IT', { weekday:'short' });
     let rtCols = [];
     let rtMeIdx = null;
+    let focusCols = [];   // colonne in evidenza (indici operatore), solo su questo schermo
     function rtVisibleCols() {
         const visibleDrivers = drivers.filter(d => !d.hidden);
         let list = (selectedDrivers.size === 0) ? visibleDrivers : visibleDrivers.filter(d => selectedDrivers.has(d.idx));
         const me = prefMe(); rtMeIdx = me ? me.idx : null;
         // preferenza "la mia colonna per prima" (non in modifica turni: lì resta l'ordine vero)
         if(me && prefs.myColFirst && !coordEditModeActive && list.includes(me)) list = [me].concat(list.filter(d => d !== me));
+        // colonne messe in evidenza toccando i nomi: affiancate per prime, nell'ordine in cui si toccano
+        focusCols = focusCols.filter(i => list.some(d => d.idx === i));
+        if(focusCols.length) list = focusCols.map(i => list.find(d => d.idx === i)).concat(list.filter(d => !focusCols.includes(d.idx)));
         return list;
     }
+    // Tocco su un nome dell'intestazione: aggiunge o toglie la colonna da quelle in evidenza.
+    function colFocusCls(idx) {
+        if(!focusCols.length) return '';
+        const k = focusCols.indexOf(idx);
+        return k < 0 ? 'col-dim' : (k === focusCols.length - 1 ? 'col-focus col-focus-end' : 'col-focus');
+    }
+    function toggleColFocus(idx) {
+        const k = focusCols.indexOf(idx);
+        if(k < 0) focusCols.push(idx); else focusCols.splice(k, 1);
+        renderTable(); vibrate();
+        if(k < 0) {   // le colonne in evidenza sono le prime: si torna all'inizio a sinistra
+            if(focusCols.length === 1) ccToast('Tocca altri nomi per affiancarli · di nuovo per toglierli · DATA per vederli tutti');
+            let el = document.getElementById('main-table');
+            for(; el; el = el.parentElement) if(el.scrollLeft) el.scrollLeft = 0;
+            if(window.scrollX) window.scrollTo(0, window.scrollY);
+        }
+    }
+    function clearColFocus() { if(!focusCols.length) return; focusCols = []; renderTable(); }
+    document.addEventListener('click', e => {
+        const th = e.target.closest && e.target.closest('#table-head th');
+        if(!th || e.target.closest('button, a, input, select, .th-ai-badge')) return;
+        if(th.dataset.col !== undefined) toggleColFocus(+th.dataset.col);
+        else if(focusCols.length) clearColFocus();
+    });
     function renderTableHead() {
         const thead = document.getElementById('table-head'); if(!thead) return;
         const frag = document.createDocumentFragment();
@@ -13835,10 +14242,13 @@
             thD.className = 'th-period-cell';
             thD.innerHTML = `<button class="th-period-btn" onclick="event.stopPropagation();thTogglePeriodMenu(this)" title="Saldo ore: ${esc(P.label)} (tocca per cambiare)"><span class="th-period-top">${esc(P.short)}<span class="material-icons-round">arrow_drop_down</span></span><small>${esc(thPeriodContext())}</small></button>`;
             thRenderedKey = thPeriodKey();
-        } else thD.innerText = "DATA";
+        } else if(focusCols.length) { thD.className = 'th-focus-clear'; thD.title = 'Mostra di nuovo tutte le colonne'; thD.innerHTML = 'DATA<br><span class="material-icons-round" style="font-size:16px">close</span>'; }
+        else thD.innerText = "DATA";
         frag.appendChild(thD);
         rtCols.forEach(d => {
             let th = document.createElement('th'); th.innerText = d.name; if(d.idx === rtMeIdx) th.classList.add('me-col');
+            th.dataset.col = d.idx; const fc = colFocusCls(d.idx); if(fc) th.className += ' ' + fc;
+            th.title = focusCols.includes(d.idx) ? 'Tocca per togliere dall\'evidenza' : 'Tocca per mettere in evidenza';
             if(coordEditModeActive) {
                 let delta = thBalance(d.idx, periodDays);
                 let bEl = document.createElement('div');
@@ -13913,7 +14323,7 @@
             const orig = String(d.originalName || d.name).replace(/&/g,'&amp;').replace(/"/g,'&quot;');
             const click = `handleCellClick(${i},${d.idx},'${mName}',${dNum},'${dayWeek}','${rawVal.replace(/\\/g,'\\\\').replace(/'/g,"\\'")}')`.replace(/&/g,'&amp;').replace(/"/g,'&quot;');
             const sel = coordEditModeActive && coordSelectedCell && coordSelectedCell.row === i && coordSelectedCell.col === d.idx;
-            const tdCls = [sel ? 'coord-selected' : '', d.idx === rtMeIdx ? 'me-col' : '', cover ? cover.cls[d.idx] || '' : ''].filter(Boolean).join(' ');
+            const tdCls = [sel ? 'coord-selected' : '', d.idx === rtMeIdx ? 'me-col' : '', cover ? cover.cls[d.idx] || '' : '', colFocusCls(d.idx)].filter(Boolean).join(' ');
             html += `<td${tdCls ? ` class="${tdCls}"` : ''} data-row="${i}" data-col="${d.idx}" data-month="${mName}" data-day="${dNum}" data-orig="${orig}" onclick="${click}">${noteFlagHtml(isoDate, d.idx)}${chk && chk.cells[d.idx] ? `<span class="chk-flag ${chk.cells[d.idx].err ? 'err' : ''}" title="${esc(chk.cells[d.idx].msgs.join(' \u00b7 '))}">!</span>` : ''}${calCompactOn() ? miniCellHtml(formatCell(cellInfo, prevCellInfo, false, repCellHtml(d.originalName || d.name, isoDate))) : formatCell(cellInfo, prevCellInfo, showGraziella, repCellHtml(d.originalName || d.name, isoDate))}</td>`;
         });
         tr.innerHTML = html;
@@ -13985,10 +14395,10 @@
     // dopo un salto (oggi, un mese, un giorno) per un attimo non si aggiungono mesi:
     // aggiungerli durante lo scorrimento farebbe finire nel punto sbagliato
     let liteQuietUntil = 0;
-    function liteScrollTo(el, offset) {
+    function liteScrollTo(el, offset, instant) {
         if(!el) return;
         liteQuietUntil = Date.now() + 1500;
-        window.scrollTo({ top: window.scrollY + el.getBoundingClientRect().top - offset, behavior: liteOn() ? 'auto' : 'smooth' });
+        window.scrollTo({ top: window.scrollY + el.getBoundingClientRect().top - offset, behavior: liteOn() || instant ? 'auto' : 'smooth' });
         if(liteOn()) setTimeout(liteObserve, 1600);
     }
     function liteMoreRow(dir, name) {
@@ -14129,8 +14539,11 @@
             const ph = info.perm && Number(info.perm.h) > 0 ? `<div class="time-tag perm-h">${permHFmt(info.perm.h)}</div>` : '';
             return `<div class="cell spec-${subVal}"><div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;">PERMESSO<br>${subVal === 'pl' ? 'LEGGE' : 'SINDACALE'}${ph}</div>${repHtml}</div>`;
         }
-        if(subVal === "pn" || prevSubVal === "pn")
-            return `<div class="cell spec-pn"><div style="flex:1;display:flex;align-items:center;text-align:center;">PERMESSO<br>NOTTE</div>${repHtml}</div>`;
+        if(subVal === "pn" || prevSubVal === "pn") {
+            // giorno dopo il PN con un'altra assenza rimasta nella casella: si vede (e si conta)
+            const hidden = subVal !== "pn" && SPECIAL_SUBCODES[subVal] !== undefined ? `<div class="riposo-sub" title="Nella casella c\u2019è anche ${esc(SPECIAL_SUBCODES[subVal].toLowerCase())}: conta nel conteggio assenze">+ ${esc(ABS_SHORT[subVal] || subVal.toUpperCase())}</div>` : "";
+            return `<div class="cell spec-pn"><div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;">PERMESSO<br>NOTTE${hidden}</div>${repHtml}</div>`;
+        }
         if(subVal === "z")
             return `<div class="cell spec-coord"><div style="flex:1;display:flex;align-items:center;text-align:center;">SOSTITUZIONE<br>COORD.</div>${repHtml}</div>`;
         if(subVal === "v") {
@@ -14207,6 +14620,11 @@
     }
 
     // ── openShiftModal ────────────────────────────────────────────────────────
+    // Il giorno dopo un M+N è sempre smonto (come lo disegna il calendario), qualunque cosa ci sia scritta.
+    function afterMN(rowIndex, colIdx) {
+        const prev = finalData[rowIndex - 1], cell = prev && prev[colIdx];
+        return !!cell && isMN((cell.v || "").toString());
+    }
     function openShiftModal(rowIndex, cellValue, month, day, weekDay) {
         vibrate();
         let modal = document.getElementById('shift-modal');
@@ -14236,7 +14654,7 @@
         let foundNurses = [];
         drivers.forEach(d => {
             let cell = rowData[d.idx];
-            let rawV = (cell.v || "").toString().trim();
+            let rawV = afterMN(rowIndex, d.idx) ? "SM" : (cell.v || "").toString().trim();
             if(isRepStr(rawV)) { let si = rawV.indexOf('/'); if(si !== -1) rawV = rawV.substring(0, si).trim(); }
             let uVal = rawV.toUpperCase(); if(uVal==="S") uVal="SM";
             let isD = rawV.length > 0 && rawV.charAt(0) >= 'a' && rawV.charAt(0) <= 'z';
@@ -14418,7 +14836,8 @@
 
     function resetWheelFullState() {
         wheelSelectedNurses = []; wheelMode = ''; wheelSlots = []; wheelSlotPool = [];
-        wheelAssignments = []; wheelCurrentSlotIdx = 0; wheelNamesOnWheel = []; wheelSpinning = false;
+        wheelAssignments = []; wheelCurrentSlotIdx = 0; wheelNamesOnWheel = []; wheelSpinning = false; wheelCoin = null; wheelCoinPlan = null;
+        const coinDone = document.getElementById('wheel-coin-done'); if(coinDone) coinDone.innerHTML = '';
         const spinBtn = document.getElementById('wheel-spin-btn'); if(spinBtn) { spinBtn.style.display = 'inline-flex'; spinBtn.disabled = false; spinBtn.innerText = 'GIRA LA RUOTA!'; }
         const restartBtn = document.getElementById('wheel-restart-btn'); if(restartBtn) restartBtn.style.display = 'none';
         const doneBanner = document.getElementById('wheel-done-banner'); if(doneBanner) doneBanner.style.display = 'none';
@@ -14467,8 +14886,10 @@
 
     function chooseWheelMode(mode) {
         vibrate(); wheelMode = mode; hideAllWheelSteps();
+        wheelCoin = null;
         if(mode === 'slots') {
             document.getElementById('wheel-step-3-slots').style.display = 'block';
+            coinWheelBox();
         } else {
             whFreshRun();
             wheelNamesOnWheel = wheelSelectedNurses.slice();
@@ -14502,8 +14923,14 @@
         wheelSlots.forEach(s => { c.innerHTML += `<div class="slot-chip">${s}</div>`; });
         document.getElementById('wheel-slots-start-btn').disabled = wheelSlots.length < 1;
     }
-    function startSlotWheel() {
+    async function startSlotWheel() {
         vibrate();
+        const coinOn = document.getElementById('wheel-coin-on');
+        if(coinOn && coinOn.checked && wheelCoinPlan && wheelCoinPlan.day) {
+            const b = document.getElementById('wheel-slots-start-btn'); b.disabled = true;
+            await coinStartOfficial(); b.disabled = false; return;
+        }
+        wheelCoin = null;
         whFreshRun();
         wheelSlotPool = shuffleArr(wheelSelectedNurses); wheelAssignments = []; wheelCurrentSlotIdx = 0;
         wheelNamesOnWheel = wheelSlotPool.slice();
@@ -14596,7 +15023,9 @@
 
     // Il giro è animato a mano (requestAnimationFrame): gira anche in modalità leggera e su iPhone,
     // dove le transizioni CSS sono spente. Il puntatore scatta a ogni spicchio, con il suo "tic".
-    function doSpin() {
+    // forced: chi è uscito, deciso dall'ora del server (estrazione con monete)
+    function doSpin(forced) {
+        if(wheelCoin && forced === undefined) return coinSpin();
         if(wheelSpinning) return;
         const segments = wheelExpandedSegments;
         if(!segments || segments.length === 0) return;
@@ -14608,7 +15037,8 @@
         document.querySelectorAll('#wheel-svg-holder .wh-win').forEach(x => x.classList.remove('wh-win'));
         const holder = document.getElementById('wheel-svg-holder'), pointer = document.getElementById('wh-pointer'), wheel = document.getElementById('wh-wheel');
         const total = segments.length, seg = 360 / total;
-        const winnerIndex = Math.floor(Math.random() * total), winnerName = segments[winnerIndex];
+        const forcedIdx = forced === undefined ? [] : segments.map((n, i) => n === forced ? i : -1).filter(i => i >= 0);
+        const winnerIndex = forcedIdx.length ? forcedIdx[Math.floor(Math.random() * forcedIdx.length)] : Math.floor(Math.random() * total), winnerName = segments[winnerIndex];
         // si ferma in un punto a caso dentro lo spicchio (non sempre al centro)
         const within = seg * (0.18 + Math.random() * 0.64);
         const start = whAngle, targetMod = (360 - (winnerIndex * seg + within) % 360) % 360;
@@ -14644,6 +15074,7 @@
             if(!auto) whResult('La fascia ' + slotTime + ' tocca a', winnerName, '');
             wheelSlotPool = wheelSlotPool.filter(nm => nm !== winnerName);
             wheelCurrentSlotIdx++;
+            if(wheelCoin) wheelSlotPool = (coinWinners(wheelCoin.est).pools[wheelCurrentSlotIdx] || []).slice();
             whProgress(); renderWheelAssignList();
             if(wheelCurrentSlotIdx >= wheelSlots.length) {
                 document.getElementById('wheel-spin-btn').style.display = 'none';
@@ -14651,6 +15082,7 @@
                 document.getElementById('wheel-done-banner').style.display = 'block';
                 document.getElementById('wheel-restart-btn').style.display = 'flex';
                 const hub = document.getElementById('wh-hub'); if(hub) hub.disabled = true;
+                coinWheelDone();
             } else {
                 if(wheelSlotPool.length === 0) wheelSlotPool = shuffleArr(wheelSelectedNurses);
                 // si lascia vedere il risultato, poi la ruota si prepara per la fascia dopo
@@ -14658,7 +15090,8 @@
                     wheelNamesOnWheel = wheelSlotPool.slice();
                     document.getElementById('wheel-current-slot-time').innerText = wheelSlots[wheelCurrentSlotIdx];
                     renderWheelGraphic(wheelNamesOnWheel, true);   // il risultato di prima resta visibile fino al prossimo giro
-                    if(wheelSlotPool.length === 1) {
+                    if(wheelSlotPool.length === 1 && wheelCoin) coinAuto();
+                    else if(wheelSlotPool.length === 1) {
                         // rimane un solo autista: niente giro, la fascia è sua
                         const only = wheelSlotPool[0], time = wheelSlots[wheelCurrentSlotIdx];
                         document.getElementById('wheel-spin-btn').disabled = true;
@@ -14680,7 +15113,7 @@
     function admWheelLog(winner) {
         try {
             if(SERVER_MODE || !fbReady) return;
-            const e = { t: Date.now(), mode: wheelMode, winner: String(winner || ''), slot: wheelMode === 'slots' ? String(wheelSlots[wheelCurrentSlotIdx] || '') : '', n: (wheelNamesOnWheel || []).length, by: userIdentity || '' };
+            const e = { t: Date.now(), mode: wheelMode, winner: String(winner || ''), slot: wheelMode === 'slots' ? String(wheelSlots[wheelCurrentSlotIdx] || '') : '', k: wheelMode === 'slots' ? wheelCurrentSlotIdx : -1, coin: !!wheelCoin, n: (wheelNamesOnWheel || []).length, by: userIdentity || '' };
             const FV = firebase.firestore.FieldValue;
             asNoopRef().doc(sessionId).set({ wheelLog: FV.arrayUnion(e), wheelSpins: FV.increment(1) }, { merge:true }).catch(() => {});
         } catch(e) {}
@@ -14698,6 +15131,330 @@
         document.getElementById('wheel-char-name').innerText = name;
         document.getElementById('wheel-char-quote').innerText = IRONIC_QUOTES[Math.floor(Math.random()*IRONIC_QUOTES.length)];
         rev.classList.add('show');
+    }
+
+    // ── MONETE DELLA RUOTA E MERCATO DELLE FASCE ─────────────────────────────
+    // Dati in due collezioni nuove (autisti26_estrazioni, autisti26_mercato) con "ns" = DATA_NS:
+    // l'app ufficiale non le legge e non tocca turni o impostazioni.
+    // Un'estrazione con monete al giorno: il documento <ns>e_<giorno> si crea una volta sola e ogni
+    // giro salva solo l'ora del server (t0, t1, t2). Chi esce si ricava da quell'ora (millisecondi
+    // modulo i nomi rimasti): il telefono non sceglie il vincitore e non si può rigirare (regole Firebase).
+    // I saldi non sono salvati da nessuna parte: si ricalcolano ogni volta da estrazioni e scambi.
+    const COIN_EST = 'autisti26_estrazioni', COIN_MKT = 'autisti26_mercato';
+    const COIN_PAY = [2, 4, 3];   // prima fascia, centrale, ultima
+    const COIN_START = 10;        // dotazione iniziale di ogni operatore
+    const COIN_SLOT = ['Prima fascia', 'Fascia centrale', 'Ultima fascia'];
+    let wheelCoin = null, wheelCoinPlan = null, coinBusy = false;   // estrazione con monete nella ruota
+    let coinState = { ests: [], offers: [], loaded: 0, err: '' }, coinUnsubs = [], coinForm = null;
+
+    const coinTimeout = (p, ms) => Promise.race([p, new Promise((_, r) => setTimeout(() => r({ code: 'timeout' }), ms))]);
+    const coinMs = v => tsToMillis(v) || 0;
+    const coinMe = () => userIdentity && userIdentity !== 'Ospite' ? userIdentity : '';
+    // il turno di stanotte: prima delle 06:30 vale ancora quello di ieri
+    function coinToday() {
+        const d = new Date(); if(d.getHours() * 60 + d.getMinutes() < 390) d.setDate(d.getDate() - 1);
+        const dayMs = Date.UTC(d.getFullYear(), d.getMonth(), d.getDate());
+        return { key: ymd(d), dayMs, eid: DATA_NS + 'e_' + dayMs, endsAt: new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1, 6, 30).getTime() };
+    }
+    function coinDayLabel(e) { const d = new Date((e.dayKey || '') + 'T12:00'); return isNaN(d) ? '' : d.toLocaleDateString('it-IT', { weekday: 'short', day: 'numeric', month: 'short' }); }
+    const coinWhen = ms => ms ? new Date(ms).toLocaleString('it-IT', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '—';
+    const coinN = n => n + (Math.abs(n) === 1 ? ' moneta' : ' monete');
+
+    // chi esce in ogni fascia: dall'ora del server di ogni giro, sui nomi rimasti (finiti i nomi si ricomincia)
+    function coinWinners(e) {
+        const people = (e.people || []).slice(); let pool = people.slice(); const win = [], pools = [];
+        for(let k = 0; k < 3; k++) {
+            if(!pool.length) pool = people.slice();
+            pools.push(pool.slice());
+            const t = coinMs(e['t' + k]); if(!t) break;
+            const i = t % pool.length; win.push(pool[i]); pool.splice(i, 1);
+        }
+        return { win, pools };
+    }
+    // Saldi e movimenti, in ordine di tempo: dotazione, scambi accettati e monete delle fasce a fine turno
+    // (date a chi ha la fascia dopo gli scambi). Uno scambio vale solo se le fasce sono ancora di quei due
+    // e chi compra ha le monete in quel momento.
+    function coinLedger(ests, offers) {
+        const now = Date.now(), bal = {}, pend = {}, moves = [], byE = {}, ev = [];
+        const add = (who, d, m) => { bal[who] = (bal[who] || 0) + d; moves.push(Object.assign({ who, d }, m)); };
+        (drivers || []).forEach(d => add(d.name, COIN_START, { t: 0, kind: 'start', txt: 'Dotazione iniziale' }));
+        ests.forEach(e => { const w = coinWinners(e).win; e.win = w; e.hold = w.slice(); e.done = w.length === 3; e.end = coinMs(e.endsAt); byE[e.id] = e; if(e.done) ev.push({ t: e.end, e }); });
+        offers.forEach(o => { o.valid = null; if(o.status === 'accettata') ev.push({ t: coinMs(o.doneAt), o }); });
+        ev.sort((a, b) => a.t - b.t);
+        ev.forEach(x => {
+            if(x.e) {
+                const e = x.e;
+                e.paid = x.t <= now;
+                e.hold.forEach((who, k) => { if(!e.paid) pend[who] = (pend[who] || 0) + COIN_PAY[k]; else add(who, COIN_PAY[k], { t: x.t, kind: 'pay', eid: e.id, k, txt: COIN_SLOT[k] + ' ' + (e.slots[k] || '') + ' · ' + coinDayLabel(e) }); });
+                return;
+            }
+            const o = x.o, e = byE[o.eid];
+            o.valid = !!(e && e.done && x.t < e.end && e.hold[o.give] === o.from && e.hold[o.take] === o.to && (bal[o.from] || 0) >= o.price);
+            if(!o.valid) return;
+            e.hold[o.give] = o.to; e.hold[o.take] = o.from;
+            const what = COIN_SLOT[o.take] + ' (' + (e.slots[o.take] || '') + ') · ' + coinDayLabel(e);
+            add(o.from, -o.price, { t: x.t, kind: 'buy', oid: o.id, txt: 'Comprata da ' + o.to + ': ' + what });
+            add(o.to, o.price, { t: x.t, kind: 'sell', oid: o.id, txt: 'Venduta a ' + o.from + ': ' + what });
+        });
+        moves.sort((a, b) => b.t - a.t);
+        return { bal, pend, moves, byE };
+    }
+
+    const coinDocs = s => s.docs.map(d => Object.assign({ id: d.id }, d.data()));
+    function coinListen() {
+        if(!fbReady || coinUnsubs.length) return;
+        const fail = e => { coinState.err = (e && e.code) || 'errore'; coinStopListen(); coinRender(); };
+        coinUnsubs.push(db.collection(COIN_EST).where('ns', '==', DATA_NS).onSnapshot(s => { coinState.ests = coinDocs(s); coinState.loaded |= 1; coinState.err = ''; coinRender(); }, fail));
+        coinUnsubs.push(db.collection(COIN_MKT).where('ns', '==', DATA_NS).onSnapshot(s => { coinState.offers = coinDocs(s); coinState.loaded |= 2; coinRender(); }, fail));
+    }
+    function coinStopListen() { coinUnsubs.forEach(u => { try { u(); } catch(e) {} }); coinUnsubs = []; }
+    async function coinFetchAll() {
+        const [a, b] = await Promise.all([db.collection(COIN_EST).where('ns', '==', DATA_NS).get(), db.collection(COIN_MKT).where('ns', '==', DATA_NS).get()]);
+        return { ests: coinDocs(a), offers: coinDocs(b) };
+    }
+    // le regole controllano il nome scelto in "Chi sei?": lo si riscrive prima di ogni operazione
+    function coinEnsureIdentity() {
+        return db.collection('autisti26_identities').doc(fbAuth.currentUser.uid)
+            .set({ name: userIdentity, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true });
+    }
+    function coinErrText(e) {
+        const c = e && e.code;
+        if(c === 'permission-denied') return 'Firebase non lo permette (regole non ancora pubblicate, o operazione non valida)';
+        if(c === 'timeout' || c === 'unavailable') return 'serve la connessione';
+        return (e && (e.code || e.message)) || 'errore';
+    }
+
+    // ── finestra "Monete e mercato" ──
+    function openCoinModal() {
+        closeMenu(); vibrate();
+        const m = document.getElementById('coin-modal'); m.style.display = 'flex';
+        setTimeout(() => m.classList.add('open'), 10);
+        setCurrentView('Monete e mercato');
+        coinForm = null; coinState.err = ''; coinRender(); coinListen();
+    }
+    function closeCoinModal(e) {
+        if(e && e.target !== e.currentTarget) return;
+        const m = document.getElementById('coin-modal'); m.classList.remove('open');
+        setTimeout(() => m.style.display = 'none', 200); coinStopListen();
+    }
+    const coinNote = (icon, html) => `<div class="coin-note"><span class="material-icons-round">${icon}</span><div>${html}</div></div>`;
+    function coinRender() {
+        const box = document.getElementById('coin-body'), m = document.getElementById('coin-modal');
+        if(!box || !m || m.style.display === 'none') return;
+        if(!fbReady) { box.innerHTML = coinNote('cloud_off', 'Le monete hanno bisogno della connessione.'); return; }
+        if(coinState.err) { box.innerHTML = coinNote('lock', coinState.err === 'permission-denied' ? '<b>Le monete non sono ancora attive.</b> Vanno pubblicate le nuove regole di Firebase.' : 'Non riesco a leggere le monete (' + esc(coinState.err) + ').'); return; }
+        if(coinState.loaded !== 3) { box.innerHTML = `<div class="coin-note"><span class="material-icons-round adm-spin">autorenew</span><div>Carico portafogli e mercato…</div></div>`; return; }
+        const me = coinMe(), L = coinLedger(coinState.ests, coinState.offers), now = Date.now();
+        const myBal = me ? (L.bal[me] || 0) : 0, myPend = me ? (L.pend[me] || 0) : 0;
+        let h = me
+            ? `<div class="coin-hero"><span class="material-icons-round">savings</span><div><small>Il portafoglio di ${esc(me)}</small><b>${coinN(myBal)}</b>${myPend ? `<em>+${myPend} in arrivo a fine turno</em>` : ''}</div></div>`
+            : coinNote('person', 'Per avere un portafoglio scegli chi sei: <button class="coin-btn" onclick="closeCoinModal();setTimeout(requestChangeIdentityDirect,300)">Scegli il tuo nome</button>');
+
+        // turni con fasce ancora scambiabili
+        const open = coinState.ests.filter(e => e.done && now < e.end).sort((a, b) => coinMs(b.day) - coinMs(a.day));
+        const openOffers = coinState.offers.filter(o => o.status === 'aperta');
+        h += `<div class="dinner-section-title">Mercato delle fasce</div>`;
+        if(!open.length) h += coinNote('storefront', 'Nessun turno aperto agli scambi. Il mercato si apre quando la ruota ha assegnato tutte e tre le fasce con monete e resta aperto fino alle 06:30.');
+        open.forEach(e => {
+            const mine = me ? e.hold.map((n, k) => n === me ? k : -1).filter(k => k >= 0) : [];
+            h += `<div class="coin-card"><div class="coin-card-h"><b>Turno di ${esc(coinDayLabel(e))}</b><small>Scambi fino a ${esc(coinWhen(e.end))}</small></div>`;
+            e.hold.forEach((who, k) => {
+                const isMe = who === me, pending = openOffers.some(o => o.eid === e.id && o.take === k && o.from === me);
+                const can = me && !isMe && mine.length && !pending;
+                h += `<div class="coin-slot${isMe ? ' me' : ''}"><div class="coin-slot-t"><small>${COIN_SLOT[k]} · +${COIN_PAY[k]}</small><b>${esc(e.slots[k] || '')}</b></div><div class="coin-slot-w">${esc(who)}${isMe ? ' <i>tu</i>' : ''}${who !== e.win[k] ? `<small>uscita a ${esc(e.win[k])}</small>` : ''}</div>${can ? `<button class="coin-btn" onclick="coinOpenForm('${e.id}',${k})">Compra</button>` : pending ? '<span class="coin-tag">offerta inviata</span>' : ''}</div>`;
+                if(coinForm && coinForm.eid === e.id && coinForm.k === k && can) {
+                    h += `<div class="coin-form"><label>Dai in cambio<select id="coin-f-give">${mine.map(g => `<option value="${g}">${COIN_SLOT[g]} ${esc(e.slots[g] || '')}</option>`).join('')}</select></label>
+                        <label>Monete offerte a ${esc(who)}<input id="coin-f-price" type="number" min="1" max="100" step="1" value="${Math.min(Math.max(1, COIN_PAY[k]), Math.max(1, myBal))}" inputmode="numeric"></label>
+                        <small>Ne hai ${myBal}. Le monete passano a ${esc(who)} solo se accetta.</small>
+                        <div class="coin-form-b"><button class="coin-btn ghost" onclick="coinForm=null;coinRender()">Annulla</button><button class="coin-btn" onclick="coinSendOffer('${e.id}',${k})">Invia l’offerta</button></div></div>`;
+                }
+            });
+            h += `</div>`;
+        });
+
+        // offerte
+        if(me) {
+            const offerTxt = o => { const e = L.byE[o.eid]; return e ? `${COIN_SLOT[o.take]} <b>${esc(e.slots[o.take] || '')}</b> in cambio di ${COIN_SLOT[o.give].toLowerCase()} <b>${esc(e.slots[o.give] || '')}</b> · ${esc(coinDayLabel(e))}` : 'turno non trovato'; };
+            const stillOk = o => { const e = L.byE[o.eid]; return !!(e && now < e.end && e.hold[o.give] === o.from && e.hold[o.take] === o.to); };
+            const forMe = openOffers.filter(o => o.to === me), byMe = openOffers.filter(o => o.from === me);
+            if(forMe.length || byMe.length) h += `<div class="dinner-section-title">Offerte aperte</div>`;
+            forMe.forEach(o => { const ok = stillOk(o);
+                h += `<div class="coin-offer"><div><b>${esc(o.from)} ti offre ${coinN(o.price)}</b><small>per la tua ${offerTxt(o)}</small>${ok ? '' : '<small class="coin-warn">Non più valida: le fasce sono cambiate o il turno è finito</small>'}</div>
+                    <div class="coin-offer-b">${ok ? `<button class="coin-btn" onclick="coinCloseOffer('${o.id}','accettata')">Accetta</button>` : ''}<button class="coin-btn ghost" onclick="coinCloseOffer('${o.id}','rifiutata')">Rifiuta</button></div></div>`; });
+            byMe.forEach(o => {
+                h += `<div class="coin-offer mine"><div><b>Hai offerto ${coinN(o.price)} a ${esc(o.to)}</b><small>per la sua ${offerTxt(o)}</small>${stillOk(o) ? '<small>In attesa di risposta</small>' : '<small class="coin-warn">Non più valida</small>'}</div>
+                    <div class="coin-offer-b"><button class="coin-btn ghost" onclick="coinCloseOffer('${o.id}','annullata')">Ritira</button></div></div>`; });
+            const mv = L.moves.filter(x => x.who === me);
+            h += `<div class="dinner-section-title">I tuoi movimenti</div><div class="coin-list">${mv.slice(0, 40).map(x => `<div class="coin-mv"><span class="coin-d ${x.d < 0 ? 'neg' : ''}">${x.d > 0 ? '+' : ''}${x.d}</span><div><b>${esc(x.txt)}</b><small>${x.t ? esc(coinWhen(x.t)) : 'all’inizio'}</small></div></div>`).join('')}</div>`;
+        }
+
+        // portafogli di tutti
+        const names = Object.keys(L.bal).concat(Object.keys(L.pend).filter(n => !(n in L.bal)));
+        names.sort((a, b) => (L.bal[b] || 0) - (L.bal[a] || 0) || a.localeCompare(b, 'it'));
+        h += `<div class="dinner-section-title">Portafogli</div><div class="coin-list">${names.map((n, i) => `<div class="coin-mv${n === me ? ' me' : ''}"><span class="coin-rank">${i + 1}</span><div><b>${esc(n)}</b>${L.pend[n] ? `<small>+${L.pend[n]} in arrivo</small>` : ''}</div><span class="coin-d">${L.bal[n] || 0}</span></div>`).join('')}</div>`;
+
+        h += `<details class="coin-help"><summary><span class="material-icons-round">help_outline</span>Come funziona</summary><div>
+            <p>Le monete si guadagnano solo con la <b>ruota della sfiga</b>, modalità <b>Smista le fasce orarie</b>, con l’opzione “Estrazione con monete”: prima fascia <b>${COIN_PAY[0]}</b>, fascia centrale <b>${COIN_PAY[1]}</b>, ultima fascia <b>${COIN_PAY[2]}</b>. Ognuno parte con ${COIN_START}.</p>
+            <p>Si può fare <b>una sola estrazione con monete al giorno</b>: una volta avviata non si rifà e non si cancella, e chi esce lo decide l’orologio del server di Firebase, non il telefono. Rigirare la ruota dopo non dà monete.</p>
+            <p>Per cambiare fascia con un collega la compri da lui: gli offri le monete e la tua fascia in cambio. Se accetta, vi scambiate le fasce e le monete passano a lui. Le monete della fascia vanno a chi la fa davvero, a fine turno (06:30).</p></div></details>`;
+        box.innerHTML = h;
+    }
+    function coinOpenForm(eid, k) { vibrate(); coinForm = { eid, k }; coinRender(); }
+    async function coinSendOffer(eid, take) {
+        const me = coinMe(); if(!me) return;
+        const L = coinLedger(coinState.ests, coinState.offers), e = L.byE[eid]; if(!e) return;
+        const give = +document.getElementById('coin-f-give').value, price = Math.round(+document.getElementById('coin-f-price').value), to = e.hold[take];
+        if(!(price >= 1 && price <= 100)) return ccToast('Scegli da 1 a 100 monete', true);
+        if(price > (L.bal[me] || 0)) return ccToast('Hai solo ' + coinN(L.bal[me] || 0), true);
+        if(e.hold[give] !== me || !to || to === me) return ccToast('Le fasce sono cambiate: riprova', true);
+        try {
+            await coinTimeout(coinEnsureIdentity(), 10000);
+            const id = DATA_NS + 'o_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+            await coinTimeout(db.collection(COIN_MKT).doc(id).set({ ns: DATA_NS, eid, from: me, to, give, take, price, status: 'aperta', createdAt: firebase.firestore.FieldValue.serverTimestamp(), byUid: fbAuth.currentUser.uid }), 12000);
+            coinForm = null; coinRender(); ccToast('Offerta inviata a ' + to);
+        } catch(err) { ccToast('Offerta non inviata: ' + coinErrText(err), true); }
+    }
+    async function coinCloseOffer(id, status) {
+        const me = coinMe(), o = coinState.offers.find(x => x.id === id); if(!me || !o) return;
+        if(status === 'accettata') {
+            const L = coinLedger(coinState.ests, coinState.offers), e = L.byE[o.eid];
+            if(!e || e.hold[o.give] !== o.from || e.hold[o.take] !== o.to) return ccToast('Offerta non più valida', true);
+            if((L.bal[o.from] || 0) < o.price) return ccToast(o.from + ' non ha più abbastanza monete', true);
+            if(!confirm(`Accetti?\n\nDai a ${o.from} la tua ${COIN_SLOT[o.take].toLowerCase()} (${e.slots[o.take]}) e prendi la sua ${COIN_SLOT[o.give].toLowerCase()} (${e.slots[o.give]}).\nRicevi ${coinN(o.price)}.`)) return;
+        }
+        try {
+            await coinTimeout(coinEnsureIdentity(), 10000);
+            await coinTimeout(db.collection(COIN_MKT).doc(id).update({ status, doneAt: firebase.firestore.FieldValue.serverTimestamp(), doneBy: me }), 12000);
+            ccToast({ accettata: 'Scambio fatto', rifiutata: 'Offerta rifiutata', annullata: 'Offerta ritirata' }[status]);
+        } catch(err) { ccToast('Non riuscito: ' + coinErrText(err), true); }
+    }
+
+    // ── la ruota con monete ──
+    // Nel passo delle fasce: si controlla se l'estrazione con monete di oggi c'è già, è a metà o è da fare.
+    async function coinWheelBox() {
+        const box = document.getElementById('wheel-coin-box'); wheelCoinPlan = null;
+        if(!box) return;
+        if(!fbReady || SERVER_MODE) { box.innerHTML = ''; return; }
+        const day = coinToday(), label = coinDayLabel({ dayKey: day.key });
+        box.innerHTML = `<div class="coin-wbox"><span class="material-icons-round adm-spin">autorenew</span><div><small>Controllo l’estrazione con monete di ${esc(label)}…</small></div></div>`;
+        let snap;
+        try { snap = await coinTimeout(db.collection(COIN_EST).doc(day.eid).get({ source: 'server' }), 8000); }
+        catch(e) { box.innerHTML = `<div class="coin-wbox"><span class="material-icons-round">cloud_off</span><div><b>Monete non disponibili</b><small>${esc(coinErrText(e))}. Questa estrazione non dà monete.</small></div></div>`; return; }
+        if(!snap.exists) {
+            if(!coinMe()) { box.innerHTML = `<div class="coin-wbox"><span class="material-icons-round">person</span><div><b>Estrazione senza monete</b><small>Per le monete scegli prima chi sei (menu › Chi sei?).</small></div></div>`; return; }
+            wheelCoinPlan = { day };
+            box.innerHTML = `<label class="coin-wbox on"><input type="checkbox" id="wheel-coin-on" checked onchange="this.parentElement.classList.toggle('on',this.checked)"><span class="material-icons-round">savings</span><div><b>Estrazione con monete di ${esc(label)}</b><small>Prima fascia ${COIN_PAY[0]}, centrale ${COIN_PAY[1]}, ultima ${COIN_PAY[2]} monete. Una sola al giorno: una volta avviata non si rifà.</small></div><i class="coin-check material-icons-round">check</i></label>`;
+            return;
+        }
+        const e = Object.assign({ id: snap.id }, snap.data()), w = coinWinners(e).win;
+        if(w.length < 3) {
+            wheelCoinPlan = { resume: e };
+            box.innerHTML = `<div class="coin-wbox on"><span class="material-icons-round">savings</span><div><b>Estrazione con monete a metà</b><small>Avviata da ${esc(e.by)}: ${w.length} fasce su 3. Si riprende con gli stessi nomi e orari.</small></div><button class="coin-btn" onclick="coinBeginWheel(wheelCoinPlan.resume)">Riprendi</button></div>`;
+        } else box.innerHTML = `<div class="coin-wbox"><span class="material-icons-round">verified</span><div><b>Monete di ${esc(label)} già estratte</b><small>Da ${esc(e.by)}: ${w.map((n, k) => esc(n) + ' ' + COIN_PAY[k]).join(' · ')}. Se giri adesso è solo per ridere.</small></div><button class="coin-btn" onclick="openCoinModal()">Vedi</button></div>`;
+    }
+    async function coinStartOfficial() {
+        const plan = wheelCoinPlan, me = coinMe(); if(!plan || !plan.day || !me) return;
+        const people = wheelSelectedNurses.slice().sort((a, b) => a.localeCompare(b, 'it')), label = coinDayLabel({ dayKey: plan.day.key });
+        if(!confirm(`Avviare l’estrazione con monete di ${label}?\n\nPartecipano: ${people.join(', ')}.\nFasce: ${wheelSlots.join(' · ')}.\n\nVale una volta sola: non si potrà rifare né annullare.`)) return;
+        const ref = db.collection(COIN_EST).doc(plan.day.eid), TS = firebase.firestore.Timestamp;
+        try {
+            await coinTimeout(coinEnsureIdentity(), 10000);
+            await coinTimeout(ref.set({ ns: DATA_NS, day: TS.fromMillis(plan.day.dayMs), dayKey: plan.day.key, endsAt: TS.fromMillis(plan.day.endsAt), slots: wheelSlots.slice(), people, by: me, byUid: fbAuth.currentUser.uid, createdAt: firebase.firestore.FieldValue.serverTimestamp() }), 12000);
+            const snap = await coinTimeout(ref.get({ source: 'server' }), 10000);
+            coinBeginWheel(Object.assign({ id: snap.id }, snap.data()));
+        } catch(err) { ccToast('Estrazione con monete non avviata: ' + coinErrText(err), true); coinWheelBox(); }
+    }
+    function coinBeginWheel(e) {
+        vibrate(); whFreshRun();
+        wheelCoin = { eid: e.id, est: e }; wheelMode = 'slots';
+        wheelSlots = e.slots.slice(); wheelSelectedNurses = e.people.slice();
+        const w = coinWinners(e);
+        wheelAssignments = w.win.map((n, k) => ({ time: e.slots[k], name: n }));
+        wheelCurrentSlotIdx = w.win.length; wheelSlotPool = (w.pools[wheelCurrentSlotIdx] || []).slice(); wheelNamesOnWheel = wheelSlotPool.slice();
+        hideAllWheelSteps(); document.getElementById('wheel-step-spin').style.display = 'block';
+        document.getElementById('wheel-current-slot-label').style.display = 'block';
+        document.getElementById('wheel-current-slot-time').innerText = wheelSlots[wheelCurrentSlotIdx] || '';
+        renderWheelGraphic(wheelNamesOnWheel);
+        if(wheelSlotPool.length === 1) coinAuto();
+    }
+    // salva l'ora del server per la fascia k e restituisce chi è uscito (anche se l'ha girata un altro telefono)
+    async function coinTake(k) {
+        const ref = db.collection(COIN_EST).doc(wheelCoin.eid); let err = null;
+        try { await coinTimeout(ref.update({ ['t' + k]: firebase.firestore.FieldValue.serverTimestamp() }), 12000); } catch(e) { err = e; }
+        const snap = await coinTimeout(ref.get({ source: 'server' }), 10000);
+        const e = Object.assign({ id: snap.id }, snap.data()), w = coinWinners(e);
+        wheelCoin.est = e;
+        if(w.win.length <= k) throw err || { code: 'non salvato' };
+        return { name: w.win[k], pool: w.pools[k] };
+    }
+    function coinSpinBtns(on, txt) {
+        const sb = document.getElementById('wheel-spin-btn'), hub = document.getElementById('wh-hub');
+        if(sb) { sb.disabled = !on; sb.innerText = txt || 'GIRA LA RUOTA!'; } if(hub) hub.disabled = !on;
+    }
+    async function coinSpin() {
+        if(coinBusy || wheelSpinning) return;
+        if(!navigator.onLine) return ccToast('Per girare la ruota con monete serve la connessione', true);
+        coinBusy = true; coinSpinBtns(false, 'UN ATTIMO…');
+        try {
+            const r = await coinTake(wheelCurrentSlotIdx);
+            if(!wheelExpandedSegments.includes(r.name)) { wheelSlotPool = r.pool.slice(); wheelNamesOnWheel = r.pool.slice(); renderWheelGraphic(wheelNamesOnWheel, true); }
+            coinBusy = false; coinSpinBtns(false); doSpin(r.name);
+        } catch(err) { coinBusy = false; coinSpinBtns(true); ccToast('Giro non salvato: ' + coinErrText(err) + '. Riprova.', true); }
+    }
+    // rimane un solo nome: la fascia è sua, ma l'ora del giro si salva lo stesso
+    function coinAuto() {
+        const k = wheelCurrentSlotIdx, only = wheelSlotPool[0];
+        coinSpinBtns(false);
+        whResult('Rimane solo', only, 'La fascia ' + wheelSlots[k] + ' è sua, senza girare la ruota', true);
+        setTimeout(() => coinTake(k).then(r => onWheelSpinResolved(r.name, true)).catch(err => { coinSpinBtns(true); ccToast('Fascia non salvata: ' + coinErrText(err) + '. Tocca GIRA.', true); }), 1600);
+    }
+    function coinWheelDone() {
+        const box = document.getElementById('wheel-coin-done'); if(!box) return;
+        if(!wheelCoin) { box.innerHTML = ''; return; }
+        const w = coinWinners(wheelCoin.est).win;
+        box.innerHTML = `<div class="coin-wbox on"><span class="material-icons-round">savings</span><div><b>Monete a fine turno</b><small>${w.map((n, k) => esc(n) + ' +' + COIN_PAY[k]).join(' · ')}. Fino alle 06:30 le fasce si possono comprare nel mercato.</small></div><button class="coin-btn" onclick="openCoinModal()">Mercato</button></div>`;
+    }
+
+    // ── area admin: monete, guadagni, vendite e fasce della ruota per operatore ──
+    let admCoin = null;
+    function admRenderMonete() {
+        const box = document.getElementById('adm-monete'); if(!box) return;
+        if(!fbReady) { box.innerHTML = '<div class="adm-empty">Serve la connessione.</div>'; return; }
+        const at = admData ? admData.at : 0;
+        if(admCoin && admCoin.loading) { box.innerHTML = admLoadingHtml(); return; }
+        if(!admCoin || admCoin.at < at) {
+            box.innerHTML = admLoadingHtml();
+            admCoin = { at, loading: true };
+            coinFetchAll().then(d => { admCoin = Object.assign({ at: Math.max(at, 1) }, d); }).catch(e => { admCoin = { at: Math.max(at, 1), err: e && e.code || 'errore', ests: [], offers: [] }; }).finally(() => { if(admTab === 'monete') admRenderMonete(); });
+            return;
+        }
+        if(admCoin.err) { box.innerHTML = `<div class="adm-note"><span class="material-icons-round">lock</span><div>${admCoin.err === 'permission-denied' ? 'Le monete non sono ancora attive: vanno pubblicate in Firebase le regole nuove (file firebase/firestore.rules).' : 'Non riesco a leggere le monete: ' + admEsc(admCoin.err)}</div></div>`; return; }
+        const L = coinLedger(admCoin.ests, admCoin.offers), ests = admCoin.ests.slice().sort((a, b) => coinMs(b.day) - coinMs(a.day));
+        const offers = admCoin.offers.slice().sort((a, b) => (coinMs(b.doneAt) || coinMs(b.createdAt)) - (coinMs(a.doneAt) || coinMs(a.createdAt)));
+        const st = {}; const S = n => st[n] || (st[n] = { pay: 0, sell: 0, buy: 0, nSell: 0, nBuy: 0, f: [0, 0, 0], last: 0 });
+        L.moves.forEach(m => { const s = S(m.who); if(m.kind === 'pay') s.pay += m.d; if(m.kind === 'sell') { s.sell += m.d; s.nSell++; } if(m.kind === 'buy') { s.buy -= m.d; s.nBuy++; } if(m.kind !== 'start') s.last = Math.max(s.last, m.t); });
+        ests.forEach(e => (e.win || []).forEach((n, k) => S(n).f[k]++));
+        const names = Object.keys(st).sort((a, b) => (L.bal[b] || 0) - (L.bal[a] || 0) || a.localeCompare(b, 'it'));
+        const total = Object.values(L.bal).reduce((a, b) => a + b, 0), done = offers.filter(o => o.status === 'accettata' && o.valid);
+        const stName = o => o.status === 'accettata' ? (o.valid ? '<span class="adm-pill ok">fatto</span>' : '<span class="adm-pill warn">non valido</span>') : o.status === 'aperta' ? '<span class="adm-pill info">aperta</span>' : `<span class="adm-pill muted">${admEsc(o.status)}</span>`;
+        box.innerHTML = `<div class="adm-kpis">
+                ${admKpi('savings', total, 'Monete in circolazione', 'saldi di tutti', 'info')}
+                ${admKpi('casino', ests.length, 'Estrazioni con monete', 'una al giorno al massimo', 'info')}
+                ${admKpi('swap_horiz', done.length, 'Fasce vendute', 'scambi conclusi', 'ok')}
+                ${admKpi('pending', offers.filter(o => o.status === 'aperta').length, 'Offerte aperte', 'in attesa di risposta', 'warn')}</div>
+            <div class="adm-note"><span class="material-icons-round">info</span><div>Ognuno parte con ${COIN_START} monete. Fasce: prima ${COIN_PAY[0]}, centrale ${COIN_PAY[1]}, ultima ${COIN_PAY[2]}, date a fine turno a chi fa la fascia dopo gli scambi. I saldi si ricalcolano da estrazioni e scambi, che non si possono cancellare.</div></div>
+            <div class="adm-card"><h4><span class="material-icons-round">account_balance_wallet</span>Portafogli</h4>
+                <div class="adm-table adm-coin-t"><div class="adm-tr adm-th"><span>Operatore</span><span>Saldo</span><span>Dalla ruota</span><span>Vendite</span><span>Acquisti</span><span>Ultimo movimento</span></div>
+                ${names.map(n => { const s = st[n]; return `<div class="adm-tr"><b>${admEsc(n)}</b><span><b>${L.bal[n] || 0}</b>${L.pend[n] ? ` <span class="adm-pill info">+${L.pend[n]} in arrivo</span>` : ''}</span><span>+${s.pay}</span><span>+${s.sell} <span class="adm-muted">(${s.nSell})</span></span><span>−${s.buy} <span class="adm-muted">(${s.nBuy})</span></span><span class="adm-muted">${s.last ? admWhen(s.last) : '—'}</span></div>`; }).join('')}</div></div>
+            <div class="adm-card"><h4><span class="material-icons-round">bedtime</span>Fasce della ruota per operatore</h4><small class="adm-muted">Quante volte ognuno è uscito in ogni fascia nelle estrazioni con monete (prima degli scambi)</small>
+                <div class="adm-table adm-coin-f"><div class="adm-tr adm-th"><span>Operatore</span><span>Prima</span><span>Centrale</span><span>Ultima</span><span>Totale</span></div>
+                ${names.filter(n => st[n].f.some(x => x)).sort((a, b) => st[b].f[1] - st[a].f[1] || a.localeCompare(b, 'it')).map(n => { const f = st[n].f; return `<div class="adm-tr"><b>${admEsc(n)}</b><span>${f[0]}</span><span><b>${f[1]}</b></span><span>${f[2]}</span><span>${f[0] + f[1] + f[2]}</span></div>`; }).join('') || '<div class="adm-empty sm">Ancora nessuna estrazione con monete.</div>'}</div></div>
+            <div class="adm-card"><h4><span class="material-icons-round">receipt_long</span>Movimenti</h4><small class="adm-muted">Quando sono state guadagnate, comprate e vendute le monete</small>
+                ${L.moves.some(m => m.kind !== 'start') ? `<div class="adm-table adm-coin-m"><div class="adm-tr adm-th"><span>Quando</span><span>Operatore</span><span>Monete</span><span>Cosa</span></div>${L.moves.filter(m => m.kind !== 'start').slice(0, 150).map(m => `<div class="adm-tr"><span>${admWhen(m.t)}</span><b>${admEsc(m.who)}</b><span class="${m.d < 0 ? 'adm-neg' : 'adm-pos'}">${m.d > 0 ? '+' : ''}${m.d}</span><span>${admEsc(m.txt)}</span></div>`).join('')}</div>` : '<div class="adm-empty sm">Nessun movimento finora.</div>'}</div>
+            <div class="adm-card"><h4><span class="material-icons-round">storefront</span>Scambi e offerte</h4>
+                ${offers.length ? `<div class="adm-table adm-coin-o"><div class="adm-tr adm-th"><span>Quando</span><span>Compra</span><span>Vende</span><span>Fasce</span><span>Monete</span><span>Stato</span></div>${offers.slice(0, 100).map(o => { const e = L.byE[o.eid]; return `<div class="adm-tr"><span>${admWhen(coinMs(o.doneAt) || coinMs(o.createdAt))}</span><b>${admEsc(o.from)}</b><b>${admEsc(o.to)}</b><span>${e ? admEsc(COIN_SLOT[o.take] + ' ⇄ ' + COIN_SLOT[o.give].toLowerCase() + ' · ' + coinDayLabel(e)) : '—'}</span><span>${o.price}</span><span>${stName(o)}</span></div>`; }).join('')}</div>` : '<div class="adm-empty sm">Nessuna offerta.</div>'}</div>
+            <div class="adm-card"><h4><span class="material-icons-round">casino</span>Estrazioni con monete</h4>
+                ${ests.length ? `<div class="adm-table adm-coin-e"><div class="adm-tr adm-th"><span>Turno</span><span>Fasce (uscito → chi la fa)</span><span>Avviata da</span><span>Stato</span></div>${ests.map(e => `<div class="adm-tr"><span>${admEsc(coinDayLabel(e))}<br><span class="adm-muted">${admWhen(coinMs(e.createdAt))}</span></span><span>${(e.slots || []).map((s, k) => `${admEsc(s)}: <b>${admEsc(e.win[k] || '…')}</b>${e.hold[k] && e.hold[k] !== e.win[k] ? ' → ' + admEsc(e.hold[k]) : ''}`).join('<br>')}</span><span>${admEsc(e.by)}<br><span class="adm-muted">${(e.people || []).length} nomi</span></span><span>${!e.done ? '<span class="adm-pill warn">a metà</span>' : e.paid ? '<span class="adm-pill ok">pagata</span>' : '<span class="adm-pill info">mercato aperto</span>'}</span></div>`).join('')}</div>` : '<div class="adm-empty sm">Nessuna estrazione con monete.</div>'}</div>`;
     }
 
     // ═══════════════════════════════════════════════════════════════════════
@@ -14732,6 +15489,7 @@
         'access-detail-modal': closeAccessDetail,
         'dinner-modal': closeDinnerModal,
         'wheel-modal': closeWheelModal,
+        'coin-modal': closeCoinModal,
         'driver-filter-dropdown': closeDriverFilterDropdown,
         'menu-dropdown': toggleMenu
     };
