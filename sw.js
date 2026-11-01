@@ -5,16 +5,16 @@
 // v7: modalità offline. Il nome della cache è solo di questa app: le app dello stesso sito
 // (ufficiale autisti, infermieri) hanno le loro cache e non si toccano.
 const CACHE_PREFIX = 'prova-autisti-';
-const CACHE_NAME = CACHE_PREFIX + 'v8';
+const CACHE_NAME = CACHE_PREFIX + 'v9';
 const OLD_CACHES = ['turni-autisti-cache-v3', 'turni-autisti-cache-v4', 'turni-autisti-cache-v5', 'turni-autisti-cache-v6'];   // vecchie cache di questa app (la v2 è dell'app ufficiale)
 
 const urlsToCache = [
   './',
   './index.html',
-  './manifest.json?v=7',
+  './manifest.json?v=8',
   './logo.png',
-  './icon-autisti2-512.png',
-  './icon-autisti2-192.png'
+  './icon-autisti3-512.png',
+  './icon-autisti3-192.png'
 ];
 // librerie e caratteri presi da Internet che servono anche senza rete
 const CDN_HOSTS = ['www.gstatic.com', 'cdnjs.cloudflare.com', 'fonts.googleapis.com', 'fonts.gstatic.com'];
@@ -74,8 +74,8 @@ self.addEventListener('push', (event) => {
   const title = d.title || 'Turni 118';
   event.waitUntil(self.registration.showNotification(title, {
     body: d.body || '',
-    icon: 'icon-autisti2-192.png',
-    badge: 'icon-autisti2-192.png',
+    icon: 'icon-autisti3-192.png',
+    badge: 'icon-autisti3-192.png',
     tag: d.tag || undefined,
     renotify: !!d.tag,
     data: { url: d.url || './' }
