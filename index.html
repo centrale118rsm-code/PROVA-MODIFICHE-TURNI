@@ -695,12 +695,12 @@
         @keyframes splashDotPulse { 0%,100%{opacity:0.25; transform:scale(0.8);} 50%{opacity:1; transform:scale(1.15);} }
 
         /* MODALI */
-        #shift-modal,#dinner-modal,#options-modal,#notif-center-modal,#wheel-modal {
+        #shift-modal,#dinner-modal,#options-modal,#notif-center-modal,#wheel-modal,#race-modal {
             display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:3000;
             backdrop-filter:blur(8px); align-items:flex-end; justify-content:center;
             opacity:0; transition:opacity 0.3s;
         }
-        #shift-modal.open,#dinner-modal.open,#options-modal.open,#notif-center-modal.open,#wheel-modal.open { opacity:1; }
+        #shift-modal.open,#dinner-modal.open,#options-modal.open,#notif-center-modal.open,#wheel-modal.open,#race-modal.open { opacity:1; }
         .modal-content {
             background:var(--bg-card); width:100%; max-width:600px; border-radius:24px 24px 0 0;
             box-shadow:0 -10px 40px rgba(0,0,0,0.3); overflow:hidden;
@@ -709,7 +709,7 @@
         }
         #shift-modal.open .modal-content,#dinner-modal.open .modal-content,
         #options-modal.open .modal-content,#notif-center-modal.open .modal-content,
-        #wheel-modal.open .modal-content { transform:translateY(0); }
+        #wheel-modal.open .modal-content,#race-modal.open .modal-content { transform:translateY(0); }
         .modal-header { background:var(--bg); color:var(--text-main); padding:20px 24px; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); }
         .header-text h3 { margin:0; font-size:1.3rem; font-weight:800; color:var(--text-main); display:flex; align-items:center; gap:10px; }
         .header-text span { display:block; font-size:0.9rem; font-weight:600; color:var(--text-sec); margin-top:4px; }
@@ -2684,6 +2684,67 @@
         body.lite #wheel-modal .wh-result.show { animation:whPop 0.45s cubic-bezier(0.34,1.56,0.64,1) !important; }
         body.lite #wheel-modal .wh-confetti i { animation:whFall 1.9s cubic-bezier(0.2,0.7,0.4,1) forwards !important; }
         body.lite #wheel-modal .character-reveal.show { animation:charPop 0.45s cubic-bezier(0.34,1.56,0.64,1) !important; }
+        /* ── GARA DI AMBULANZE (Tempo libero) ─────────────────────────────── */
+        #race-modal .modal-header { background:#fef2f2; border-bottom-color:#fee2e2; }
+        body.dark-mode #race-modal .modal-header { background:#2a1414; border-bottom-color:#3f1d1d; }
+        .rc-stage { padding:10px 14px 4px; display:flex; flex-direction:column; gap:10px; }
+        .rc-board { display:flex; align-items:center; justify-content:center; gap:8px; min-height:40px; padding:8px 12px; border-radius:14px; background:#0f172a; color:#fde68a; font-weight:900; font-size:0.9rem; letter-spacing:0.02em; text-align:center; box-shadow:inset 0 0 0 2px rgba(255,255,255,0.06); }
+        .rc-board .material-icons-round { font-size:20px; color:#f87171; }
+        .rc-board b { color:#fff; }
+        .rc-track { position:relative; border-radius:16px; overflow:hidden; background:#334155; box-shadow:0 14px 30px -18px rgba(15,23,42,0.9), inset 0 0 0 3px #1e293b; }
+        .rc-lane { position:relative; display:flex; align-items:center; height:var(--rc-h,48px); border-bottom:2px dashed rgba(255,255,255,0.28); }
+        .rc-lane:last-child { border-bottom:none; }
+        .rc-lane:nth-child(odd) { background:rgba(255,255,255,0.035); }
+        .rc-name { width:96px; flex-shrink:0; height:100%; display:flex; align-items:center; gap:6px; padding:0 6px 0 8px; background:#1e293b; color:#e2e8f0; font-weight:800; font-size:0.72rem; border-right:4px solid #f8fafc; z-index:2; }
+        .rc-name i { font-style:normal; flex-shrink:0; width:18px; height:18px; border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:0.66rem; font-weight:900; color:#fff; }
+        .rc-name span { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+        .rc-road { position:relative; flex:1; height:100%; }
+        .rc-finish { position:absolute; top:0; bottom:0; right:0; width:12px; z-index:1; background:repeating-conic-gradient(#0f172a 0 25%, #f8fafc 0 50%) 0 0/12px 12px; }
+        .rc-car { position:absolute; left:0; top:50%; width:calc(var(--rc-h,48px) - 6px); height:calc(var(--rc-h,48px) - 6px); margin-top:calc((var(--rc-h,48px) - 6px) / -2); z-index:3; will-change:transform; }
+        .rc-car img { width:100%; height:100%; display:block; transform:scaleX(-1); filter:drop-shadow(0 3px 2px rgba(0,0,0,0.45)); }
+        .rc-car .rc-siren { position:absolute; top:25%; left:61%; width:12%; height:9%; border-radius:50%; opacity:0; }
+        .rc-track.running .rc-car .rc-siren { animation:rcSiren 0.36s steps(1) infinite; }
+        @keyframes rcSiren { 0% { opacity:1; background:#3b82f6; box-shadow:0 0 10px 4px rgba(59,130,246,0.85); } 50% { opacity:1; background:#ef4444; box-shadow:0 0 10px 4px rgba(239,68,68,0.85); } }
+        .rc-track.running .rc-car:not(.done):not(.broken) img { animation:rcBump 0.18s ease-in-out infinite alternate; }
+        @keyframes rcBump { to { transform:scaleX(-1) translateY(-1.5px) rotate(-1.5deg); } }
+        .rc-car.broken img { animation:rcShake 0.09s linear infinite; filter:grayscale(0.6) drop-shadow(0 3px 2px rgba(0,0,0,0.45)); }
+        .rc-car.broken .rc-siren { animation:none !important; opacity:0 !important; }
+        @keyframes rcShake { 0% { transform:scaleX(-1) translateX(-1px); } 50% { transform:scaleX(-1) translateX(1px) rotate(2deg); } 100% { transform:scaleX(-1) translateX(-1px); } }
+        .rc-smoke { position:absolute; left:10%; top:0; width:14px; height:14px; border-radius:50%; background:rgba(148,163,184,0.9); pointer-events:none; animation:rcSmoke 1s ease-out forwards; }
+        @keyframes rcSmoke { from { opacity:0.95; transform:translate(0,0) scale(0.6); } to { opacity:0; transform:translate(-26px,-22px) scale(2.4); } }
+        .rc-bubble { position:absolute; bottom:88%; left:30%; white-space:nowrap; background:#fff; color:#b91c1c; font-size:0.62rem; font-weight:900; padding:2px 6px; border-radius:8px; box-shadow:0 2px 6px rgba(0,0,0,0.35); animation:whPop 0.3s ease-out; }
+        .rc-rank { position:absolute; right:calc(var(--rc-h,48px) + 12px); top:50%; transform:translateY(-50%); z-index:4; min-width:28px; height:24px; padding:0 6px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-weight:900; font-size:0.78rem; color:#0f172a; background:#e2e8f0; box-shadow:0 3px 8px rgba(0,0,0,0.4); animation:whPop 0.35s cubic-bezier(0.34,1.56,0.64,1); }
+        .rc-rank.p1 { background:linear-gradient(135deg,#fde047,#f59e0b); } .rc-rank.p2 { background:linear-gradient(135deg,#f1f5f9,#94a3b8); } .rc-rank.p3 { background:linear-gradient(135deg,#fdba74,#c2410c); color:#fff; }
+        .rc-rank.last { background:#0f172a; color:#fff; border:1px solid #475569; }
+        .rc-count { position:absolute; inset:0; z-index:9; display:none; align-items:center; justify-content:center; background:rgba(15,23,42,0.45); }
+        .rc-count.show { display:flex; }
+        .rc-count b { font-size:3.4rem; font-weight:900; color:#fff; text-shadow:0 4px 18px rgba(0,0,0,0.6); animation:whPop 0.4s cubic-bezier(0.34,1.56,0.64,1); }
+        .rc-count b.go { color:#4ade80; }
+        .rc-results { display:flex; flex-direction:column; gap:8px; }
+        .rc-results:empty { display:none; }
+        .rc-win { position:relative; text-align:center; padding:14px 16px; border-radius:18px; background:linear-gradient(135deg,#dc2626,#f97316); color:#fff; box-shadow:0 14px 30px -14px rgba(220,38,38,0.8); animation:whPop 0.45s cubic-bezier(0.34,1.56,0.64,1); }
+        .rc-win small { display:block; font-size:0.74rem; font-weight:800; opacity:0.9; text-transform:uppercase; letter-spacing:0.06em; }
+        .rc-win b { display:block; font-size:1.55rem; font-weight:900; line-height:1.15; margin-top:2px; }
+        .rc-row { display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:12px; background:var(--bg); border:1px solid var(--border); font-weight:800; color:var(--text-main); }
+        .rc-row .rc-pos { width:34px; flex-shrink:0; font-weight:900; color:var(--text-sec); }
+        .rc-row .rc-who { flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+        .rc-row .rc-gap { font-size:0.75rem; font-weight:700; color:var(--text-sec); }
+        .rc-row.first { border-color:#f59e0b; background:rgba(245,158,11,0.1); }
+        .rc-last { margin-top:2px; padding:14px 16px; border-radius:18px; background:#0f172a; color:#f8fafc; display:flex; gap:12px; align-items:flex-start; animation:whPop 0.45s cubic-bezier(0.34,1.56,0.64,1); }
+        .rc-last .material-icons-round { font-size:30px; color:#f87171; flex-shrink:0; }
+        .rc-last small { display:block; font-size:0.7rem; font-weight:800; color:#fca5a5; text-transform:uppercase; letter-spacing:0.06em; }
+        .rc-last b { display:block; font-size:1.1rem; font-weight:900; margin-top:1px; }
+        .rc-last span { display:block; font-size:0.82rem; font-weight:700; color:#cbd5e1; margin-top:4px; }
+        .rc-actions { display:flex; gap:10px; padding:4px 14px 20px; }
+        .rc-actions button { flex:1; margin:0; width:auto; }
+        #race-go-btn { background:linear-gradient(135deg,#dc2626,#b91c1c); box-shadow:0 6px 16px rgba(185,28,28,0.4); }
+        /* in modalità leggera le animazioni sono spente: per la gara restano accese */
+        body.lite #race-modal .rc-track.running .rc-car .rc-siren { animation:rcSiren 0.36s steps(1) infinite !important; }
+        body.lite #race-modal .rc-track.running .rc-car:not(.done):not(.broken) img { animation:rcBump 0.18s ease-in-out infinite alternate !important; }
+        body.lite #race-modal .rc-car.broken img { animation:rcShake 0.09s linear infinite !important; }
+        body.lite #race-modal .rc-smoke { animation:rcSmoke 1s ease-out forwards !important; }
+        body.lite #race-modal .rc-count b, body.lite #race-modal .rc-rank, body.lite #race-modal .rc-win, body.lite #race-modal .rc-last, body.lite #race-modal .rc-bubble { animation:whPop 0.4s cubic-bezier(0.34,1.56,0.64,1) !important; }
+        body.lite #race-modal .wh-confetti i { animation:whFall 1.9s cubic-bezier(0.2,0.7,0.4,1) forwards !important; }
         .wheel-assign-list { padding:0 20px 8px; display:flex; flex-direction:column; gap:8px; }
         .wheel-assign-item { background:var(--bg); border:1px solid var(--border); border-radius:12px; padding:12px 14px; display:flex; justify-content:space-between; align-items:center; font-weight:700; }
         .wheel-assign-item .wa-time { color:#ea580c; font-weight:900; }
@@ -3745,6 +3806,48 @@
                 <button class="btn-wheel-primary" id="wheel-restart-btn" style="display:none;background:linear-gradient(135deg,#64748b,#475569);" onclick="goToWheelStep(1)">
                     <span class="material-icons-round">refresh</span> RICOMINCIA
                 </button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div id="race-modal" onclick="closeRaceModal(event)">
+    <div class="modal-content" onclick="event.stopPropagation()" style="height:92vh;max-height:92vh;">
+        <div class="modal-header">
+            <div class="header-text">
+                <h3 style="color:#dc2626"><span class="material-icons-round" style="margin-right:8px">sports_score</span> GARA DI AMBULANZE</h3>
+                <span style="color:#f87171" id="race-subtitle">Su chi scommetti?</span>
+            </div>
+            <button class="btn-close-modal" onclick="closeRaceModal()">
+                <span class="material-icons-round">close</span>
+            </button>
+        </div>
+        <div class="modal-body" style="background:var(--bg-card);display:flex;flex-direction:column;height:100%;overflow-y:auto;">
+
+            <!-- STEP 1: chi corre -->
+            <div id="race-step-1">
+                <div style="display:flex;justify-content:space-between;align-items:center;padding-right:20px;">
+                    <div class="dinner-section-title">1. CHI SCENDE IN PISTA?</div>
+                    <button onclick="toggleAllRaceDrivers()" style="background:none;border:none;color:var(--primary);font-weight:bold;cursor:pointer;font-size:0.8rem;padding:10px;">Tutti/Nessuno</button>
+                </div>
+                <div class="dinner-checkbox-list" id="race-driver-list"></div>
+                <button class="btn-wheel-primary" id="race-step1-continue" onclick="goToRaceTrack()" disabled style="background:linear-gradient(135deg,#dc2626,#b91c1c);box-shadow:0 6px 16px rgba(185,28,28,0.4);">
+                    <span class="material-icons-round">sports_score</span> IN GRIGLIA (min. 2)
+                </button>
+            </div>
+
+            <!-- STEP 2: la pista -->
+            <div id="race-step-2" style="display:none;">
+                <div class="wheel-steps-nav" onclick="goToRaceStep1()"><span class="material-icons-round" style="font-size:18px">arrow_back</span> Cambia operatori</div>
+                <div class="rc-stage">
+                    <div class="rc-board" id="race-board"><span class="material-icons-round">campaign</span> Fate le vostre scommesse, poi premi VIA!</div>
+                    <div class="rc-track" id="race-track"></div>
+                    <div class="rc-results" id="race-results"></div>
+                </div>
+                <div class="rc-actions">
+                    <button class="btn-spin" id="race-go-btn" onclick="startRace()">VIA!</button>
+                </div>
             </div>
 
         </div>
@@ -5570,9 +5673,10 @@
             { id:'equita', icon:'balance', label:'Equità dell’anno', desc:'Notti, weekend, festivi e reperibilità di ognuno', color:'#0f766e', run: () => openEquity() },
             { group:'Squadra' },
             { id:'share', icon:'share', label:'Condividi l’app', desc:'Mandala su WhatsApp a chi non ce l’ha', color:'#16a34a', stay:true, run: () => shareAppWhatsApp() },
-            { id:'svago', icon:'celebration', label:'Tempo libero', desc:'Uscite di gruppo e ruota della sfiga', color: MN_COLORS.svago, children: [
+            { id:'svago', icon:'celebration', label:'Tempo libero', desc:'Uscite di gruppo, ruota della sfiga e gara di ambulanze', color: MN_COLORS.svago, children: [
                 { id:'dinner', icon:'restaurant', label:'Organizza un\u2019uscita', desc:'Chi è libero per colazione, pranzo, cena…', color: MN_COLORS.svago, run: () => openDinnerModal() },
-                { id:'wheel', icon:'casino', label:'La ruota della sfiga', desc:'Estrai a sorte chi tocca', color: MN_COLORS.svago, run: () => openWheelModal() }
+                { id:'wheel', icon:'casino', label:'La ruota della sfiga', desc:'Estrai a sorte chi tocca', color: MN_COLORS.svago, run: () => openWheelModal() },
+                { id:'race', icon:'sports_score', label:'Gara di ambulanze', desc:'Scommetti su chi arriva primo', color: MN_COLORS.svago, run: () => openRaceModal() }
             ] },
             { id:'link', icon:'apps', label:'Collegamenti', desc:'Richieste e turni autisti', color: MN_COLORS.link, children: [
                 { id:'req', icon:'assignment', label:'Richieste', desc:'Ferie, permessi, cambi turno, cessioni', color: MN_COLORS.link, run: () => window.openRichiestePanel && window.openRichiestePanel() },
@@ -14687,6 +14791,215 @@
         document.getElementById('dinner-step-1').style.display='none'; document.getElementById('dinner-step-2').style.display='block';
     }
 
+    // ── GARA DI AMBULANZE ────────────────────────────────────────────────────
+    // Ogni operatore scelto è un'ambulanza in pista. L'ordine d'arrivo è estratto a
+    // caso alla partenza (come la ruota); durante la corsa le ambulanze si superano
+    // a vicenda, poi arrivano nell'ordine estratto. L'ultima rimane in panne.
+    const RACE_LAST_QUOTES = [
+        "Ha messo il navigatore su “percorso panoramico”.",
+        "Si è fermato a fare benzina… e un caffè… e un cornetto.",
+        "Sirena accesa, freno a mano tirato.",
+        "Ha dato la precedenza anche ai piccioni.",
+        "Il mezzo era in riserva dal 2019.",
+        "Era convinto fosse un trasporto secondario.",
+        "Ha chiesto indicazioni a un passante.",
+        "Ha controllato la pressione delle gomme. Tutte e quattro. Due volte.",
+        "Ha trovato tutti i semafori rossi. Anche quelli spenti.",
+        "Ha fatto la check-list del mezzo durante la gara.",
+        "Ha parcheggiato in retromarcia prima del traguardo.",
+        "Doveva ancora sistemare la barella."
+    ];
+    let raceDrivers = [], raceRunning = false, raceRaf = 0, raceTimers = [];
+
+    function openRaceModal() {
+        closeMenu();
+        raceStop();
+        const m = document.getElementById('race-modal');
+        m.style.display = 'flex';
+        setTimeout(() => m.classList.add('open'), 10);
+        setCurrentView("Gara di ambulanze");
+        goToRaceStep1();
+    }
+    function closeRaceModal(e) {
+        if(e && e.target !== e.currentTarget) return;
+        raceStop();
+        const m = document.getElementById('race-modal'); m.classList.remove('open'); setTimeout(() => m.style.display = 'none', 200);
+    }
+    function raceStop() {
+        raceRunning = false;
+        if(raceRaf) cancelAnimationFrame(raceRaf); raceRaf = 0;
+        raceTimers.forEach(t => clearTimeout(t)); raceTimers = [];
+        if(window._raceSiren) { try { window._raceSiren.stop(); } catch(e) {} window._raceSiren = null; }
+    }
+    function raceLater(fn, ms) { raceTimers.push(setTimeout(fn, ms)); }
+
+    function goToRaceStep1() {
+        vibrate(); raceStop();
+        document.getElementById('race-step-2').style.display = 'none';
+        document.getElementById('race-step-1').style.display = 'block';
+        const dl = document.getElementById('race-driver-list'); dl.innerHTML = '';
+        drivers.forEach(d => {
+            const on = raceDrivers.includes(d.name);
+            const l = document.createElement('label'); l.className = 'dinner-check-item' + (on ? ' checked' : '');
+            l.innerHTML = `<input type="checkbox" value="${esc(d.name)}" ${on ? 'checked' : ''} onchange="this.parentElement.classList.toggle('checked');updateRaceContinueBtn();vibrate()"><div class="dinner-check-icon"><span class="material-icons-round" style="font-size:14px">check</span></div>${esc(d.name)}`;
+            dl.appendChild(l);
+        });
+        updateRaceContinueBtn();
+    }
+    function updateRaceContinueBtn() {
+        const n = document.querySelectorAll('#race-driver-list input:checked').length;
+        document.getElementById('race-step1-continue').disabled = n < 2;
+    }
+    function toggleAllRaceDrivers() {
+        const boxes = document.querySelectorAll('#race-driver-list input');
+        const allOn = Array.from(boxes).every(b => b.checked);
+        boxes.forEach(b => { b.checked = !allOn; b.parentElement.classList.toggle('checked', !allOn); });
+        updateRaceContinueBtn(); vibrate();
+    }
+
+    function goToRaceTrack() {
+        raceDrivers = Array.from(document.querySelectorAll('#race-driver-list input:checked')).map(b => b.value);
+        if(raceDrivers.length < 2) return;
+        vibrate();
+        document.getElementById('race-step-1').style.display = 'none';
+        document.getElementById('race-step-2').style.display = 'block';
+        raceBuildTrack();
+    }
+
+    function raceBuildTrack() {
+        raceStop();
+        const n = raceDrivers.length;
+        const h = n <= 6 ? 50 : n <= 10 ? 42 : n <= 16 ? 34 : 28;
+        const track = document.getElementById('race-track');
+        track.className = 'rc-track'; track.style.setProperty('--rc-h', h + 'px');
+        track.innerHTML = raceDrivers.map((name, i) => `
+            <div class="rc-lane" data-i="${i}">
+                <div class="rc-name"><i style="background:${WHEEL_COLORS[i % WHEEL_COLORS.length]}">${i + 1}</i><span>${esc(name)}</span></div>
+                <div class="rc-road"><div class="rc-finish"></div><div class="rc-car"><img src="ambulanza.png" alt=""><span class="rc-siren"></span></div></div>
+            </div>`).join('') + '<div class="rc-count" id="race-count"></div>';
+        document.getElementById('race-results').innerHTML = '';
+        raceBoard('campaign', 'Fate le vostre scommesse, poi premi <b>VIA!</b>');
+        const btn = document.getElementById('race-go-btn'); btn.disabled = false; btn.innerText = 'VIA!';
+        document.getElementById('race-subtitle').innerText = n + ' ambulanze in griglia';
+    }
+    function raceBoard(icon, html) { document.getElementById('race-board').innerHTML = `<span class="material-icons-round">${icon}</span><span>${html}</span>`; }
+
+    // suoni: bip del semaforo, sirena bitonale leggera durante la corsa, fanfara all'arrivo
+    function raceBeep(freq, dur) {
+        try { const ctx = getWheelAudioCtx(); const o = ctx.createOscillator(), g = ctx.createGain(); o.type = 'square'; o.frequency.value = freq; g.gain.value = 0.08; o.connect(g); g.connect(ctx.destination); o.start(); o.stop(ctx.currentTime + dur); } catch(e) {}
+    }
+    function raceSirenStart(seconds) {
+        try {
+            const ctx = getWheelAudioCtx(); const o = ctx.createOscillator(), g = ctx.createGain(); const t0 = ctx.currentTime;
+            o.type = 'triangle'; g.gain.setValueAtTime(0.0001, t0); g.gain.exponentialRampToValueAtTime(0.05, t0 + 0.2);
+            for(let t = 0; t < seconds; t += 0.9) { o.frequency.setValueAtTime(960, t0 + t); o.frequency.setValueAtTime(720, t0 + t + 0.45); }
+            g.gain.setValueAtTime(0.05, t0 + seconds - 0.3); g.gain.exponentialRampToValueAtTime(0.0001, t0 + seconds);
+            o.connect(g); g.connect(ctx.destination); o.start(t0); o.stop(t0 + seconds + 0.05);
+            window._raceSiren = o;
+        } catch(e) {}
+    }
+    function raceFanfare() {
+        try { const ctx = getWheelAudioCtx(); const t0 = ctx.currentTime;
+            [523, 659, 784, 1047].forEach((f, i) => { const o = ctx.createOscillator(), g = ctx.createGain(); const st = t0 + i * 0.13; o.type = 'triangle'; o.frequency.value = f; g.gain.setValueAtTime(0.001, st); g.gain.exponentialRampToValueAtTime(0.14, st + 0.02); g.gain.exponentialRampToValueAtTime(0.001, st + (i === 3 ? 0.5 : 0.14)); o.connect(g); g.connect(ctx.destination); o.start(st); o.stop(st + 0.55); });
+        } catch(e) {}
+    }
+
+    function startRace() {
+        if(raceRunning) return;
+        raceBuildTrack();
+        raceRunning = true;
+        const btn = document.getElementById('race-go-btn'); btn.disabled = true; btn.innerText = 'IN CORSA…';
+        const cnt = document.getElementById('race-count'); cnt.classList.add('show');
+        raceBoard('traffic', 'Motori accesi…');
+        ['3', '2', '1'].forEach((s, i) => raceLater(() => { cnt.innerHTML = `<b>${s}</b>`; raceBeep(520, 0.12); vibrate(); }, i * 750));
+        raceLater(() => { cnt.innerHTML = '<b class="go">VIA!</b>'; raceBeep(1040, 0.35); }, 2250);
+        raceLater(() => { cnt.classList.remove('show'); raceRun(); }, 2700);
+    }
+
+    function raceRun() {
+        const n = raceDrivers.length;
+        // ordine d'arrivo estratto a caso, poi i tempi: il primo arriva in 6-7 s, gli altri a distanza
+        const order = shuffleArr(raceDrivers.map((_, i) => i));
+        const T = new Array(n); let t = 6000 + Math.random() * 1000;
+        order.forEach((idx, k) => { if(k) t += 220 + Math.random() * 480; T[idx] = t; });
+        const lastIdx = order[n - 1], PANNE = 1600, panneAt = 0.72 + Math.random() * 0.12;
+        // andatura: u + somma di seni nulli a partenza e arrivo (sorpassi senza mai tornare indietro)
+        const prof = raceDrivers.map(() => [(Math.random() * 2 - 1) * 0.12, (Math.random() * 2 - 1) * 0.06, (Math.random() * 2 - 1) * 0.025]);
+        const pos = (i, ms) => {
+            let tt = ms;
+            if(i === lastIdx) { const tb = T[i] * panneAt; tt = ms < tb ? ms : ms < tb + PANNE ? tb : ms - PANNE; }
+            const u = Math.min(1, tt / T[i]); const a = prof[i];
+            return Math.min(1, u + a[0] * Math.sin(Math.PI * u) + a[1] * Math.sin(2 * Math.PI * u) + a[2] * Math.sin(3 * Math.PI * u));
+        };
+        const lanes = Array.from(document.querySelectorAll('#race-track .rc-lane'));
+        const cars = lanes.map(l => l.querySelector('.rc-car'));
+        const roadW = lanes[0].querySelector('.rc-road').clientWidth;
+        const span = Math.max(40, roadW - cars[0].offsetWidth - 14);
+        const track = document.getElementById('race-track'); track.classList.add('running');
+        const total = T[lastIdx] + PANNE;
+        raceSirenStart(total / 1000);
+        const arrived = []; let leader = -1, broken = false, smokeAt = 0;
+        const t0 = performance.now();
+        const frame = now => {
+            if(!raceRunning) return;
+            const ms = now - t0;
+            let best = -1, bestX = -1;
+            for(let i = 0; i < n; i++) {
+                const x = pos(i, ms);
+                cars[i].style.transform = `translateX(${(x * span).toFixed(1)}px)`;
+                if(x >= 1 && !arrived.includes(i)) raceArrive(i, arrived, lanes, cars);
+                if(!arrived.includes(i) && x > bestX) { bestX = x; best = i; }
+            }
+            // l'ultima resta in panne per un po'
+            const tb = T[lastIdx] * panneAt;
+            if(!broken && ms >= tb && ms < tb + PANNE) {
+                broken = true; cars[lastIdx].classList.add('broken');
+                const b = document.createElement('span'); b.className = 'rc-bubble'; b.textContent = 'IN PANNE!'; cars[lastIdx].appendChild(b);
+                raceBoard('car_crash', `<b>${esc(raceDrivers[lastIdx])}</b> è rimasto in panne!`); raceBeep(160, 0.4);
+            }
+            if(broken && ms < tb + PANNE && ms - smokeAt > 160) {
+                smokeAt = ms; const s = document.createElement('span'); s.className = 'rc-smoke'; cars[lastIdx].appendChild(s); setTimeout(() => s.remove(), 1000);
+            }
+            if(broken && ms >= tb + PANNE && cars[lastIdx].classList.contains('broken')) {
+                cars[lastIdx].classList.remove('broken'); const b = cars[lastIdx].querySelector('.rc-bubble'); if(b) b.remove();
+            }
+            if(!arrived.length && best !== leader && !(broken && ms < tb + PANNE)) { leader = best; raceBoard('campaign', `In testa: <b>${esc(raceDrivers[best])}</b>`); }
+            if(arrived.length && arrived.length < n && !(broken && ms < tb + PANNE)) raceBoard('flag', `Vince <b>${esc(raceDrivers[arrived[0]])}</b>! Arrivano gli altri…`);
+            if(arrived.length < n) raceRaf = requestAnimationFrame(frame);
+            else raceFinish(arrived, T);
+        };
+        raceRaf = requestAnimationFrame(frame);
+    }
+
+    function raceArrive(i, arrived, lanes, cars) {
+        arrived.push(i);
+        const k = arrived.length, n = raceDrivers.length;
+        cars[i].classList.add('done');
+        const r = document.createElement('div'); r.className = 'rc-rank' + (k <= 3 ? ' p' + k : '') + (k === n ? ' last' : '');
+        r.textContent = k === n ? 'ULT.' : k + '°';
+        lanes[i].querySelector('.rc-road').appendChild(r);
+        if(k === 1) { raceFanfare(); if(navigator.vibrate && !(prefs && prefs.haptics === false)) navigator.vibrate([30, 40, 60]); }
+        else raceBeep(880, 0.06);
+    }
+
+    function raceFinish(arrived, T) {
+        raceRunning = false; raceRaf = 0;
+        document.getElementById('race-track').classList.remove('running');
+        const n = arrived.length, win = raceDrivers[arrived[0]], last = raceDrivers[arrived[n - 1]];
+        raceBoard('emoji_events', `Ha vinto <b>${esc(win)}</b>!`);
+        const medal = k => k === 1 ? '🥇' : k === 2 ? '🥈' : k === 3 ? '🥉' : k + '°';
+        const t1 = T[arrived[0]];
+        const rows = arrived.slice(0, n - 1).map((i, k) => `<div class="rc-row${k === 0 ? ' first' : ''}"><span class="rc-pos">${medal(k + 1)}</span><span class="rc-who">${esc(raceDrivers[i])}</span><span class="rc-gap">${k ? '+' + ((T[i] - t1) / 1000).toFixed(2).replace('.', ',') + ' s' : 'vincitore'}</span></div>`).join('');
+        const quote = RACE_LAST_QUOTES[Math.floor(Math.random() * RACE_LAST_QUOTES.length)];
+        const res = document.getElementById('race-results');
+        res.innerHTML = `<div class="rc-win"><small>Primo al traguardo</small><b>${esc(win)}</b><div class="wh-confetti" id="race-confetti"></div></div>${rows}
+            <div class="rc-last"><span class="material-icons-round">car_crash</span><div><small>Ultimo · ${n}° posto</small><b>${esc(last)}</b><span>${quote}</span></div></div>`;
+        const cf = document.getElementById('race-confetti');
+        for(let c = 0; c < 36; c++) { const el = document.createElement('i'); el.style.left = (40 + Math.random() * 20) + '%'; el.style.background = WHEEL_COLORS[c % WHEEL_COLORS.length]; el.style.setProperty('--dx', (Math.random() * 260 - 130) + 'px'); el.style.setProperty('--dy', (Math.random() * 160 - 40) + 'px'); el.style.setProperty('--rot', (Math.random() * 720 - 360) + 'deg'); el.style.animationDelay = (Math.random() * 0.2) + 's'; cf.appendChild(el); }
+        const btn = document.getElementById('race-go-btn'); btn.disabled = false; btn.innerText = 'RIVINCITA!';
+        setTimeout(() => res.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 300);
+    }
+
     // ── LA RUOTA DELLA SFIGA ─────────────────────────────────────────────────
     const WHEEL_COLORS = ['#d6266f','#8b3ce0','#2563eb','#f97316','#16a34a','#0891b2','#ca8a04','#dc2626','#059669','#4338ca','#ea580c','#0d9488'];
     const IRONIC_QUOTES = [
@@ -15078,6 +15391,7 @@
         'access-detail-modal': closeAccessDetail,
         'dinner-modal': closeDinnerModal,
         'wheel-modal': closeWheelModal,
+        'race-modal': closeRaceModal,
         'driver-filter-dropdown': closeDriverFilterDropdown,
         'menu-dropdown': toggleMenu
     };
