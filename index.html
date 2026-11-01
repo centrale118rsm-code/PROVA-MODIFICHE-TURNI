@@ -3358,7 +3358,7 @@
                 </div>
                 <div class="ab-kpis" id="ab-kpis"></div>
                 <div class="hg-wrap" id="ab-grid"></div>
-                <p class="hg-note">Ogni anno: 31 giorni di congedo ordinario, 6 permessi straordinari e 2 permessi notte (un permesso notte usa anche un permesso straordinario). Le assenze che cadono su un riposo non contano. Tocca un operatore per il dettaglio.</p>
+                <p class="hg-note">Ogni anno: 31 giorni di congedo ordinario, 6 permessi straordinari e 2 permessi notte (un permesso notte usa anche un permesso straordinario). Le assenze che cadono su un riposo non contano. Le assenze dei turnisti seguono il ciclo del turno come nel file Excel: dopo il turno del giorno prima si continua con pomeriggio, mattina, notte, smonto e riposo (il riposo vale 0 ore e non scala). Tocca un operatore per il dettaglio.</p>
             </div>
             <div id="ab-view-detail" style="display:none"></div>
         </div>
@@ -6310,10 +6310,9 @@
         if(isDiurnoDay(rowIdx, colIdx)) return dt.getDay() === 0 ? 0 : wh * 60 / 6;
         return isContractDay(dt) ? wh * 60 / CONTRACT_WORKDAYS : 0;
     }
-    // ── Ore delle assenze come nel file Excel principale (Autisti 2026.xlsm, foglio CONTEGGI ORARI) ──
-    // Si usano solo dati certi, senza indovinare il turno: 1) le ore importate dal file principale
-    // (al minuto); 2) il permesso notte vale la parte della notte prima di mezzanotte; 3) altrimenti
-    // la giornata di contratto come prima. Un'assenza su un riposo (R sopra, f sotto) non conta.
+    // ── Ore importate dal file principale (Autisti 2026.xlsm, foglio CONTEGGI ORARI) ──
+    // Restano solo come informazione: dal 1/11/2026 le ore delle assenze si calcolano come per gli
+    // infermieri (ciclo del turno, vedi absCycleCode), così combaciano col file anche senza importarlo.
     let absMinImported = {};   // "YYYY-MM-DD|NOME" -> minuti, dal file principale (documento prova_ore_assenze)
     function absImportedMinutes(rowIdx, colIdx) {
         const iso = repRowDate(rowIdx), d = getDriverByIdx(colIdx);
@@ -6321,12 +6320,63 @@
         const v = absMinImported[iso + '|' + d.originalName];
         return typeof v === 'number' ? v : null;
     }
+    // Assenze a giornata intera dei turnisti (C.O., ferie residue, P.S., recuperi, malattia, festivi
+    // non lavorati, studio…): come nel file Excel valgono le ore del turno che coprono e seguono il
+    // ciclo P › M › N › SM › R. Il ciclo continua dal turno del giorno prima del blocco di assenze
+    // (dopo una mattina si parte dalla notte, dopo un riposo dal pomeriggio; dopo un turno da
+    // diurnista o una casella vuota dal pomeriggio). Se sopra l'assenza è scritto il turno (P, M, N,
+    // S, R) vale quello. Il riposo vale 0 ore e non scala giorni. Il festivo non goduto resta a 6 h,
+    // il permesso notte vale la notte e il giorno dopo lo smonto. (Stesso calcolo dell'app infermieri.)
+    // autisti: nel file Excel anche il distacco (k) e il permesso legge (pl) seguono il ciclo del turno
+    const ABS_CYCLE = { f:1, v:1, r:1, m:1, p:1, c:1, nl:1, gr:1, s:1, l:1, a:1, k:1, pl:1 };
+    const ABS_CYCLE_NEXT = { P:'M', M:'N', N:'SM', SM:'R', R:'P' };
+    function absTurnCode(v) {   // turno da turnista scritto nella casella (P, M, N, SM, R), 'd' se da diurnista, o ''
+        let u = String(v || '').trim(); const i = u.indexOf('/'); if(i !== -1) u = u.slice(0, i).trim();
+        if(/^[a-z]/.test(u)) return 'd';
+        u = u.toUpperCase().replace(/\s+/g, '');
+        if(u === 'M+N' || u === 'MN') return 'N';
+        if(u === 'S') return 'SM';
+        if(u === 'RIPOSO') return 'R';
+        return ABS_CYCLE_NEXT[u] ? u : '';
+    }
+    function absCycleCode(rowIdx, colIdx) {
+        const cellAt = r => (finalData[r] || [])[colIdx] || {}, sub = r => String(cellAt(r).subV || '').trim().toLowerCase();
+        const inBlock = r => r >= 1 && finalData[r] && (ABS_CYCLE[sub(r)] || sub(r) === 'ng' || sub(r) === 'pn' || (r - 1 >= 1 && sub(r - 1) === 'pn' && pnTailFree(cellAt(r))));
+        if(!finalData[rowIdx] || !ABS_CYCLE[sub(rowIdx)]) return null;
+        let start = rowIdx; while(inBlock(start - 1)) start--;
+        const before = start - 1 >= 1 ? absTurnCode(cellAt(start - 1).v) : '';
+        // un giorno solo tra due giorni da diurnista (es. un recupero isolato): vale una giornata da diurnista
+        if(before === 'd' && start === rowIdx && !inBlock(rowIdx + 1) && rowIdx + 1 < finalData.length && absTurnCode(cellAt(rowIdx + 1).v) === 'd') return sub(rowIdx) === 'nl' ? 'F6' : 'D';
+        let code = before && before !== 'd' ? before : 'R', flat = false;
+        for(let r = start; r <= rowIdx; r++) {
+            const own = absTurnCode(cellAt(r).v);
+            flat = false;
+            if(sub(r) === 'pn') code = 'N';
+            else if(own && own !== 'd') code = own;
+            else if(r === start && before === 'd' && sub(r) === 'nl') flat = true;   // festivo dopo un diurno: 6 h, il ciclo parte dopo
+            else code = ABS_CYCLE_NEXT[code];
+        }
+        return flat ? 'F6' : code;
+    }
+    // ore di un giorno di assenza secondo absCycleCode
+    function absCycleMinutes(code, rowIdx, colIdx) {
+        if(code === 'D') return minutesFromRange(diurniSched('m', repRowDate(rowIdx)));
+        if(code === 'F6') return getContractHours(colIdx) * 60 / 6;
+        return minutesFromRange(SCHEDULE[code]);
+    }
     function justifiedDayMinutes(rowIdx, colIdx) {
         const cell = (finalData[rowIdx] || [])[colIdx] || {};
+        const sb = String(cell.subV || '').trim().toLowerCase();
+        if(sb === 'pn') return minutesFromRange(SCHEDULE["N"]);
+        const coc = absCycleCode(rowIdx, colIdx); if(coc) return absCycleMinutes(coc, rowIdx, colIdx);
         const own = String(cell.v || '').split('/')[0].trim();
         if(/^(r|riposo)$/i.test(own)) return 0;
-        const imp = absImportedMinutes(rowIdx, colIdx); if(imp !== null) return imp;
-        if(String(cell.subV || '').trim().toLowerCase() === 'pn') return minutesFromRange(SCHEDULE["N"]);
+        if(sb === 'ng') return getContractHours(colIdx) * 60 / 6;   // festivo non goduto: 6 h
+        if(sb === 'k') return 0;   // distacco speciale: 0 ore, come nel file Excel
+        if(sb === 'z') {           // sostituzione coordinatore: le ore del turno scritto sopra, se no una mattina da diurnista
+            if(own && own !== '-') { const t = /^[a-z]/.test(own) ? diurniSched(own, repRowDate(rowIdx)) : SCHEDULE[own.toUpperCase()]; if(t !== undefined) return minutesFromRange(t); }
+            return minutesFromRange(diurniSched('m', repRowDate(rowIdx)));
+        }
         return contractDayMinutesAt(rowIdx, colIdx);
     }
     function listenAbsMinutes() {
@@ -8029,9 +8079,7 @@
         ccGo('importa'); importPickFile();
     }
     function absImportInfoHtml() {
-        const n = Object.keys(absMinImported).length;
-        return n ? `<p class="cc-note" style="margin-top:10px">Ore delle assenze dal file principale: <b>${n}</b> giorni. Il conteggio orario usa queste ore, al minuto; per le assenze inserite dopo ricava il turno dai giorni vicini.</p>`
-            : `<p class="cc-note" style="margin-top:10px">Ore delle assenze dal file principale: non ancora importate. Finché non lo carichi, per le assenze l’app ricava il turno che l’autista avrebbe fatto dai giorni vicini.</p>`;
+        return `<p class="cc-note" style="margin-top:10px">Ore delle assenze: l’app le calcola come il file Excel (foglio CONTEGGI ORARI), seguendo il ciclo del turno P › M › N › S › R, senza bisogno di importarle. Se un giorno nel file ha ore scritte a mano diverse, correggilo con «Ore a mano» in Modifica turni.</p>`;
     }
     function renderCcImport() {
         const main = document.getElementById('cc-main'); if(!main) return;
@@ -9210,7 +9258,7 @@
         });
         document.getElementById('ab-grid').innerHTML = xgHtml('ab2', headL, head, body, year ? 860 + (psShown ? 70 : 0) + (otherShown ? 60 : 0) : 640);
         const note = document.querySelector('#ab-view-grid .hg-note');
-        if(note) note.innerHTML = `${year ? '<span class="ab-leg"><i class="done"></i>già fatti fino a oggi</span><span class="ab-leg"><i class="plan"></i>in programma</span><span class="ab-leg"><i class="free"></i>restano</span><br>' : ''}Ogni anno: ${ABS_ALLOW.co} giorni di congedo ordinario, ${ABS_ALLOW.sp} permessi straordinari, ${ABS_ALLOW.pn} permessi notte (un permesso notte usa anche un permesso straordinario) e ${PERM_HOURLY.pl.max} ore di permesso legge; chi ne ha meno (es. i nuovi assunti) ha le sue spettanze in Area coordinatore › Operatori. Le assenze che cadono su un riposo non contano. Tocca un nome per il dettaglio.`;
+        if(note) note.innerHTML = `${year ? '<span class="ab-leg"><i class="done"></i>già fatti fino a oggi</span><span class="ab-leg"><i class="plan"></i>in programma</span><span class="ab-leg"><i class="free"></i>restano</span><br>' : ''}Ogni anno: ${ABS_ALLOW.co} giorni di congedo ordinario, ${ABS_ALLOW.sp} permessi straordinari, ${ABS_ALLOW.pn} permessi notte (un permesso notte usa anche un permesso straordinario) e ${PERM_HOURLY.pl.max} ore di permesso legge; chi ne ha meno (es. i nuovi assunti) ha le sue spettanze in Area coordinatore › Operatori. Le assenze che cadono su un riposo non contano. Le assenze dei turnisti seguono il ciclo del turno come nel file Excel: dopo il turno del giorno prima si continua con pomeriggio, mattina, notte, smonto e riposo (il riposo vale 0 ore e non scala). Tocca un nome per il dettaglio.`;
     }
     // dettaglio della persona: contatori con fatti/in programma/restano e grafico mese per mese
     function renderAbsDetail() {
@@ -10678,7 +10726,7 @@
             const cell = finalData[dd.rowIdx][d.idx] || {};
             const sub = (cell.subV || '').toString().trim().toLowerCase();
             let v = (cell.v || '').toString().trim(); if(isRepStr(v)) v = v.slice(0, v.indexOf('/')).trim();
-            if(SPECIAL_SUBCODES[sub] !== undefined) { if(!/^r(iposo)?$/i.test(v)) add(sub, dd); return; }   // assenza su un riposo: non conta
+            if(SPECIAL_SUBCODES[sub] !== undefined) { if(absCycleCode(dd.rowIdx, d.idx) !== 'R' && !(!ABS_CYCLE[sub] && /^r(iposo)?$/i.test(v))) add(sub, dd); return; }   // assenza su un riposo (anche il riposo del ciclo del turno): non conta
             const info = computeDayInfo(dd.rowIdx, d.idx);
             if(!WORK_SHIFTS.has(info.code) || !info.minutes) return;
             if(dd.date.getDay() === 0) add('dom', dd);
@@ -10694,7 +10742,7 @@
                 if(shiftRowYear(r) !== SHIFT_YEAR + 1) continue;
                 const cell = finalData[r][d.idx] || {}, sub = (cell.subV || '').toString().trim().toLowerCase();
                 let v = (cell.v || '').toString().trim(); if(isRepStr(v)) v = v.slice(0, v.indexOf('/')).trim();
-                if(!/^r(iposo)?$/i.test(v) && (sub === 'v' || (sub === 'f' && MONTH_MAP[finalData[r][0].v] < CO_CARRY_MONTHS))) { add('f', { date: new Date(SHIFT_YEAR + 1, MONTH_MAP[finalData[r][0].v], parseInt(finalData[r][1].v)) }); nextF++; }
+                if(absCycleCode(r, d.idx) !== 'R' && !(!ABS_CYCLE[sub] && /^r(iposo)?$/i.test(v)) && (sub === 'v' || (sub === 'f' && MONTH_MAP[finalData[r][0].v] < CO_CARRY_MONTHS))) { add('f', { date: new Date(SHIFT_YEAR + 1, MONTH_MAP[finalData[r][0].v], parseInt(finalData[r][1].v)) }); nextF++; }
             }
         }
         const n = k => counts[k] || 0;
