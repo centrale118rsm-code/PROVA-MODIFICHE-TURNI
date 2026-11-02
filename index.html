@@ -3082,37 +3082,13 @@ body.tl tr.today td[data-col] .cell { box-shadow: 0 0 0 2px #fb923c !important; 
 /* la riga rossa tra le settimane resta, appena più sottile */
 body.tl #main-table tbody tr.week-end > td { border-bottom: 3px solid #dc2626 !important; }
 
-/* CASELLE: fondo tenue + striscia colorata a sinistra + testo colorato */
-body.tl .cell { --k: #94a3b8; border: none !important; border-radius: 10px !important; box-shadow: none !important;
-  background: color-mix(in srgb, var(--k) var(--tl-tint), var(--tl-mix)) !important;
-  color: color-mix(in srgb, var(--k) var(--tl-txtmix), var(--tl-txt)) !important;
-  box-shadow: inset 4px 0 0 var(--k) !important;
-  text-transform: none !important; font-weight: 700 !important; letter-spacing: -0.01em !important; }
-body.tl:not(.pref-text-big):not(.pref-text-xbig) .cell { font-size: .8rem; }
-body.tl .cell .time-tag { font-weight: 500 !important; opacity: .8 !important; }
-body.tl:not(.pref-text-big):not(.pref-text-xbig) .cell .time-tag { font-size: .66rem; }
-body.tl tr.today td[data-col] .cell { box-shadow: inset 4px 0 0 var(--k), 0 0 0 2px #fb923c !important; }
-body.tl .cell.t-M { --k: #2563eb; }
-body.tl .cell.t-P { --k: #0891b2; }
-body.tl .cell.t-N { --k: #4338ca; }
-body.tl .cell.t-S { --k: #7c6f9c; }
-body.tl .cell.t-R, body.tl .cell.d-R { --k: #10b981; }
-body.tl .cell.d-M, body.tl .cell.d-P { --k: #e11d48; }
-body.tl .cell.spec-ferie { --k: #f97316; }
-body.tl .cell.spec-cong { --k: #eab308; }
-body.tl .cell.spec-cong.spec-cong-prev { --k: #eab308; }
-body.tl .cell.spec-perm { --k: #16a34a; }
-body.tl .cell.spec-pn { --k: #166534; }
-body.tl .cell.spec-mal { --k: #dc2626; }
-body.tl .cell.spec-rec { --k: #db2777; }
-body.tl .cell.spec-nl { --k: #06b6d4; }
-body.tl .cell.spec-ng { --k: #0284c7; }
-body.tl .cell.spec-stu, body.tl .cell.spec-coord, body.tl .cell.spec-xk { --k: #8b5cf6; }
-body.tl .cell.spec-xs { --k: #14b8a6; }
-body.tl .cell.spec-xl { --k: #334155; }
-body.tl .cell.spec-xa { --k: #ec4899; }
-body.tl .cell.spec-stu { background-image: none !important; }
-body.tl .cell.empty { background: transparent !important; box-shadow: none !important; }
+/* CASELLE: stesso modello e stessi colori della grafica classica, solo un po' più chiari */
+body.tl:not(.dark-mode) {
+  --c-M: #3d8bff; --c-P: #7ab6ff; --c-N: #2a5aa6; --c-SM: #3a2f7a;
+  --bg-ferie: #ff9a5c; --bg-perm: #5cf08a; --bg-cong: #fff066; --bg-rec: #e0559d;
+  --bg-pn: #3f7a55; --bg-stu: #a585f9; --bg-coord: #a585f9;
+}
+body.tl .cell { box-shadow: none; }
 /* "REPERIBILE" e fasce: pastiglie piccole, senza lampeggio (solo oggi lampeggia) */
 body.tl .rep-text { animation: none; background: #dc2626 !important; color: #fff !important; border: none !important; font-weight: 700 !important; border-radius: 999px !important; box-shadow: none !important; }
 body.tl #main-table #today-row .rep-text { animation: none !important; }
@@ -3135,9 +3111,6 @@ body.tl .mn-txt b { font-weight: 600 !important; }
   body.tl #menu-dropdown::before { content: ""; display: block; width: 38px; height: 5px; border-radius: 3px; background: var(--tl-line); margin: 8px auto 0; flex-shrink: 0; }
 }
 
-/* scritte in minuscolo con iniziale maiuscola ("Pomeriggio" invece di "POMERIGGIO") */
-body.tl :is(.cell.t-M, .cell.t-P, .cell.t-N, .cell.t-S, .cell.t-R, .cell.d-M, .cell.d-P, .cell.d-R) > div > div:first-child { text-transform: lowercase; }
-body.tl :is(.cell.t-M, .cell.t-P, .cell.t-N, .cell.t-S, .cell.t-R, .cell.d-M, .cell.d-P, .cell.d-R) > div > div:first-child::first-letter { text-transform: uppercase; }
     </style>
 </head>
 <body>
