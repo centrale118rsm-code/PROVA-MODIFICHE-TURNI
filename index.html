@@ -620,6 +620,12 @@
 
         .empty { background: transparent; box-shadow: none; color: #cbd5e1; font-weight: 400; }
         /* OGGI: riga evidenziata, colonna data piena arancione con etichetta, celle con anello */
+        /* riga che divide le settimane: bordo spesso sotto la domenica */
+        #main-table tbody tr.week-end > td { border-bottom: 3px solid #64748b !important; }
+        body.dark-mode #main-table tbody tr.week-end > td { border-bottom-color: #94a3b8 !important; }
+        .ov-table tbody tr.week-end > td { box-shadow: 0 2px 0 0 #64748b; }
+        .ov-table tbody tr.week-end + tr > td { border-top: 3px solid transparent; }
+        body.dark-mode .ov-table tbody tr.week-end > td { box-shadow: 0 2px 0 0 #94a3b8; }
         tr.today td { background: #ffedd5 !important; border-top: 2px solid #f97316; border-bottom: 2px solid #f97316 !important; }
         tr.today .td-date { background: linear-gradient(180deg, #fb923c, #ea580c) !important; color: #fff !important; border-right-color: #c2410c !important; }
         tr.today .td-date small, tr.today .td-date .holiday-name { color: #fff !important; }
@@ -7230,7 +7236,7 @@
                 cells += `<td class="ov-c${mine}" style="${col}">${esc(meta.short)}</td>`;
             });
             const sum = perm ? `${f.perm.length}<small style="opacity:.7">/${PR.max}</small>` : `${f.fer.length}<small style="opacity:.7">/${ferieRules.max}</small>`;
-            html += `<tr class="ov-row${isToday ? ' ov-today' : ''}" id="ov-r-${dd.rowIdx}" onclick="ovDayTap(${dd.rowIdx})"><td class="ov-d ${red ? 'red' : ''} ${f.status}"><b>${dd.day}</b><small>${wd}</small></td>${cells}<td class="ov-s ${f.status}">${sum}</td></tr>`;
+            html += `<tr class="ov-row${isToday ? ' ov-today' : ''}${dd.date.getDay() === 0 ? ' week-end' : ''}" id="ov-r-${dd.rowIdx}" onclick="ovDayTap(${dd.rowIdx})"><td class="ov-d ${red ? 'red' : ''} ${f.status}"><b>${dd.day}</b><small>${wd}</small></td>${cells}<td class="ov-s ${f.status}">${sum}</td></tr>`;
         });
         box.innerHTML = `<table class="ov-table" id="ov-table"><thead>${head}</thead><tbody>${html}</tbody></table>`;
         ovFitCells(active.length);
@@ -14363,6 +14369,7 @@
         let holKey = `${mIdx}-${dNum}`; let holidayName = HOLIDAYS[holKey]; let isRed = (dayIdx===0||dayIdx===6||holidayName);
         let dateClass = isRed ? "td-date date-red" : "td-date";
         if(mIdx === today.getMonth() && dNum === today.getDate() && today.getFullYear() === year) { tr.className = "today"; tr.id = "today-row"; }
+        if(dayIdx === 0) tr.classList.add('week-end');   // linea che separa le settimane
 
         // conta M e P per il riepilogo giornaliero (sempre visibile) e per "Graziella"
         let countM = 0, countP = 0, countN = 0;
