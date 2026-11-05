@@ -2556,6 +2556,81 @@
         #admin-panel-modal .btn-admin-save, #admin-panel-modal .btn-admin-secondary, #admin-panel-modal .btn-admin-add, #admin-panel-modal .btn-export { max-width:760px; }
         body.dark-mode .adm-kpi > .material-icons-round, body.dark-mode .adm-id-name i, body.dark-mode .adm-av { color:#93c5fd; }
         body.dark-mode .adm-pill.info { color:#93c5fd; } body.dark-mode .adm-pill.ok { color:#86efac; } body.dark-mode .adm-pill.warn { color:#fcd34d; } body.dark-mode .adm-pill.err, body.dark-mode .adm-tag { color:#fca5a5; }
+        /* cartelle del pannello admin */
+        .adm-fold { margin-top:4px; } #admin-panel-modal .adm-nav .adm-nav-l { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+        .adm-fold-h { width:100%; display:flex; align-items:center; gap:10px; padding:9px 10px; border:none; border-radius:10px; background:none; color:#e2e8f0; font:800 .8rem 'Plus Jakarta Sans',sans-serif; text-align:left; cursor:pointer; }
+        .adm-fold-h > .material-icons-round { font-size:19px; color:#fbbf24; } .adm-fold-h:hover { background:rgba(148,163,184,.1); }
+        .adm-fold-ar { color:#7c8ba5 !important; transition:transform .2s; } .adm-fold.open .adm-fold-ar { transform:rotate(180deg); }
+        .adm-fold-b { display:none; padding-left:14px; margin-left:18px; border-left:1px solid rgba(148,163,184,.18); } .adm-fold.open .adm-fold-b { display:block; }
+        .adm-fold.open > .adm-fold-h > .material-icons-round:first-child { color:#fcd34d; }
+        #admin-panel-modal .adm-home-btn { margin-bottom:4px; }
+        .adm-back { display:none; }
+        .adm-home-hero { display:flex; align-items:center; gap:14px; padding:14px 16px; border-radius:16px; margin-bottom:16px; color:#fff; background:linear-gradient(135deg,#15803d,#16a34a); cursor:pointer; }
+        .adm-home-hero.sev-info { background:linear-gradient(135deg,#1d4ed8,#2563eb); } .adm-home-hero.sev-warn { background:linear-gradient(135deg,#b45309,#d97706); } .adm-home-hero.sev-err { background:linear-gradient(135deg,#b91c1c,#dc2626); }
+        .adm-home-hero > .material-icons-round { font-size:30px; } .adm-home-hero div { flex:1; min-width:0; } .adm-home-hero b { display:block; font-size:1rem; font-weight:800; } .adm-home-hero small { display:block; opacity:.92; font-size:.78rem; margin-top:2px; }
+        .adm-folders { display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:14px; }
+        .adm-folder { background:var(--bg-card); border:1px solid var(--border); border-radius:16px; overflow:hidden; min-width:0; }
+        .adm-folder-h { display:flex; align-items:center; gap:11px; padding:13px 14px 11px; border-bottom:1px solid var(--border); }
+        .adm-folder-h > .material-icons-round { width:38px; height:38px; border-radius:11px; display:flex; align-items:center; justify-content:center; font-size:21px; flex:none; color:#fff; }
+        .adm-folder-h b { display:block; font-size:.9rem; font-weight:800; color:var(--text-main); } .adm-folder-h small { display:block; font-size:.7rem; color:var(--text-sec); margin-top:1px; }
+        .adm-folder-i { width:100%; display:flex; align-items:center; gap:10px; padding:10px 14px; border:none; border-top:1px dashed var(--border); background:none; text-align:left; cursor:pointer; color:var(--text-main); font:600 .82rem 'Plus Jakarta Sans',sans-serif; min-height:46px; }
+        .adm-folder-i:first-of-type { border-top:none; } .adm-folder-i:hover, .adm-folder-i:active { background:rgba(37,99,235,.06); }
+        .adm-folder-i > .material-icons-round:first-child { font-size:19px; color:var(--text-sec); } .adm-folder-i span.l { flex:1; min-width:0; } .adm-folder-i em { font-style:normal; font-size:.7rem; color:var(--text-sec); white-space:nowrap; max-width:46%; overflow:hidden; text-overflow:ellipsis; }
+        .adm-folder-i em.warn { color:#b45309; font-weight:700; } .adm-folder-i em.err { color:#dc2626; font-weight:700; } .adm-folder-i em.ok { color:#15803d; font-weight:700; }
+        .adm-folder-i > .material-icons-round:last-child { font-size:18px; color:var(--text-sec); }
+        /* persone */
+        .adm-people { display:grid; grid-template-columns:repeat(auto-fill, minmax(250px, 1fr)); gap:10px; }
+        .adm-person { display:flex; gap:11px; align-items:flex-start; padding:12px; border-radius:14px; background:var(--bg-card); border:1px solid var(--border); cursor:pointer; text-align:left; font:inherit; color:inherit; width:100%; }
+        .adm-person:hover { border-color:var(--primary); }
+        .adm-person .adm-av { width:40px; height:40px; border-radius:12px; font-size:.8rem; }
+        .adm-person .adm-av.on { box-shadow:0 0 0 3px rgba(22,163,74,.35); }
+        .adm-person > div { flex:1; min-width:0; } .adm-person b { display:block; font-size:.88rem; color:var(--text-main); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .adm-person small { display:block; font-size:.72rem; color:var(--text-sec); margin-top:2px; }
+        .adm-person .adm-chips { margin-top:7px; }
+        .adm-chips { display:flex; flex-wrap:wrap; gap:5px; }
+        .adm-chip { display:inline-flex; align-items:center; gap:3px; font-size:.66rem; font-weight:700; padding:2px 7px; border-radius:999px; background:var(--bg); border:1px solid var(--border); color:var(--text-sec); white-space:nowrap; }
+        .adm-chip .material-icons-round { font-size:13px; } .adm-chip.ok { color:#15803d; border-color:rgba(22,163,74,.35); } .adm-chip.warn { color:#b45309; border-color:rgba(217,119,6,.35); } .adm-chip.err { color:#dc2626; border-color:rgba(220,38,38,.35); }
+        .adm-pd-head { display:flex; align-items:center; gap:14px; margin-bottom:14px; flex-wrap:wrap; }
+        .adm-pd-head .adm-av { width:54px; height:54px; border-radius:16px; font-size:1rem; }
+        .adm-pd-head h4 { margin:0; font-size:1.2rem; font-weight:800; color:var(--text-main); } .adm-pd-head div { flex:1; min-width:180px; }
+        .adm-can { display:grid; grid-template-columns:1fr 1fr; gap:6px 16px; margin:0; padding:0; list-style:none; }
+        .adm-can li { display:flex; gap:7px; font-size:.78rem; line-height:1.4; color:var(--text-main); } .adm-can li .material-icons-round { font-size:16px; color:#16a34a; flex:none; margin-top:1px; }
+        .adm-can.no li .material-icons-round { color:#dc2626; }
+        .adm-tl { position:relative; margin:0; padding:0 0 0 22px; list-style:none; }
+        .adm-tl:before { content:''; position:absolute; left:8px; top:6px; bottom:6px; border-left:2px solid var(--border); }
+        .adm-tl li { position:relative; padding:7px 0 9px; font-size:.8rem; color:var(--text-main); }
+        .adm-tl li > i { position:absolute; left:-22px; top:7px; width:18px; height:18px; border-radius:50%; background:var(--bg-card); border:2px solid #2563eb; display:flex; align-items:center; justify-content:center; }
+        .adm-tl li > i .material-icons-round { font-size:11px; color:#2563eb; }
+        .adm-tl li.k-mod > i { border-color:#d97706; } .adm-tl li.k-mod > i .material-icons-round { color:#d97706; }
+        .adm-tl li.k-req > i { border-color:#7c3aed; } .adm-tl li.k-req > i .material-icons-round { color:#7c3aed; }
+        .adm-tl li.k-des > i { border-color:#16a34a; } .adm-tl li.k-des > i .material-icons-round { color:#16a34a; }
+        .adm-tl li b { font-weight:700; } .adm-tl li small { display:block; color:var(--text-sec); font-size:.72rem; margin-top:1px; } .adm-tl-t { color:var(--text-sec); font-size:.7rem; font-weight:700; }
+        /* ruoli */
+        .adm-roles { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+        .adm-role { background:var(--bg-card); border:1px solid var(--border); border-radius:14px; padding:14px 16px; min-width:0; }
+        .adm-role-h { display:flex; align-items:center; gap:10px; margin-bottom:8px; } .adm-role-h > .material-icons-round { width:36px; height:36px; border-radius:10px; display:flex; align-items:center; justify-content:center; color:#fff; flex:none; }
+        .adm-role-h b { display:block; font-size:.92rem; font-weight:800; color:var(--text-main); } .adm-role-h small { display:block; font-size:.72rem; color:var(--text-sec); }
+        .adm-role p { margin:8px 0 6px; font-size:.7rem; font-weight:800; text-transform:uppercase; letter-spacing:.05em; color:var(--text-sec); }
+        .adm-role .adm-can { grid-template-columns:1fr; }
+        .adm-role-who { margin-top:10px; padding-top:10px; border-top:1px dashed var(--border); font-size:.76rem; color:var(--text-sec); } .adm-role-who b { color:var(--text-main); }
+        /* righe semplici (motore, richieste, copie) */
+        .adm-rows { border:1px solid var(--border); border-radius:12px; overflow:hidden; background:var(--bg-card); }
+        .adm-row { display:flex; align-items:center; gap:12px; padding:10px 14px; border-top:1px solid var(--border); font-size:.8rem; color:var(--text-main); min-height:48px; }
+        .adm-row:first-child { border-top:none; } .adm-row > .material-icons-round { font-size:20px; flex:none; color:var(--text-sec); }
+        .adm-row > div { flex:1; min-width:0; } .adm-row b { font-weight:700; } .adm-row small { display:block; color:var(--text-sec); font-size:.72rem; margin-top:2px; }
+        .adm-row .r { text-align:right; flex:none; font-size:.72rem; color:var(--text-sec); }
+        .adm-row a { color:var(--primary); font-weight:700; text-decoration:none; }
+        .adm-desbar { height:7px; border-radius:99px; background:var(--bg); overflow:hidden; margin-top:6px; } .adm-desbar i { display:block; height:100%; background:#eab308; border-radius:99px; } .adm-desbar i.over { background:#dc2626; }
+        @media (max-width:1100px) { .adm-folders { grid-template-columns:1fr 1fr; } }
+        @media (max-width:900px) {
+            .adm-side { display:none !important; }
+            .adm-back { display:flex; } .adm-back.hide { display:none; }
+            .adm-top { padding-top:calc(12px + env(safe-area-inset-top,0px)); }
+            .adm-folders, .adm-roles, .adm-can { grid-template-columns:1fr; }
+            .adm-people { grid-template-columns:1fr; }
+            .adm-folder-i { min-height:50px; }
+            .adm-row { flex-wrap:wrap; } .adm-row .r { width:100%; text-align:left; padding-left:32px; }
+        }
         @media (max-width:900px) {
             #admin-panel-modal { padding:0; align-items:stretch; }
             #admin-panel-modal .modal-content.adm-shell { height:100%; border-radius:0; flex-direction:column; }
@@ -3661,29 +3736,46 @@ body.tl .mn-txt b { font-weight: 600 !important; }
     <div class="modal-content adm-shell" onclick="event.stopPropagation()">
         <aside class="adm-side">
             <div class="adm-brand"><span class="adm-brand-ico"><span class="material-icons-round">admin_panel_settings</span></span><div><b>Pannello di controllo</b><small>Turni Autisti (prova) · admin</small></div></div>
-            <nav class="admin-tabs adm-nav" aria-label="Sezioni del pannello">
-                <div class="adm-nav-grp">Controllo</div>
-                <button class="admin-tab-btn active" data-tab="panoramica" onclick="switchAdminTab('panoramica',this)"><span class="material-icons-round">dashboard</span><span class="adm-nav-l">Panoramica</span><b class="adm-badge" id="adm-badge-panoramica"></b></button>
-                <button class="admin-tab-btn" data-tab="errori" onclick="switchAdminTab('errori',this)"><span class="material-icons-round">bug_report</span><span class="adm-nav-l">Errori e problemi</span><b class="adm-badge" id="adm-badge-errori"></b></button>
-                <button class="admin-tab-btn" data-tab="accessi" onclick="switchAdminTab('accessi',this)"><span class="material-icons-round">insights</span><span class="adm-nav-l">Accessi</span><b class="adm-badge" id="adm-badge-accessi"></b></button>
-                <button class="admin-tab-btn" data-tab="identita" onclick="switchAdminTab('identita',this)"><span class="material-icons-round">how_to_reg</span><span class="adm-nav-l">Nomi e identità</span><b class="adm-badge" id="adm-badge-identita"></b></button>
-                <button class="admin-tab-btn" data-tab="ruota" onclick="switchAdminTab('ruota',this)"><span class="material-icons-round">casino</span><span class="adm-nav-l">Ruota della sfiga</span></button>
-                <button class="admin-tab-btn" data-tab="registro" onclick="switchAdminTab('registro',this)"><span class="material-icons-round">history</span><span class="adm-nav-l">Registro modifiche</span></button>
-                <button class="admin-tab-btn" data-tab="consumi" onclick="switchAdminTab('consumi',this)"><span class="material-icons-round">data_usage</span><span class="adm-nav-l">Consumi Firebase</span><b class="adm-badge" id="adm-badge-consumi"></b></button>
-                <div class="adm-nav-grp">Configurazione</div>
-                <button class="admin-tab-btn" data-tab="aspetto" onclick="switchAdminTab('aspetto',this)"><span class="material-icons-round">palette</span><span class="adm-nav-l">Aspetto</span></button>
-                <button class="admin-tab-btn" data-tab="operatori" onclick="switchAdminTab('operatori',this)"><span class="material-icons-round">badge</span><span class="adm-nav-l">Nomi operatori</span></button>
-                <button class="admin-tab-btn" data-tab="turni" onclick="switchAdminTab('turni',this)"><span class="material-icons-round">schedule</span><span class="adm-nav-l">Orari turni</span></button>
-                <button class="admin-tab-btn" data-tab="testi" onclick="switchAdminTab('testi',this)"><span class="material-icons-round">campaign</span><span class="adm-nav-l">Avvisi</span></button>
-                <button class="admin-tab-btn" data-tab="esporta" onclick="switchAdminTab('esporta',this)"><span class="material-icons-round">file_download</span><span class="adm-nav-l">Esporta</span></button>
-                <div class="adm-nav-grp">Autisti</div>
-                <button class="admin-tab-btn" data-tab="scherzo" onclick="switchAdminTab('scherzo',this)"><span class="material-icons-round">celebration</span><span class="adm-nav-l">Scherzo</span></button>
-                <button class="admin-tab-btn" data-tab="bibbia" onclick="switchAdminTab('bibbia',this)"><span class="material-icons-round">menu_book</span><span class="adm-nav-l">Bibbia del portale</span></button>
+            <nav class="admin-tabs adm-nav" aria-label="Cartelle del pannello">
+                <button class="admin-tab-btn adm-home-btn" data-tab="home" onclick="switchAdminTab('home',this)"><span class="material-icons-round">folder_special</span><span class="adm-nav-l">Tutte le cartelle</span></button>
+                <div class="adm-fold" data-fold="stato"><button class="adm-fold-h" onclick="admFoldToggle('stato')"><span class="material-icons-round">folder</span><span class="adm-nav-l">Stato e salute</span><b class="adm-badge" id="adm-fbadge-stato"></b><span class="material-icons-round adm-fold-ar">expand_more</span></button><div class="adm-fold-b">
+                    <button class="admin-tab-btn" data-tab="panoramica" onclick="switchAdminTab('panoramica',this)"><span class="material-icons-round">dashboard</span><span class="adm-nav-l">Panoramica</span><b class="adm-badge" id="adm-badge-panoramica"></b></button>
+                    <button class="admin-tab-btn" data-tab="errori" onclick="switchAdminTab('errori',this)"><span class="material-icons-round">bug_report</span><span class="adm-nav-l">Errori e problemi</span><b class="adm-badge" id="adm-badge-errori"></b></button>
+                    <button class="admin-tab-btn" data-tab="motore" onclick="switchAdminTab('motore',this)"><span class="material-icons-round">smart_toy</span><span class="adm-nav-l">Motore notifiche</span><b class="adm-badge" id="adm-badge-motore"></b></button>
+                    <button class="admin-tab-btn" data-tab="consumi" onclick="switchAdminTab('consumi',this)"><span class="material-icons-round">data_usage</span><span class="adm-nav-l">Consumi Firebase</span><b class="adm-badge" id="adm-badge-consumi"></b></button>
+                </div></div>
+                <div class="adm-fold" data-fold="persone"><button class="adm-fold-h" onclick="admFoldToggle('persone')"><span class="material-icons-round">folder</span><span class="adm-nav-l">Persone e accessi</span><b class="adm-badge" id="adm-fbadge-persone"></b><span class="material-icons-round adm-fold-ar">expand_more</span></button><div class="adm-fold-b">
+                    <button class="admin-tab-btn" data-tab="persone" onclick="switchAdminTab('persone',this)"><span class="material-icons-round">contacts</span><span class="adm-nav-l">Scheda di ognuno</span></button>
+                    <button class="admin-tab-btn" data-tab="accessi" onclick="switchAdminTab('accessi',this)"><span class="material-icons-round">insights</span><span class="adm-nav-l">Accessi</span><b class="adm-badge" id="adm-badge-accessi"></b></button>
+                    <button class="admin-tab-btn" data-tab="identita" onclick="switchAdminTab('identita',this)"><span class="material-icons-round">how_to_reg</span><span class="adm-nav-l">Nomi e identità</span><b class="adm-badge" id="adm-badge-identita"></b></button>
+                    <button class="admin-tab-btn" data-tab="ruoli" onclick="switchAdminTab('ruoli',this)"><span class="material-icons-round">verified_user</span><span class="adm-nav-l">Ruoli e permessi</span></button>
+                </div></div>
+                <div class="adm-fold" data-fold="turni"><button class="adm-fold-h" onclick="admFoldToggle('turni')"><span class="material-icons-round">folder</span><span class="adm-nav-l">Turni e richieste</span><b class="adm-badge" id="adm-fbadge-turni"></b><span class="material-icons-round adm-fold-ar">expand_more</span></button><div class="adm-fold-b">
+                    <button class="admin-tab-btn" data-tab="registro" onclick="switchAdminTab('registro',this)"><span class="material-icons-round">history</span><span class="adm-nav-l">Registro modifiche</span></button>
+                    <button class="admin-tab-btn" data-tab="richieste" onclick="switchAdminTab('richieste',this)"><span class="material-icons-round">inbox</span><span class="adm-nav-l">Richieste del portale</span><b class="adm-badge" id="adm-badge-richieste"></b></button>
+                    <button class="admin-tab-btn" data-tab="desiderate" onclick="switchAdminTab('desiderate',this)"><span class="material-icons-round">beach_access</span><span class="adm-nav-l">Ferie desiderate</span></button>
+                </div></div>
+                <div class="adm-fold" data-fold="dati"><button class="adm-fold-h" onclick="admFoldToggle('dati')"><span class="material-icons-round">folder</span><span class="adm-nav-l">Dati e sicurezza</span><b class="adm-badge" id="adm-fbadge-dati"></b><span class="material-icons-round adm-fold-ar">expand_more</span></button><div class="adm-fold-b">
+                    <button class="admin-tab-btn" data-tab="copie" onclick="switchAdminTab('copie',this)"><span class="material-icons-round">backup</span><span class="adm-nav-l">Copie di sicurezza</span><b class="adm-badge" id="adm-badge-copie"></b></button>
+                    <button class="admin-tab-btn" data-tab="esporta" onclick="switchAdminTab('esporta',this)"><span class="material-icons-round">file_download</span><span class="adm-nav-l">Esporta</span></button>
+                </div></div>
+                <div class="adm-fold" data-fold="config"><button class="adm-fold-h" onclick="admFoldToggle('config')"><span class="material-icons-round">folder</span><span class="adm-nav-l">Configurazione</span><span class="material-icons-round adm-fold-ar">expand_more</span></button><div class="adm-fold-b">
+                    <button class="admin-tab-btn" data-tab="aspetto" onclick="switchAdminTab('aspetto',this)"><span class="material-icons-round">palette</span><span class="adm-nav-l">Aspetto</span></button>
+                    <button class="admin-tab-btn" data-tab="operatori" onclick="switchAdminTab('operatori',this)"><span class="material-icons-round">badge</span><span class="adm-nav-l">Nomi operatori</span></button>
+                    <button class="admin-tab-btn" data-tab="turni" onclick="switchAdminTab('turni',this)"><span class="material-icons-round">schedule</span><span class="adm-nav-l">Orari turni</span></button>
+                    <button class="admin-tab-btn" data-tab="testi" onclick="switchAdminTab('testi',this)"><span class="material-icons-round">campaign</span><span class="adm-nav-l">Avvisi</span></button>
+                </div></div>
+                <div class="adm-fold" data-fold="svago"><button class="adm-fold-h" onclick="admFoldToggle('svago')"><span class="material-icons-round">folder</span><span class="adm-nav-l">Portale e svago</span><span class="material-icons-round adm-fold-ar">expand_more</span></button><div class="adm-fold-b">
+                    <button class="admin-tab-btn" data-tab="bibbia" onclick="switchAdminTab('bibbia',this)"><span class="material-icons-round">menu_book</span><span class="adm-nav-l">Bibbia del portale</span></button>
+                    <button class="admin-tab-btn" data-tab="ruota" onclick="switchAdminTab('ruota',this)"><span class="material-icons-round">casino</span><span class="adm-nav-l">Ruota della sfiga</span></button>
+                    <button class="admin-tab-btn" data-tab="scherzo" onclick="switchAdminTab('scherzo',this)"><span class="material-icons-round">celebration</span><span class="adm-nav-l">Scherzo</span></button>
+                </div></div>
             </nav>
             <div class="adm-side-foot"><button onclick="closeAdminPanel()"><span class="material-icons-round">logout</span>Esci dal pannello</button></div>
         </aside>
         <section class="adm-main">
             <div class="adm-top">
+                <button class="adm-icon-btn adm-back hide" id="adm-back" onclick="admBackHome()" title="Indietro" aria-label="Indietro"><span class="material-icons-round">arrow_back</span></button>
                 <div class="adm-top-t"><h3 id="adm-title">Panoramica</h3><span id="adm-sub">Stato dell’app e cose da guardare</span></div>
                 <span class="adm-updated" id="adm-updated"></span>
                 <button class="adm-icon-btn adm-refresh" onclick="admRefresh()" title="Aggiorna i dati" aria-label="Aggiorna i dati"><span class="material-icons-round">refresh</span></button>
@@ -3691,7 +3783,14 @@ body.tl .mn-txt b { font-weight: 600 !important; }
             </div>
         <div class="modal-body adm-body" style="padding:0;">
 
-            <div class="admin-tab-panel active" id="admin-tab-panoramica"><div id="adm-panoramica"></div></div>
+            <div class="admin-tab-panel active" id="admin-tab-home"><div id="adm-home"></div></div>
+            <div class="admin-tab-panel" id="admin-tab-panoramica"><div id="adm-panoramica"></div></div>
+            <div class="admin-tab-panel" id="admin-tab-motore"><div id="adm-motore"></div></div>
+            <div class="admin-tab-panel" id="admin-tab-persone"><div id="adm-persone"></div></div>
+            <div class="admin-tab-panel" id="admin-tab-ruoli"><div id="adm-ruoli"></div></div>
+            <div class="admin-tab-panel" id="admin-tab-richieste"><div id="adm-richieste"></div></div>
+            <div class="admin-tab-panel" id="admin-tab-desiderate"><div id="adm-desiderate"></div></div>
+            <div class="admin-tab-panel" id="admin-tab-copie"><div id="adm-copie"></div></div>
             <div class="admin-tab-panel" id="admin-tab-errori"><div id="adm-errori"></div></div>
             <div class="admin-tab-panel" id="admin-tab-identita"><div id="adm-identita"></div></div>
             <div class="admin-tab-panel" id="admin-tab-ruota"><div id="adm-ruota"></div></div>
@@ -5448,7 +5547,8 @@ body.tl .mn-txt b { font-weight: 600 !important; }
     function openAdminPanel() {
         let m = document.getElementById('admin-panel-modal'); m.style.display = 'flex';
         setTimeout(() => m.classList.add('open'), 10);
-        switchAdminTab('panoramica', document.querySelector('.admin-tab-btn[data-tab="panoramica"]'));
+        document.querySelectorAll('#admin-panel-modal .adm-fold').forEach(f => f.classList.add('open'));
+        switchAdminTab('home', document.querySelector('.admin-tab-btn[data-tab="home"]'));
         admRefresh(true);   // si vedono subito i dati dell'ultima apertura (se ci sono), poi si aggiornano
         if(pendingAdminTab) { const t = pendingAdminTab; pendingAdminTab = null; switchAdminTab(t, document.querySelector(`.admin-tab-btn[data-tab="${t}"]`)); }
         startAdminAccessListener();
@@ -5471,7 +5571,8 @@ body.tl .mn-txt b { font-weight: 600 !important; }
         vibrate();
         document.querySelectorAll('.admin-tab-btn').forEach(b => b.classList.remove('active'));
         document.querySelectorAll('.admin-tab-panel').forEach(p => p.classList.remove('active'));
-        if(btnEl) btnEl.classList.add('active');
+        if(!btnEl) btnEl = document.querySelector(`#admin-panel-modal .admin-tab-btn[data-tab="${tab}"]`);
+        if(btnEl) { btnEl.classList.add('active'); const f = btnEl.closest('.adm-fold'); if(f) f.classList.add('open'); }
         document.getElementById('admin-tab-' + tab).classList.add('active');
         if(tab === 'scherzo') asRenderPrankAdmin();
         if(tab === 'bibbia') asRenderBibbiaAdmin();
@@ -5549,7 +5650,14 @@ body.tl .mn-txt b { font-weight: 600 !important; }
     const ADM_MOTORE_REPO = 'centrale118rsm-code/PROVA-MODIFICHE-TURNI';   // dove gira il motore delle notifiche
     const ADM_DAYS = 14;
     const ADM_TABS = {
+        home:       ['Pannello di controllo', 'Tutte le cartelle: tocca quello che vuoi controllare'],
         panoramica: ['Panoramica', 'Stato dell’app e cose da guardare'],
+        motore:     ['Motore notifiche', 'Il servizio su GitHub che manda le notifiche e aggiorna i calendari'],
+        persone:    ['Scheda di ognuno', 'Chi entra, da quali dispositivi, cosa fa e cosa può fare'],
+        ruoli:      ['Ruoli e permessi', 'Cosa può fare ogni tipo di account'],
+        richieste:  ['Richieste del portale', 'Cambi turno, cessioni, ferie e permessi chiesti dal portale'],
+        desiderate: ['Ferie desiderate', 'Chi le ha scritte, quante e se supera le spettanze'],
+        copie:      ['Copie di sicurezza', 'Le copie dei turni salvate dall’app'],
         errori:     ['Errori e problemi', 'Quello che è andato storto sui telefoni negli ultimi 14 giorni'],
         accessi:    ['Accessi', 'Chi usa l’app, da quale dispositivo e cosa guarda'],
         identita:   ['Nomi e identità', 'I nomi occupati nella schermata “Chi sei?”'],
@@ -5564,7 +5672,7 @@ body.tl .mn-txt b { font-weight: 600 !important; }
         scherzo:    ['Scherzo', 'Modalità scherzo per operatore'],
         bibbia:     ['Bibbia del portale', 'Regole automatiche del portale Richieste autisti (sola lettura)']
     };
-    let admData = null, admLoading = null, admTab = 'panoramica';
+    let admData = null, admLoading = null, admTab = 'home';
     let admErrPeriod = 1, admErrKind = 'tutti', admErrShowResolved = false, admAccFilter = 'tutti', admAccSearch = '', admAccHideTests = true;
     const admEsc = s => esc(s == null ? '' : String(s));
     const admIsTest = s => /Headless/i.test(String((s && s.userAgent) || ''));
@@ -5595,6 +5703,7 @@ body.tl .mn-txt b { font-weight: 600 !important; }
             safe(db.collection('richieste_turni').orderBy('timestamp', 'desc').limit(80).get()),
             ...dates.map(d => safe(cfgRef('log_' + d).get()))
         ]);
+        const desSnap = await safe(desYearQuery(DES_COLL, DATA_NS + 'des_' + admDesYear() + '_').get());
         const S = set && set.exists ? (set.data() || {}) : {};
         return {
             at: Date.now(),
@@ -5606,6 +5715,7 @@ body.tl .mn-txt b { font-weight: 600 !important; }
             snaps: snap && snap.exists ? Object.entries((snap.data() || {}).items || {}).map(([id, v]) => Object.assign({ id }, v)) : [],
             requests: req ? req.docs.map(d => Object.assign({ id: d.id }, d.data())) : [],
             logs: logs.map((x, i) => ({ date: dates[i], entries: x && x.exists ? Object.entries((x.data() || {}).entries || {}).map(([id, e]) => Object.assign({ id }, e)) : [] })),
+            des: desSnap ? desSnap.docs.map(d => d.data()).filter(x => x && x.ns === DATA_NS && x.year === admDesYear()) : [],
             sessionsOk: !!sess
         };
     }
@@ -5638,11 +5748,12 @@ body.tl .mn-txt b { font-weight: 600 !important; }
         const h = document.getElementById('adm-title'), s = document.getElementById('adm-sub');
         if(h) h.textContent = t[0]; if(s) s.textContent = t[1];
         const b = document.querySelector('#admin-panel-modal .adm-body'); if(b) b.scrollTop = 0;
-        admRenderTab();
+        if(tab !== 'persone') admPerson = null;
+        admRenderTab(); admTopBar();
     }
     function admRenderTab() {
         if(!document.getElementById('admin-panel-modal') || document.getElementById('admin-panel-modal').style.display === 'none') return;
-        const f = { panoramica: admRenderPanoramica, errori: admRenderErrori, identita: admRenderIdentita, ruota: admRenderRuota, registro: admRenderRegistro, accessi: renderAdminAccessList, consumi: consRender }[admTab];
+        const f = { panoramica: admRenderPanoramica, errori: admRenderErrori, identita: admRenderIdentita, ruota: admRenderRuota, registro: admRenderRegistro, accessi: renderAdminAccessList, consumi: consRender, home: admRenderHome, motore: admRenderMotoreTab, persone: admRenderPersone, ruoli: admRenderRuoli, richieste: admRenderRichieste, desiderate: admRenderDesiderate, copie: admRenderCopie }[admTab];
         if(f) { try { f(); } catch(e) { console.warn('Pannello admin:', e); } }
     }
     const admLoadingHtml = () => `<div class="adm-empty"><span class="material-icons-round adm-spin">autorenew</span>Carico i dati…</div>`;
@@ -5809,6 +5920,298 @@ body.tl .mn-txt b { font-weight: 600 !important; }
         box.innerHTML = html || '<div class="adm-empty"><span class="material-icons-round">history</span>Nessuna modifica negli ultimi 7 giorni.</div>';
     }
 
+    // ═══ PANNELLO ADMIN A CARTELLE ═══════════════════════════════════════
+    // Le pagine sono divise in cartelle (menu a sinistra sul computer, pagina "Tutte le cartelle"
+    // sul telefono). Pagine in più: scheda di ogni persona (tutto quello che fa), ruoli e permessi,
+    // motore delle notifiche, richieste del portale, ferie desiderate, copie di sicurezza.
+    const ADM_FOLDERS = [
+        { id:'stato',   name:'Stato e salute',    desc:'Funziona tutto? Errori, motore, consumi', icon:'monitor_heart', color:'#16a34a', tabs:['panoramica', 'errori', 'motore', 'consumi'] },
+        { id:'persone', name:'Persone e accessi', desc:'Chi entra, da dove e cosa fa',            icon:'groups',        color:'#2563eb', tabs:['persone', 'accessi', 'identita', 'ruoli'] },
+        { id:'turni',   name:'Turni e richieste', desc:'Modifiche, richieste, ferie desiderate',  icon:'edit_calendar', color:'#d97706', tabs:['registro', 'richieste', 'desiderate'] },
+        { id:'dati',    name:'Dati e sicurezza',  desc:'Copie di sicurezza ed esportazione',      icon:'shield',        color:'#0f766e', tabs:['copie', 'esporta'] },
+        { id:'config',  name:'Configurazione',    desc:'Colori, nomi, orari e avvisi per tutti',  icon:'tune',          color:'#7c3aed', tabs:['aspetto', 'operatori', 'turni', 'testi'] },
+        { id:'svago',   name:'Portale e svago',   desc:'Regole del portale, ruota e scherzi',     icon:'celebration',   color:'#db2777', tabs:['bibbia', 'ruota', 'scherzo'] }
+    ];
+    const ADM_TAB_ICON = { panoramica:'dashboard', errori:'bug_report', motore:'smart_toy', consumi:'data_usage', persone:'contacts', accessi:'insights', identita:'how_to_reg', ruoli:'verified_user',
+        registro:'history', richieste:'inbox', desiderate:'beach_access', copie:'backup', esporta:'file_download', aspetto:'palette', operatori:'badge', turni:'schedule', testi:'campaign', bibbia:'menu_book', ruota:'casino', scherzo:'celebration' };
+    function admFoldToggle(id) { vibrate(); const f = document.querySelector(`#admin-panel-modal .adm-fold[data-fold="${id}"]`); if(f) f.classList.toggle('open'); }
+    function admBackHome() {
+        vibrate();
+        if(admTab === 'persone' && admPerson) { admPerson = null; admRenderPersone(); const b = document.querySelector('#admin-panel-modal .adm-body'); if(b) b.scrollTop = 0; admTopBar(); return; }
+        switchAdminTab('home', document.querySelector('.admin-tab-btn[data-tab="home"]'));
+    }
+    function admTopBar() {
+        const b = document.getElementById('adm-back'); if(b) b.classList.toggle('hide', admTab === 'home');
+        if(admTab === 'persone' && admPerson) { const h = document.getElementById('adm-title'), s = document.getElementById('adm-sub'); if(h) h.textContent = admPerson; if(s) s.textContent = 'Scheda della persona'; }
+    }
+    const admKey = n => String(n || '').toUpperCase().replace(/[^A-Z0-9À-Ü]+/g, ' ').trim();
+    const admInit = n => String(n || '?').split(/\s+/).map(w => w[0] || '').join('').slice(0, 2).toUpperCase();
+
+    // ── pagina iniziale: tutte le cartelle ──
+    function admTabStatus(t) {
+        if(!admData) return ['', ''];
+        const n = (v, one, many) => v + ' ' + (v === 1 ? one : many);
+        try {
+            if(t === 'panoramica') { const i = admIssues(); return i.length ? [n(i.length, 'cosa da guardare', 'cose da guardare'), i[0].sev === 'err' ? 'err' : 'warn'] : ['tutto ok', 'ok']; }
+            if(t === 'errori') { const e = admProblems(1); return e.length ? [n(e.length, 'tipo di errore', 'tipi di errore') + ' (24 h)', e.some(g => g.kind !== 'console') ? 'err' : 'warn'] : ['nessuno in 24 ore', 'ok']; }
+            if(t === 'motore') { const M = admMotore(); if(!M) return [admMotoreData.pending ? 'controllo…' : 'GitHub non risponde', '']; return ['ultimo giro ' + admAgo(M.last), M.failed24 || !M.ok ? 'err' : Date.now() - M.last > 36e5 ? 'warn' : 'ok']; }
+            if(t === 'persone') { const p = admPeople().filter(x => x.sess.length); return [n(p.length, 'persona attiva', 'persone attive') + ' (14 gg)', '']; }
+            if(t === 'accessi') { const t0 = new Date(); t0.setHours(0, 0, 0, 0); const s = admReal().filter(x => admMs(x.startTime) >= t0.getTime()); const on = admReal().filter(x => x.online).length; return [n(s.length, 'accesso', 'accessi') + ' oggi' + (on ? ' · ' + on + ' online' : ''), on ? 'ok' : '']; }
+            if(t === 'identita') { const m = admIdentityRows().filter(r => r.active.length > 1); return m.length ? [n(m.length, 'nome doppio', 'nomi doppi'), 'warn'] : ['', '']; }
+            if(t === 'registro') { const k = admData.logs.reduce((a, d) => a + d.entries.length, 0); return [n(k, 'salvataggio', 'salvataggi') + ' in 7 gg', '']; }
+            if(t === 'richieste') { const p = admReqPending(); return p.length ? [n(p.length, 'da gestire', 'da gestire'), 'warn'] : ['niente da gestire', 'ok']; }
+            if(t === 'desiderate') { const d = (admData.des || []).filter(x => Object.keys(x.days || {}).length); return [n(d.length, 'persona', 'persone') + ' · ' + admDesYear(), '']; }
+            if(t === 'copie') { const l = Math.max(0, ...admData.snaps.map(s => admMs(s.createdAt))); return ['ultima ' + admAgo(l), l && Date.now() - l < 3 * 864e5 ? 'ok' : 'warn']; }
+        } catch(e) {}
+        return ['', ''];
+    }
+    function admRenderHome() {
+        const box = document.getElementById('adm-home'); if(!box) return;
+        let hero = '';
+        if(admData) {
+            const is = admIssues(), w = is.length ? is[0].sev : 'ok';
+            hero = `<div class="adm-home-hero sev-${w}" onclick="admGo('panoramica')"><span class="material-icons-round">${w === 'ok' || w === 'info' ? 'verified' : 'error_outline'}</span><div><b>${w === 'ok' ? 'Tutto funziona' : w === 'info' ? 'Tutto funziona, qualche informazione' : is.length + (is.length === 1 ? ' cosa richiede' : ' cose richiedono') + ' attenzione'}</b><small>${is.length ? admEsc(is.slice(0, 2).map(i => i.title).join(' · ')) : 'Nessun problema da segnalare.'}</small></div><span class="material-icons-round">chevron_right</span></div>`;
+        } else hero = admLoadingHtml();
+        box.innerHTML = hero + `<div class="adm-folders">${ADM_FOLDERS.map(f => `<div class="adm-folder"><div class="adm-folder-h"><span class="material-icons-round" style="background:${f.color}">${f.icon}</span><div><b>${f.name}</b><small>${f.desc}</small></div></div>
+            ${f.tabs.map(t => { const st = admTabStatus(t); return `<button class="adm-folder-i" onclick="admGo('${t}')"><span class="material-icons-round">${ADM_TAB_ICON[t] || 'chevron_right'}</span><span class="l">${(ADM_TABS[t] || [t])[0]}</span>${st[0] ? `<em class="${st[1]}">${admEsc(st[0])}</em>` : ''}<span class="material-icons-round">chevron_right</span></button>`; }).join('')}</div>`).join('')}</div>`;
+    }
+    function admFoldBadges() {
+        const rank = { err: 3, warn: 2, ok: 1 };
+        ADM_FOLDERS.forEach(f => {
+            const b = document.getElementById('adm-fbadge-' + f.id); if(!b) return;
+            let n = 0, tone = '';
+            f.tabs.forEach(t => { const x = document.getElementById('adm-badge-' + t); if(!x || !x.textContent) return; n += parseInt(x.textContent, 10) || 0; const tn = ['err', 'warn', 'ok'].find(c => x.classList.contains(c)) || ''; if((rank[tn] || 0) > (rank[tone] || 0)) tone = tn; });
+            b.textContent = n ? n : ''; b.className = 'adm-badge ' + tone;
+        });
+    }
+
+    // ── persone: chi è, cosa può fare, cosa ha fatto ──
+    let admPerson = null, admPeopleSearch = '';
+    function admRoleOf(key) {
+        if(key === 'OSPITE') return 'ospite';
+        if(key === 'NON IDENTIFICATO') return 'anon';
+        if(key === 'CENTRALE') return 'centrale';
+        if(key === admKey(coordinatorName || COORD_DEFAULT)) return 'coord';
+        return 'autista';
+    }
+    const ADM_ROLES = {
+        anon: { name:'Non identificato', icon:'help_outline', color:'#94a3b8', how:'Ha aperto l’app senza scegliere un nome in “Chi sei?”.',
+            can:['Vede il calendario dei turni di tutti', 'Vede chi è reperibile e chi è in turno'],
+            cant:['Non ha “La mia pagina” né le notifiche personali', 'Non scrive ferie desiderate né note a suo nome', 'Quello che fa non si può attribuire a nessuno'] },
+        ospite: { name:'Ospite', icon:'person_outline', color:'#64748b', how:'Sceglie “Ospite” in “Chi sei?”.',
+            can:['Vede il calendario dei turni di tutti', 'Vede reperibili, chi lavora con chi, conteggi generali', 'Può entrare nell’Area coordinatore solo con la password (le modifiche risultano di “Ospite”)'],
+            cant:['Non ha “La mia pagina” né le notifiche sul telefono', 'Non scrive ferie desiderate', 'Non scrive note a suo nome'] },
+        autista: { name:'Autista', icon:'local_shipping', color:'#2563eb', how:'Sceglie il suo nome in “Chi sei?”. Il nome resta legato a quel dispositivo: un altro telefono non lo può prendere finché l’admin non lo libera.',
+            can:['Tutto quello che vede l’Ospite', '“La mia pagina”: prossimi turni, ore, assenze, reperibilità, stampa e PDF dei suoi turni', 'Notifiche sul telefono dei suoi cambi turno e reperibilità', 'Ferie desiderate: scrive solo nella sua colonna, entro le sue spettanze', 'Note ai colleghi, al coordinatore o a tutti', 'Richieste dal portale Richieste (cambi, cessioni, ferie, permessi)'],
+            cant:['Non modifica i turni (serve la password dell’Area coordinatore)', 'Non scrive nelle colonne degli altri', 'Non apre questo pannello'] },
+        centrale: { name:'Centrale operativa', icon:'support_agent', color:'#0f766e', how:'Sceglie “CENTRALE” in “Chi sei?”.',
+            can:['Tutto quello che vede l’Ospite', 'Riceve le nuove richieste del portale', 'Vede tutte le note e può cancellarle', 'Le sue note escono come “Centrale Operativa 118”'],
+            cant:['Non ha una colonna nel calendario', 'Non modifica i turni senza la password dell’Area coordinatore'] },
+        coord: { name:'Coordinatore', icon:'workspace_premium', color:'#d97706', how:'È il coordinatore designato. Per modificare entra nell’Area coordinatore con la sua password: l’accesso dura finché l’app resta aperta.',
+            can:['Modifica turni e reperibilità, bozza del mese, importa da Excel', 'Gestisce le richieste del portale e le inserisce nei turni', 'Spettanze di ferie e permessi per operatore', 'Messaggi all’apertura, note, storico dei cambi con Annulla', 'Copie di sicurezza e ripristino, chiusura e apertura dell’anno', 'Riceve le notifiche delle nuove richieste (se le ha attive)'],
+            cant:['Non apre questo pannello senza la password admin'] }
+    };
+    const admExtraRoles = () => [
+        { name:'Riceve le richieste', icon:'mark_email_unread', color:'#7c3aed', how:'Nomi fissi nell’app: ' + (typeof AS_OPERATORI !== 'undefined' ? AS_OPERATORI.join(', ') : '—') + '.',
+            can:['Riceve un avviso per ogni nuova richiesta del portale'], cant:['Non può approvarle senza l’Area coordinatore'] },
+        { name:'Admin riunione (ferie desiderate)', icon:'admin_panel_settings', color:'#ea580c', how:'Tasto Admin arancione nel calendario delle ferie desiderate, con la sua password. Vale solo su quel dispositivo finché resta aperto.',
+            can:['Scrive le ferie desiderate nelle colonne di tutti', 'Barra i giorni già messi nei turni', 'Importa le desiderate nel calendario turni (con copia di sicurezza)', 'Vede lo storico degli inserimenti'], cant:['Non modifica i turni fuori dall’importazione'] },
+        { name:'Admin (questo pannello)', icon:'shield_person', color:'#111827', how:'Entra con la password admin.',
+            can:['Vede tutto: stato, errori, accessi, scheda di ognuno, consumi', 'Libera i nomi occupati in “Chi sei?”', 'Cambia colori, nomi mostrati, orari dei turni e avvisi per tutti', 'Modalità scherzo e regole del portale'], cant:['Non modifica i turni da qui (si fa dall’Area coordinatore)'] }
+    ];
+    function admPeople() {
+        const P = {};
+        const get = nm => { const k = admKey(nm); if(!k) return null; if(!P[k]) P[k] = { key: k, name: String(nm), role: admRoleOf(k), sess: [], mods: [], reqs: [], subs: [], des: null, col: false }; return P[k]; };
+        (drivers || []).forEach(d => { if(d.virtual) return; const p = get(d.originalName || d.name); p.name = d.name; p.col = true; });
+        IDENTITY_EXTRA_OPTIONS.forEach(n => get(n));
+        if(!admData) return Object.values(P);
+        admReal().forEach(s => get(s.identity || 'Non identificato').sess.push(s));
+        admData.logs.forEach(day => day.entries.forEach(e => { const w = String(e.who || '').split(' · ')[0].trim(); const p = w && get(w); if(p) p.mods.push(e); }));
+        admData.requests.forEach(r => { const p = r.name && get(r.name); if(p) p.reqs.push(r); });
+        Object.values(admData.subs || {}).forEach(s => { const p = s.owner && get(s.owner); if(p) p.subs.push(s); });
+        (admData.des || []).forEach(x => { const p = x.name && get(x.name); if(p) p.des = x; });
+        return Object.values(P);
+    }
+    const admLastSeen = p => Math.max(0, ...p.sess.map(s => admMs(s.lastActive) || admMs(s.startTime)));
+    const admDevices = p => [...new Set(p.sess.map(s => s.device || 'Dispositivo').filter(Boolean))];
+    function admPersonChips(p) {
+        const c = [];
+        const on = p.sess.some(s => s.online);
+        if(on) c.push(`<span class="adm-chip ok"><span class="material-icons-round">wifi_tethering</span>online</span>`);
+        c.push(`<span class="adm-chip"><span class="material-icons-round">login</span>${p.sess.length} accessi</span>`);
+        const dv = admDevices(p); if(dv.length) c.push(`<span class="adm-chip${dv.length > 2 ? ' warn' : ''}"><span class="material-icons-round">devices</span>${admEsc(dv.join(', '))}</span>`);
+        if(p.role === 'autista' || p.role === 'coord' || p.role === 'centrale') c.push(p.subs.length ? `<span class="adm-chip ok"><span class="material-icons-round">notifications_active</span>notifiche</span>` : `<span class="adm-chip"><span class="material-icons-round">notifications_off</span>niente notifiche</span>`);
+        if(p.mods.length) c.push(`<span class="adm-chip warn"><span class="material-icons-round">edit</span>${p.mods.length} modifiche</span>`);
+        if(p.reqs.length) c.push(`<span class="adm-chip"><span class="material-icons-round">inbox</span>${p.reqs.length} richieste</span>`);
+        if(p.des) { const n = Object.keys(p.des.days || {}).length; if(n) c.push(`<span class="adm-chip"><span class="material-icons-round">beach_access</span>${n} desiderate</span>`); }
+        return `<div class="adm-chips">${c.join('')}</div>`;
+    }
+    function admOpenPerson(k) { vibrate(); admPerson = k; admRenderPersone(); const b = document.querySelector('#admin-panel-modal .adm-body'); if(b) b.scrollTop = 0; admTopBar(); }
+    function admRenderPersone() {
+        const box = document.getElementById('adm-persone'); if(!box) return;
+        if(!admData) { box.innerHTML = admLoadingHtml(); return; }
+        const all = admPeople();
+        if(admPerson) {
+            const p = all.find(x => x.key === admKey(admPerson)) || all.find(x => x.name === admPerson);
+            if(p) { box.innerHTML = admPersonDetail(p); admTopBar(); return; }
+            admPerson = null;
+        }
+        const q = admKey(admPeopleSearch);
+        const order = { coord: 0, centrale: 1, autista: 2, ospite: 3, anon: 4 };
+        const list = all.filter(p => !q || p.key.includes(q)).sort((a, b) => (order[a.role] - order[b.role]) || (admLastSeen(b) - admLastSeen(a)) || a.name.localeCompare(b.name));
+        const never = all.filter(p => p.col && !p.sess.length);
+        box.innerHTML = `<div class="adm-note"><span class="material-icons-round">info</span><div>Tocca una persona per vedere <b>tutto quello che fa</b>: da quali dispositivi entra, quando, cosa modifica, le richieste, le ferie desiderate e cosa può fare con il suo ruolo. Accessi degli ultimi ${ADM_DAYS} giorni, modifiche degli ultimi 7.</div></div>
+            ${never.length ? `<div class="adm-issue sev-info"><span class="material-icons-round">person_off</span><div><b>${never.length} ${never.length === 1 ? 'persona non è mai entrata' : 'persone non sono mai entrate'} con il proprio nome in ${ADM_DAYS} giorni</b><p>${admEsc(never.map(p => p.name).join(', '))}</p></div></div>` : ''}
+            <div class="adm-toolbar"><div class="adm-search"><span class="material-icons-round">search</span><input type="search" placeholder="Cerca una persona" value="${admEsc(admPeopleSearch)}" oninput="admPeopleSearch=this.value;admRenderPersone();const i=document.querySelector('#adm-persone input');if(i){i.focus();i.setSelectionRange(i.value.length,i.value.length);}"></div></div>
+            <div class="adm-people">${list.map(p => { const R = ADM_ROLES[p.role] || ADM_ROLES.autista, ls = admLastSeen(p);
+                return `<button class="adm-person" onclick="admOpenPerson('${admEsc(p.key).replace(/'/g, '&#39;')}')"><span class="adm-av${p.sess.some(s => s.online) ? ' on' : ''}" style="background:${R.color}22;color:${R.color}">${admEsc(admInit(p.name))}</span><div><b>${admEsc(p.name)}</b><small><span class="adm-pill muted">${R.name}</span> · ${ls ? 'ultimo accesso ' + admAgo(ls) : 'nessun accesso'}</small>${admPersonChips(p)}</div></button>`; }).join('')}</div>`;
+    }
+    function admPersonDetail(p) {
+        const R = ADM_ROLES[p.role] || ADM_ROLES.autista, ls = admLastSeen(p);
+        const extra = [];
+        if(typeof AS_OPERATORI !== 'undefined' && AS_OPERATORI.includes(p.key)) extra.push('Riceve le nuove richieste del portale');
+        const idRow = (() => { try { return admIdentityRows().find(r => admKey(r.nm) === p.key); } catch(e) { return null; } })();
+        const ev = [];
+        p.sess.forEach(s => { const st = admMs(s.startTime), la = admMs(s.lastActive) || st, min = Math.max(0, Math.round((la - st) / 60000));
+            ev.push({ t: st, k: 'acc', ico: 'login', h: `Ha aperto l’app da <b>${admEsc(s.device || 'un dispositivo')}</b>`, s: (s.online ? 'online adesso · ' : '') + (min ? 'attivo per ' + (min < 60 ? min + ' min' : Math.floor(min / 60) + ' h ' + (min % 60) + ' min') : 'pochi secondi') + ((s.viewHistory || []).length ? ' · ha guardato: ' + s.viewHistory.map(v => v.view).filter(v => v && v !== 'Avvio app').slice(-6).join(', ') : '') }); });
+        p.mods.forEach(e => { const it = e.items || []; ev.push({ t: admMs(e.t), k: 'mod', ico: 'edit', h: `Ha salvato <b>${it.length} ${it.length === 1 ? 'modifica' : 'modifiche'}</b>${String(e.who || '').split(' · ')[1] ? ' (' + admEsc(String(e.who).split(' · ')[1]) + ')' : ''}`,
+            s: e.note ? String(e.note) : it.slice(0, 4).map(x => String(x.key || '').replace('__', ' ').replace('@', ' ')).join(', ') + (it.length > 4 ? '…' : '') }); });
+        p.reqs.forEach(r => { const tp = (RICHIESTE_TYPE_LABELS && RICHIESTE_TYPE_LABELS[r.type]) || r.type || 'Richiesta';
+            ev.push({ t: admMs(r.timestamp), k: 'req', ico: 'inbox', h: `Ha chiesto <b>${admEsc(tp)}</b>`, s: admReqWhen(r) + ' · ' + admReqState(r)[0] }); });
+        if(p.des) { const c = desCount(p.des.days || {}, p.des.year); ev.push({ t: admMs(p.des.updatedAt), k: 'des', ico: 'beach_access', h: `Ferie desiderate ${p.des.year}: <b>${c.f} ferie, ${c.p} permessi</b>${c.auto ? ', ' + c.auto + ' riposi' : ''}`, s: p.des.adminBy ? 'ultima modifica fatta da ' + p.des.adminBy : 'scritte da lui/lei' }); }
+        ev.sort((a, b) => b.t - a.t);
+        const dv = {}; p.sess.forEach(s => { const k = s.device || 'Dispositivo'; dv[k] = dv[k] || { n: 0, last: 0, ua: s.userAgent || '' }; dv[k].n++; dv[k].last = Math.max(dv[k].last, admMs(s.lastActive) || admMs(s.startTime)); });
+        const pend = p.reqs.filter(r => admReqState(r)[1] === 'warn').length;
+        const desN = p.des ? desCount(p.des.days || {}, p.des.year) : null;
+        return `<div class="adm-pd-head"><span class="adm-av${p.sess.some(s => s.online) ? ' on' : ''}" style="background:${R.color}22;color:${R.color}">${admEsc(admInit(p.name))}</span><div><h4>${admEsc(p.name)}</h4><span class="adm-pill" style="background:${R.color}1f;color:${R.color}">${R.name}</span> <span class="adm-muted">${ls ? 'ultimo accesso ' + admWhen(ls) : 'nessun accesso negli ultimi ' + ADM_DAYS + ' giorni'}</span></div>
+                <button class="adm-btn sm" onclick="admBackHome()"><span class="material-icons-round">arrow_back</span>Tutte le persone</button></div>
+            <div class="adm-kpis">
+                ${admKpi('login', p.sess.length, 'Accessi', ADM_DAYS + ' giorni', p.sess.length ? 'info' : 'muted')}
+                ${admKpi('devices', Object.keys(dv).length, 'Dispositivi', Object.keys(dv).join(', ') || '—', Object.keys(dv).length > 2 ? 'warn' : 'info')}
+                ${admKpi('edit', p.mods.length, 'Salvataggi', 'ultimi 7 giorni', p.mods.length ? 'warn' : 'muted')}
+                ${admKpi('inbox', p.reqs.length, 'Richieste', pend ? pend + ' da gestire' : 'nessuna in sospeso', pend ? 'warn' : 'muted')}
+                ${admKpi(p.subs.length ? 'notifications_active' : 'notifications_off', p.subs.length ? 'sì' : 'no', 'Notifiche sul telefono', p.subs.length ? p.subs.length + ' dispositivi' : 'non attive', p.subs.length ? 'ok' : 'muted')}
+                ${admKpi('beach_access', desN ? desN.f : '—', 'Ferie desiderate', desN ? admDesYear() + (desN.p ? ' · ' + desN.p + ' permessi' : '') : 'nessuna scritta', desN && desN.f ? 'ok' : 'muted')}
+                ${admKpi('how_to_reg', idRow ? idRow.active.length : 0, 'Nome occupato da', idRow && idRow.active.length > 1 ? 'più dispositivi: controlla' : 'dispositivi', idRow && idRow.active.length > 1 ? 'warn' : 'info')}
+                ${admKpi('history', ev.length, 'Cose fatte', 'nella cronologia qui sotto', 'info')}
+            </div>
+            <div class="adm-grid2">
+                <div class="adm-card"><h4><span class="material-icons-round">verified_user</span>Cosa può fare</h4><small class="adm-muted">${admEsc(R.how)}</small><ul class="adm-can">${R.can.concat(extra).map(x => `<li><span class="material-icons-round">check_circle</span>${admEsc(x)}</li>`).join('')}</ul>
+                    ${R.cant.length ? `<p class="adm-muted" style="margin:10px 0 6px;font-weight:800">Non può</p><ul class="adm-can no">${R.cant.map(x => `<li><span class="material-icons-round">block</span>${admEsc(x)}</li>`).join('')}</ul>` : ''}</div>
+                <div class="adm-card"><h4><span class="material-icons-round">devices</span>Dispositivi usati</h4>${Object.keys(dv).length ? `<div class="adm-rows">${Object.entries(dv).sort((a, b) => b[1].last - a[1].last).map(([k, v]) => `<div class="adm-row"><span class="material-icons-round">${/iphone|android|telefono|mobile/i.test(k) ? 'smartphone' : /ipad|tablet/i.test(k) ? 'tablet' : 'computer'}</span><div><b>${admEsc(k)}</b><small>${v.n} accessi · ultimo ${admAgo(v.last)}</small></div></div>`).join('')}</div>` : '<div class="adm-empty sm"><span class="material-icons-round">devices</span>Nessun dispositivo negli ultimi ' + ADM_DAYS + ' giorni</div>'}
+                    ${idRow && idRow.active.length ? `<div class="adm-row-act"><button class="adm-btn sm" onclick="admGo('identita')"><span class="material-icons-round">how_to_reg</span>Nomi e identità</button></div>` : ''}</div>
+            </div>
+            <div class="adm-card"><h4><span class="material-icons-round">timeline</span>Cosa ha fatto</h4>${ev.length ? `<ul class="adm-tl">${ev.slice(0, 80).map(e => `<li class="k-${e.k}"><i><span class="material-icons-round">${e.ico}</span></i><span class="adm-tl-t">${admWhen(e.t)}</span><div>${e.h}</div>${e.s ? `<small>${admEsc(e.s)}</small>` : ''}</li>`).join('')}</ul>${ev.length > 80 ? `<small class="adm-muted">Mostrate le ultime 80.</small>` : ''}` : '<div class="adm-empty sm"><span class="material-icons-round">hourglass_empty</span>Nessuna attività registrata</div>'}</div>`;
+    }
+
+    // ── ruoli e permessi ──
+    function admRenderRuoli() {
+        const box = document.getElementById('adm-ruoli'); if(!box) return;
+        const ppl = admPeople(), who = r => ppl.filter(p => p.role === r).map(p => p.name);
+        const card = (R, names) => `<div class="adm-role"><div class="adm-role-h"><span class="material-icons-round" style="background:${R.color}">${R.icon}</span><div><b>${R.name}</b><small>${admEsc(R.how)}</small></div></div>
+            <p>Può</p><ul class="adm-can">${R.can.map(x => `<li><span class="material-icons-round">check_circle</span>${admEsc(x)}</li>`).join('')}</ul>
+            ${R.cant.length ? `<p>Non può</p><ul class="adm-can no">${R.cant.map(x => `<li><span class="material-icons-round">block</span>${admEsc(x)}</li>`).join('')}</ul>` : ''}
+            ${names ? `<div class="adm-role-who">Chi: <b>${admEsc(names)}</b></div>` : ''}</div>`;
+        box.innerHTML = `<div class="adm-note"><span class="material-icons-round">info</span><div>Cosa può fare <b>ogni tipo di account</b> che entra nell’app. Il ruolo dipende dal nome scelto in “Chi sei?”; le aree protette (Area coordinatore, admin delle desiderate, questo pannello) si aprono solo con la password e valgono sul dispositivo finché l’app resta aperta.</div></div>
+            <div class="adm-roles">${card(ADM_ROLES.autista, who('autista').join(', '))}${card(ADM_ROLES.coord, who('coord').join(', ') || coordinatorName)}${card(ADM_ROLES.centrale, who('centrale').join(', '))}${card(ADM_ROLES.ospite, '')}${admExtraRoles().map(r => card(r, '')).join('')}${card(ADM_ROLES.anon, '')}</div>`;
+    }
+
+    // ── motore delle notifiche ──
+    function admRenderMotoreTab() {
+        const box = document.getElementById('adm-motore'); if(!box) return;
+        if(!admData) { box.innerHTML = admLoadingHtml(); return; }
+        const runs = admData.runs, M = admMotore();
+        if(!runs) { box.innerHTML = `<div class="adm-empty"><span class="material-icons-round">${admMotoreData.pending ? 'autorenew' : 'cloud_off'}</span>${admMotoreData.pending ? 'Chiedo a GitHub…' : 'GitHub non ha risposto. Riprova con Aggiorna.'}</div>`; return; }
+        const dur = r => { const a = Date.parse(r.run_started_at || r.created_at), b = Date.parse(r.updated_at); return b > a ? Math.round((b - a) / 1000) : 0; };
+        const done = runs.filter(r => r.status === 'completed'), okN = done.filter(r => r.conclusion === 'success').length;
+        const avg = done.length ? Math.round(done.reduce((a, r) => a + dur(r), 0) / done.length) : 0;
+        const subs = Object.values(admData.subs || {}), owners = {}; subs.forEach(s => { const o = s.owner || '?'; owners[o] = (owners[o] || 0) + 1; });
+        const evName = { schedule: 'automatico', workflow_dispatch: 'avviato a mano', push: 'dopo una pubblicazione', repository_dispatch: 'chiamato dall’app' };
+        box.innerHTML = `<div class="adm-note"><span class="material-icons-round">info</span><div>Il <b>motore</b> gira su GitHub ogni 15 minuti circa: manda le notifiche ad app chiusa e aggiorna i calendari del telefono. Qui vedi i suoi ultimi ${runs.length} giri.</div></div>
+            <div class="adm-kpis">
+                ${admKpi('schedule', M ? admAgo(M.last) : '—', 'Ultimo giro', M ? admWhen(M.last) : '', !M ? 'muted' : Date.now() - M.last > 36e5 ? 'warn' : 'ok')}
+                ${admKpi('repeat', M ? M.auto24 : 0, 'Giri automatici', 'ultime 24 ore', 'info')}
+                ${admKpi('task_alt', done.length ? Math.round(okN / done.length * 100) + '%' : '—', 'Riusciti', okN + ' su ' + done.length, okN === done.length ? 'ok' : 'warn')}
+                ${admKpi('timer', avg ? avg + ' s' : '—', 'Durata media', 'per giro', 'info')}
+            </div>
+            ${admData.motoreProblem ? `<div class="adm-issue sev-err"><span class="material-icons-round">notifications_off</span><div><b>Le notifiche non partono</b><p>${admEsc(admData.motoreProblem)}</p></div></div>` : ''}
+            <div class="adm-grid2"><div class="adm-card"><h4><span class="material-icons-round">notifications_active</span>Telefoni con le notifiche</h4>${subs.length ? `<div class="adm-rows">${Object.entries(owners).sort((a, b) => a[0].localeCompare(b[0])).map(([o, n]) => `<div class="adm-row"><span class="material-icons-round">smartphone</span><div><b>${admEsc(o)}</b><small>${n} ${n === 1 ? 'dispositivo' : 'dispositivi'}</small></div></div>`).join('')}</div>` : '<div class="adm-empty sm"><span class="material-icons-round">notifications_off</span>Nessun telefono ha le notifiche attive</div>'}</div>
+            <div class="adm-card"><h4><span class="material-icons-round">link</span>Collegamenti</h4><div class="adm-rows"><div class="adm-row"><span class="material-icons-round">open_in_new</span><div><a href="https://github.com/${ADM_MOTORE_REPO}/actions" target="_blank" rel="noopener">Registro del motore su GitHub</a><small>Tutti i giri con i dettagli</small></div></div></div></div></div>
+            <div class="adm-sec-h" style="margin-top:16px"><span class="material-icons-round">list</span>Ultimi giri <b>${runs.length}</b></div>
+            <div class="adm-rows">${runs.slice(0, 40).map(r => { const st = r.status !== 'completed' ? ['in corso', 'info'] : r.conclusion === 'success' ? ['riuscito', 'ok'] : r.conclusion === 'cancelled' ? ['annullato', 'muted'] : ['fallito', 'err'];
+                return `<div class="adm-row"><span class="material-icons-round" style="color:${st[1] === 'ok' ? '#16a34a' : st[1] === 'err' ? '#dc2626' : '#64748b'}">${st[1] === 'ok' ? 'check_circle' : st[1] === 'err' ? 'cancel' : 'pending'}</span><div><b>${admWhen(Date.parse(r.created_at))}</b><small>${evName[r.event] || r.event} · ${dur(r)} s</small></div><span class="adm-pill ${st[1]}">${st[0]}</span><a href="${admEsc(r.html_url)}" target="_blank" rel="noopener" class="adm-btn sm">Apri</a></div>`; }).join('')}</div>`;
+    }
+
+    // ── richieste del portale ──
+    let admReqFilter = 'gestire';
+    const admReqPending = () => (admData ? admData.requests : []).filter(r => !r.obscured && !r.insertedInShifts && !reqIsAutoCessione(r));
+    function admReqState(r) {
+        if(r.obscured) return ['nascosta / rifiutata', 'muted'];
+        if(r.insertedInShifts) return ['inserita nei turni', 'ok'];
+        if(reqIsAutoCessione(r)) return ['cessione automatica', 'info'];
+        return ['da gestire', 'warn'];
+    }
+    function admReqWhen(r) {
+        const f = d => d ? new Date(d + 'T12:00').toLocaleDateString('it-IT', { day: 'numeric', month: 'short', year: '2-digit' }) : '';
+        return r.dateFrom ? (r.dateTo && r.dateTo !== r.dateFrom ? `dal ${f(r.dateFrom)} al ${f(r.dateTo)}` : `il ${f(r.dateFrom)}`) : '';
+    }
+    function admReqSet(f) { vibrate(); admReqFilter = f; admRenderRichieste(); }
+    function admRenderRichieste() {
+        const box = document.getElementById('adm-richieste'); if(!box) return;
+        if(!admData) { box.innerHTML = admLoadingHtml(); return; }
+        const all = admData.requests, pend = admReqPending();
+        const list = admReqFilter === 'gestire' ? pend : admReqFilter === 'inserite' ? all.filter(r => r.insertedInShifts) : all;
+        const byType = {}; all.forEach(r => { const t = (RICHIESTE_TYPE_LABELS && RICHIESTE_TYPE_LABELS[r.type]) || r.type || '—'; byType[t] = (byType[t] || 0) + 1; });
+        const tmx = Math.max(1, ...Object.values(byType));
+        const appr = { attesa: ['caposala: in attesa', 'warn'], approvata: ['caposala: approvata', 'ok'], rifiutata: ['caposala: rifiutata', 'err'] };
+        box.innerHTML = `<div class="adm-kpis">
+                ${admKpi('pending_actions', pend.length, 'Da gestire', pend.length ? 'la più vecchia ' + admAgo(Math.min(...pend.map(r => admMs(r.timestamp)))) : 'nessuna', pend.length ? 'warn' : 'ok')}
+                ${admKpi('inbox', all.length, 'Ricevute', 'ultime ' + all.length, 'info')}
+                ${admKpi('event_available', all.filter(r => r.insertedInShifts).length, 'Inserite nei turni', '', 'ok')}
+                ${admKpi('swap_horiz', all.filter(r => reqIsAutoCessione(r)).length, 'Cessioni automatiche', 'reperibilità', 'info')}
+            </div>
+            <div class="adm-toolbar"><div class="adm-seg">${[['gestire', 'Da gestire'], ['inserite', 'Inserite'], ['tutte', 'Tutte']].map(([k, l]) => `<button class="${admReqFilter === k ? 'on' : ''}" onclick="admReqSet('${k}')">${l}</button>`).join('')}</div>
+                <button class="adm-btn sm" onclick="closeAdminPanel();setTimeout(()=>openCoordConsole('panoramica'),300)"><span class="material-icons-round">open_in_new</span>Gestisci nell’Area coordinatore</button></div>
+            ${list.length ? `<div class="adm-rows">${list.map(r => { const tp = (RICHIESTE_TYPE_LABELS && RICHIESTE_TYPE_LABELS[r.type]) || r.type || 'Richiesta', st = admReqState(r), ap = appr[r.headNurseApproval];
+                return `<div class="adm-row"><span class="adm-av" style="width:32px;height:32px">${admEsc(admInit(r.name))}</span><div><b>${admEsc(r.name || '—')}</b> · ${admEsc(tp)}<small>${admEsc(admReqWhen(r))}${r.swapWith ? ' · con ' + admEsc(r.swapWith) : ''}${r.timeSlot ? ' · ' + admEsc(r.timeSlot) : ''}${r.notes ? ' · “' + admEsc(String(r.notes).slice(0, 80)) + '”' : ''}</small></div><span class="r">${admAgo(admMs(r.timestamp))}<br><span class="adm-pill ${st[1]}">${st[0]}</span>${ap ? ` <span class="adm-pill ${ap[1]}">${ap[0]}</span>` : ''}</span></div>`; }).join('')}</div>` : `<div class="adm-empty ok"><span class="material-icons-round">task_alt</span>${admReqFilter === 'gestire' ? 'Nessuna richiesta da gestire.' : 'Nessuna richiesta.'}</div>`}
+            <div class="adm-card"><h4><span class="material-icons-round">bar_chart</span>Richieste per tipo</h4>${Object.entries(byType).sort((a, b) => b[1] - a[1]).map(([t, n]) => `<div class="adm-bar"><span class="adm-bar-l">${admEsc(t)}</span><span class="adm-bar-t"><i class="violet" style="width:${Math.round(n / tmx * 100)}%"></i></span><b>${n}</b></div>`).join('') || '<div class="adm-muted">—</div>'}</div>`;
+    }
+
+    // ── ferie desiderate ──
+    const admDesYear = () => (typeof desDefaultYear === 'function' ? desDefaultYear() : new Date().getFullYear() + 1);
+    function admRenderDesiderate() {
+        const box = document.getElementById('adm-desiderate'); if(!box) return;
+        if(!admData) { box.innerHTML = admLoadingHtml(); return; }
+        const y = admDesYear(), by = {}; (admData.des || []).forEach(x => by[admKey(x.name)] = x);
+        const rows = (drivers || []).filter(d => !d.virtual).map(d => { const x = by[admKey(d.originalName || d.name)] || by[admKey(d.name)], c = x ? desCount(x.days || {}, y) : { f: 0, p: 0, auto: 0 }, A = desAllow(d);
+            return { d, x, c, A, notes: x ? Object.keys(x.notes || {}).length : 0, ok: x ? Object.keys(x.ok || {}).length : 0 }; });
+        const started = rows.filter(r => r.c.f || r.c.p), over = rows.filter(r => r.c.f > r.A.co || r.c.p > r.A.sp);
+        box.innerHTML = `<div class="adm-kpis">
+                ${admKpi('beach_access', started.length + ' / ' + rows.length, 'Hanno scritto', 'ferie desiderate ' + y, started.length ? 'ok' : 'muted')}
+                ${admKpi('event', rows.reduce((a, r) => a + r.c.f, 0), 'Giorni di ferie', 'chiesti in tutto', 'info')}
+                ${admKpi('strikethrough_s', rows.reduce((a, r) => a + r.ok, 0), 'Giorni barrati', 'già nei turni', 'info')}
+                ${admKpi('report', over.length, 'Oltre le spettanze', over.map(r => r.d.name).join(', ') || 'nessuno', over.length ? 'warn' : 'ok')}
+            </div>
+            <div class="adm-toolbar"><button class="adm-btn sm primary" onclick="closeAdminPanel();setTimeout(openDesiderate,300)"><span class="material-icons-round">open_in_new</span>Apri il calendario desiderate</button></div>
+            <div class="adm-rows">${rows.sort((a, b) => b.c.f - a.c.f || a.d.name.localeCompare(b.d.name)).map(r => `<div class="adm-row"><span class="adm-av" style="width:32px;height:32px">${admEsc(admInit(r.d.name))}</span><div><b>${admEsc(r.d.name)}</b><small>Ferie <b>${r.c.f}</b>/${r.A.co} · permessi <b>${r.c.p}</b>/${r.A.sp}${r.c.auto ? ' · riposi ' + r.c.auto : ''}${r.notes ? ' · ' + r.notes + ' note' : ''}${r.ok ? ' · ' + r.ok + ' barrati' : ''}</small><div class="adm-desbar"><i class="${r.c.f > r.A.co ? 'over' : ''}" style="width:${Math.min(100, Math.round(r.c.f / Math.max(1, r.A.co) * 100))}%"></i></div></div><span class="r">${r.x ? 'aggiornate ' + admAgo(admMs(r.x.updatedAt)) + (r.x.adminBy ? '<br>da ' + admEsc(r.x.adminBy) : '') : 'non ancora scritte'}</span></div>`).join('')}</div>`;
+    }
+
+    // ── copie di sicurezza ──
+    function admRenderCopie() {
+        const box = document.getElementById('adm-copie'); if(!box) return;
+        if(!admData) { box.innerHTML = admLoadingHtml(); return; }
+        const list = admData.snaps.slice().sort((a, b) => admMs(b.createdAt) - admMs(a.createdAt)), last = list.length ? admMs(list[0].createdAt) : 0;
+        const kind = k => ({ daily: 'copia giornaliera', settimanale: 'copia della settimana', weekly: 'copia della settimana', manuale: 'copia manuale' }[k] || String(k || 'copia').replace(/^prima-/, 'prima di: ').replace(/-/g, ' '));
+        box.innerHTML = `<div class="adm-note"><span class="material-icons-round">info</span><div>L’app fa da sola una copia dei turni ogni giorno e ogni settimana (aprendo l’Area coordinatore) e prima delle operazioni grosse (importazioni, nuovo anno). Il <b>ripristino</b> si fa dall’Area coordinatore › Dati e backup.</div></div>
+            <div class="adm-kpis three">
+                ${admKpi('backup', admAgo(last), 'Ultima copia', admWhen(last), last && Date.now() - last < 3 * 864e5 ? 'ok' : 'warn')}
+                ${admKpi('inventory_2', list.length, 'Copie salvate', '', 'info')}
+                ${admKpi('storage', list.reduce((a, s) => a + (+s.size || 0), 0), 'Caselle salvate', 'in tutte le copie', 'info')}
+            </div>
+            <div class="adm-toolbar"><button class="adm-btn sm" onclick="closeAdminPanel();setTimeout(()=>openCoordConsole('dati'),300)"><span class="material-icons-round">settings_backup_restore</span>Ripristina dall’Area coordinatore</button></div>
+            ${list.length ? `<div class="adm-rows">${list.map(s => `<div class="adm-row"><span class="material-icons-round">backup</span><div><b>${admWhen(admMs(s.createdAt))}</b><small>${admEsc(kind(s.kind))}${s.size ? ' · ' + s.size + ' caselle' : ''}</small></div><span class="r">${admAgo(admMs(s.createdAt))}</span></div>`).join('')}</div>` : '<div class="adm-empty"><span class="material-icons-round">backup</span>Nessuna copia salvata.</div>'}`;
+    }
+
     // ── panoramica ──
     function admKpi(icon, val, label, sub, tone) { return `<div class="adm-kpi tone-${tone || 'info'}"><span class="material-icons-round">${icon}</span><div><b>${val}</b><small>${label}</small>${sub ? `<em>${sub}</em>` : ''}</div></div>`; }
     function admMotore() {
@@ -5911,7 +6314,15 @@ body.tl .mn-txt b { font-weight: 600 !important; }
                 ${status('ok', 'Versione dell’app', admEsc(document.lastModified || '—'))}
             </div></div>`;
     }
-    function admBadges() {
+    function admBadges() { admBadges0(); try { admBadgesMore(); admFoldBadges(); } catch(e) {} }
+    function admBadgesMore() {
+        const set = (id, n, tone) => { const b = document.getElementById(id); if(b) { b.textContent = n ? n : ''; b.className = 'adm-badge ' + (tone || ''); } };
+        const M = admMotore(); set('adm-badge-motore', M && (M.failed24 || Date.now() - M.last > 36e5) ? (M.failed24 || 1) : 0, M && M.failed24 ? 'err' : 'warn');
+        set('adm-badge-richieste', admReqPending().length, 'warn');
+        const l = Math.max(0, ...admData.snaps.map(x => admMs(x.createdAt))); set('adm-badge-copie', !l || Date.now() - l > 3 * 864e5 ? 1 : 0, 'warn');
+        if(admTab === 'home') admRenderHome();
+    }
+    function admBadges0() {
         if(!admData) return;
         const set = (id, n, tone) => { const b = document.getElementById(id); if(b) { b.textContent = n ? n : ''; b.className = 'adm-badge ' + (tone || ''); } };
         const errs = admProblems(1);
