@@ -659,6 +659,7 @@
   }
  },
  "reqIds": [
+  "jOnVNyub04hnXEV57Fzp",
   "asEvsdkWRjB0ris3Ljjy",
   "0ZAlojsNnwGLmRwyV27K",
   "3RzFi8zgTKPvdDnQwYKW",
@@ -737,14 +738,13 @@
   "y9mHvu5OWZW8X1lQCstJ",
   "NBkaIoM1adQNvbAWkIfP",
   "CyhC8j56ZFbD6XxO9vQi",
-  "dE2IPtbpnOr2Exdlnj6a",
-  "hPTcsJfGPdOLagK6qDr0"
+  "dE2IPtbpnOr2Exdlnj6a"
  ],
  "sent": {
-  "rep|2026-11-06|VOLPINI": 1793903407978,
   "rep|2026-11-07|BERARDI": 1793969131426,
   "rep|2026-11-07|BIANCHI": 1793969131426,
   "rep|2026-11-08|GHIOTTI": 1794050189438,
-  "rep|2026-11-09|BARBIERI": 1794139713768
+  "rep|2026-11-09|BARBIERI": 1794139713768,
+  "rep|2026-11-10|SARTI": 1794249647541
  }
 }
