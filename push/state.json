@@ -659,6 +659,11 @@
   }
  },
  "reqIds": [
+  "d7skFpK9GhyEhsSpIsfR",
+  "zbNmy1HGs9QLzkRJeHXo",
+  "cQwzrO3er7EkhY4Zzh4w",
+  "GjTzkoYy7lA7C2izRoV5",
+  "BjrPPT1bZuvNIfNfavzF",
   "jOnVNyub04hnXEV57Fzp",
   "asEvsdkWRjB0ris3Ljjy",
   "0ZAlojsNnwGLmRwyV27K",
@@ -733,18 +738,12 @@
   "mwBS76lLWevJXaP3L8w3",
   "p6XuER3ACP7wPz57jzzV",
   "tSssOj7cDDlrFRGnVGOU",
-  "Okuo2GOtcX4UkmVyAG9B",
-  "mi40JivwANCWXaREki1z",
-  "y9mHvu5OWZW8X1lQCstJ",
-  "NBkaIoM1adQNvbAWkIfP",
-  "CyhC8j56ZFbD6XxO9vQi",
-  "dE2IPtbpnOr2Exdlnj6a"
+  "Okuo2GOtcX4UkmVyAG9B"
  ],
  "sent": {
-  "rep|2026-11-07|BERARDI": 1793969131426,
-  "rep|2026-11-07|BIANCHI": 1793969131426,
   "rep|2026-11-08|GHIOTTI": 1794050189438,
   "rep|2026-11-09|BARBIERI": 1794139713768,
-  "rep|2026-11-10|SARTI": 1794249647541
+  "rep|2026-11-10|SARTI": 1794249647541,
+  "rep|2026-11-11|PAZZAGLIA": 1794330147843
  }
 }
