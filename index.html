@@ -5345,9 +5345,10 @@ body.tl .mn-txt b { font-weight: 600 !important; }
             const uid = fbAuth.currentUser && fbAuth.currentUser.uid;
             console.log('[Identità] Tentativo recupero da UID Firebase:', uid || '(uid assente)');
             if(!uid) return;
-            const doc = await asNoopRef().doc(uid).get();
-            if(doc.exists && doc.data().name) {
-                userIdentity = doc.data().name;
+            const doc = await cfgRef('identities').get();   // autisti: un solo documento "prova_identities" con { u: { uid: { name, updatedAt } } }
+            const mine = doc.exists ? ((doc.data().u || {})[uid] || {}) : {};
+            if(mine.name) {
+                userIdentity = mine.name;
                 localStorage.setItem('infermieri_identity_name', userIdentity);
                 applySplashWelcome();
                 checkIfIAmCoordinator();
@@ -5359,8 +5360,8 @@ body.tl .mn-txt b { font-weight: 600 !important; }
     }
     function persistIdentityToUidBackup() {
         if(!fbReady || !fbAuth.currentUser) return;
-        asNoopRef().doc(fbAuth.currentUser.uid)
-            .set({ name: userIdentity || null, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }, { merge:true })
+        cfgRef('identities')
+            .set({ u: { [fbAuth.currentUser.uid]: { name: userIdentity || null, updatedAt: firebase.firestore.FieldValue.serverTimestamp() } } }, { merge:true })
             .catch(e => console.error("Errore salvataggio identità di riserva:", e));
     }
 
@@ -5384,12 +5385,13 @@ body.tl .mn-txt b { font-weight: 600 !important; }
         try {
             const myUid = fbAuth.currentUser && fbAuth.currentUser.uid;
             const cutoffMs = Date.now() - IDENTITY_CLAIM_MAX_AGE_MS;
-            const snap = await asNoopRef().get();
+            const idDoc = await cfgRef('identities').get();   // chi ha scelto quale nome (vedi persistIdentityToUidBackup)
+            const all = idDoc.exists ? (idDoc.data().u || {}) : {};
             const rel = identityReleases || {};   // nomi liberati dall'admin (dalle impostazioni già in memoria)
             const locked = new Set();
-            snap.forEach(doc => {
-                if(doc.id === myUid) return;
-                const d = doc.data();
+            Object.keys(all).forEach(uid => {
+                if(uid === myUid) return;
+                const d = all[uid] || {};
                 if(!d.name || d.name === 'Ospite' || d.name === PS_NAME || PW_IDENTITIES.includes(d.name)) return;   // PC condiviso, COORDINATORE e TEST non sono mai "in uso"
                 const ms = tsToMillis(d.updatedAt);
                 if(ms && ms > cutoffMs && !(rel[d.name] && ms <= rel[d.name])) locked.add(d.name);
@@ -6434,7 +6436,8 @@ body.tl .mn-txt b { font-weight: 600 !important; }
     function admMotore() {
         const runs = admData && admData.runs; if(!runs) return null;
         const day = Date.now() - 864e5, last = runs[0];
-        return { last: last ? Date.parse(last.created_at) : 0, ok: last ? last.conclusion === 'success' : false, running: last && last.status !== 'completed', event: last ? last.event : '', auto24: runs.filter(r => r.event === 'schedule' && Date.parse(r.created_at) > day).length, all24: runs.filter(r => Date.parse(r.created_at) > day).length, failed24: runs.filter(r => r.conclusion === 'failure' && Date.parse(r.created_at) > day).length };
+        return { last: last ? (last.status !== 'completed' ? Date.now() : Date.parse(last.updated_at || last.created_at)) : 0,   // un giro acceso lavora ogni 15 minuti per ore
+             ok: last ? last.conclusion === 'success' : false, running: last && last.status !== 'completed', event: last ? last.event : '', auto24: runs.filter(r => r.event === 'schedule' && Date.parse(r.created_at) > day).length, all24: runs.filter(r => Date.parse(r.created_at) > day).length, failed24: runs.filter(r => r.conclusion === 'failure' && Date.parse(r.created_at) > day).length };
     }
     function admIssues() {
         const out = [], add = (sev, icon, title, detail, act, actLbl) => out.push({ sev, icon, title, detail, act, actLbl });
@@ -10272,16 +10275,91 @@ body.tl .mn-txt b { font-weight: 600 !important; }
         }
         return out;
     }
+    // ── Infermieri in turno: dai dati veri dell'app infermieri (sola lettura) ──
+    // L'app infermieri non usa più il file infermieri.xlsx (fermo dal 2 ottobre): i turni stanno
+    // sul suo Firebase, un documento per mese ("prova_turni_AAAA-MM" in infermieri26_config).
+    // Qui si leggono e basta, con un collegamento a parte; se non si riesce si torna al file Excel
+    // con sopra le modifiche fatte nell'app (quando l'app infermieri è ancora in modalità Excel).
+    const INF_FB_CONFIG = {
+        apiKey: "AIzaSyDCycpsVJus8Mwd-AqaPORZIrFUIyo00VQ",
+        authDomain: "creazione-turni-118.firebaseapp.com",
+        projectId: "creazione-turni-118",
+        storageBucket: "creazione-turni-118.firebasestorage.app",
+        messagingSenderId: "389097635025",
+        appId: "1:389097635025:web:331564551f0e5190a199f0"
+    };
+    const INF_FB_NS = 'prova_';   // i documenti che usa l'app infermieri ufficiale
+    let infFbDbP = null;
+    function infFbDb() {
+        if(!infFbDbP) infFbDbP = (async () => {
+            const app = firebase.apps.find(a => a.name === 'infermieri') || firebase.initializeApp(INF_FB_CONFIG, 'infermieri');
+            const auth = app.auth();
+            if(!auth.currentUser) await auth.signInAnonymously();
+            return app.firestore();
+        })().catch(e => { infFbDbP = null; throw e; });
+        return infFbDbP;
+    }
+    function infFbDoc(db, name) { return db.collection('infermieri26_config').doc(INF_FB_NS + name).get(); }
+    // Valore di una casella dell'app infermieri, come lo legge il resto di questa app
+    function infCellVal(c) { return c && typeof c === 'object' ? { v: c.v == null ? '' : c.v, subV: c.subV == null ? '' : c.subV } : { v: '', subV: '' }; }
+    // Mette le caselle { "NOME__MESE-giorno[@anno]": {v, subV} } dentro una griglia [intestazione, righe…]
+    function infApplyCells(grid, cells, year) {
+        const H = grid[0] || [], col = {};
+        for(let c = 3; c < H.length; c++) col[String(H[c]).trim().toUpperCase()] = c;
+        const rowAt = {}; let y = year, last = -1;
+        for(let i = 1; i < grid.length; i++) {
+            const mi = MONTH_MAP[grid[i][0].v]; if(mi === undefined) continue;
+            if(mi < last) y++; last = mi;
+            rowAt[grid[i][0].v + '-' + parseInt(grid[i][1].v) + '@' + y] = i;
+        }
+        Object.keys(cells || {}).forEach(k => {
+            const i = k.indexOf('__'); if(i === -1) return;
+            const name = k.slice(0, i).trim().toUpperCase(), rest = k.slice(i + 2), at = rest.indexOf('@');
+            const ky = at === -1 ? year : parseInt(rest.slice(at + 1), 10), ds = at === -1 ? rest : rest.slice(0, at);
+            const r = rowAt[ds + '@' + ky], c = col[name];
+            if(r === undefined || c === undefined) return;
+            grid[r][c] = infCellVal(cells[k]);
+        });
+        return grid;
+    }
+    async function infLoadFromFirebase() {
+        const db = await infFbDb();
+        const sDoc = await infFbDoc(db, 'settings'); if(!sDoc.exists) return null;
+        const st = sDoc.data() || {}, oc = st.operatorConfig || {};
+        if(st.dataSource !== 'firebase') return { excel: true, overrides: st.manualOverrides || {} };
+        const year = SHIFT_YEAR, removed = oc.removed || {};
+        const names = (Array.isArray(oc.baseNames) ? oc.baseNames : []).concat((Array.isArray(oc.added) ? oc.added : []).map(o => o && o.name))
+            .filter(n => n && !removed[n] && !['TEST', 'COORDINATORE'].includes(String(n).trim().toUpperCase()));
+        const uniq = [...new Set(names)];
+        const grid = buildBlankYearData(year, uniq, NEXT_YEAR_MONTHS);
+        const docs = await Promise.all(Array.from({ length: 12 }, (_, m) => infFbDoc(db, monthDocName(year, m)).catch(() => null)));
+        docs.forEach(d => { if(d && d.exists) infApplyCells(grid, d.data().cells || {}, year); });
+        // l'anno dopo: nel suo documento le chiavi sono senza anno
+        const nextDocs = await Promise.all(Array.from({ length: NEXT_YEAR_MONTHS }, (_, m) => infFbDoc(db, monthDocName(year + 1, m)).catch(() => null)));
+        nextDocs.forEach(d => { if(!d || !d.exists) return; const src = d.data().cells || {}, cells = {}; Object.keys(src).forEach(k => { cells[k.includes('@') ? k : k + '@' + (year + 1)] = src[k]; }); infApplyCells(grid, cells, year); });
+        return { grid };
+    }
+    async function infLoadFromExcel(overrides) {
+        const r = await fetch(OTHER_TEAM.url + '?v=' + Date.now()); if(!r.ok) return null;
+        await loadLib('excel');
+        const wb = new ExcelJS.Workbook(); await wb.xlsx.load(await r.arrayBuffer());
+        const ws = wb.getWorksheet('Foglio2') || wb.worksheets[0], raw = [];
+        ws.eachRow({ includeEmpty: true }, (row, rn) => { const rd = []; row.eachCell({ includeEmpty: true }, (cell, cn) => { let v = cell.value; if(typeof v === 'object' && v !== null) v = v.result || (v.richText && v.richText[0] && v.richText[0].text) || ''; rd[cn] = { v }; }); raw[rn] = rd; });
+        const grid = OTHER_TEAM.parse(raw);
+        return overrides ? infApplyCells(grid, overrides, SHIFT_YEAR) : grid;
+    }
+    const OTHER_TEAM_TTL = 10 * 60000;   // dopo 10 minuti si rilegge (l'app può restare aperta a lungo)
+    let otherTeamAt = 0;
     function loadOtherTeam() {
-        if(otherTeamLoading) return otherTeamLoading;
+        if(otherTeamLoading && Date.now() - otherTeamAt < OTHER_TEAM_TTL) return otherTeamLoading;
+        otherTeamAt = Date.now();
         otherTeamLoading = (async () => {
+            let fb = null;
+            try { fb = await infLoadFromFirebase(); }
+            catch(e) { console.log('Turni infermieri da Firebase non disponibili, uso il file:', e.message); }
             try {
-                const r = await fetch(OTHER_TEAM.url + '?v=' + Date.now()); if(!r.ok) return;
-                await loadLib('excel');
-                const wb = new ExcelJS.Workbook(); await wb.xlsx.load(await r.arrayBuffer());
-                const ws = wb.getWorksheet('Foglio2') || wb.worksheets[0], raw = [];
-                ws.eachRow({ includeEmpty: true }, (row, rn) => { const rd = []; row.eachCell({ includeEmpty: true }, (cell, cn) => { let v = cell.value; if(typeof v === 'object' && v !== null) v = v.result || (v.richText && v.richText[0] && v.richText[0].text) || ''; rd[cn] = { v }; }); raw[rn] = rd; });
-                otherTeam = OTHER_TEAM.parse(raw);
+                if(fb && fb.grid) otherTeam = fb.grid;
+                else otherTeam = await infLoadFromExcel(fb && fb.overrides) || otherTeam;
             } catch(e) { console.log('Turni dell’altra squadra non disponibili:', e.message); }
         })();
         return otherTeamLoading;
@@ -10301,6 +10379,7 @@ body.tl .mn-txt b { font-weight: 600 !important; }
         const mese = row[0].v, giorno = parseInt(row[1].v), year = shiftRowYear(rowIndex);
         const head = `<div class="ot-sec"><span class="material-icons-round">${OTHER_TEAM.icon}</span>${esc(OTHER_TEAM.title)}</div>`;
         const box = inner => `<div id="ot-list" data-row="${rowIndex}" data-shift="${esc(uShift)}">${head}${inner}</div>`;
+        if(otherTeam && Date.now() - otherTeamAt > OTHER_TEAM_TTL) loadOtherTeam();   // si aggiorna per la prossima apertura
         if(!otherTeam) {
             if(!otherTeamLoading) loadOtherTeam();
             otherTeamLoading.then(() => { const el = document.getElementById('ot-list'); if(el && +el.dataset.row === rowIndex && otherTeam) el.outerHTML = otherTeamHtml(rowIndex, uShift); });
@@ -11204,15 +11283,8 @@ body.tl .mn-txt b { font-weight: 600 !important; }
 
     // ── Infermieri in turno (file dell'app infermieri, solo lettura) ────
     let asNurses = null;
-    async function asLoadNurses() {
-        try {
-            const resp = await fetch('https://centrale118rsm-code.github.io/Turni-Infermieri-2026/' + 'infermieri' + '.xlsx?v=' + Date.now())   // scritto a pezzi: lo script di conversione cambia 'turni.xlsx' in 'turni.xlsx';
-            if(!resp.ok) return;
-            const wb = new ExcelJS.Workbook(); await wb.xlsx.load(await resp.arrayBuffer());
-            const ws = wb.getWorksheet('Foglio2') || wb.worksheets[0], raw = [];
-            ws.eachRow({ includeEmpty: true }, (row, rn) => { const rd = []; row.eachCell({ includeEmpty: true }, (cell, cn) => { let v = cell.value; if(typeof v === 'object' && v !== null) v = v.result || (v.richText && v.richText[0] && v.richText[0].text) || ''; rd[cn] = { v }; }); raw[rn] = rd; });
-            asNurses = parseHorizontalLayout(raw);
-        } catch(e) { console.log('Turni autisti non disponibili:', e.message); }
+    async function asLoadNurses() {   // stessi dati di "Infermieri in turno" (Firebase dell'app infermieri)
+        await loadOtherTeam(); asNurses = otherTeam;
     }
     function asNursesOn(mese, giorno) {
         if(!asNurses) return null;
@@ -11437,7 +11509,7 @@ body.tl .mn-txt b { font-weight: 600 !important; }
     async function asShowLastUpload() {
         vibrate();
         let when = null;
-        try { const r = await fetch('https://api.github.com/repos/centrale118rsm-code/PROVA-MODIFICHE-TURNI/commits?path=turni.xlsx&per_page=1'); if(r.ok) { const j = await r.json(); when = j && j[0] && j[0].commit && j[0].commit.committer && j[0].commit.committer.date; } } catch(e) {}
+        try { const r = await fetch('https://api.github.com/repos/centrale118rsm-code/Turni-Autisti-2026-Rsm/commits?path=turni.xlsx&per_page=1'); if(r.ok) { const j = await r.json(); when = j && j[0] && j[0].commit && j[0].commit.committer && j[0].commit.committer.date; } } catch(e) {}
         const txt = when ? new Date(when).toLocaleString('it-IT', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'Non riesco a leggerlo da GitHub in questo momento.';
         ccDialog('File turni', when ? 'Ultimo caricamento di turni.xlsx: ' + txt : txt, [{ label: 'Ok', kind: 'primary', value: true }]);
     }
@@ -11451,7 +11523,7 @@ body.tl .mn-txt b { font-weight: 600 !important; }
     async function asFetchUpdated() {
         const el = document.getElementById('as-updated'); if(!el) return;
         let when = null;
-        try { const r = await fetch('https://api.github.com/repos/centrale118rsm-code/PROVA-MODIFICHE-TURNI/commits?path=turni.xlsx&per_page=1'); if(r.ok) { const j = await r.json(); when = j && j[0] && j[0].commit && j[0].commit.committer && j[0].commit.committer.date; } } catch(e) {}
+        try { const r = await fetch('https://api.github.com/repos/centrale118rsm-code/Turni-Autisti-2026-Rsm/commits?path=turni.xlsx&per_page=1'); if(r.ok) { const j = await r.json(); when = j && j[0] && j[0].commit && j[0].commit.committer && j[0].commit.committer.date; } } catch(e) {}
         const d = new Date(when || document.lastModified); if(isNaN(d)) return;
         el.textContent = 'Aggiornato ' + d.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: '2-digit' }) + ' ' + d.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
     }
