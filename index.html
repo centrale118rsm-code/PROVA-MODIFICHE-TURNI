@@ -583,6 +583,10 @@
         .perm-tag { text-transform:none; font-size:0.52rem; font-weight:900; letter-spacing:.2px; line-height:1.2; padding:1px 5px; border-radius:4px; margin:1px 0 2px; color:#fff; white-space:nowrap; z-index:2; }
         .perm-tag.perm-pl { background: var(--bg-pl); } .perm-tag.perm-ps { background: var(--bg-ps); }
         .cell.mini .perm-tag { display:none; }
+        /* ore di permesso legge dentro un turno: angolo verde scuro in alto a sinistra */
+        .perm-corner { position:absolute; top:0; left:0; width:0; height:0; border-top:22px solid #064e3b; border-right:22px solid transparent; border-top-left-radius:10px; pointer-events:none; z-index:2; }
+        .perm-note { margin-top:4px; font-size:0.72rem; font-weight:800; color:#064e3b; background:#d1fae5; border-radius:6px; padding:3px 7px; display:inline-block; }
+        body.dark-mode .perm-note { background:#064e3b; color:#d1fae5; }
         /* copertura turnisti in Modifica turni: 1-2 = bordo arancio, 4+ = lampeggio rosso */
         body.coord-edit-mode td.cov-lo > .cell { outline:3px solid #f97316; outline-offset:-3px; }
         body.coord-edit-mode td.cov-hi > .cell { outline:3px solid #dc2626; outline-offset:-3px; animation:covBlink 0.9s steps(1, end) infinite; }
@@ -4289,8 +4293,6 @@ body.tl .mn-txt b { font-weight: 600 !important; }
         <div class="sep-grid" id="sep-grid"></div>
         <div class="sep-grid sep-perm-wrap" id="sep-perm"></div>
         <div class="sep-foot">
-            <button class="cc-btn danger" onclick="applyShiftChoice(null,null)"><span class="msym">ink_eraser</span>Svuota cella</button>
-            <button class="cc-btn" onclick="repOpenFromShiftPopup()"><span class="msym">phone_in_talk</span>Reperibilità</button>
             <button class="cc-btn" onclick="closeShiftEditPopup()">Chiudi</button>
         </div>
     </div>
@@ -5343,9 +5345,10 @@ body.tl .mn-txt b { font-weight: 600 !important; }
             const uid = fbAuth.currentUser && fbAuth.currentUser.uid;
             console.log('[Identità] Tentativo recupero da UID Firebase:', uid || '(uid assente)');
             if(!uid) return;
-            const doc = await asNoopRef().doc(uid).get();
-            if(doc.exists && doc.data().name) {
-                userIdentity = doc.data().name;
+            const doc = await cfgRef('identities').get();   // autisti: un solo documento "prova_identities" con { u: { uid: { name, updatedAt } } }
+            const mine = doc.exists ? ((doc.data().u || {})[uid] || {}) : {};
+            if(mine.name) {
+                userIdentity = mine.name;
                 localStorage.setItem('infermieri_identity_name', userIdentity);
                 applySplashWelcome();
                 checkIfIAmCoordinator();
@@ -5357,8 +5360,8 @@ body.tl .mn-txt b { font-weight: 600 !important; }
     }
     function persistIdentityToUidBackup() {
         if(!fbReady || !fbAuth.currentUser) return;
-        asNoopRef().doc(fbAuth.currentUser.uid)
-            .set({ name: userIdentity || null, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }, { merge:true })
+        cfgRef('identities')
+            .set({ u: { [fbAuth.currentUser.uid]: { name: userIdentity || null, updatedAt: firebase.firestore.FieldValue.serverTimestamp() } } }, { merge:true })
             .catch(e => console.error("Errore salvataggio identità di riserva:", e));
     }
 
@@ -5382,12 +5385,13 @@ body.tl .mn-txt b { font-weight: 600 !important; }
         try {
             const myUid = fbAuth.currentUser && fbAuth.currentUser.uid;
             const cutoffMs = Date.now() - IDENTITY_CLAIM_MAX_AGE_MS;
-            const snap = await asNoopRef().get();
+            const idDoc = await cfgRef('identities').get();   // chi ha scelto quale nome (vedi persistIdentityToUidBackup)
+            const all = idDoc.exists ? (idDoc.data().u || {}) : {};
             const rel = identityReleases || {};   // nomi liberati dall'admin (dalle impostazioni già in memoria)
             const locked = new Set();
-            snap.forEach(doc => {
-                if(doc.id === myUid) return;
-                const d = doc.data();
+            Object.keys(all).forEach(uid => {
+                if(uid === myUid) return;
+                const d = all[uid] || {};
                 if(!d.name || d.name === 'Ospite' || d.name === PS_NAME || PW_IDENTITIES.includes(d.name)) return;   // PC condiviso, COORDINATORE e TEST non sono mai "in uso"
                 const ms = tsToMillis(d.updatedAt);
                 if(ms && ms > cutoffMs && !(rel[d.name] && ms <= rel[d.name])) locked.add(d.name);
@@ -6432,7 +6436,8 @@ body.tl .mn-txt b { font-weight: 600 !important; }
     function admMotore() {
         const runs = admData && admData.runs; if(!runs) return null;
         const day = Date.now() - 864e5, last = runs[0];
-        return { last: last ? Date.parse(last.created_at) : 0, ok: last ? last.conclusion === 'success' : false, running: last && last.status !== 'completed', event: last ? last.event : '', auto24: runs.filter(r => r.event === 'schedule' && Date.parse(r.created_at) > day).length, all24: runs.filter(r => Date.parse(r.created_at) > day).length, failed24: runs.filter(r => r.conclusion === 'failure' && Date.parse(r.created_at) > day).length };
+        return { last: last ? (last.status !== 'completed' ? Date.now() : Date.parse(last.updated_at || last.created_at)) : 0,   // un giro acceso lavora ogni 15 minuti per ore
+             ok: last ? last.conclusion === 'success' : false, running: last && last.status !== 'completed', event: last ? last.event : '', auto24: runs.filter(r => r.event === 'schedule' && Date.parse(r.created_at) > day).length, all24: runs.filter(r => Date.parse(r.created_at) > day).length, failed24: runs.filter(r => r.conclusion === 'failure' && Date.parse(r.created_at) > day).length };
     }
     function admIssues() {
         const out = [], add = (sev, icon, title, detail, act, actLbl) => out.push({ sev, icon, title, detail, act, actLbl });
@@ -10270,16 +10275,91 @@ body.tl .mn-txt b { font-weight: 600 !important; }
         }
         return out;
     }
+    // ── Infermieri in turno: dai dati veri dell'app infermieri (sola lettura) ──
+    // L'app infermieri non usa più il file infermieri.xlsx (fermo dal 2 ottobre): i turni stanno
+    // sul suo Firebase, un documento per mese ("prova_turni_AAAA-MM" in infermieri26_config).
+    // Qui si leggono e basta, con un collegamento a parte; se non si riesce si torna al file Excel
+    // con sopra le modifiche fatte nell'app (quando l'app infermieri è ancora in modalità Excel).
+    const INF_FB_CONFIG = {
+        apiKey: "AIzaSyDCycpsVJus8Mwd-AqaPORZIrFUIyo00VQ",
+        authDomain: "creazione-turni-118.firebaseapp.com",
+        projectId: "creazione-turni-118",
+        storageBucket: "creazione-turni-118.firebasestorage.app",
+        messagingSenderId: "389097635025",
+        appId: "1:389097635025:web:331564551f0e5190a199f0"
+    };
+    const INF_FB_NS = 'prova_';   // i documenti che usa l'app infermieri ufficiale
+    let infFbDbP = null;
+    function infFbDb() {
+        if(!infFbDbP) infFbDbP = (async () => {
+            const app = firebase.apps.find(a => a.name === 'infermieri') || firebase.initializeApp(INF_FB_CONFIG, 'infermieri');
+            const auth = app.auth();
+            if(!auth.currentUser) await auth.signInAnonymously();
+            return app.firestore();
+        })().catch(e => { infFbDbP = null; throw e; });
+        return infFbDbP;
+    }
+    function infFbDoc(db, name) { return db.collection('infermieri26_config').doc(INF_FB_NS + name).get(); }
+    // Valore di una casella dell'app infermieri, come lo legge il resto di questa app
+    function infCellVal(c) { return c && typeof c === 'object' ? { v: c.v == null ? '' : c.v, subV: c.subV == null ? '' : c.subV } : { v: '', subV: '' }; }
+    // Mette le caselle { "NOME__MESE-giorno[@anno]": {v, subV} } dentro una griglia [intestazione, righe…]
+    function infApplyCells(grid, cells, year) {
+        const H = grid[0] || [], col = {};
+        for(let c = 3; c < H.length; c++) col[String(H[c]).trim().toUpperCase()] = c;
+        const rowAt = {}; let y = year, last = -1;
+        for(let i = 1; i < grid.length; i++) {
+            const mi = MONTH_MAP[grid[i][0].v]; if(mi === undefined) continue;
+            if(mi < last) y++; last = mi;
+            rowAt[grid[i][0].v + '-' + parseInt(grid[i][1].v) + '@' + y] = i;
+        }
+        Object.keys(cells || {}).forEach(k => {
+            const i = k.indexOf('__'); if(i === -1) return;
+            const name = k.slice(0, i).trim().toUpperCase(), rest = k.slice(i + 2), at = rest.indexOf('@');
+            const ky = at === -1 ? year : parseInt(rest.slice(at + 1), 10), ds = at === -1 ? rest : rest.slice(0, at);
+            const r = rowAt[ds + '@' + ky], c = col[name];
+            if(r === undefined || c === undefined) return;
+            grid[r][c] = infCellVal(cells[k]);
+        });
+        return grid;
+    }
+    async function infLoadFromFirebase() {
+        const db = await infFbDb();
+        const sDoc = await infFbDoc(db, 'settings'); if(!sDoc.exists) return null;
+        const st = sDoc.data() || {}, oc = st.operatorConfig || {};
+        if(st.dataSource !== 'firebase') return { excel: true, overrides: st.manualOverrides || {} };
+        const year = SHIFT_YEAR, removed = oc.removed || {};
+        const names = (Array.isArray(oc.baseNames) ? oc.baseNames : []).concat((Array.isArray(oc.added) ? oc.added : []).map(o => o && o.name))
+            .filter(n => n && !removed[n] && !['TEST', 'COORDINATORE'].includes(String(n).trim().toUpperCase()));
+        const uniq = [...new Set(names)];
+        const grid = buildBlankYearData(year, uniq, NEXT_YEAR_MONTHS);
+        const docs = await Promise.all(Array.from({ length: 12 }, (_, m) => infFbDoc(db, monthDocName(year, m)).catch(() => null)));
+        docs.forEach(d => { if(d && d.exists) infApplyCells(grid, d.data().cells || {}, year); });
+        // l'anno dopo: nel suo documento le chiavi sono senza anno
+        const nextDocs = await Promise.all(Array.from({ length: NEXT_YEAR_MONTHS }, (_, m) => infFbDoc(db, monthDocName(year + 1, m)).catch(() => null)));
+        nextDocs.forEach(d => { if(!d || !d.exists) return; const src = d.data().cells || {}, cells = {}; Object.keys(src).forEach(k => { cells[k.includes('@') ? k : k + '@' + (year + 1)] = src[k]; }); infApplyCells(grid, cells, year); });
+        return { grid };
+    }
+    async function infLoadFromExcel(overrides) {
+        const r = await fetch(OTHER_TEAM.url + '?v=' + Date.now()); if(!r.ok) return null;
+        await loadLib('excel');
+        const wb = new ExcelJS.Workbook(); await wb.xlsx.load(await r.arrayBuffer());
+        const ws = wb.getWorksheet('Foglio2') || wb.worksheets[0], raw = [];
+        ws.eachRow({ includeEmpty: true }, (row, rn) => { const rd = []; row.eachCell({ includeEmpty: true }, (cell, cn) => { let v = cell.value; if(typeof v === 'object' && v !== null) v = v.result || (v.richText && v.richText[0] && v.richText[0].text) || ''; rd[cn] = { v }; }); raw[rn] = rd; });
+        const grid = OTHER_TEAM.parse(raw);
+        return overrides ? infApplyCells(grid, overrides, SHIFT_YEAR) : grid;
+    }
+    const OTHER_TEAM_TTL = 10 * 60000;   // dopo 10 minuti si rilegge (l'app può restare aperta a lungo)
+    let otherTeamAt = 0;
     function loadOtherTeam() {
-        if(otherTeamLoading) return otherTeamLoading;
+        if(otherTeamLoading && Date.now() - otherTeamAt < OTHER_TEAM_TTL) return otherTeamLoading;
+        otherTeamAt = Date.now();
         otherTeamLoading = (async () => {
+            let fb = null;
+            try { fb = await infLoadFromFirebase(); }
+            catch(e) { console.log('Turni infermieri da Firebase non disponibili, uso il file:', e.message); }
             try {
-                const r = await fetch(OTHER_TEAM.url + '?v=' + Date.now()); if(!r.ok) return;
-                await loadLib('excel');
-                const wb = new ExcelJS.Workbook(); await wb.xlsx.load(await r.arrayBuffer());
-                const ws = wb.getWorksheet('Foglio2') || wb.worksheets[0], raw = [];
-                ws.eachRow({ includeEmpty: true }, (row, rn) => { const rd = []; row.eachCell({ includeEmpty: true }, (cell, cn) => { let v = cell.value; if(typeof v === 'object' && v !== null) v = v.result || (v.richText && v.richText[0] && v.richText[0].text) || ''; rd[cn] = { v }; }); raw[rn] = rd; });
-                otherTeam = OTHER_TEAM.parse(raw);
+                if(fb && fb.grid) otherTeam = fb.grid;
+                else otherTeam = await infLoadFromExcel(fb && fb.overrides) || otherTeam;
             } catch(e) { console.log('Turni dell’altra squadra non disponibili:', e.message); }
         })();
         return otherTeamLoading;
@@ -10299,6 +10379,7 @@ body.tl .mn-txt b { font-weight: 600 !important; }
         const mese = row[0].v, giorno = parseInt(row[1].v), year = shiftRowYear(rowIndex);
         const head = `<div class="ot-sec"><span class="material-icons-round">${OTHER_TEAM.icon}</span>${esc(OTHER_TEAM.title)}</div>`;
         const box = inner => `<div id="ot-list" data-row="${rowIndex}" data-shift="${esc(uShift)}">${head}${inner}</div>`;
+        if(otherTeam && Date.now() - otherTeamAt > OTHER_TEAM_TTL) loadOtherTeam();   // si aggiorna per la prossima apertura
         if(!otherTeam) {
             if(!otherTeamLoading) loadOtherTeam();
             otherTeamLoading.then(() => { const el = document.getElementById('ot-list'); if(el && +el.dataset.row === rowIndex && otherTeam) el.outerHTML = otherTeamHtml(rowIndex, uShift); });
@@ -11202,15 +11283,8 @@ body.tl .mn-txt b { font-weight: 600 !important; }
 
     // ── Infermieri in turno (file dell'app infermieri, solo lettura) ────
     let asNurses = null;
-    async function asLoadNurses() {
-        try {
-            const resp = await fetch('https://centrale118rsm-code.github.io/Turni-Infermieri-2026/' + 'infermieri' + '.xlsx?v=' + Date.now())   // scritto a pezzi: lo script di conversione cambia 'turni.xlsx' in 'turni.xlsx';
-            if(!resp.ok) return;
-            const wb = new ExcelJS.Workbook(); await wb.xlsx.load(await resp.arrayBuffer());
-            const ws = wb.getWorksheet('Foglio2') || wb.worksheets[0], raw = [];
-            ws.eachRow({ includeEmpty: true }, (row, rn) => { const rd = []; row.eachCell({ includeEmpty: true }, (cell, cn) => { let v = cell.value; if(typeof v === 'object' && v !== null) v = v.result || (v.richText && v.richText[0] && v.richText[0].text) || ''; rd[cn] = { v }; }); raw[rn] = rd; });
-            asNurses = parseHorizontalLayout(raw);
-        } catch(e) { console.log('Turni autisti non disponibili:', e.message); }
+    async function asLoadNurses() {   // stessi dati di "Infermieri in turno" (Firebase dell'app infermieri)
+        await loadOtherTeam(); asNurses = otherTeam;
     }
     function asNursesOn(mese, giorno) {
         if(!asNurses) return null;
@@ -11435,7 +11509,7 @@ body.tl .mn-txt b { font-weight: 600 !important; }
     async function asShowLastUpload() {
         vibrate();
         let when = null;
-        try { const r = await fetch('https://api.github.com/repos/centrale118rsm-code/PROVA-MODIFICHE-TURNI/commits?path=turni.xlsx&per_page=1'); if(r.ok) { const j = await r.json(); when = j && j[0] && j[0].commit && j[0].commit.committer && j[0].commit.committer.date; } } catch(e) {}
+        try { const r = await fetch('https://api.github.com/repos/centrale118rsm-code/Turni-Autisti-2026-Rsm/commits?path=turni.xlsx&per_page=1'); if(r.ok) { const j = await r.json(); when = j && j[0] && j[0].commit && j[0].commit.committer && j[0].commit.committer.date; } } catch(e) {}
         const txt = when ? new Date(when).toLocaleString('it-IT', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'Non riesco a leggerlo da GitHub in questo momento.';
         ccDialog('File turni', when ? 'Ultimo caricamento di turni.xlsx: ' + txt : txt, [{ label: 'Ok', kind: 'primary', value: true }]);
     }
@@ -11449,7 +11523,7 @@ body.tl .mn-txt b { font-weight: 600 !important; }
     async function asFetchUpdated() {
         const el = document.getElementById('as-updated'); if(!el) return;
         let when = null;
-        try { const r = await fetch('https://api.github.com/repos/centrale118rsm-code/PROVA-MODIFICHE-TURNI/commits?path=turni.xlsx&per_page=1'); if(r.ok) { const j = await r.json(); when = j && j[0] && j[0].commit && j[0].commit.committer && j[0].commit.committer.date; } } catch(e) {}
+        try { const r = await fetch('https://api.github.com/repos/centrale118rsm-code/Turni-Autisti-2026-Rsm/commits?path=turni.xlsx&per_page=1'); if(r.ok) { const j = await r.json(); when = j && j[0] && j[0].commit && j[0].commit.committer && j[0].commit.committer.date; } } catch(e) {}
         const d = new Date(when || document.lastModified); if(isNaN(d)) return;
         el.textContent = 'Aggiornato ' + d.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: '2-digit' }) + ' ' + d.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
     }
@@ -11571,6 +11645,7 @@ body.tl .mn-txt b { font-weight: 600 !important; }
     }
     function permTagHtml(info) {
         const p = info && info.perm; if(!p || !PERM_HOURLY[p.k] || !(Number(p.h) > 0)) return '';
+        if(p.k === 'pl') return `<i class="perm-corner" title="Permesso legge ${permHFmt(p.h)}"></i><div class="perm-tag perm-${p.k}">${PERM_HOURLY[p.k].short} ${permHFmt(p.h)}</div>`;
         return `<div class="perm-tag perm-${p.k}">${PERM_HOURLY[p.k].short} ${permHFmt(p.h)}</div>`;
     }
     // ── sezione "Permesso a ore" nel popup della casella ──
@@ -12030,12 +12105,19 @@ body.tl .mn-txt b { font-weight: 600 !important; }
         { id: 'manage',  short: 'GESTISCI', icon: 'manage_accounts', label: 'Gestione operatori',       hint: 'ordine, contratto, aggiungi o togli', fill: '#7c3aed' }
     ];
     let coordOpTool = null;
+    // Strumenti della faccia Assenze che chiedono qualcosa (prima stavano nella finestra della casella)
+    const WHEEL_CELL_TOOLS = [
+        { id: 'perm', short: 'ORE PERM', icon: 'schedule',     label: 'Permesso a ore (legge o sindacale)', hint: 'tocca la casella: chiede le ore', fill: '#0f766e' },
+        { id: 'man',  short: 'ORE MANO', icon: 'edit',         label: 'Ore a mano',                         hint: 'tocca la casella: scrivi le ore del giorno', fill: '#475569' }
+    ];
+    let coordCellTool = null;
     function wheelRingItems() {
         if(twMode === 'rep') return WHEEL_REP_TOOLS.map(r => ({ kind: 'rep', id: r.id, short: r.short, label: r.label, time: r.hint, fill: r.fill, fg: '#fff', group: 0, icon: r.icon }));
         if(twMode === 'operatori') return WHEEL_OP_TOOLS.map(o => ({ kind: 'op', id: o.id, short: o.short, label: o.label, time: o.hint, fill: o.fill, fg: '#fff', group: 0, icon: o.icon }));
         const pal = wheelPaletteItems().map((it, i) => Object.assign({ kind: 'pal', i }, it));
         const isAbsCustom = it => it.group === 3 && (customCodes[it.v] || {}).kind === 'abs';
-        if(twMode === 'assenze') return pal.filter(it => it.group === 2 || isAbsCustom(it));
+        if(twMode === 'assenze') return pal.filter(it => it.group === 2 || isAbsCustom(it))
+            .concat(WHEEL_CELL_TOOLS.map(t => ({ kind: 'ct', id: t.id, short: t.short, label: t.label, time: t.hint, fill: t.fill, fg: '#fff', group: 5, icon: t.icon })));
         return pal.filter(it => it.group === 0 || it.group === 1 || (it.group === 3 && !isAbsCustom(it)))
             .concat(WHEEL_SEQUENCES.map(s => ({ kind: 'seq', id: s.id, short: s.short, label: s.label, time: s.desc, fill: s.fill, fg: '#fff', group: 4 + s.group, dashed: s.dashed })));
     }
@@ -15966,6 +16048,7 @@ body.tl .mn-txt b { font-weight: 600 !important; }
         if(valA.customMinutes === undefined) delete valA.customMinutes;
         if(valB.customMinutes === undefined) delete valB.customMinutes;
         if(cellA.perm) valA.perm = cellA.perm; if(cellB.perm) valB.perm = cellB.perm;
+        if(+cellA.coY) valA.coY = +cellA.coY; if(+cellB.coY) valB.coY = +cellB.coY;   // il C.O. 2027 (ferie desiderate) resta tale anche spostato
         const done = absApplyChecked([{ key: keyA, next: valB, row: a.row, col: a.col }, { key: keyB, next: valA, row: b.row, col: b.col }]);
         if(!done) return;
         pushUndo({ entries: done.map(x => ({ key: x.key, prev: x.prev, next: x.next })) });
@@ -16049,24 +16132,27 @@ body.tl .mn-txt b { font-weight: 600 !important; }
             if(r) return { key:'rep', rep:r, name:r.label, hint: (r.id === 'move' && coordRepMoveFirst) ? 'ora tocca la cella di destinazione' : r.hint };
         }
         if(coordOpTool) { const o = WHEEL_OP_TOOLS.find(x => x.id === coordOpTool); if(o) return { key:'op', name:o.label, hint:o.hint }; }
-        return { key:'select', name:'Seleziona', hint:'tocca una cella per modificarla' };
+        if(coordCellTool) { const o = WHEEL_CELL_TOOLS.find(x => x.id === coordCellTool); if(o) return { key:'ct', ct:o, name:o.label, hint:o.hint }; }
+        return { key:'select', name:'Nessuno strumento', hint:'scegli dalla ruota cosa inserire' };
     }
     function setCoordTool(kind, v, subV, silent) {
         coordSwapMode = kind === 'swap'; coordSwapFirst = null;
         coordSeqTool = kind === 'seq' ? v : null;
         coordRepTool = kind === 'rep' ? v : null;
         coordOpTool = kind === 'op' ? v : null;
+        coordCellTool = kind === 'ct' ? v : null;
         coordRepMoveFirst = null;
+        coNextChoice = null;
         if(kind === 'paint') coordPaintTool = { v: v || '', subV: subV || '' };
         else if(kind === 'erase') coordPaintTool = { clear:true };
         else coordPaintTool = null;
         clearSelectedCellVisual(); coordSelectedCell = null;
         document.body.classList.toggle('paint-active', !!coordPaintTool);
-        document.body.classList.toggle('swap-active', coordSwapMode || kind === 'seq' || kind === 'rep' || kind === 'op');
+        document.body.classList.toggle('swap-active', coordSwapMode || kind === 'seq' || kind === 'rep' || kind === 'op' || kind === 'ct');
         document.body.classList.toggle('select-active', kind === 'select');
         applyEditModeDraggable();
         if(!silent) vibrate();
-        if((kind === 'paint' || kind === 'erase' || kind === 'seq' || kind === 'rep' || kind === 'op') && !silent && localStorage.getItem(WHEEL_AUTOCLOSE_KEY) !== '0') twExpanded = false;
+        if((kind === 'paint' || kind === 'erase' || kind === 'seq' || kind === 'rep' || kind === 'op' || kind === 'ct') && !silent && localStorage.getItem(WHEEL_AUTOCLOSE_KEY) !== '0') twExpanded = false;
         twRender(); twPlace(); updateCoordToolbarState();
     }
     function updateCoordToolbarState() {
@@ -16157,8 +16243,16 @@ body.tl .mn-txt b { font-weight: 600 !important; }
         if(!finalData[row]) return;
         let key = cellKey(row, col);
         let value = coordPaintTool.clear ? { v:"", subV:"" } : { v: coordPaintTool.v, subV: coordPaintTool.subV };
+        if(value.subV === 'f' && shiftRowYear(row) > SHIFT_YEAR) {   // C.O. nell'anno dopo: 2026 o 2027?
+            if(!coNextChoice) {
+                coordPainting = false;
+                if(!coNextAsking) { coNextAsking = true; coNextAsk().then(ch => { coNextAsking = false; if(!ch || !coordPaintTool) return; coNextChoice = ch; coordPainting = true; coordPaintBatchEntries = []; coordPaintTouchedKeys = new Set(); paintOneCell(row, col); coordOnPointerUp(); }); }
+                return;
+            }
+            value = coNextChoice === 'next' ? Object.assign(value, { coY: SHIFT_YEAR + 1 }) : Object.assign(value, { subV: 'v' });
+        }
         const cur = finalData[row][col] || {};
-        const same = String(cur.v||'').trim() === String(value.v||'').trim() && String(cur.subV||'').trim() === String(value.subV||'').trim();
+        const same = String(cur.v||'').trim() === String(value.v||'').trim() && String(cur.subV||'').trim() === String(value.subV||'').trim() && (+cur.coY || 0) === (+value.coY || 0);
         if(same && !coordPaintTouchedKeys.has(key)) { coordPaintTouchedKeys.add(key); return; } // gia' uguale: nessuna modifica inutile
         if(same) return;
         const tail = coordPaintTouchedKeys.has(cellKey(row + 1, col)) ? null : pnFreeNextDay(row, col, value.subV);   // PN: via l'assenza nascosta il giorno dopo
@@ -16260,7 +16354,8 @@ body.tl .mn-txt b { font-weight: 600 !important; }
             if(coordSeqTool) { applyWheelSequence(rowIndex, colIdx); return; }
             if(coordRepTool) { repToolTap(rowIndex, colIdx); return; }
             if(coordOpTool) { applyOpTool(colIdx); return; }
-            markSelectedCell(rowIndex, colIdx); openShiftEditPopup(colIdx, rowIndex); return;
+            if(coordCellTool) { if(coordCellTool === 'cn' && typeof cnOpen === 'function') cnOpen(rowIndex, colIdx); else openCellToolPopup(colIdx, rowIndex, coordCellTool); return; }
+            ccToast('Per inserire turni e assenze scegli dalla ruota delle modifiche.'); return;   // la finestra della casella è stata tolta (richiesta di Mat): si usa solo la ruota
         }
         if(afterMN(rowIndex, colIdx)) cellValue = "SM";
         let hasSub = (finalData[rowIndex] && finalData[rowIndex][colIdx] && finalData[rowIndex][colIdx].subV) ? finalData[rowIndex][colIdx].subV.toString().trim() : "";
@@ -16271,20 +16366,33 @@ body.tl .mn-txt b { font-weight: 600 !important; }
 
     // ── Editor della singola cella ──────────────────────────────────────────
     function swatchStyle(colors) { return colors ? `--sw:var(${colors.bg});--sf:var(${colors.fg});` : ''; }
+    // Finestrella di uno strumento della ruota (permesso a ore, ore a mano) per una casella
+    function openCellToolPopup(colIdx, rowIdx, which) {
+        coordEditPopupTarget = { row: rowIdx, col: colIdx };
+        const d = getDriverByIdx(colIdx), mName = finalData[rowIdx][0].v, dNum = finalData[rowIdx][1].v;
+        const dt = new Date(shiftRowYear(rowIdx), MONTH_MAP[mName], parseInt(dNum)), info = computeDayInfo(rowIdx, colIdx);
+        document.getElementById('sep-title').textContent = d ? d.name : '';
+        document.getElementById('sep-sub').textContent = dt.toLocaleDateString('it-IT', { weekday:'long', day:'numeric', month:'long' }) + ' \u00b7 attuale: ' + (info.label || 'vuoto');
+        document.getElementById('sep-grid').innerHTML = '';
+        document.getElementById('sep-perm').innerHTML = which === 'man' ? sepManHtml(rowIdx, colIdx) : sepPermHtml(rowIdx, colIdx);
+        const m = document.getElementById('shift-edit-popup'); m.style.display = 'flex';
+        requestAnimationFrame(() => m.classList.add('open'));
+    }
     function openShiftEditPopup(colIdx, rowIdx) {
         coordEditPopupTarget = { row: rowIdx, col: colIdx };
         const d = getDriverByIdx(colIdx);
         const mName = finalData[rowIdx][0].v; const dNum = finalData[rowIdx][1].v;
-        const dt = new Date(SHIFT_YEAR, MONTH_MAP[mName], parseInt(dNum));
+        const nextYearRow = shiftRowYear(rowIdx) > SHIFT_YEAR;
+        const dt = new Date(shiftRowYear(rowIdx), MONTH_MAP[mName], parseInt(dNum));
         document.getElementById('sep-title').textContent = d ? d.name : '';
         const info = computeDayInfo(rowIdx, colIdx);
         const cell = finalData[rowIdx][colIdx] || {};
         const curV = (cell.v || '').toString().trim(), curSub = (cell.subV || '').toString().trim().toLowerCase();
         document.getElementById('sep-sub').textContent = dt.toLocaleDateString('it-IT', { weekday:'long', day:'numeric', month:'long' }) + ' \u00b7 attuale: ' + (info.label || 'vuoto') + (cell.overridden ? ' (modificato)' : '');
-        const items = wheelPaletteItems();
+        const items = wheelPaletteItems().filter(it => !(nextYearRow && it.subV === 'f'));   // anno dopo: il C.O. (2026 o 2027) si mette solo con la ruota, che chiede l'anno
         const group = (title, arr) => `<div class="sep-group-label">${title}</div><div class="sep-row">${arr.map(it => {
-            const isCur = it.subV ? (curSub === it.subV) : (!SPECIAL_SUBCODES[curSub] && curV === it.v);
-            return `<button class="sep-btn ${isCur?'current':''}" onclick="applyShiftChoice('${it.v}','${it.subV}')"><span class="cc-code" style="${swatchStyle(it.colors)}">${esc(it.short)}</span><span>${esc(it.label)}${it.time?`<small>${esc(it.time)}</small>`:''}</span></button>`;
+            const isCur = it.subV ? (curSub === it.subV && (!it.coY || +cell.coY === it.coY)) : (!SPECIAL_SUBCODES[curSub] && curV === it.v);
+            return `<button class="sep-btn ${isCur?'current':''}" onclick="applyShiftChoice('${it.v}','${it.subV}'${it.coY ? ',' + it.coY : ''})"><span class="cc-code" style="${swatchStyle(it.colors)}">${esc(it.short)}</span><span>${esc(it.label)}${it.time?`<small>${esc(it.time)}</small>`:''}</span></button>`;
         }).join('')}</div>`;
         document.getElementById('sep-grid').innerHTML =
             group('Turni', items.filter(i => i.group === 0)) +
@@ -16304,11 +16412,12 @@ body.tl .mn-txt b { font-weight: 600 !important; }
         setTimeout(() => { if(!m.classList.contains('open')) m.style.display = 'none'; }, 150);
         coordEditPopupTarget = null;
     }
-    function applyShiftChoice(v, subV) {
+    function applyShiftChoice(v, subV, coY) {
         if(!coordEditPopupTarget) return; vibrate();
         const { row, col } = coordEditPopupTarget;
         const key = cellKey(row, col);
         const next = (v === null && subV === null) ? { v:"", subV:"" } : { v: v || "", subV: subV || "" };
+        if(coY && next.subV === 'f') next.coY = +coY;   // C.O. 2027 messo nell'anno dopo
         const tail = pnFreeNextDay(row, col, next.subV);
         const done = absApplyChecked([{ key, next, row, col }].concat(tail ? [tail] : []));
         if(!done) return;
@@ -16329,7 +16438,7 @@ body.tl .mn-txt b { font-weight: 600 !important; }
         return { key, next, row: row + 1, col, was: sub };
     }
     // ── Spettanze: in Modifica turni non si va oltre i C.O. e i permessi che la persona ha ──
-    const ABS_LIMITED = { f: 1, p: 1, pn: 1 };
+    const ABS_LIMITED = { f: 1, v: 1, p: 1, pn: 1 };   // v: le ferie residue messe nell'anno dopo scalano il C.O. di quest'anno
     // ["P 8/6", …]: dove la persona è già oltre le spettanze dell'anno
     function absOverList(d) {
         const a = absCountFor(d, buildDaysIndex()), L = { co: 'C.O.', sp: 'P', pn: 'PN' };
@@ -16346,11 +16455,31 @@ body.tl .mn-txt b { font-weight: 600 !important; }
         const left = Math.max(0, a.max[k] - b[k]);
         return `${a.d.name} ha ${a.max[k]} ${L[k]} nel ${SHIFT_YEAR}${left ? `: ne restano solo ${left}` : ' e li ha già usati tutti'}. Non inserito. Se la spettanza è sbagliata si cambia in Area coordinatore › Operatori.`;
     }
+    // Nei mesi dell'anno dopo (prima di capodanno) un C.O. è o "ferie residue" dell'anno in corso
+    // (arancione, conta su quest'anno) o "C.O. 2027" (coY, giallo, conta sull'anno dopo): con la ruota
+    // lo si chiede (coNextAsk), nell'editor ci sono i due tasti; un C.O. senza anno che arriva lì
+    // (es. uno scambio) diventa ferie residue.
+    let coNextChoice = null, coNextAsking = false;   // scelta valida finché non si cambia strumento
+    function coNextAsk() {
+        const y = SHIFT_YEAR + 1;
+        return ccDialog(`Ferie nel ${y}`, `Queste ferie su quale anno contano?`, [
+            { label: 'Annulla', kind: 'ghost', value: null },
+            { label: `Ferie residue ${SHIFT_YEAR} (contano sul ${SHIFT_YEAR})`, kind: 'primary', value: 'v' },
+            { label: `Ferie desiderate ${y} (contano sul ${y})`, kind: 'primary', value: 'next' }]);
+    }
+    function coNextToResidue(x) {
+        const n = x && x.next;
+        if(!n || String(n.subV || '').trim().toLowerCase() !== 'f' || x.row == null || shiftRowYear(x.row) <= SHIFT_YEAR) return x;
+        const old = manualOverrides[x.key];
+        if(+n.coY > SHIFT_YEAR || (old && +old.coY > SHIFT_YEAR && String(old.subV || '').trim().toLowerCase() === 'f')) return x;
+        return Object.assign({}, x, { next: Object.assign({}, n, { subV: 'v' }) });
+    }
     // Applica le caselle [{ key, next, row, col }] (alle modifiche in sospeso). Se così qualcuno
     // supera le sue spettanze rimette tutto com'era, avvisa e restituisce null; altrimenti le
     // voci con il valore di prima, per l'annullamento.
     function absApplyChecked(list) {
         const sub = x => String((x && x.subV) || '').trim().toLowerCase();
+        list = list.map(coNextToResidue);
         const check = list.some(x => ABS_LIMITED[sub(x.next)]);
         const cols = check ? [...new Set(list.map(x => x.col))] : [], before = {};
         cols.forEach(c => before[c] = absUse(c));
@@ -16391,7 +16520,7 @@ body.tl .mn-txt b { font-weight: 600 !important; }
 
     // ═══ RUOTA STRUMENTI ══════════════════════════════════════════════════
     const WHEEL_ACTIONS = [
-        { id:'select',  icon:'arrow_selector_tool', label:'Seleziona',  hint:'apre l\u2019editor della cella' },
+        { id:'select',  icon:'arrow_selector_tool', label:'Nessuno strumento',  hint:'il tocco non cambia le caselle' },
         { id:'swap',    icon:'swap_horiz',          label:'Scambia',    hint:'tocca due celle' },
         { id:'erase',   icon:'ink_eraser',          label:'Gomma',      hint:'svuota le celle' },
         { id:'undo',    icon:'undo',                label:'Annulla',    hint:'Ctrl+Z' },
@@ -16504,6 +16633,7 @@ body.tl .mn-txt b { font-weight: 600 !important; }
                     else if(it.kind === 'seq') sel = coordSeqTool === it.id;
                     else if(it.kind === 'rep') sel = coordRepTool === it.id;
                     else if(it.kind === 'op') sel = coordOpTool === it.id;
+                    else if(it.kind === 'ct') sel = coordCellTool === it.id;
                 }
                 const fill = it.fill || (it.colors ? `var(${it.colors.bg})` : '#999');
                 const idx = items.indexOf(it);
@@ -16546,8 +16676,8 @@ body.tl .mn-txt b { font-weight: 600 !important; }
         // centro
         const t = currentToolInfo(); const sw = document.getElementById('tw-hub-sw');
         if(t.key === 'paint' && t.item) { sw.className = 'tw-hub-sw'; sw.setAttribute('style', swatchStyle(t.item.colors)); sw.textContent = t.item.short; }
-        else if(t.key === 'seq' || t.key === 'rep') { const o = t.key === 'seq' ? t.seq : t.rep; sw.className = 'tw-hub-sw'; sw.setAttribute('style', `background:${o.fill};color:#fff;width:auto;min-width:30px;padding:0 4px`); sw.textContent = o.short; }
-        else { sw.className = 'tw-hub-sw plain'; sw.removeAttribute('style'); const ic = { select:'arrow_selector_tool', swap:'swap_horiz', erase:'ink_eraser' }[t.key]; sw.innerHTML = `<span class="msym">${ic}</span>`; }
+        else if(t.key === 'seq' || t.key === 'rep' || t.key === 'ct') { const o = t.key === 'seq' ? t.seq : t.key === 'rep' ? t.rep : t.ct; sw.className = 'tw-hub-sw'; sw.setAttribute('style', `background:${o.fill};color:#fff;width:auto;min-width:30px;padding:0 4px`); sw.textContent = o.short; }
+        else { sw.className = 'tw-hub-sw plain'; sw.removeAttribute('style'); const ic = { select:'arrow_selector_tool', swap:'swap_horiz', erase:'ink_eraser' }[t.key] || 'touch_app'; sw.innerHTML = `<span class="msym">${ic}</span>`; }
         twCaption();
     }
     function twCaption() {
@@ -16563,7 +16693,7 @@ body.tl .mn-txt b { font-weight: 600 !important; }
         const p = e.currentTarget;
         if(p.dataset.kind === 'pal') { const it = wheelRingItems()[+p.dataset.i]; twHover = null; setCoordTool('paint', it.v, it.subV); return; }
         if(p.dataset.kind === 'op') { twHover = null; twOpClick(p.dataset.id); return; }
-        if(p.dataset.kind === 'seq' || p.dataset.kind === 'rep') { twHover = null; setCoordTool(p.dataset.kind, p.dataset.id); return; }
+        if(p.dataset.kind === 'seq' || p.dataset.kind === 'rep' || p.dataset.kind === 'ct') { twHover = null; setCoordTool(p.dataset.kind, p.dataset.id); return; }
         const id = p.dataset.id;
         if(id === 'select' || id === 'swap' || id === 'erase') { twHover = null; setCoordTool(id); }
         else if(id === 'undo') coordUndo();
@@ -17880,7 +18010,9 @@ body.tl .mn-txt b { font-weight: 600 !important; }
                 if(uVal==="M") badgeStyle="background:#dbeafe;color:#1e40af";
                 if(uVal==="P") badgeStyle="background:#ffedd5;color:#9a3412";
                 if(uVal==="N") badgeStyle="background:#1e293b;color:#f8fafc";
-                foundNurses.push({ name:d.name, shift:uVal, time, style:badgeStyle, isDiurno:isD });
+                const pm = permOfCell(rowIndex, d.idx);   // ore di permesso dentro il turno
+                const permNote = pm && !pm.full ? `<div class="perm-note">${esc(d.name)} ha preso ${permHFmt(pm.h)} di ${PERM_HOURLY[pm.k].label.toLowerCase()}${pm.k === 'pl' ? ' · conta nel conteggio assenze' : ''}</div>` : '';
+                foundNurses.push({ name:d.name, shift:uVal, time, style:badgeStyle, isDiurno:isD, permNote });
             }
         });
         if(foundNurses.length > 0) {
@@ -17890,7 +18022,7 @@ body.tl .mn-txt b { font-weight: 600 !important; }
                     <div class="col-info">
                         <div class="col-name">${n.name}</div>
                         <div class="col-role" style="font-size:0.8rem;color:var(--primary)">${n.time}</div>
-                        <div class="col-role" style="font-size:0.65rem">${n.isDiurno?'Diurnista':'Turnista'}</div>
+                        <div class="col-role" style="font-size:0.65rem">${n.isDiurno?'Diurnista':'Turnista'}</div>${n.permNote || ''}
                     </div>
                     <div class="col-badge" style="${n.style}">${n.shift}</div>
                 </div>`;
