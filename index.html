@@ -10568,7 +10568,7 @@ body.tl .mn-txt b { font-weight: 600 !important; }
             if(['M','P','N','SM'].includes(uShift)) { if(uVal === uShift) isMatch = true; if(isMN(rawV) && (uShift === 'M' || uShift === 'N')) isMatch = true; }
             else if(isWorking) isMatch = true;
             if(!isMatch) continue;
-            let time = isD ? (SCHEDULE_DIURNI[rawV.toLowerCase()] || rawV) : (isMN(rawV) ? `M: ${SCHEDULE['M']} / N: ${SCHEDULE['N']}` : (SCHEDULE[uVal] || uVal));
+            let time = isD ? (diurniSched(rawV, new Date(year, MONTH_MAP[mese], giorno)) || rawV) : (isMN(rawV) ? `M: ${SCHEDULE['M']} / N: ${SCHEDULE['N']}` : (SCHEDULE[uVal] || uVal));
             if(rep) time += ` &nbsp;<span style="color:#ef4444;font-weight:900;font-size:0.75rem;">(REPERIBILE)</span>`;
             let badge = 'background:#e2e8f0;color:#475569';
             if(uVal === 'M') badge = 'background:#dbeafe;color:#1e40af';
