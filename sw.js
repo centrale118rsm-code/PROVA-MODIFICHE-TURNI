@@ -5,7 +5,7 @@
 // v7: modalità offline. Il nome della cache è solo di questa app: le app dello stesso sito
 // (ufficiale autisti, infermieri) hanno le loro cache e non si toccano.
 const CACHE_PREFIX = 'prova-autisti-';
-const CACHE_NAME = CACHE_PREFIX + 'v23';
+const CACHE_NAME = CACHE_PREFIX + 'v24';
 const OLD_CACHES = ['turni-autisti-cache-v3', 'turni-autisti-cache-v4', 'turni-autisti-cache-v5', 'turni-autisti-cache-v6'];   // vecchie cache di questa app (la v2 è dell'app ufficiale)
 
 const urlsToCache = [
@@ -88,7 +88,14 @@ self.addEventListener('notificationclick', (event) => {
   event.notification.close();
   const url = new URL((event.notification.data && event.notification.data.url) || './', self.registration.scope).href;
   event.waitUntil(self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((list) => {
-    for (const c of list) { if (c.url.startsWith(self.registration.scope) && 'focus' in c) return c.focus(); }
+    // una notifica di nota apre la sua chat: all'app già aperta lo dice con un messaggio, altrimenti ?nota=ID
+    let nota = null; try { nota = new URL(url).searchParams.get('nota'); } catch (e) {}
+    for (const c of list) {
+      if (c.url.startsWith(self.registration.scope) && 'focus' in c) {
+        if (nota) c.postMessage({ type: 'open-nota', id: nota });
+        return c.focus();
+      }
+    }
     return self.clients.openWindow(url);
   }));
 });
