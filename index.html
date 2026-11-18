@@ -3641,117 +3641,20 @@
         .nchat-head .cc-icon-btn { color:var(--cc-muted); background:var(--cc-surface-2); border-radius:10px; }
         body.dark-mode .nchat-head > .material-icons-round { background:rgba(167,139,250,.16); color:#c4b5fd; }
     </style>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Barlow+Condensed:wght@600;700;800&display=swap" rel="stylesheet">
     <style>
-        /* ══════════════════════════════════════════════════════════════════
-           STILE AUTISTI — ripreso dall'app autisti originale (blu notte, corallo e oro,
-           Inter + Barlow Condensed, colori dei turni degli autisti). Sta in fondo al foglio
-           di stile così prevale sulla grafica della base infermieri.
-           ══════════════════════════════════════════════════════════════════ */
-        :root {
-            --primary: #2563eb; --bg: #f8fafc; --bg-card: #ffffff; --text-main: #0f172a; --text-sec: #64748b; --border: #e2e8f0;
-            --navy-deep: #0a1128; --navy-mid: #142a5c; --navy-light: #1e3f82; --coral: #e34b34; --gold: #e0a929;
-            /* colori dei turni come l'app infermieri (pastello in scala del ciclo, diurnisti in viola, assenze piene) */
-            /* turni: pastello in una scala di blu continua (mattina chiarissima → notte scura);
-               il colore pieno resta alle assenze, così le eccezioni si vedono subito */
-            --c-P: #e3eeff; --t-P: #1e3a8a; --b-P: #c9dcfb;   /* scala del ciclo: pomeriggio (più chiaro) → mattino → smonto → notte (più scuro) */
-            --c-M: #c3d9fb; --t-M: #1e3a8a; --b-M: #a9c7f5;
-            --c-N: #4a76c4; --t-N: #ffffff; --b-N: #3f68b0;
-            --c-R: #ffffff; --t-R: #64748b; --b-R: #e2e8f0;
-            --c-SM: #9dbbe8; --t-SM: #0f2350; --b-SM: #8aaee2;
-            /* diurnisti: stessa scala ma in viola (mattina chiara → pomeriggio più pieno), distinti dal blu dei turnisti */
-            --c-dM: #ede9fe; --t-dM: #5b21b6; --b-dM: #ddd6fe;
-            --c-dP: #d9ccfb; --t-dP: #4c1d95; --b-dP: #c4b5fd;
-            --c-dR: #ffffff; --t-dR: #7c3aed; --b-dR: #ede9fe;
-            --bg-ferie: #f97316; --t-ferie: #ffffff; --b-ferie: #ea580c;
-            --bg-rec: #be185d; --t-rec: #ffffff; --b-rec: #9d174d;
-            --bg-cong: #facc15; --t-cong: #422006; --b-cong: #eab308;
-            --bg-mal: #dc2626; --t-mal: #ffffff; --b-mal: #b91c1c;
-            --bg-nl: #cceef2; --t-nl: #004147; --b-nl: #b2ebf2;
-            --bg-perm: #22c55e; --t-perm: #052e16; --b-perm: #16a34a;
-            --bg-ng: #009fd6; --t-ng: #ffffff; --b-ng: #0099cc;
-            --bg-stu: #ffffff; --t-stu: #dc2626; --b-stu: #dc2626;
-            --bg-pn: #166534; --t-pn: #ffffff; --b-pn: #14532d;
-            --bg-coord: #ffffff; --t-coord: #dc0000; --b-coord: #dc0000;
-            --bg-pl: #0f766e; --t-pl: #ffffff; --b-pl: #115e59;
-            --bg-ps: #9a3412; --t-ps: #ffffff; --b-ps: #7c2d12;
-            --bg-ds: #7c3aed; --t-ds: #ffffff; --b-ds: #6d28d9;
-            --bg-sport: #2bc4c4; --t-sport: #063b3b; --b-sport: #14a3a3;
-            --bg-lutto: #111827; --t-lutto: #ffffff; --b-lutto: #000000;
-            --bg-matr: #fbcfe8; --t-matr: #831843; --b-matr: #f9a8d4;
-            --month-bar-bg: linear-gradient(120deg, #0a1128 0%, #142a5c 55%, #1e3f82 100%);
-            --top-grad: linear-gradient(120deg, #0a1128 0%, #142a5c 55%, #1e3f82 100%);
-            --date-col-bg: #f8fafc; --date-col-line: #e0a929;
-        }
-        body.dark-mode {
-            --bg: #0f172a; --bg-card: #1e293b; --text-main: #f1f5f9; --text-sec: #94a3b8; --border: #334155;
-            --top-grad: linear-gradient(120deg, #05070f 0%, #0d1c3e 55%, #14284f 100%);
-            --date-col-bg: #0f172a;
-        }
-        body.dark-mode {
-            --bg-mal: #3b1212; --t-mal: #fca5a5; --b-mal: #7f1d1d;
-            --bg-ng: #0c2a3d; --t-ng: #7dd3fc; --b-ng: #075985;
-            --bg-nl: #0b3036; --t-nl: #80deea; --b-nl: #0e7490;
-            --bg-cong: #e6cf00; --b-cong: #a39200;
-            --bg-perm: #16c24a; --b-perm: #0b5d27;
-        }
-        body.dark-mode #main-table .td-date { color: #e2e8f0; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg); }
-        /* barra in alto: blu notte con filo corallo */
-        header { background: var(--top-grad); border-bottom: 3px solid var(--coral); box-shadow: 0 2px 20px rgba(0,0,0,0.25); }
-        header::after { display: none; }
-        .app-brand img { border-radius: 10px; border: 2px solid rgba(255,255,255,0.2); box-shadow: 0 2px 6px rgba(0,0,0,0.3); background: #fff; }
-        .app-title-text { font-family: 'Inter', sans-serif; font-size: 1.15rem; font-weight: 900; letter-spacing: -0.5px; text-shadow: 0 1px 3px rgba(0,0,0,0.3); }
-        .app-subtitle-text { display: none !important; }
-        .as-updated { display: block; font-size: 0.62rem; font-weight: 600; color: rgba(255,255,255,0.65); margin-top: 2px; letter-spacing: 0.5px; text-transform: uppercase; white-space: nowrap; }
-        .hdr-sep { display: none; }
-        .app-actions { gap: 6px; }
-        .hdr-btn { width: 40px; min-width: 40px; height: 40px; padding: 0 !important; border-radius: 11px; background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2); }
-        .hdr-btn .hdr-lbl { display: none !important; }
-        .hdr-btn .material-icons-round { font-size: 1.25rem; color: rgba(255,255,255,0.92); }
-        .hdr-btn:hover, .hdr-btn:active { background: rgba(227,75,52,0.22); }
-        .hdr-btn.as-inf-btn { background: #16a34a; border-color: #22c55e; }
-        .hdr-btn.as-inf-btn .material-icons-round { color: #fff; }
-        .app-actions > [onclick*="scrollToToday"] { order: 1; }
-        .app-actions > .driver-filter-btn { order: 2; }
-        .app-actions > [onclick*="toggleMonthDropdown"] { order: 3; }
-        .app-actions > .as-inf-btn { order: 4; }
-        .app-actions > [onclick*="openNotifCenter"] { order: 5; }
-        .app-actions > .menu-trigger { order: 6; }
-        .app-actions > #driver-filter-dropdown, .app-actions > #menu-dropdown { order: 9; }
-        .badge-dot { background: var(--coral); border-color: transparent; box-shadow: 0 0 0 2px rgba(227,75,52,0.4); }
-        @media (max-width: 420px) { .hdr-btn { width: 36px; min-width: 36px; height: 36px; } .app-actions { gap: 4px; } }
-        /* barra scorrevole subito sotto la barra in alto, sopra il filo corallo */
-        #as-ticker { top: calc(var(--header-base-h) + var(--safe-top)); bottom: auto; height: 32px; z-index: 1001; background: var(--navy-deep); border-top: 1px solid rgba(255,255,255,0.1); border-bottom: 3px solid var(--coral); font: 500 12px/29px 'Inter', sans-serif; padding-bottom: 0; }
+        /* barra scorrevole degli autisti subito sotto la barra in alto */
+        #as-ticker { top: calc(var(--header-base-h) + var(--safe-top)); bottom: auto; height: 32px; z-index: 1001; background: #0a1128; border-top: 1px solid rgba(255,255,255,0.1); border-bottom: 3px solid var(--coral); font: 500 12px/29px 'Inter', sans-serif; padding-bottom: 0; }
         body.as-has-ticker { --header-h: calc(var(--header-base-h) + var(--safe-top) + 32px); }
         body.as-has-ticker header { border-bottom: none; }
         body.as-has-ticker .container { padding-bottom: 80px; }
         .as-tk-track b { color: #fff; font-weight: 900; margin-right: 4px; }
         .as-tk-track span { font-style: italic; }
         .as-tk-track b, .as-tk-sep { font-style: normal; }
-        /* intestazione dei nomi: bianca, carattere stretto blu notte */
-        #main-table thead th { background: var(--bg-card); color: var(--navy-mid); font-family: 'Barlow Condensed', 'Inter', sans-serif; font-weight: 700; font-size: 0.95rem; letter-spacing: 0.8px; border-bottom: 2px solid var(--border); border-right: 1px solid var(--border); backdrop-filter: none; }
-        body.dark-mode #main-table thead th { color: #93b4ff; }
-        #main-table thead th:not(:first-child)::before { display: none; }
-        #main-table thead th:first-child { font-family: 'Inter', sans-serif; font-size: 0.68rem; font-weight: 800; color: var(--text-sec); }
-        /* colonna data con il filo oro dell'app autisti */
-        #main-table thead th:first-child, #main-table .td-date { background: var(--date-col-bg); border-right: 3px solid var(--gold); box-shadow: none; }
-        #main-table .td-date.date-red { background: #fdf2f0; color: var(--coral); border-right-color: var(--gold); }
-        body.dark-mode #main-table .td-date.date-red { background: #2a1512; }
-        /* barra del mese: blu notte, filo corallo, orologio scuro */
-        tr.month-header td { background: var(--month-bar-bg); border-bottom: 2px solid var(--coral); }
-        .month-label { font-family: 'Inter', sans-serif; font-weight: 900; font-size: 1.4rem; letter-spacing: -0.5px; }
-        .live-clock { background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; padding: 3px 10px; box-shadow: none; }
-        .live-clock .material-icons-round { display: none; }
-        .live-clock .lc-date::after { content: ' \2022'; opacity: 0.7; }
-        /* caselle */
-        .cell { border-radius: 10px; font-family: 'Inter', sans-serif; font-weight: 800; }
-        .rep-text { border-radius: 4px; }
-        .rep-bar-seg.green { background: #15803d; }
-        .sticky-month-text { flex-wrap: nowrap; }
-        .month-label, .live-clock { white-space: nowrap; flex-shrink: 0; }
-        .rep-now-pill { min-width: 0; flex-shrink: 1; overflow: hidden; }
-        @media (max-width: 420px) { .month-label { font-size: 1.1rem; } .live-clock { font-size: 0.8rem; padding: 2px 7px; } .live-clock .lc-date { display: none; } }
+        .as-updated { display: none; }
+        /* bordo rosso PROVA (solo copia di prova) */
+        #prova-frame { position:fixed; inset:0; z-index:2147483000; pointer-events:none; border:5px solid #e11d2a; box-sizing:border-box; }
+        #prova-frame span { position:absolute; left:50%; top:env(safe-area-inset-top,0px); transform:translateX(-50%); background:#e11d2a; color:#fff; font:800 11px/1 system-ui,-apple-system,'Segoe UI',sans-serif; letter-spacing:2px; padding:3px 12px 4px; border-radius:0 0 8px 8px; box-shadow:0 2px 6px rgba(0,0,0,.25); }
+        @media print { #prova-frame { display:none !important; } }
     </style>
     <style>
         /* Legenda dei colori */
@@ -3760,8 +3663,8 @@
         @media (min-width:700px) { #legend-modal { align-items:center; } }
         .lg-card { width:100%; max-width:720px; max-height:92vh; display:flex; flex-direction:column; background:var(--bg-card); color:var(--text-main); border-radius:20px 20px 0 0; overflow:hidden; box-shadow:0 -10px 40px rgba(0,0,0,.3); }
         @media (min-width:700px) { .lg-card { border-radius:18px; } }
-        .lg-head { display:flex; align-items:center; gap:12px; padding:16px 18px; background:var(--top-grad); color:#fff; border-bottom:3px solid var(--coral); }
-        .lg-head > .material-icons-round { font-size:26px; color:var(--gold); }
+        .lg-head { display:flex; align-items:center; gap:12px; padding:16px 18px; background:var(--month-bar-bg); color:#fff; }
+        .lg-head > .material-icons-round { font-size:26px; color:#fbbf24; }
         .lg-head b { display:block; font-size:1.05rem; font-weight:900; }
         .lg-head small { display:block; font-size:.75rem; opacity:.75; }
         .lg-head button { margin-left:auto; width:38px; height:38px; border-radius:11px; border:1px solid rgba(255,255,255,.25); background:rgba(255,255,255,.12); color:#fff; cursor:pointer; display:flex; align-items:center; justify-content:center; }
@@ -3775,97 +3678,13 @@
         .lg-txt b { display:block; font-size:.85rem; font-weight:700; line-height:1.2; }
         .lg-txt small { display:block; font-size:.72rem; color:var(--text-sec); line-height:1.25; margin-top:1px; }
         .lg-bars { display:flex; gap:2px; } .lg-bars i { font-style:normal; font-size:.6rem; font-weight:800; color:#fff; background:#15803d; border-radius:4px; padding:3px 5px; }
-        .lg-date { display:flex; flex-direction:column; align-items:center; font-weight:900; font-size:1.2rem; color:var(--coral); line-height:1; } .lg-date small { font-size:.6rem; font-weight:700; }
+        .lg-date { display:flex; flex-direction:column; align-items:center; font-weight:900; font-size:1.2rem; color:#dc2626; line-height:1; } .lg-date small { font-size:.6rem; font-weight:700; }
         /* Modalità offline: avviso in basso quando manca la rete */
         #net-offline { position:fixed; left:50%; bottom:calc(14px + env(safe-area-inset-bottom,0px)); transform:translateX(-50%); z-index:9940; display:none; align-items:center; gap:6px; max-width:calc(100% - 32px); padding:6px 12px; border-radius:999px; background:#7c2d12; color:#fff; font:600 12.5px/1.25 system-ui,-apple-system,'Segoe UI',sans-serif; box-shadow:0 4px 14px rgba(0,0,0,.25); cursor:pointer; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
         #net-offline.show { display:flex; }
         #net-offline .material-icons-round { font-size:16px; color:#fff; }
         #net-offline .net-txt { overflow:hidden; text-overflow:ellipsis; }
         @media print { #net-offline { display:none !important; } }
-    </style>
-    <style>
-/* ═══ Grafica "leggera" (Opzioni → Aspetto → Grafica): attiva con la classe body.tl ═══ */
-body.tl {
-  --bg: #f4f6fa; --bg-card: #ffffff; --text-main: #0f172a; --text-sec: #64748b; --border: #e6eaf0;
-  --tl-ink: #0f172a; --tl-muted: #64748b; --tl-line: #e6eaf0; --tl-hover: #f1f4f9; --tl-accent: #2563eb;
-  --tl-surface: #ffffff; --tl-mix: #ffffff; --tl-txt: #0b1220; --tl-tint: 13%; --tl-txtmix: 62%;
-  background: var(--bg) !important;
-}
-body.tl.dark-mode {
-  --bg: #0b0f17; --bg-card: #121826; --text-main: #e8edf5; --text-sec: #8b97ab; --border: #1f2737;
-  --tl-ink: #e8edf5; --tl-muted: #8b97ab; --tl-line: #1f2737; --tl-hover: #182033; --tl-accent: #60a5fa;
-  --tl-surface: #121826; --tl-mix: #121826; --tl-txt: #ffffff; --tl-tint: 24%; --tl-txtmix: 55%;
-}
-/* barra in alto: bianca, piatta, icone senza riquadro */
-body.tl header:has(#menu-dropdown[style*="flex"]) { z-index: 1002 !important; }
-body.tl header { background: var(--tl-surface) !important; border-bottom: 1px solid var(--tl-line) !important; box-shadow: none !important; }
-body.tl .app-title-text { color: var(--tl-ink) !important; text-shadow: none !important; font-weight: 800 !important; letter-spacing: -0.02em !important; }
-body.tl .as-updated { color: var(--tl-muted) !important; text-transform: none !important; letter-spacing: 0 !important; font-weight: 500 !important; }
-body.tl .app-brand img { border: none !important; box-shadow: 0 1px 3px rgba(15,23,42,.12) !important; border-radius: 9px !important; }
-body.tl .hdr-btn { background: transparent !important; border: none !important; border-radius: 12px !important; }
-body.tl .hdr-btn:hover, body.tl .hdr-btn:active { background: var(--tl-hover) !important; }
-body.tl .hdr-btn .material-icons-round { color: var(--tl-muted) !important; font-size: 23px !important; }
-body.tl .hdr-btn.as-inf-btn { background: color-mix(in srgb, #16a34a 14%, var(--tl-surface)) !important; }
-body.tl .hdr-btn.as-inf-btn .material-icons-round { color: #16a34a !important; }
-body.tl .app-actions { gap: 2px !important; }
-/* striscia "Mattina: ..." chiara, niente filo rosso */
-body.tl #as-ticker { background: var(--tl-surface) !important; color: var(--tl-muted) !important; border-top: none !important; border-bottom: 1px solid var(--tl-line) !important; font-weight: 500 !important; }
-body.tl .as-tk-track b { color: var(--tl-ink) !important; font-weight: 700 !important; }
-body.tl .as-tk-track span { font-style: normal !important; }
-/* nomi in colonna */
-body.tl #main-table thead th { background: var(--tl-surface) !important; color: var(--tl-ink) !important; font-family: 'Inter', sans-serif !important; font-weight: 700 !important; font-size: .78rem !important; letter-spacing: .04em !important; border-bottom: 1px solid var(--tl-line) !important; border-right: none !important; }
-body.tl #main-table thead th:first-child { color: var(--tl-muted) !important; font-size: .62rem !important; }
-/* barra del mese: chiara, testo scuro */
-body.tl tr.month-header td { background: var(--bg) !important; color: var(--tl-ink) !important; border-bottom: 1px solid var(--tl-line) !important; box-shadow: none !important; }
-body.tl .month-label { text-shadow: none !important; font-weight: 800 !important; font-size: 1.15rem !important; letter-spacing: -0.02em !important; text-transform: none !important; }
-body.tl .month-label::first-letter { text-transform: uppercase; }
-body.tl .live-clock { background: var(--tl-surface) !important; border: 1px solid var(--tl-line) !important; color: var(--tl-ink) !important; text-shadow: none !important; box-shadow: none !important; font-weight: 600 !important; }
-body.tl .rep-now-pill { background: color-mix(in srgb, #dc2626 9%, var(--tl-surface)) !important; border: 1px solid color-mix(in srgb, #dc2626 25%, var(--tl-surface)) !important; color: #b91c1c !important; box-shadow: none !important; }
-body.tl .rep-now-pill * { color: inherit !important; text-shadow: none !important; }
-/* colonna data: bianca e sottile */
-body.tl #main-table thead th:first-child, body.tl #main-table .td-date { background: var(--tl-surface) !important; border-right: 1px solid var(--tl-line) !important; box-shadow: none !important; }
-body.tl #main-table .td-date { color: var(--tl-ink) !important; font-weight: 700 !important; }
-body.tl #main-table .td-date.date-red { background: color-mix(in srgb, #dc2626 5%, var(--tl-surface)) !important; color: #dc2626 !important; }
-body.tl .td-date small { font-weight: 500 !important; text-transform: capitalize !important; }
-body.tl .dsc-m, body.tl .dsc-p { background: transparent !important; color: var(--tl-muted) !important; font-weight: 500 !important; }
-body.tl #main-table tbody td { border-color: transparent; }
-/* OGGI: evidenziato con delicatezza */
-body.tl tr.today td { background: color-mix(in srgb, #f97316 7%, var(--bg)) !important; border-top: none !important; border-bottom: none !important; }
-body.tl tr.today .td-date { background: color-mix(in srgb, #f97316 12%, var(--tl-surface)) !important; color: #c2410c !important; border-right: 3px solid #f97316 !important; }
-body.tl tr.today .td-date small, body.tl tr.today .td-date .holiday-name { color: #c2410c !important; }
-body.tl tr.today .td-date::before { background: #f97316 !important; color: #fff !important; border-radius: 999px !important; }
-body.tl tr.today td[data-col] .cell { box-shadow: 0 0 0 2px #fb923c !important; }
-/* la riga rossa tra le settimane resta, appena più sottile */
-body.tl #main-table tbody tr.week-end > td { border-bottom: 3px solid #dc2626 !important; }
-
-/* CASELLE: stesso modello e stessi colori della grafica classica, solo un po' più chiari */
-body.tl .cell { box-shadow: none; }
-/* "REPERIBILE" e fasce: pastiglie piccole, senza lampeggio (solo oggi lampeggia) */
-body.tl .rep-text { animation: none; background: #dc2626 !important; color: #fff !important; border: none !important; font-weight: 700 !important; border-radius: 999px !important; box-shadow: none !important; }
-body.tl #main-table #today-row .rep-text { animation: none !important; }
-body.tl .rep-bar-seg.green { background: color-mix(in srgb, #16a34a 75%, var(--tl-mix)) !important; }
-body.tl .rep-bar-seg { border-radius: 6px !important; }
-/* linguetta laterale più discreta */
-body.tl #side-drag-handle { background: var(--tl-surface) !important; box-shadow: -2px 0 10px rgba(15,23,42,.12) !important; width: 20px !important; height: 52px !important; border: 1px solid var(--tl-line); border-right: none; }
-body.tl #side-drag-handle .material-icons-round { color: var(--tl-accent) !important; }
-
-/* MENU: icone a tinta unica, e sul telefono si apre dal basso */
-body.tl #menu-dropdown { border-radius: 16px !important; border: 1px solid var(--tl-line) !important; box-shadow: 0 20px 50px rgba(15,23,42,.18) !important; }
-body.tl .mn-ico { background: color-mix(in srgb, var(--tl-accent) 11%, var(--tl-surface)) !important; color: var(--tl-accent) !important; border-radius: 50% !important; }
-body.tl .mn-ico .material-icons-round { color: var(--tl-accent) !important; }
-body.tl .mn-group { letter-spacing: .04em !important; font-weight: 700 !important; }
-body.tl .mn-txt b { font-weight: 600 !important; }
-@media (max-width: 560px) {
-  body.tl #menu-dropdown { position: fixed !important; left: 0 !important; right: 0 !important; bottom: 0 !important; top: auto !important; width: 100% !important;
-    max-height: 82vh !important; border-radius: 22px 22px 0 0 !important; padding-bottom: env(safe-area-inset-bottom) !important;
-    box-shadow: 0 0 0 100vmax rgba(15,23,42,.38), 0 -10px 30px rgba(15,23,42,.18) !important; transform-origin: bottom center !important; }
-  body.tl #menu-dropdown::before { content: ""; display: block; width: 38px; height: 5px; border-radius: 3px; background: var(--tl-line); margin: 8px auto 0; flex-shrink: 0; }
-}
-
-        /* Bordo rosso PROVA: solo nelle copie di prova, non copre e non blocca nulla */
-        #prova-frame { position:fixed; inset:0; z-index:2147483000; pointer-events:none; border:5px solid #e11d2a; box-sizing:border-box; }
-        #prova-frame span { position:absolute; left:50%; top:env(safe-area-inset-top,0px); transform:translateX(-50%); background:#e11d2a; color:#fff; font:800 11px/1 system-ui,-apple-system,'Segoe UI',sans-serif; letter-spacing:2px; padding:3px 12px 4px; border-radius:0 0 8px 8px; box-shadow:0 2px 6px rgba(0,0,0,.25); }
-        @media print { #prova-frame { display:none !important; } }
     </style>
 </head>
 <body>
@@ -4818,7 +4637,7 @@ body.tl .mn-txt b { font-weight: 600 !important; }
         <div class="app-brand">
             <img src="logo.png" alt="Logo" onclick="asShowLastUpload()" title="Quando è stato caricato il file turni" onerror="this.style.display='none'">
             <div class="brand-text">
-                <span class="app-title-text">A.S. 26</span>
+                <span class="app-title-text">Turni Autisti</span>
                 <span class="app-subtitle-text">Calendario 2026</span>
                 <span class="as-updated" id="as-updated">Turni autisti · prova</span>
             </div>
@@ -4831,7 +4650,7 @@ body.tl .mn-txt b { font-weight: 600 !important; }
         </div>
         <div class="app-actions">
             <button class="hdr-btn" onclick="vibrate();scrollToToday()" title="Vai a oggi">
-                <span class="material-icons-round">home</span><span class="hdr-lbl">Oggi</span>
+                <span class="material-icons-round">today</span><span class="hdr-lbl">Oggi</span>
             </button>
             <button class="hdr-btn hdr-hide-sm" onclick="toggleMonthDropdown(event)" title="Vai a un mese">
                 <span class="material-icons-round">calendar_month</span><span class="hdr-lbl">Mesi</span>
@@ -4841,15 +4660,15 @@ body.tl .mn-txt b { font-weight: 600 !important; }
                 <span id="driver-filter-badge" class="badge-dot"></span>
             </button>
             <span class="hdr-sep hdr-hide-sm"></span>
-            <button class="hdr-btn hdr-link as-inf-btn" onclick="vibrate();window.open('https://centrale118rsm-code.github.io/Turni-Infermieri-2026/','_blank')" title="Apri i turni degli infermieri">
-                <span class="material-icons-round">medical_services</span><span class="hdr-lbl">Infermieri</span>
+            <button class="hdr-btn hdr-link hdr-hide-sm" onclick="vibrate();window.open('https://centrale118rsm-code.github.io/Turni-Infermieri-2026/','_blank')" title="Apri i turni degli infermieri">
+                <span class="hdr-as">118</span><span class="hdr-lbl">Infermieri</span>
             </button>
             <button class="hdr-btn" onclick="openNotifCenter()" title="Notifiche">
                 <span class="material-icons-round">notifications</span>
                 <span id="notif-badge" class="badge-dot"></span>
             </button>
             <button class="hdr-btn menu-trigger" id="hdr-menu-btn" onclick="toggleMenu()" title="Menu" aria-haspopup="true">
-                <span class="material-icons-round">more_vert</span>
+                <span class="material-icons-round">menu</span>
             </button>
             <div id="driver-filter-dropdown" onclick="event.stopPropagation()">
                 <div class="driver-filter-title"><span class="material-icons-round" style="font-size:14px">groups</span> Filtra Operatori</div>
@@ -7525,9 +7344,9 @@ body.tl .mn-txt b { font-weight: 600 !important; }
     }
     // Grafica "leggera" (predefinita) o "classica" (colori pieni e barre blu notte)
     function applyLook() {
-        const tl = prefs.look !== 'classica';
+        const tl = false;   // grafica unica, identica all'app infermieri
         document.body.classList.toggle('tl', tl);
-        const ic = document.querySelector('#hdr-menu-btn .material-icons-round'); if(ic) ic.textContent = tl ? 'menu' : 'more_vert';
+        const ic = document.querySelector('#hdr-menu-btn .material-icons-round'); if(ic) ic.textContent = 'menu';
         const dark = document.body.classList.contains('dark-mode');
         const meta = document.querySelector('#theme-color-meta'); if(meta) meta.setAttribute('content', tl ? (dark ? '#121826' : '#ffffff') : (dark ? '#061331' : '#0b2257'));
     }
@@ -9058,8 +8877,6 @@ body.tl .mn-txt b { font-weight: 600 !important; }
             <div class="option-category-header"><span class="material-icons-round">palette</span> Aspetto</div>
             <div class="opt-block"><div class="opt-txt"><span>Tema</span><small>Automatico segue l’impostazione del telefono.</small></div>
                 ${seg('theme', [['light', 'Chiaro', 'light_mode'], ['dark', 'Scuro', 'dark_mode'], ['auto', 'Automatico', 'brightness_auto']])}</div>
-            <div class="opt-block"><div class="opt-txt"><span>Grafica</span><small>Leggera: colori tenui e barre chiare. Classica: caselle a colori pieni e barre blu notte.</small></div>
-                ${seg('look', [['leggera', 'Leggera', 'auto_awesome'], ['classica', 'Classica', 'palette']])}</div>
             <div class="opt-block"><div class="opt-txt"><span>Grandezza delle scritte</span><small>Scritte più grandi nelle caselle del calendario: le caselle si allargano da sole.</small></div>
                 ${seg('textSize', [['normal', 'Normale', 'text_fields'], ['big', 'Grande', 'format_size'], ['xbig', 'Molto grande', 'zoom_in']])}</div>
             <div class="opt-block"><div class="opt-txt"><span>Legenda dei colori</span><small>Cosa vuol dire ogni colore e ogni segno del calendario.</small></div>
