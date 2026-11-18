@@ -7486,7 +7486,6 @@
         return [
             { group:'Per te' },
             { id:'me', icon:'person', label:'La mia pagina', desc: (userIdentity && userIdentity !== 'Ospite') ? 'Prossimi turni, ore, assenze, reperibilit\u00e0' : 'Scegli prima chi sei', color:'#1d4ed8', run: () => openMyPage() },
-            { id:'note', icon:'sticky_note_2', label:'Note e appuntamenti', desc:'Note sui giorni per i colleghi', color:'#7c3aed', run: () => asOpenNotesOverview() },
             { id:'notechat', icon:'forum', label:'Note e chat', desc: (() => { try { const u = noteHubUnread(); return u ? u + (u === 1 ? ' risposta nuova' : ' risposte nuove') : 'Le note dei colleghi e le risposte'; } catch(e) { return 'Le note dei colleghi e le risposte'; } })(), color:'#7c3aed', run: () => noteOpenHub() },
             { group:'Calendario' },
             { id:'cal', icon:'calendar_month', label:'Calendario', desc:'Oggi, mesi, operatori' + (hasYears ? ', anni passati' : ''), color: MN_COLORS.cal, children: [
@@ -11678,9 +11677,35 @@
                 saveNotifications(); updateBadge();
             });
             asNotes = items; asNotesLoaded = true; asRebuildNotes();
+            if(doc.exists && !doc.data().migrated && Object.keys(items).length) asMigrateNotes(items);
             asRefreshMarks();
             if(document.getElementById('as-notes-modal').classList.contains('open') && asNotesView && asNotesView.mode !== 'new') asRenderNotes();
         }, e => console.warn('Note non disponibili:', e));
+    }
+    // Le note vecchie degli autisti ("Note e appuntamenti") passano una volta sola in "Note e chat"
+    // (stesse note degli infermieri, campo noteCoordinatore di prefs). Id fissi "as_…": ripetere
+    // non crea doppioni; alla fine il documento vecchio viene segnato migrated e non si rilegge più.
+    let asMigrating = false;
+    function asMigrateNotes(items) {
+        if(asMigrating || SERVER_MODE || !fbReady) return;
+        if(!opNotesReady || !drivers.length || !finalData.length) { setTimeout(() => asMigrateNotes(items), 3000); return; }
+        asMigrating = true;
+        const out = {}, now = new Date().toISOString();
+        const orig = n => { const d = noteDriverOf(n); return d ? d.originalName : String(n || '').toUpperCase(); };
+        Object.keys(items).forEach(id => {
+            const n = items[id] || {}; if(!n.testo) return;
+            let date = /^\d{4}-\d{2}-\d{2}$/.test(n.iso || '') ? n.iso : '';
+            if(!date && n.mese && n.giorno) { for(let r = 1; r < finalData.length; r++) { if(finalData[r][0].v === n.mese && parseInt(finalData[r][1].v) === parseInt(n.giorno)) { date = repRowDate(r) || ''; break; } } }
+            const tos = n.destinatari === 'all' || !Array.isArray(n.destinatari) || !n.destinatari.length ? ['ALL'] : n.destinatari.map(orig);
+            tos.forEach((to, k) => {
+                const nid = 'as_' + id + (tos.length > 1 ? '_' + k : '');
+                if(opNotes[nid]) return;
+                out[nid] = { author: orig(n.autoreNorm || n.autore || 'CENTRALE'), to, date, text: String(n.testo).slice(0, 500), pref: '', status: 'vista', createdAt: n.createdAt || now, updatedAt: now, push: false, fromOld: true };
+            });
+        });
+        const done = () => cfgRef('note').set({ migrated: true, migratedAt: now }, { merge: true });
+        (Object.keys(out).length ? cfgRef('prefs').set({ [NOTE_FIELD]: out }, { merge: true }).then(done) : done())
+            .catch(e => { console.warn('Note vecchie non spostate:', e); asMigrating = false; });
     }
     function asNoteTargets(key, d) { return (asNotesByDate[key] || []).filter(n => n.destinatari === 'all' || (Array.isArray(n.destinatari) && n.destinatari.some(x => asNorm(x) === asNorm(d.name)))); }
     function asOpenNotes(view) {
@@ -11808,8 +11833,8 @@
         const row = finalData[r]; if(!row) return '';
         const mese = row[0].v, giorno = parseInt(row[1].v), key = mese + '-' + giorno;
         let h = '';
-        const notes = asNotesByDate[key] || [];
-        h += `<div class="as-sec"><span class="material-icons-round">sticky_note_2</span>Note del giorno<button onclick="closeShiftModal();setTimeout(() => asOpenDayNotes(${r}), 220)">${notes.length ? 'Apri' : 'Aggiungi'}</button></div>`;
+        const notes = [];   // le note del giorno ora sono quelle di "Note e chat" (sezione della base)
+        if(false) h += `<div class="as-sec"><span class="material-icons-round">sticky_note_2</span>Note del giorno<button onclick="closeShiftModal();setTimeout(() => asOpenDayNotes(${r}), 220)">${notes.length ? 'Apri' : 'Aggiungi'}</button></div>`;
         if(notes.length) h += notes.map(n => `<div class="as-line">${esc(n.testo || '')}<small>${esc(n.autore || '')}</small></div>`).join('');
         const veh = asVehicles[key] || [];
         if(veh.length) {
@@ -11833,7 +11858,7 @@
         if(!finalData.length) return;
         if(asAmbFor !== finalData) { asAmbMap = asAmbulanceMap(); asAmbFor = finalData; }
         document.querySelectorAll('#table-body tr[data-row]').forEach(tr => {
-            const r = +tr.dataset.row, key = asDateKeyOfRow(r), notes = asNotesByDate[key] || [], veh = asVehicles[key] || [];
+            const r = +tr.dataset.row, key = asDateKeyOfRow(r), notes = [], veh = asVehicles[key] || [];
             const td = tr.querySelector('td.td-date');
             if(td) { let dot = td.querySelector('.as-note-dot'); if(notes.length && !dot) { dot = document.createElement('span'); dot.className = 'as-note-dot'; td.appendChild(dot); } else if(!notes.length && dot) dot.remove(); }
             tr.querySelectorAll('td[data-col]').forEach(c => {
@@ -11860,8 +11885,8 @@
             const by = { M: [], P: [], N: [] };
             drivers.filter(d => !d.hidden).forEach(d => { const c = workCode(dd.rowIdx, d.idx), n = d.name.charAt(0) + d.name.slice(1).toLowerCase(); if(c === 'M' || c === 'm' || c === 'M+N') by.M.push(n); if(c === 'P' || c === 'p') by.P.push(n); if(c === 'N' || c === 'M+N') by.N.push(n); });
             [['M', 'Mattina'], ['P', 'Pomeriggio'], ['N', 'Notte']].forEach(([k, l]) => { if(by[k].length) items.push(`<b>${l}:</b> ${esc(by[k].join(', '))}`); });
-            const key = dd.month + '-' + dd.day, notes = asNotesByDate[key] || [];
-            if(notes.length) items.push(`<b>${notes.length} ${notes.length > 1 ? 'note' : 'nota'} oggi:</b> ${esc(notes.slice(0, 3).map(n => (n.testo || '').slice(0, 44)).join(' • '))}`);
+            const key = dd.month + '-' + dd.day, notes = (typeof noteList === 'function' ? noteList() : []).filter(n => n.date === ymd(t) && n.text);
+            if(notes.length) items.push(`<b>${notes.length} ${notes.length > 1 ? 'note' : 'nota'} oggi:</b> ${esc(notes.slice(0, 3).map(n => (n.text || '').slice(0, 44)).join(' • '))}`);
             (asVehicles[key] || []).forEach(v => items.push(`<b>Officina — ${esc(v.veicolo || 'Veicolo')}:</b> ${esc(v.operazione)}${v.ora ? ' alle ' + esc(v.ora) : ''}`));
         }
         document.body.classList.toggle('as-has-ticker', items.length > 0);
@@ -12015,12 +12040,7 @@
         const txt = when ? new Date(when).toLocaleString('it-IT', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'Non riesco a leggerlo da GitHub in questo momento.';
         ccDialog('File turni', when ? 'Ultimo caricamento di turni.xlsx: ' + txt : txt, [{ label: 'Ok', kind: 'primary', value: true }]);
     }
-    // Tocco sulla data (fuori dalla modifica turni): note del giorno.
-    document.addEventListener('click', e => {
-        const td = e.target.closest && e.target.closest('#table-body td.td-date');
-        if(!td || coordEditModeActive) return;
-        const tr = td.closest('tr[data-row]'); if(tr) asOpenDayNotes(+tr.dataset.row);
-    });
+    // (il tocco sulla data apriva le note vecchie: ora le note del giorno sono in "Note e chat")
     // Sotto "A.S. 26": quando è stato caricato l'ultimo file turni (come nell'app originale).
     async function asFetchUpdated() {
         const el = document.getElementById('as-updated'); if(!el) return;
@@ -12932,6 +12952,7 @@
     const NOTE_FIELD = 'noteCoordinatore';
     const NOTE_PREFS = { M: { label: 'Mattina', bg: '#dbeafe', fg: '#1e40af' }, P: { label: 'Pomeriggio', bg: '#ffedd5', fg: '#9a3412' }, N: { label: 'Notte', bg: '#1e293b', fg: '#f8fafc' }, R: { label: 'Riposo', bg: '#dcfce7', fg: '#166534' } };
     const NOTE_STATUS = { nuova: 'Inviata', vista: 'Vista dal coordinatore', fatta: 'Gestita dal coordinatore' };
+    var opNotesReady = false;
     let opNotes = {}, opNotesVer = 0, noteIdxCache = null, noteEditCtx = null, edNotesOpen = false, edNotesAll = false;
     function noteIsCoord() { return !!isCoordinator || isCoordLoggedIn(); }
     function noteTo(n) { return (n && n.to) || 'COORD'; }
@@ -12990,8 +13011,8 @@
         cfgRef('prefs').onSnapshot(doc => {
             const raw = doc.exists ? ((doc.data() || {})[NOTE_FIELD] || {}) : {}, m = {};
             Object.keys(raw).forEach(k => { const n = raw[k]; if(n && typeof n === 'object' && /^(\d{4}-\d{2}-\d{2})?$/.test(n.date || '') && n.author) m[k] = Object.assign({ id: k, text: '', pref: '', status: 'nuova', date: '' }, n, { id: k }); });
-            if(JSON.stringify(m) === JSON.stringify(opNotes)) return;
-            opNotes = m; notesAfterChange(); noteNotify(); noteOpenPending();
+            if(JSON.stringify(m) === JSON.stringify(opNotes)) { opNotesReady = true; return; }
+            opNotesReady = true; opNotes = m; notesAfterChange(); noteNotify(); noteOpenPending();
         }, err => console.error('Errore ascolto note:', err));
     }
     let notesRenderTimer = null;
