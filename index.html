@@ -9081,7 +9081,7 @@
         if(isMN(rawUpper)) return { minutes: minutesFromRange(SCHEDULE["M"]) + minutesFromRange(SCHEDULE["N"]), code:"M+N", label:"MATTINA + NOTTE" };
 
         let subVal = (info.subV||"").toString().trim().toLowerCase();
-        if(SPECIAL_SUBCODES[subVal] !== undefined) return { minutes: justifiedDayMinutes(rowIdx, colIdx), code:subVal, label: SPECIAL_SUBCODES[subVal], justified:true };
+        if(SPECIAL_SUBCODES[subVal] !== undefined) return { minutes: subVal === 'pl' ? plDayMinutes(info) : justifiedDayMinutes(rowIdx, colIdx), code:subVal, label: SPECIAL_SUBCODES[subVal], justified:true };
 
         let val = rawStr; let si = val.indexOf('/'); if(si !== -1) val = val.substring(0,si).trim();
         if(!val || val === "-") return { minutes:0, code:"", label:"" };
@@ -9135,6 +9135,7 @@
         let sub = (cell.subV||"").toString().trim().toLowerCase();
         if(Object.prototype.hasOwnProperty.call(SPECIAL_SUBCODES, sub)) {
             // assenza giustificata: l'orario del turno che avrebbe fatto (come nel file Excel principale)
+            if(sub === 'pl') return plDayMinutes(cell);   // permesso legge: le ore scritte nella casella (6 h, Mat 26/11/2026)
             return justifiedDayMinutes(rowIdx, colIdx);
         }
         let v = raw; let si = v.indexOf('/'); if(si !== -1) v = v.substring(0,si).trim();
@@ -12764,9 +12765,12 @@
     // A ore dentro un turno: il turno resta com'è e la casella porta perm = { k, h }; le ore di
     // permesso sono retribuite, quindi il saldo delle ore non cambia: scalano solo dal monte ore.
     const PERM_HOURLY = {
-        pl: { label: 'Permesso legge', short: 'PL', max: 14, dayH: 7 },   // un giorno intero conta 7 ore
+        pl: { label: 'Permesso legge', short: 'PL', max: 14, dayH: 6 },   // un giorno intero vale 6 ore (Mat 26/11/2026)
         ps: { label: 'Permesso sindacale', short: 'PS', max: null }
     };
+    // Permesso legge di un giorno intero: vale le ore scritte nella casella (di solito 6; fino a inizio
+    // ottobre l'Excel scriveva 7), non l'orario del turno. Senza numero vale 6 h.
+    function plDayMinutes(cell) { const h = cell && cell.perm && Number(cell.perm.h) > 0 ? Number(cell.perm.h) : PERM_HOURLY.pl.dayH; return Math.round(h * 60); }
     function permHFmt(h) { const m = Math.round((Number(h) || 0) * 60); return Math.floor(m / 60) + 'h' + (m % 60 ? String(m % 60).padStart(2, '0') : ''); }
     function permDayHours(rowIdx, col) {
         const m = justifiedDayMinutes(rowIdx, col) || getContractHours(col) * 60 / CONTRACT_WORKDAYS;
@@ -12809,7 +12813,7 @@
                 <div class="sep-perm-kinds">${Object.keys(PERM_HOURLY).map(k => `<button class="${sepPermKind === k ? 'on' : ''}" onclick="sepPermKind='${k}';this.parentNode.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b===this));document.getElementById('sep-perm-left').style.visibility='${k === 'pl' ? 'visible' : 'hidden'}'"><span class="cc-code" style="${swatchStyle(SUB_CODE_COLORS[k])}">${PERM_HOURLY[k].short}</span>${PERM_HOURLY[k].label}</button>`).join('')}</div>
                 <div class="sep-perm-row">
                     <label>Ore <input type="number" id="sep-perm-h" min="0.25" max="24" step="0.25" value="${hVal}" inputmode="decimal"></label>
-                    <small id="sep-perm-left" style="visibility:${sepPermKind === 'pl' ? 'visible' : 'hidden'}">Permesso legge: usate ${permHFmt(used)} su 14h (giornata intera = 7h) · ${left >= 0 ? 'restano ' + permHFmt(left) : 'oltre di ' + permHFmt(-left)}</small>
+                    <small id="sep-perm-left" style="visibility:${sepPermKind === 'pl' ? 'visible' : 'hidden'}">Permesso legge: usate ${permHFmt(used)} su 14h (giornata intera = 6h) · ${left >= 0 ? 'restano ' + permHFmt(left) : 'oltre di ' + permHFmt(-left)}</small>
                 </div>
                 <div class="sep-perm-row">
                     <button class="cc-btn primary" ${onShift ? '' : 'disabled title="Nella casella non c’è un turno"'} onclick="sepPermApply(false)"><span class="msym">schedule</span>Ore dentro il turno</button>
