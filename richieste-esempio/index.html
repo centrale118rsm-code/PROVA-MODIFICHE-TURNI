@@ -1,0 +1,2302 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#f8fafc">
+    <title>ESEMPIO · Richieste - 118 San Marino</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
+    
+    <style>
+        * { -webkit-tap-highlight-color: transparent; user-select: none; box-sizing: border-box; outline: none; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        
+        :root {
+            --primary: #2563eb; 
+            --bg: #f8fafc;
+            --bg-card: #ffffff;
+            --text-main: #0f172a;
+            --text-sec: #64748b;
+            --border: #e2e8f0;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+
+        body { background-color: var(--bg); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; }
+
+        /* --- HEADER --- */
+        header {
+            background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 60%, #2563eb 100%);
+            padding: 14px 20px 15px;
+            color: white; border-radius: 0 0 20px 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            position: sticky; top: 0; z-index: 100;
+        }
+        .header-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+        .header-left { display: flex; align-items: center; gap: 12px; }
+        .header-right { display: flex; align-items: center; gap: 8px; }
+        .btn-back, .btn-icon {
+            background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.2);
+            color: white; width: 36px; height: 36px; border-radius: 10px; display: flex;
+            align-items: center; justify-content: center; cursor: pointer; backdrop-filter: blur(5px);
+            text-decoration: none; transition: 0.2s;
+        }
+        .btn-icon.notes-btn { color: #fde047; }
+        .btn-back:active, .btn-icon:active { transform: scale(0.92); }
+        .page-title { font-size: 1.2rem; font-weight: 900; letter-spacing: -0.5px; }
+
+        /* --- SEARCH BAR --- */
+        .search-container { position: relative; width: 100%; transition: 0.3s; }
+        .search-container input {
+            width: 100%; padding: 10px 14px 10px 38px; border-radius: 10px;
+            border: none; background: rgba(255,255,255,0.2); color: white;
+            font-size: 0.9rem; font-weight: 500; backdrop-filter: blur(5px);
+        }
+        .search-container input::placeholder { color: rgba(255,255,255,0.7); }
+        .search-container input:focus { background: rgba(255,255,255,0.3); outline: none; }
+        .search-container .material-icons-round { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-size: 20px; color: rgba(255,255,255,0.8); }
+
+        /* --- MAIN TABS --- */
+        .main-tabs { display: flex; gap: 8px; margin-top: 12px; }
+        .main-tab { 
+            flex: 1; text-align: center; padding: 10px 8px; font-weight: 800; font-size: 0.75rem; text-transform: uppercase;
+            border-radius: 10px; background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.7); 
+            cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 4px;
+        }
+        .main-tab.active { background: #fff; color: var(--primary); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+
+        /* --- MAIN CONTENT (LISTA) --- */
+        #requests-container { padding: 10px 15px; flex: 1; overflow-y: auto; padding-bottom: 100px; display: block; }
+        
+        /* --- MAIN CONTENT (IFRAME TURNI) --- */
+        #turni-container { display: none; flex: 1; padding: 0; background: #fff; }
+        #turni-container iframe { width: 100%; height: 100%; min-height: calc(100vh - 150px); border: none; display: block; }
+        
+        .section-title { font-size: 0.8rem; font-weight: 900; color: var(--primary); text-transform: uppercase; letter-spacing: 1px; margin: 15px 0 8px 5px; }
+        .month-group { margin-bottom: 16px; background: var(--bg-card); border-radius: 12px; border: 1px solid var(--border); box-shadow: var(--shadow); overflow: hidden; }
+        
+        .month-header {
+            background: #f1f5f9; padding: 10px 12px;
+            font-size: 0.75rem; font-weight: 800; color: var(--text-sec);
+            text-transform: uppercase; letter-spacing: 1px;
+            display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border);
+            cursor: pointer; transition: background 0.2s;
+        }
+        .month-header:active { background: #e2e8f0; }
+        
+        /* RIGHE COMPATTE */
+        .list-row {
+            padding: 10px 12px; border-bottom: 1px solid var(--border);
+            display: flex; align-items: center; gap: 10px; cursor: pointer;
+            transition: background 0.2s; background-color: #ffffff;
+        }
+        .list-row:last-child { border-bottom: none; }
+        
+        @keyframes flashPending {
+            0% { background-color: #ffffff; }
+            50% { background-color: #fef9c3; }
+            100% { background-color: #ffffff; }
+        }
+        .row-pending { animation: flashPending 2.5s infinite ease-in-out; }
+        .row-confirmed { background-color: #dcfce7 !important; border-color: #bbf7d0 !important; }
+        .row-rejected { background-color: #fee2e2 !important; }
+
+        .row-icon { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .row-content { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+        
+        .row-header { display: flex; justify-content: space-between; align-items: center; }
+        .row-title { font-weight: 800; font-size: 0.95rem; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin: 0; }
+        .row-date-sent { font-size: 0.7rem; color: var(--text-sec); font-weight: 600; white-space: nowrap; }
+        
+        .row-details { font-size: 0.75rem; color: var(--text-main); line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .row-actions { display: flex; justify-content: space-between; align-items: center; margin-top: 2px; }
+
+        .row-obscured { background: #f8fafc !important; opacity: 0.7; animation: none; }
+        .row-obscured .row-title { text-decoration: line-through; color: var(--text-sec); }
+
+        .empty-state { text-align: center; padding: 30px 20px; color: var(--text-sec); }
+        .empty-state .material-icons-round { font-size: 40px; opacity: 0.5; margin-bottom: 8px; }
+
+        /* PULSANTE RAPIDO INSERIMENTO TURNI */
+        .btn-quick-insert {
+            display: inline-flex; align-items: center; gap: 4px; padding: 4px 8px;
+            border-radius: 6px; border: 1px solid var(--border); background: #ffffff;
+            color: var(--text-sec); font-size: 0.7rem; font-weight: 700; cursor: pointer; transition: 0.2s;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+        }
+        .btn-quick-insert.inserted { background: #10b981; border-color: #059669; color: #ffffff; }
+        .btn-quick-insert:active { transform: scale(0.95); }
+
+        /* --- FAB & MODAL --- */
+        .fab {
+            position: fixed; bottom: 20px; right: 20px; width: 56px; height: 56px;
+            background: linear-gradient(135deg, #2563eb, #1e3a8a); color: white;
+            border-radius: 18px; display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 8px 20px rgba(37,99,235,0.4); border: none; cursor: pointer; z-index: 90;
+            transition: transform 0.2s;
+        }
+        .fab:active { transform: scale(0.9); }
+        .fab .material-icons-round { font-size: 30px; }
+
+        .modal-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px);
+            z-index: 2000; display: none; align-items: flex-end; justify-content: center;
+            opacity: 0; transition: opacity 0.3s;
+        }
+        .modal-overlay.open { opacity: 1; }
+        
+        .modal-content {
+            background: var(--bg-card); width: 100%; max-width: 600px; border-radius: 20px 20px 0 0;
+            padding: 20px; transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1);
+            max-height: 90vh; overflow-y: auto;
+        }
+        .modal-overlay.open .modal-content { transform: translateY(0); }
+        
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+        .modal-header h3 { font-size: 1.1rem; font-weight: 900; }
+        
+        .form-group { margin-bottom: 14px; }
+        .form-row { display: flex; gap: 10px; }
+        .form-row .form-group { flex: 1; }
+        .form-group label { display: block; font-size: 0.75rem; font-weight: 700; color: var(--text-sec); margin-bottom: 4px; text-transform: uppercase; }
+        
+        .form-control {
+            width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--border);
+            font-size: 0.95rem; font-weight: 600; background: var(--bg); color: var(--text-main);
+        }
+        .form-control:focus { border-color: var(--primary); background: #fff; }
+        .form-control:disabled { background: #e2e8f0; color: #64748b; opacity: 1; -webkit-text-fill-color: #64748b; }
+        textarea.form-control { resize: vertical; min-height: 70px; }
+        
+        .btn-submit {
+            width: 100%; padding: 14px; border-radius: 12px; border: none;
+            background: var(--primary); color: white; font-weight: 800; font-size: 0.95rem;
+            cursor: pointer; margin-top: 5px; box-shadow: 0 4px 15px rgba(37,99,235,0.3);
+        }
+        .btn-submit:active { transform: scale(0.97); }
+
+        .detail-item { margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
+        .detail-item:last-child { border-bottom: none; }
+        .detail-label { font-size: 0.7rem; color: var(--text-sec); font-weight: 700; text-transform: uppercase; }
+        .detail-value { font-size: 0.95rem; font-weight: 600; color: var(--text-main); margin-top: 2px; }
+        
+        .admin-controls { background: #f1f5f9; padding: 14px; border-radius: 10px; margin-top: 15px; }
+        .admin-controls h4 { font-size: 0.8rem; text-transform: uppercase; margin-bottom: 10px; color: var(--text-sec); }
+        
+        .checkbox-wrapper { display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 0.85rem; cursor: pointer; margin-bottom: 8px; }
+        .checkbox-wrapper input { width: 18px; height: 18px; cursor: pointer; accent-color: var(--primary); }
+        
+        .action-buttons { display: flex; gap: 8px; margin-top: 15px; flex-wrap: wrap; }
+        .btn-action { flex: 1; min-width: 100px; padding: 10px; border-radius: 10px; border: none; font-weight: 700; font-size: 0.85rem; cursor: pointer; color: white; }
+        .btn-edit { background: #3b82f6; }
+        .btn-hide { background: #f59e0b; }
+        .btn-delete { background: #ef4444; }
+        .btn-restore { background: #10b981; }
+
+        /* Colori badge tipo richiesta */
+        .bg-copertura { background: #e0e7ff; color: #4338ca; }
+        .bg-ferie { background: #ffedd5; color: #c2410c; }
+        .bg-ferie-prec { background: #ffedd5; color: #9a3412; }
+        .bg-permesso-ore { background: #dcfce7; color: #15803d; }
+        .bg-permesso { background: #bbf7d0; color: #166534; }
+        .bg-cambio-rep { background: #fef3c7; color: #b45309; }
+        .bg-cambio-turno { background: #fde68a; color: #92400e; }
+        .bg-recupero { background: #f3e8ff; color: #7e22ce; }
+        .bg-cambio-riposo { background: #ccfbf1; color: #0f766e; }
+
+        /* --- SCELTA RAPIDA DEL TIPO (riquadri grandi per le richieste più usate) --- */
+        .type-tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+        .type-tile {
+            display: flex; align-items: center; gap: 8px; padding: 10px; border-radius: 12px;
+            border: 2px solid var(--border); background: #fff; cursor: pointer; text-align: left;
+            font-weight: 800; font-size: 0.8rem; color: var(--text-main); line-height: 1.15;
+        }
+        .type-tile .material-icons-round { font-size: 20px; width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .type-tile.active { border-color: var(--primary); background: #eff6ff; }
+        .type-tile:active { transform: scale(0.97); }
+        .type-tile[hidden] { display: none; }
+        .type-more-label { font-size: 0.72rem; font-weight: 700; color: var(--text-sec); margin: 4px 0; }
+
+        /* --- FILTRI DELLA LISTA --- */
+        .list-filters { display: flex; gap: 6px; margin-top: 10px; }
+        .list-filter {
+            flex: 1; padding: 7px 6px; border-radius: 999px; border: none; cursor: pointer;
+            background: rgba(255,255,255,0.12); color: rgba(255,255,255,0.85);
+            font-weight: 800; font-size: 0.72rem; white-space: nowrap;
+        }
+        .list-filter.active { background: #fde047; color: #0f172a; }
+        .list-filter b { font-weight: 900; }
+
+        /* --- STATO SULLA RIGA (in parole, oltre al colore) --- */
+        .status-chip { font-weight: 800; padding: 2px 6px; border-radius: 4px; font-size: 0.65rem; background: rgba(255,255,255,0.8); border: 1px solid; margin-right: 4px; display: inline-block; }
+        .st-wait { color: #b45309; border-color: #f59e0b; }
+        .st-ok { color: #059669; border-color: #10b981; }
+        .st-no { color: #dc2626; border-color: #ef4444; }
+        .riposo-box { background: #f0fdfa; padding: 12px; border-radius: 10px; border: 1px solid #99f6e4; }
+        .riposo-box label { color: #0f766e; }
+        .riposo-hint { color: #0f766e; font-size: 0.75rem; font-weight: 600; line-height: 1.4; margin-top: 8px; }
+        .riposo-preview { background: #fff; border: 1px dashed #5eead4; border-radius: 8px; padding: 8px 10px; margin-top: 8px; font-size: 0.8rem; font-weight: 600; line-height: 1.5; display: none; }
+        .user-switch { background: none; border: none; color: #93c5fd; font-size: 0.7rem; font-weight: 800; cursor: pointer; margin-left: 6px; text-decoration: underline; }
+        .bg-default { background: #f1f5f9; color: #475569; }
+
+        /* Stile Guida */
+        details { background: #f1f5f9; border-radius: 8px; margin-bottom: 10px; padding: 10px; }
+        summary { font-weight: 700; cursor: pointer; color: var(--primary); outline: none; }
+        details p, details ul { font-size: 0.85rem; color: var(--text-main); margin-top: 8px; padding-left: 10px; line-height: 1.4; }
+        details ul li { margin-bottom: 6px; }
+
+        /* Stile Optgroup */
+        optgroup { font-weight: 800; font-style: normal; color: var(--primary); background-color: #f8fafc; }
+        optgroup option { font-weight: 600; color: var(--text-main); background-color: #ffffff; padding: 5px; }
+    </style>
+</head>
+<body>
+<!-- PORTALE DI ESEMPIO: legge i dati veri, ma le prove restano solo su questo telefono. -->
+<div style="background:#dc2626;color:#fff;font:800 0.72rem Inter,sans-serif;padding:calc(env(safe-area-inset-top) + 6px) 10px 6px;display:flex;align-items:center;gap:8px;position:relative;z-index:101;"><span class="material-icons-round" style="font-size:16px">science</span><span style="flex:1;line-height:1.25">ESEMPIO RICHIESTE: puoi provare tutto, ma quello che invii resta solo su questo telefono e non arriva a nessuno.</span><button type="button" onclick="window.esempioReset && window.esempioReset()" style="border:1px solid rgba(255,255,255,0.6);background:rgba(255,255,255,0.15);color:#fff;border-radius:8px;padding:4px 8px;font:800 0.68rem Inter,sans-serif;cursor:pointer;white-space:nowrap">Azzera prove</button></div>
+
+    <header>
+        <div class="header-top">
+            <div class="header-left">
+                <a href="../" target="_top" class="btn-back" title="Torna ai turni" onclick="if (window.self !== window.top) { try { window.parent.closeEsempioPanel(); return false; } catch (e) {} }"><span class="material-icons-round">arrow_back</span></a>
+                <div style="display: flex; flex-direction: column;">
+                    <div class="page-title">Gestione Richieste</div>
+                    <div id="loginStatusDisplay" style="display:none; font-size: 0.8rem; font-weight: 800; color: #fde047; margin-top: 2px;">
+                        LOGGATO COME: <span id="headerUserName" style="color: #ffffff; font-size: 0.95rem; font-weight: 900; text-transform: uppercase;"></span><button type="button" class="user-switch" onclick="window.changeUser()">cambia</button>
+                    </div>
+                </div>
+            </div>
+            <div class="header-right">
+                <button class="btn-icon" onclick="window.openModal('guide-modal')" title="Manuale">
+                    <span class="material-icons-round">menu_book</span>
+                </button>
+                <button class="btn-icon notes-btn" onclick="window.openModal('notes-modal')" title="Note e Suggerimenti">
+                    <span class="material-icons-round">lightbulb</span>
+                </button>
+                <button class="btn-icon" onclick="window.toggleAdmin()" title="Accesso Admin" id="adminBtn">
+                    <span class="material-icons-round" id="adminIcon">admin_panel_settings</span>
+                </button>
+                <button class="btn-icon" onclick="window.downloadJSON()" title="Scarica copia di tutte le richieste">
+                    <span class="material-icons-round">download</span>
+                </button>
+            </div>
+        </div>
+        
+        <div class="search-container" id="searchBox">
+            <span class="material-icons-round">search</span>
+            <input type="search" id="searchInput" placeholder="Cerca nome, collega o tipo..." oninput="window.renderRequests()">
+        </div>
+        <div class="list-filters" id="listFilters">
+            <button type="button" class="list-filter active" data-f="tutte" onclick="window.setListFilter('tutte')">Tutte</button>
+            <button type="button" class="list-filter" data-f="mie" onclick="window.setListFilter('mie')">Le mie</button>
+            <button type="button" class="list-filter" data-f="attesa" onclick="window.setListFilter('attesa')">Da gestire <b id="pendingCount"></b></button>
+        </div>
+
+        <div class="main-tabs" id="mainTabs">
+            <div class="main-tab active" id="btnTabRichieste" onclick="window.switchTab('richieste')">
+                <span class="material-icons-round" style="font-size:16px">list_alt</span> Richieste
+            </div>
+            <div class="main-tab" id="btnTabTurni" onclick="window.switchTab('turni')">
+                <span class="material-icons-round" style="font-size:16px">calendar_month</span> Turni
+            </div>
+        </div>
+    </header>
+
+    <main id="requests-container"></main>
+
+    <main id="turni-container">
+        <!-- Caricato solo quando si apre la scheda Turni: prima l'app turni intera si caricava
+             (e leggeva Firebase) a ogni apertura del portale, anche senza mai guardarla. -->
+        <iframe id="iframeTurni" data-src="https://centrale118rsm-code.github.io/Turni-Autisti-2026-Rsm/" title="Consultazione Turni"></iframe>
+    </main>
+
+    <button class="fab" id="mainFab" onclick="window.openAddModal()">
+        <span class="material-icons-round">add</span>
+    </button>
+
+    <!-- MODAL LOGIN -->
+    <div id="login-modal" class="modal-overlay">
+        <div class="modal-content" style="border-radius: 20px; transform: translateY(0); margin: 20px; align-self: center;">
+            <div class="modal-header">
+                <h3>Benvenuto, chi sei?</h3>
+            </div>
+            <div class="form-group">
+                <label>Seleziona il tuo nome per continuare</label>
+                <select id="loginSelectName" class="form-control" required>
+                    <option value="" disabled selected>Scegli...</option>
+                    <option value="Barbieri">Barbieri</option>
+                    <option value="Pazzaglia">Pazzaglia</option>
+                    <option value="Bianchi">Bianchi</option>
+                    <option value="Sarti">Sarti</option>
+                    <option value="Ghiotti">Ghiotti</option>
+                    <option value="Berardi">Berardi</option>
+                    <option value="Michelotti">Michelotti</option>
+                    <option value="Volpini">Volpini</option>
+                    <option value="Fabbri">Fabbri</option>
+                    <option value="Centrale 118">💻 Centrale 118 (Account Condiviso)</option>
+                </select>
+            </div>
+            <p style="font-size:0.75rem; color:var(--text-sec); margin-bottom: 15px;">Il nome verrà salvato su questo dispositivo.</p>
+            <button class="btn-submit" onclick="window.saveUserLogin()">SALVA ED ENTRA</button>
+        </div>
+    </div>
+
+    <!-- MODAL GUIDA -->
+    <div id="guide-modal" class="modal-overlay" onclick="window.closeModal('guide-modal', event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <span class="material-icons-round" style="color:var(--primary); font-size:24px;">menu_book</span>
+                    <h3 style="color:var(--primary);">Manuale Utente</h3>
+                </div>
+                <span class="material-icons-round" style="cursor:pointer; color:var(--text-sec)" onclick="window.closeModal('guide-modal')">close</span>
+            </div>
+            
+            <img src="https://centrale118rsm-code.github.io/Richieste-A.S.-118/istruzioni.jpg" alt="Istruzioni d'uso" style="width: 100%; height: auto; border-radius: 10px; margin-bottom: 15px; border: 1px solid var(--border); box-shadow: var(--shadow);">
+            
+            <details>
+                <summary>Come stipulare una richiesta</summary>
+                <p>1. Clicca sul pulsante <span style="color:white; background:var(--primary); padding:2px 5px; border-radius:4px; font-size:10px;">+</span> in basso a destra.<br>
+                   2. Seleziona il <strong>Tipo di Richiesta</strong> dal menu a tendina.<br>
+                   3. Compila i campi richiesti (giorni, fasce orarie, con chi fai il cambio).<br>
+                   4. Clicca su <strong>INVIA RICHIESTA</strong>.</p>
+            </details>
+            <details>
+                <summary>Cambio riposo (scambiare i giorni di riposo)</summary>
+                <p>Se tu riposi un giorno e un collega riposa un altro giorno, potete scambiarvi i riposi.<br>
+                   1. Tocca <strong>+</strong> e scegli <strong>Cambio riposo</strong>.<br>
+                   2. Scegli il collega, poi il <strong>tuo giorno di riposo</strong> e quello <strong>del collega</strong> (l'elenco mostra solo i riposi che risultano nei turni).<br>
+                   3. Nel tuo giorno di riposo lavori tu, con il turno del collega, e lui riposa. Nel suo giorno di riposo riposi tu e lui fa il tuo turno.<br>
+                   Mettetevi d'accordo prima di inviare: il portale controlla che i giorni corrispondano ai turni.</p>
+            </details>
+            <details>
+                <summary>Trovare le tue richieste</summary>
+                <p>Sotto la ricerca ci sono tre pulsanti: <strong>Tutte</strong>, <strong>Le mie</strong> (anche quelle in cui sei tu il collega) e <strong>Da gestire</strong>. Su ogni richiesta c'è scritto a che punto è (da approvare, da inserire, inserita). Per cambiare nome su questo telefono tocca <strong>cambia</strong> accanto al tuo nome in alto.</p>
+            </details>
+            <details>
+                <summary>Modificare una richiesta inviata</summary>
+                <p>Se hai commesso un errore o le tue necessità sono cambiate, clicca sulla tua richiesta dalla bacheca e premi il pulsante azzurro <strong>Modifica</strong>. 
+                <br><strong style="color:var(--primary);">Attenzione:</strong> Le richieste concluse (già inserite nei turni) possono essere modificate solo dall'amministratore.</p>
+            </details>
+            <details>
+                <summary>Approvazione Caposala & Standby</summary>
+                <p>Tutte richieste di assenza devono essere preventivamente valutate e autorizzate dalla figura di coordinamento. <strong>Tutti gli operatori</strong> possono aprire il dettaglio di una richiesta in attesa, selezionare l'esito dell'approvazione e cliccare "CONFERMA MODIFICHE" per salvare.</p>
+            </details>
+            <details>
+                <summary>Inserimento nei Turni (Sfondo Verde)</summary>
+                <p>La richiesta rimarrà in alto a lampeggiare finché chi fa i turni non l'avrà fisicamente inserita a sistema. Solo a quel punto la richiesta diventerà con <strong>sfondo verde</strong>, scenderà nello storico e non sarà più modificabile dagli utenti normali.</p>
+            </details>
+        </div>
+    </div>
+
+    <!-- MODAL AGGIUNGI / MODIFICA -->
+    <div id="add-modal" class="modal-overlay" onclick="window.closeModal('add-modal', event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h3 id="modal-title-add">Nuova Richiesta</h3>
+                <span class="material-icons-round" style="cursor:pointer; color:var(--text-sec)" onclick="window.closeModal('add-modal')">close</span>
+            </div>
+            
+            <form id="requestForm" onsubmit="window.saveRequest(event)">
+                <div class="form-group">
+                    <label>Operatore</label>
+                    <select id="reqName" class="form-control" required>
+                        <option value="" disabled selected>Seleziona operatore...</option>
+                        <option value="Barbieri">Barbieri</option>
+                        <option value="Pazzaglia">Pazzaglia</option>
+                        <option value="Bianchi">Bianchi</option>
+                        <option value="Sarti">Sarti</option>
+                        <option value="Ghiotti">Ghiotti</option>
+                        <option value="Berardi">Berardi</option>
+                        <option value="Michelotti">Michelotti</option>
+                        <option value="Volpini">Volpini</option>
+                        <option value="Fabbri">Fabbri</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Cosa vuoi chiedere?</label>
+                    <!-- Scelta rapida: un tocco per le richieste più usate. Ogni riquadro
+                         seleziona semplicemente la voce corrispondente del menu qui sotto,
+                         che resta lì con TUTTI i tipi di richiesta. -->
+                    <div class="type-tiles" id="typeTiles">
+                        <button type="button" class="type-tile" data-type="cambio_turno"><span class="material-icons-round bg-cambio-turno">swap_horiz</span>Cambio turno</button>
+                        <button type="button" class="type-tile" data-type="cambio_riposo"><span class="material-icons-round bg-cambio-riposo">event_repeat</span>Cambio riposo</button>
+                        <button type="button" class="type-tile" data-type="copertura_reperibilita"><span class="material-icons-round bg-copertura">shield</span>Cessione reperibilità</button>
+                        <button type="button" class="type-tile" data-type="ferie"><span class="material-icons-round bg-ferie">beach_access</span>Congedo ordinario</button>
+                    </div>
+                    <div class="type-more-label">oppure scegli fra tutti i tipi:</div>
+                    <select id="reqType" class="form-control" required>
+                        <option value="" disabled selected>Seleziona tipo...</option>
+                        
+                        <!-- ⚠️ I value corrispondono ESATTAMENTE alle chiavi in LABELS/ICONS/COLORS -->
+                        <optgroup label="🔄 CAMBI E COPERTURE">
+                            <option value="copertura_reperibilita">Cessione reperibilità</option>
+                            <option value="cambio_turno">Cambio Turno</option>
+                            <option value="cambio_riposo">Cambio Riposo (scambio dei giorni di riposo)</option>
+                        </optgroup>
+
+                        <optgroup label="🏖️ FERIE / CONGEDO">
+                            <option value="ferie">Congedo ordinario</option>
+                            <option value="ferie_anno_prec">Congedo ordinario anno precedente</option>
+                        </optgroup>
+                        
+                        <optgroup label="⏱️ PERMESSI E RECUPERI">
+                            <option value="permesso_ore">Permesso straordinario fruibile a ore</option>
+                            <option value="permesso">Permesso straordinario</option>
+                            <option value="recupero_ore">Recupero Ore</option>
+                        </optgroup>
+                        
+                        <optgroup label="⚖️ PERMESSI SPECIALI">
+                            <option value="permesso_matrimonio">Permesso Matrimonio</option>
+                            <option value="permesso_studio">Permesso Studio</option>
+                            <option value="permesso_sportivo">Permesso Sportivo</option>
+                            <option value="permesso_notte">Permesso straordinario Notte</option>
+                            <option value="permesso_lutto">Permesso Lutto</option>
+                            <option value="aspettativa">Aspettativa</option>
+                        </optgroup>
+                        
+                    </select>
+                </div>
+
+                <!-- Info Cambio Turno -->
+                <div id="cambio-turno-info" style="display:none; background:#eff6ff; padding:12px; border-radius:10px; border:1px solid #bfdbfe; margin-bottom:14px;">
+                    <div style="display:flex; gap:8px; align-items:flex-start;">
+                        <span class="material-icons-round" style="color:#2563eb; font-size:18px; flex-shrink:0; margin-top:1px;">info</span>
+                        <div style="color:#1e40af; font-size:0.8rem; font-weight:600; line-height:1.5;">
+                            L'orario presente nella casella dei turni, sarà l'orario effettivo di lavoro da svolgere. Questo non comporterà alcun credito o debito di minutaggio significativo ai fini dei conteggi.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Data reperibilità (SOLO le date in cui l'operatore risulta reperibile, lette
+                     in automatico da turni.xlsx) — sostituisce il campo data libero per la
+                     Cessione reperibilità, per evitare di cedere una data sbagliata/inesistente. -->
+                <div class="form-group" id="rep-date-group" style="display:none; background:#e0e7ff; padding:12px; border-radius:10px; border:1px solid #c7d2fe;">
+                    <label style="color:#4338ca; margin-bottom: 8px;">Quale tua reperibilità vuoi cedere?</label>
+                    <select id="repDateSelect" class="form-control" required>
+                        <option value="" disabled selected>Caricamento reperibilità...</option>
+                    </select>
+                    <div id="repDateEmptyMsg" style="display:none; color:#b45309; font-size:0.78rem; font-weight:600; margin-top:6px;">
+                        Nessuna reperibilità trovata in calendario per questo operatore.
+                    </div>
+                </div>
+
+                <!-- Fasce reperibilità -->
+                <div class="form-group" id="time-slot-group" style="display:none; background:#e0e7ff; padding:12px; border-radius:10px; border:1px solid #c7d2fe;">
+                    <label style="color:#4338ca; margin-bottom: 8px;">Fasce di Reperibilità</label>
+                    <label class="checkbox-wrapper" style="font-weight:800; border-bottom:1px dashed #c7d2fe; padding-bottom:6px; margin-bottom:2px;">
+                        <input type="checkbox" id="reqTimeSlotAll"> Tutta la fascia (tutte e 4)
+                    </label>
+                    <div style="display: flex; flex-direction: column; gap: 4px;">
+                        <label class="checkbox-wrapper"><input type="checkbox" name="reqTimeSlot" value="13:00/20:00"> 13:00 - 20:00</label>
+                        <label class="checkbox-wrapper"><input type="checkbox" name="reqTimeSlot" value="20:00/00:00"> 20:00 - 00:00</label>
+                        <label class="checkbox-wrapper"><input type="checkbox" name="reqTimeSlot" value="00:00/07:00"> 00:00 - 07:00</label>
+                        <label class="checkbox-wrapper"><input type="checkbox" name="reqTimeSlot" value="07:00/13:00"> 07:00 - 13:00</label>
+                    </div>
+                    <div style="color:#64748b; font-size:0.72rem; font-weight:500; margin-top:6px;">
+                        Cedendo una o più fasce (anche la 13:00-20:00) resti tu il titolare della reperibilità: il collega copre solo le fasce cedute.
+                    </div>
+                </div>
+
+                <!-- Con chi fai il cambio -->
+                <div class="form-group" id="swap-group" style="display:none; background:#f1f5f9; padding:12px; border-radius:10px; border:1px solid #e2e8f0;">
+                    <label>Con chi fai il cambio?</label>
+                    <select id="reqNameSwap" class="form-control">
+                        <option value="" disabled selected>Seleziona operatore...</option>
+                        <option value="Barbieri">Barbieri</option>
+                        <option value="Pazzaglia">Pazzaglia</option>
+                        <option value="Bianchi">Bianchi</option>
+                        <option value="Sarti">Sarti</option>
+                        <option value="Ghiotti">Ghiotti</option>
+                        <option value="Berardi">Berardi</option>
+                        <option value="Michelotti">Michelotti</option>
+                        <option value="Volpini">Volpini</option>
+                        <option value="Fabbri">Fabbri</option>
+                    </select>
+                </div>
+
+                <!-- Turni da scambiare (solo Cambio Turno) — servono per controllare che il
+                     cambio corrisponda davvero a quello che risulta sul programma turni,
+                     prima di poterlo applicare in automatico al calendario. -->
+                <div class="form-group" id="cambio-shifts-group" style="display:none; background:#eff6ff; padding:12px; border-radius:10px; border:1px solid #bfdbfe;">
+                    <label style="color:#1e40af;">Turni da scambiare quel giorno</label>
+                    <div style="display:flex; gap:10px;">
+                        <div style="flex:1;">
+                            <label style="font-size:0.72rem; font-weight:700; color:#64748b; margin-bottom:4px; display:block;">Il tuo turno</label>
+                            <select id="reqMyShift" class="form-control">
+                                <option value="" disabled selected>Seleziona...</option>
+                                <option value="M">Mattina</option>
+                                <option value="P">Pomeriggio</option>
+                                <option value="N">Notte</option>
+                            </select>
+                        </div>
+                        <div style="flex:1;">
+                            <label style="font-size:0.72rem; font-weight:700; color:#64748b; margin-bottom:4px; display:block;" id="reqOtherShiftLabel">Il suo turno</label>
+                            <select id="reqOtherShift" class="form-control">
+                                <option value="" disabled selected>Seleziona...</option>
+                                <option value="M">Mattina</option>
+                                <option value="P">Pomeriggio</option>
+                                <option value="N">Notte</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div style="color:#64748b; font-size:0.72rem; font-weight:500; margin-top:8px;">
+                        Indica il turno di ciascuno prima dello scambio: verrà controllato che corrisponda davvero al programma turni, altrimenti la richiesta non verrà accettata.
+                    </div>
+                </div>
+
+                <!-- Cambio riposo: io lavoro nel mio giorno di riposo al posto del collega, lui
+                     riposa quel giorno; poi io riposo nel suo giorno di riposo e lui lavora al
+                     posto mio. I giorni si scelgono fra i riposi che risultano nel programma turni. -->
+                <div class="form-group riposo-box" id="riposo-group" style="display:none;">
+                    <div class="form-group" style="margin-bottom:10px;">
+                        <label id="labelMyRest">Il tuo giorno di riposo (in cui andrai a lavorare)</label>
+                        <select id="reqMyRestSel" class="form-control"><option value="">Seleziona prima l'operatore...</option></select>
+                        <input type="date" id="reqMyRestDate" class="form-control" style="display:none;">
+                    </div>
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label id="labelOtherRest">Giorno di riposo del collega (in cui riposerai tu)</label>
+                        <select id="reqOtherRestSel" class="form-control"><option value="">Seleziona prima il collega...</option></select>
+                        <input type="date" id="reqOtherRestDate" class="form-control" style="display:none;">
+                    </div>
+                    <div class="riposo-preview" id="riposoPreview"></div>
+                    <div class="riposo-hint">Vale tra diurnisti o tra turnisti. Nel tuo giorno di riposo lavori tu al posto del collega (con il suo turno) e lui riposa; nel suo giorno di riposo riposi tu e lui lavora al posto tuo. Il collega deve essere d'accordo prima dell'invio.</div>
+                </div>
+
+                <!-- Avviso approvazione -->
+                <div class="form-group" id="approval-group" style="display:none; background:#fef3c7; padding:12px; border-radius:10px; border:1px solid #fde68a;">
+                    <div style="color:#b45309; font-size:0.8rem; font-weight:700; line-height: 1.3;">
+                        ⚠️ Tutte richieste di assenza devono essere preventivamente valutate e autorizzate dalla figura di coordinamento ⚠️
+                        <div style="font-weight:500; margin-top:4px; font-size:0.75rem;">Potrai aggiornare lo stato dell'approvazione successivamente aprendo il dettaglio della richiesta.</div>
+                    </div>
+                </div>
+
+                <div class="form-row" id="date-from-row">
+                    <div class="form-group" id="date-from-group">
+                        <label id="labelDateFrom">Dal Giorno</label>
+                        <input type="date" id="reqDateFrom" class="form-control" required>
+                    </div>
+                    <div class="form-group" id="date-to-group">
+                        <label>Al Giorno <span style="text-transform:none;font-weight:400;color:#94a3b8">(opzionale)</span></label>
+                        <input type="date" id="reqDateTo" class="form-control">
+                    </div>
+                </div>
+
+                <div class="form-group" id="days-group">
+                    <label>Giorni effettivi di assenza</label>
+                    <input type="number" step="0.5" id="reqDays" class="form-control" placeholder="Es. 1 o 0.5 (Default: 1)">
+                </div>
+
+                <div class="form-group">
+                    <label>Note / Dettagli</label>
+                    <textarea id="reqNotes" class="form-control" placeholder="Inserisci qui i dettagli della richiesta..."></textarea>
+                </div>
+
+                <button type="submit" id="btnSubmit" class="btn-submit">INVIA RICHIESTA</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL NOTE -->
+    <div id="notes-modal" class="modal-overlay" onclick="window.closeModal('notes-modal', event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <span class="material-icons-round" style="color:#eab308; font-size:24px;">lightbulb</span>
+                    <h3 style="color:#451a03;">Note e Consigli</h3>
+                </div>
+                <span class="material-icons-round" style="cursor:pointer; color:var(--text-sec)" onclick="window.closeModal('notes-modal')">close</span>
+            </div>
+            
+            <div class="form-group">
+                <p style="font-size:0.8rem; color:var(--text-sec); margin-bottom:12px;">Inserisci qui suggerimenti, idee o bug riscontrati. Questa sezione è visibile a tutti.</p>
+                <textarea id="appNotesText" class="form-control" style="min-height:80px; font-size:0.9rem;" placeholder="Scrivi qui una nuova nota..."></textarea>
+                <button class="btn-submit" id="btnSaveNotes" style="background:#eab308; color:#451a03; padding: 12px; margin-top: 10px;" onclick="window.saveNotes()">AGGIUNGI NOTA</button>
+            </div>
+
+            <div id="notes-list-container" style="margin-top: 20px; border-top: 1px solid var(--border); padding-top: 15px;">
+                <h4 style="font-size: 0.8rem; color: var(--text-sec); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px;">Bacheca Note Salvate</h4>
+                <div id="notes-list" style="display: flex; flex-direction: column; gap: 10px; max-height: 250px; overflow-y: auto;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL RIEPILOGO/CONFERMA RICHIESTA -->
+    <div id="confirm-request-modal" class="modal-overlay" style="z-index:600;" onclick="window.backToEditRequest(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h2><span class="material-icons-round" style="vertical-align:middle;margin-right:6px;">fact_check</span>Riepilogo Richiesta</h2>
+            </div>
+            <div style="padding:18px;">
+                <p style="font-size:0.82rem; color:var(--text-sec); margin:0 0 14px;">
+                    Controlla che sia tutto corretto prima di inviare.
+                </p>
+                <div id="confirm-request-summary" style="display:flex; flex-direction:column; gap:10px;"></div>
+                <div style="display:flex; gap:10px; margin-top:20px;">
+                    <button type="button" class="btn-submit" style="flex:1; background:#f1f5f9; color:#334155;" onclick="window.backToEditRequest()">
+                        <span class="material-icons-round" style="vertical-align:middle;font-size:18px;">arrow_back</span> Torna indietro
+                    </button>
+                    <button type="button" class="btn-submit" id="btnConfirmRequest" style="flex:1;" onclick="window.confirmAndSubmitRequest()">
+                        <span class="material-icons-round" style="vertical-align:middle;font-size:18px;">check_circle</span> Sì, corretto
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DETTAGLIO -->
+    <div id="detail-modal" class="modal-overlay" onclick="window.closeModal('detail-modal', event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h3>Dettaglio Richiesta</h3>
+                <span class="material-icons-round" style="cursor:pointer; color:var(--text-sec)" onclick="window.closeModal('detail-modal')">close</span>
+            </div>
+            <div id="detail-content"></div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getFirestore, collection, addDoc, setDoc, onSnapshot, deleteDoc, doc, updateDoc, query, orderBy, where, getDocs } from "./esempio-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAMX2ycf_6P3AcBvarVX4XNKbdposkuqgE",
+            authDomain: "area-personale-autsocc-118-rsm.firebaseapp.com",
+            projectId: "area-personale-autsocc-118-rsm",
+            storageBucket: "area-personale-autsocc-118-rsm.firebasestorage.app",
+            messagingSenderId: "910283994567",
+            appId: "1:910283994567:web:d9c45b5f4b5a83b92595e2"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        window.isAdmin = false;
+        window.editingId = null;
+        let requests = [];
+        let savedNotes = [];
+        let currentUser = localStorage.getItem('118_user_name');
+
+        // ============================================================
+        // REPERIBILITÀ OPERATORE — lette dal vivo da turni.xlsx (stesso file usato dal
+        // programma turni A.S. 26), per mostrare in "Cessione reperibilità" SOLO le date
+        // in cui l'operatore selezionato risulta effettivamente reperibile in calendario.
+        // ============================================================
+        const REP_MONTH_NUM = { "GENNAIO":1, "FEBBRAIO":2, "MARZO":3, "APRILE":4, "MAGGIO":5, "GIUGNO":6, "LUGLIO":7, "AGOSTO":8, "SETTEMBRE":9, "OTTOBRE":10, "NOVEMBRE":11, "DICEMBRE":12 };
+        const REP_MONTH_NAME = ["", "Gennaio","Febbraio","Marzo","Aprile","Maggio","Giugno","Luglio","Agosto","Settembre","Ottobre","Novembre","Dicembre"];
+        const REP_ROWS = [29, 30, 31, 32]; // [00-07, 07-13, 13-20, 20-00], stesse righe dell'Excel usate dal programma turni
+        const REP_YEAR = 2026;
+        let REPERIBILITA_R = {};      // "mese_giorno" -> [fascia0..fascia3], grezzo da Excel
+        let repDataLoaded = false;
+        let repDataLoadPromise = null;
+        let SHIFT_MATRIX_R = {}; // "mNum_day" -> { NOMEAUTISTA: "M"|"P"|"N"|... (grezzo dall'Excel) }
+        const KNOWN_DRIVER_NAMES_R = ['BARBIERI','PAZZAGLIA','BIANCHI','SARTI','GHIOTTI','BERARDI','MICHELOTTI','VOLPINI','FABBRI'];
+
+        function normalizeRepNameR(name) {
+            if (!name) return "";
+            let n = name.toString().toUpperCase().trim();
+            if (n.startsWith("MICHELOT")) return "MICHELOTTI";
+            return n.replace(/\.$/, "");
+        }
+
+        // Estrae dal foglio grezzo la riga di ciascuno dei 9 autisti noti (colonna B).
+        // Ancorato all'elenco noto (non a "qualsiasi stringa lunga in colonna B") apposta:
+        // il foglio contiene anche altre righe di riepilogo/servizio più in basso, e un
+        // match generico rischiava di agganciarsi alla riga sbagliata, leggendo il turno
+        // di un altro autista al posto di quello richiesto. Prende solo la PRIMA riga
+        // trovata per ciascun nome, per evitare ambiguità in caso di righe duplicate.
+        function extractDriverRowsFromRaw(raw) {
+            const driverRows = [];
+            const found = new Set();
+            for (let r = 3; r < raw.length; r++) {
+                if (!raw[r]) continue;
+                const cellName = raw[r][1];
+                if (!cellName || typeof cellName !== 'string') continue;
+                const norm = normalizeRepNameR(cellName);
+                if (KNOWN_DRIVER_NAMES_R.includes(norm) && !found.has(norm)) {
+                    driverRows.push({ name: norm, idx: r });
+                    found.add(norm);
+                }
+            }
+            if (driverRows.length < KNOWN_DRIVER_NAMES_R.length) {
+                const missing = KNOWN_DRIVER_NAMES_R.filter(n => !found.has(n));
+                console.warn("⚠️ Turni: autisti non trovati nel file (controllo cambio turno non disponibile per loro):", missing.join(", "));
+            }
+            return driverRows;
+        }
+
+        // Ritorna il codice turno (M/P/N/R/...) di un operatore in una data precisa, letto
+        // dalla matrice caricata da Excel. "" se non trovato o dato non ancora caricato.
+        function getShiftCodeFor(operatorName, mNum, day) {
+            const dayData = SHIFT_MATRIX_R[mNum + "_" + day];
+            if (!dayData) return "";
+            const nNorm = normalizeRepNameR(operatorName);
+            for (const key in dayData) {
+                if (normalizeRepNameR(key) === nNorm) return dayData[key];
+            }
+            return "";
+        }
+
+        // Normalizza un codice turno grezzo (es. "m", "MAT", "6:30-13:15"...) in una sigla
+        // semplice M/P/N/R/SM per il confronto in fase di validazione cambio turno.
+        function normalizeShiftCodeR(val) {
+            if (!val) return "";
+            const u = val.toString().toUpperCase().trim();
+            const first = u.charAt(0);
+            if (u.startsWith("M") || first === 'm') return "M";
+            if (u.startsWith("P") || first === 'p') return "P";
+            if (u.startsWith("N")) return "N";
+            if (u.startsWith("R")) return "R";
+            if (u.startsWith("S")) return "SM";
+            return "";
+        }
+
+        // Carica turni.xlsx dal programma turni ufficiale e ricostruisce sia REPERIBILITA_R
+        // (righe 29-32) sia SHIFT_MATRIX_R (turno di ogni autista in ogni giorno, usato per
+        // validare i Cambi Turno prima di applicarli in automatico).
+        async function loadReperibilitaData() {
+            if (repDataLoadPromise) return repDataLoadPromise;
+            repDataLoadPromise = (async () => {
+                try {
+                    const resp = await fetch("https://centrale118rsm-code.github.io/Turni-Autisti-2026-Rsm/turni.xlsx?v=" + Date.now());
+                    if (!resp.ok) throw new Error("File turni non raggiungibile");
+                    const buffer = await resp.arrayBuffer();
+                    const workbook = new ExcelJS.Workbook();
+                    await workbook.xlsx.load(buffer);
+                    const ws = workbook.getWorksheet("Foglio2") || workbook.worksheets[0];
+                    const raw = [];
+                    ws.eachRow({ includeEmpty: true }, (row, rowNumber) => {
+                        const rowData = [];
+                        row.eachCell({ includeEmpty: true }, (cell, colNumber) => {
+                            let val = cell.value;
+                            if (typeof val === 'object' && val !== null) val = val.result || "";
+                            rowData[colNumber] = val;
+                        });
+                        raw[rowNumber] = rowData;
+                    });
+
+                    const rowGiorno = raw[2];
+                    const rowMese = raw[1];
+                    const repRowsData = REP_ROWS.map(r => raw[r] || null);
+                    const driverRows = extractDriverRowsFromRaw(raw);
+                    if (!rowGiorno || repRowsData.some(r => !r)) {
+                        console.warn("⚠️ Reperibilità: righe 29-32 non trovate nel file turni.");
+                        return;
+                    }
+                    let currentMonth = "";
+                    const rep = {};
+                    const shiftMatrix = {};
+                    for (let c = 2; c < rowGiorno.length; c++) {
+                        const cellDay = rowGiorno[c];
+                        const cellMese = rowMese ? rowMese[c] : null;
+                        if (cellMese && typeof cellMese === 'string') {
+                            const parts = cellMese.split(".");
+                            if (parts[0]) currentMonth = parts[0].trim().toUpperCase();
+                        }
+                        const dayNum = cellDay ? parseInt(cellDay) : null;
+                        if (dayNum && !isNaN(dayNum)) {
+                            const mNum = REP_MONTH_NUM[currentMonth];
+                            if (!mNum) continue;
+                            const fasce = repRowsData.map(rowArr => {
+                                const v = rowArr[c];
+                                return v ? v.toString().trim().toUpperCase() : "";
+                            });
+                            if (fasce.some(f => f !== "")) {
+                                rep[mNum + "_" + dayNum] = fasce;
+                            }
+                            const dayShifts = {};
+                            driverRows.forEach(dr => {
+                                const v = raw[dr.idx] ? raw[dr.idx][c] : null;
+                                dayShifts[dr.name] = v ? v.toString().trim() : "";
+                            });
+                            shiftMatrix[mNum + "_" + dayNum] = dayShifts;
+                        }
+                    }
+                    REPERIBILITA_R = rep;
+                    SHIFT_MATRIX_R = shiftMatrix;
+                    repDataLoaded = true;
+                } catch (e) {
+                    console.error("Errore caricamento reperibilità:", e);
+                }
+            })();
+            return repDataLoadPromise;
+        }
+
+        // Titolare della reperibilità che parte il giorno mNum_day: chi ha "/R" nel proprio turno
+        // (es. M/R). Chi riceve la fascia 13:00-20:00 con una cessione NON diventa titolare (era una
+        // regola del file Excel, non serve più). Solo nei giorni senza nessun "/R" vale la fascia 13-20.
+        function getRepTitolareR(key) {
+            const dayShifts = SHIFT_MATRIX_R[key] || {};
+            for (const n in dayShifts) {
+                if (/\/\s*R/i.test(String(dayShifts[n] || ""))) return normalizeRepNameR(n);
+            }
+            const fasce = REPERIBILITA_R[key];
+            return fasce && fasce[2] ? normalizeRepNameR(fasce[2]) : "";
+        }
+
+        // Ritorna, per un operatore, l'elenco ordinato delle date in cui è TITOLARE di un
+        // turno di reperibilità ("/R" nel suo turno) — sono le uniche date che ha
+        // davvero senso poter "cedere", raggruppate per mese. Sono ammesse solo le date da
+        // UNA SETTIMANA INDIETRO rispetto a oggi in poi (non oltre, non tutto lo storico).
+        function getMyReperibilitaDates(operatorName) {
+            const nNorm = normalizeRepNameR(operatorName);
+            const out = [];
+            const minDate = new Date();
+            minDate.setHours(0, 0, 0, 0);
+            minDate.setDate(minDate.getDate() - 7); // limite: una settimana indietro da oggi
+            const keys = new Set(Object.keys(REPERIBILITA_R).concat(Object.keys(SHIFT_MATRIX_R)));
+            for (const key of keys) {
+                if (getRepTitolareR(key) !== nNorm) continue;
+                const [mNum, day] = key.split("_").map(Number);
+                const dateObj = new Date(REP_YEAR, mNum - 1, day);
+                if (dateObj < minDate) continue; // troppo vecchia: più di una settimana fa
+                out.push({ mNum, day, iso: REP_YEAR + "-" + String(mNum).padStart(2,"0") + "-" + String(day).padStart(2,"0") });
+            }
+            out.sort((a, b) => (a.mNum - b.mNum) || (a.day - b.day));
+            return out;
+        }
+
+        // Popola il <select id="repDateSelect"> con le date reperibilità dell'operatore
+        // selezionato in "Operatore", raggruppate per mese come richiesto.
+        async function populateRepDateSelect(keepValue) {
+            const sel = document.getElementById('repDateSelect');
+            const emptyMsg = document.getElementById('repDateEmptyMsg');
+            if (!sel) return;
+            sel.innerHTML = '<option value="" disabled selected>Caricamento reperibilità...</option>';
+            emptyMsg.style.display = 'none';
+
+            const operatorName = document.getElementById('reqName').value || currentUser;
+            if (!operatorName || operatorName === 'Centrale 118') {
+                sel.innerHTML = '<option value="" disabled selected>Seleziona prima l\'operatore</option>';
+                return;
+            }
+
+            await loadReperibilitaData();
+            const dates = getMyReperibilitaDates(operatorName);
+            // In modifica: la data già salvata resta sceglibile anche se ormai è più vecchia
+            // di una settimana (prima spariva dall'elenco e la richiesta non si poteva salvare).
+            if (keepValue && !dates.some(d => d.iso === keepValue)) {
+                const kp = keepValue.split("-").map(Number);
+                if (kp.length === 3 && kp[1] >= 1 && kp[1] <= 12) dates.unshift({ mNum: kp[1], day: kp[2], iso: keepValue });
+            }
+
+            sel.innerHTML = '';
+            if (dates.length === 0) {
+                sel.innerHTML = '<option value="" disabled selected>Nessuna reperibilità trovata</option>';
+                emptyMsg.style.display = 'block';
+                return;
+            }
+            const placeholder = document.createElement('option');
+            placeholder.value = ""; placeholder.disabled = true; placeholder.selected = true;
+            placeholder.textContent = "Seleziona una data...";
+            sel.appendChild(placeholder);
+
+            let currentGroup = null, currentOptgroup = null;
+            dates.forEach(d => {
+                if (d.mNum !== currentGroup) {
+                    currentGroup = d.mNum;
+                    currentOptgroup = document.createElement('optgroup');
+                    currentOptgroup.label = REP_MONTH_NAME[d.mNum] + " " + REP_YEAR;
+                    sel.appendChild(currentOptgroup);
+                }
+                const opt = document.createElement('option');
+                opt.value = d.iso;
+                opt.textContent = String(d.day).padStart(2, "0") + " " + REP_MONTH_NAME[d.mNum];
+                currentOptgroup.appendChild(opt);
+            });
+            if (keepValue) sel.value = keepValue;
+        }
+
+        // ============================================================
+        // CAMBIO RIPOSO — A riposa il giorno X, B riposa il giorno Y. Con lo scambio:
+        //   giorno X → A lavora al posto di B (con il turno di B), B riposa;
+        //   giorno Y → A riposa, B lavora al posto di A (con il turno di A).
+        // Nel programma turni sono due scambi di casella fra A e B (uno nel giorno X e
+        // uno nel giorno Y), scritti in "turno_overrides" come i Cambi Turno.
+        // ============================================================
+        const SHIFT_NAMES_R = { M: 'Mattina', P: 'Pomeriggio', N: 'Notte', R: 'Riposo', SM: 'Smonto' };
+        const isWorkCode = (c) => c === 'M' || c === 'P' || c === 'N';
+        function isoParts(iso) {
+            const p = String(iso || "").split("-").map(Number);
+            return p.length === 3 ? { y: p[0], m: p[1], d: p[2] } : null;
+        }
+        function shiftOn(name, iso) {
+            const p = isoParts(iso);
+            if (!p || p.y !== REP_YEAR) return { raw: "", code: "" };
+            const raw = getShiftCodeFor(name, p.m, p.d);
+            return { raw, code: normalizeShiftCodeR(raw) };
+        }
+        function shiftLabel(sh) {
+            if (!sh || !sh.code) return '';
+            return (SHIFT_NAMES_R[sh.code] || sh.code) + (/\/\s*R/i.test(sh.raw) ? ' + reperibilità' : '');
+        }
+        // Giorni di riposo (R) di un operatore da oggi in poi, letti dal programma turni.
+        function getRestDates(operatorName) {
+            const today = new Date(); today.setHours(0, 0, 0, 0);
+            const nNorm = normalizeRepNameR(operatorName);
+            const out = [];
+            Object.keys(SHIFT_MATRIX_R).forEach(key => {
+                const [mNum, day] = key.split("_").map(Number);
+                const dateObj = new Date(REP_YEAR, mNum - 1, day);
+                if (dateObj < today) return;
+                const dayData = SHIFT_MATRIX_R[key];
+                let raw = "";
+                for (const k in dayData) if (normalizeRepNameR(k) === nNorm) raw = dayData[k];
+                if (normalizeShiftCodeR(raw) !== 'R') return;
+                out.push({ mNum, day, iso: REP_YEAR + "-" + String(mNum).padStart(2, "0") + "-" + String(day).padStart(2, "0") });
+            });
+            out.sort((a, b) => (a.mNum - b.mNum) || (a.day - b.day));
+            return out;
+        }
+        const WEEKDAYS_R = ['dom', 'lun', 'mar', 'mer', 'gio', 'ven', 'sab'];
+        function fillRestSelect(sel, dates, keepValue, placeholderText) {
+            const list = dates.slice();
+            if (keepValue && !list.some(d => d.iso === keepValue)) {
+                const kp = isoParts(keepValue);
+                if (kp) list.unshift({ mNum: kp.m, day: kp.d, iso: keepValue });
+            }
+            sel.innerHTML = '';
+            const ph = document.createElement('option');
+            ph.value = ""; ph.textContent = list.length ? placeholderText : "Nessun riposo trovato nel programma turni";
+            sel.appendChild(ph);
+            let curM = null, og = null;
+            list.forEach(d => {
+                if (d.mNum !== curM) { curM = d.mNum; og = document.createElement('optgroup'); og.label = REP_MONTH_NAME[d.mNum] + " " + REP_YEAR; sel.appendChild(og); }
+                const o = document.createElement('option');
+                o.value = d.iso;
+                o.textContent = WEEKDAYS_R[new Date(REP_YEAR, d.mNum - 1, d.day).getDay()] + " " + String(d.day).padStart(2, "0") + " " + REP_MONTH_NAME[d.mNum];
+                og.appendChild(o);
+            });
+            sel.value = keepValue && list.some(d => d.iso === keepValue) ? keepValue : "";
+        }
+        // Valori scelti (dal menu con i riposi, oppure dal calendario se il file turni non si legge).
+        function getRiposoValues() {
+            const mySel = document.getElementById('reqMyRestSel'), otSel = document.getElementById('reqOtherRestSel');
+            const my = mySel.style.display !== 'none' ? mySel.value : document.getElementById('reqMyRestDate').value;
+            const other = otSel.style.display !== 'none' ? otSel.value : document.getElementById('reqOtherRestDate').value;
+            return { my, other };
+        }
+        let riposoPrefill = null; // { my, other } in modifica
+        async function populateRiposoSelects() {
+            const me = document.getElementById('reqName').value || currentUser;
+            const other = document.getElementById('reqNameSwap').value;
+            const mySel = document.getElementById('reqMyRestSel'), otSel = document.getElementById('reqOtherRestSel');
+            const myDate = document.getElementById('reqMyRestDate'), otDate = document.getElementById('reqOtherRestDate');
+            const cur = getRiposoValues();
+            const keepMy = (riposoPrefill && riposoPrefill.my) || cur.my;
+            const keepOther = (riposoPrefill && riposoPrefill.other) || cur.other;
+            document.getElementById('labelMyRest').textContent = (me && me !== 'Centrale 118' ? 'Giorno di riposo di ' + me : 'Il tuo giorno di riposo') + ' (in cui lavorerà)';
+            document.getElementById('labelOtherRest').textContent = other ? ('Giorno di riposo di ' + other + ' (in cui riposerà ' + (me && me !== 'Centrale 118' ? me : 'tu') + ')') : 'Giorno di riposo del collega';
+            mySel.innerHTML = '<option value="">Caricamento turni...</option>';
+            await loadReperibilitaData();
+            if (!repDataLoaded) {
+                // File turni non raggiungibile: si scelgono le date a mano dal calendario.
+                mySel.style.display = 'none'; otSel.style.display = 'none';
+                myDate.style.display = 'block'; otDate.style.display = 'block';
+                if (keepMy) myDate.value = keepMy;
+                if (keepOther) otDate.value = keepOther;
+            } else {
+                mySel.style.display = 'block'; otSel.style.display = 'block';
+                myDate.style.display = 'none'; otDate.style.display = 'none';
+                if (!me || me === 'Centrale 118') mySel.innerHTML = '<option value="">Seleziona prima l\'operatore...</option>';
+                else fillRestSelect(mySel, getRestDates(me), keepMy, 'Scegli il giorno...');
+                if (!other) otSel.innerHTML = '<option value="">Seleziona prima il collega...</option>';
+                else fillRestSelect(otSel, getRestDates(other), keepOther, 'Scegli il giorno...');
+            }
+            riposoPrefill = null;
+            updateRiposoPreview();
+        }
+        // Spiega in parole cosa succede nei due giorni, prima dell'invio.
+        function riposoPlanHtml(me, other, x, y) {
+            const shOtherX = shiftOn(other, x), shMeY = shiftOn(me, y);
+            const workX = shiftLabel(shOtherX), workY = shiftLabel(shMeY);
+            return `<div>📅 <b>${esc(formatDateIt(x))}</b>: lavora <b>${esc(me)}</b>${workX ? ' (' + esc(workX) + ')' : ''} al posto di ${esc(other)}, che riposa.</div>
+                    <div>📅 <b>${esc(formatDateIt(y))}</b>: riposa <b>${esc(me)}</b>, lavora <b>${esc(other)}</b>${workY ? ' (' + esc(workY) + ')' : ''} al posto suo.</div>`;
+        }
+        function updateRiposoPreview() {
+            const box = document.getElementById('riposoPreview');
+            const me = document.getElementById('reqName').value || currentUser;
+            const other = document.getElementById('reqNameSwap').value;
+            const v = getRiposoValues();
+            if (!me || !other || !v.my || !v.other) { box.style.display = 'none'; return; }
+            box.innerHTML = riposoPlanHtml(me, other, v.my, v.other);
+            box.style.display = 'block';
+        }
+        // Controlla sul programma turni che i due riposi siano veri e che nell'altro giorno
+        // ciascuno stia davvero lavorando. Ritorna l'elenco dei problemi (vuoto = tutto ok).
+        function checkRiposoSwap(me, other, x, y) {
+            const out = [];
+            if (!repDataLoaded) return out; // file non leggibile: la richiesta passa come testo
+            const pretty = (sh) => sh.code ? (SHIFT_NAMES_R[sh.code] || sh.raw) : (sh.raw ? '"' + sh.raw + '"' : 'vuoto');
+            const meX = shiftOn(me, x), otX = shiftOn(other, x), meY = shiftOn(me, y), otY = shiftOn(other, y);
+            if (meX.code !== 'R') out.push(`Il ${formatDateIt(x)} ${me} non risulta di riposo (risulta: ${pretty(meX)}).`);
+            if (!isWorkCode(otX.code)) out.push(`Il ${formatDateIt(x)} ${other} non risulta in servizio (risulta: ${pretty(otX)}): non c'è un turno da prendere.`);
+            if (otY.code !== 'R') out.push(`Il ${formatDateIt(y)} ${other} non risulta di riposo (risulta: ${pretty(otY)}).`);
+            if (!isWorkCode(meY.code)) out.push(`Il ${formatDateIt(y)} ${me} non risulta in servizio (risulta: ${pretty(meY)}): non c'è un turno da cedere.`);
+            return out;
+        }
+
+        // Testo sicuro da inserire nell'HTML (nomi, note): evita che un testo con < > rompa la pagina.
+        function esc(v) {
+            return String(v == null ? '' : v).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+        }
+
+        // Selezionata una data reperibilità: la riporta nel campo nascosto reqDateFrom
+        // (usato dal salvataggio) e resetta le fasce già spuntate (cambia il contesto).
+        document.addEventListener('DOMContentLoaded', () => {
+            const repSel = document.getElementById('repDateSelect');
+            if (repSel) {
+                repSel.addEventListener('change', function() {
+                    document.getElementById('reqDateFrom').value = this.value;
+                    document.getElementById('reqTimeSlotAll').checked = false;
+                    document.querySelectorAll('input[name="reqTimeSlot"]').forEach(cb => { if (!cb.disabled) cb.checked = false; });
+                });
+            }
+            const nameSel = document.getElementById('reqName');
+            if (nameSel) {
+                nameSel.addEventListener('change', function() {
+                    const t = document.getElementById('reqType').value;
+                    if (t === 'copertura_reperibilita') populateRepDateSelect();
+                    if (t === 'cambio_riposo') populateRiposoSelects();
+                });
+            }
+            const allSlotCb = document.getElementById('reqTimeSlotAll');
+            if (allSlotCb) {
+                allSlotCb.addEventListener('change', function() {
+                    document.querySelectorAll('input[name="reqTimeSlot"]').forEach(cb => { if (!cb.disabled) cb.checked = allSlotCb.checked; });
+                });
+                // "Tutta la fascia" si spunta/toglie da sola in base alle singole fasce.
+                document.querySelectorAll('input[name="reqTimeSlot"]').forEach(cb => cb.addEventListener('change', () => {
+                    allSlotCb.checked = Array.from(document.querySelectorAll('input[name="reqTimeSlot"]')).every(x => x.checked);
+                }));
+            }
+            ['reqMyRestSel', 'reqOtherRestSel', 'reqMyRestDate', 'reqOtherRestDate'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.addEventListener('change', updateRiposoPreview);
+            });
+            document.querySelectorAll('#typeTiles .type-tile').forEach(t => t.addEventListener('click', () => {
+                const sel = document.getElementById('reqType');
+                sel.value = t.dataset.type;
+                sel.dispatchEvent(new Event('change'));
+            }));
+            const swapSel = document.getElementById('reqNameSwap');
+            if (swapSel) {
+                swapSel.addEventListener('change', function() {
+                    const lbl = document.getElementById('reqOtherShiftLabel');
+                    if (lbl) lbl.textContent = this.value ? ('Turno di ' + this.value) : 'Il suo turno';
+                    if (document.getElementById('reqType').value === 'cambio_riposo') populateRiposoSelects();
+                });
+            }
+            applyBibbiaRequestTypes(); // nasconde i tipi di richiesta disattivati dall'Area Admin
+        });
+
+        // ============================================================
+        // DIZIONARI — le chiavi corrispondono ESATTAMENTE ai value del <select>
+        // ============================================================
+        const LABELS = {
+            "copertura_reperibilita": "Cessione Reperibilità",
+            "cambio_turno":           "Cambio Turno",
+            "cambio_riposo":          "Cambio Riposo",
+            "ferie":                  "Congedo Ordinario",
+            "ferie_anno_prec":        "Congedo Anno Precedente",
+            "permesso_ore":           "Permesso straordinario fruibile ad Ore",
+            "permesso":               "Permesso straordinario",
+            "recupero_ore":           "Recupero Ore",
+            "permesso_matrimonio":    "Permesso Matrimonio",
+            "permesso_studio":        "Permesso Studio",
+            "permesso_sportivo":      "Permesso Sportivo",
+            "permesso_notte":         "Permesso straordinario Notte",
+            "permesso_lutto":         "Permesso Lutto",
+            "aspettativa":            "Aspettativa"
+        };
+
+        const ICONS = {
+            "copertura_reperibilita": "shield",
+            "cambio_turno":           "swap_horiz",
+            "cambio_riposo":          "event_repeat",
+            "ferie":                  "beach_access",
+            "ferie_anno_prec":        "history",
+            "permesso_ore":           "schedule",
+            "permesso":               "timer",
+            "recupero_ore":           "hourglass_empty",
+            "permesso_matrimonio":    "favorite",
+            "permesso_studio":        "school",
+            "permesso_sportivo":      "sports_soccer",
+            "permesso_notte":         "nights_stay",
+            "permesso_lutto":         "church",
+            "aspettativa":            "flight_takeoff"
+        };
+
+        const COLORS = {
+            "copertura_reperibilita": "bg-copertura",
+            "cambio_turno":           "bg-cambio-turno",
+            "cambio_riposo":          "bg-cambio-riposo",
+            "ferie":                  "bg-ferie",
+            "ferie_anno_prec":        "bg-ferie-prec",
+            "permesso_ore":           "bg-permesso-ore",
+            "permesso":               "bg-permesso",
+            "recupero_ore":           "bg-recupero",
+            "permesso_matrimonio":    "bg-permesso",
+            "permesso_studio":        "bg-permesso",
+            "permesso_sportivo":      "bg-permesso",
+            "permesso_notte":         "bg-permesso",
+            "permesso_lutto":         "bg-default",
+            "aspettativa":            "bg-ferie"
+        };
+
+        // Tipi che richiedono approvazione caposala
+        const APPROVAL_TYPES = [
+            'ferie', 'ferie_anno_prec', 'permesso_ore', 'permesso',
+            'recupero_ore', 'permesso_matrimonio', 'permesso_studio',
+            'permesso_sportivo', 'permesso_notte', 'aspettativa', 'permesso_lutto'
+        ];
+
+        // ============================================================
+        // SYNC AUTOMATICO REPERIBILITÀ -> PROGRAMMA TURNI (A.S. 26)
+        // ============================================================
+        // Ogni "Cessione reperibilità" inviata da qui scrive automaticamente uno o più
+        // documenti nella collection "reperibilita_overrides" (stesso progetto Firebase
+        // del programma turni). Il programma turni, dopo aver ricostruito le fasce di
+        // reperibilità leggendo l'Excel, applica sopra questi override per sostituire
+        // in automatico l'operatore che copre la fascia, senza bisogno di modificare
+        // manualmente il file turni.xlsx.
+        //
+        // Indice della fascia dentro l'array REPERIBILITA[mese_giorno] usato dal
+        // programma turni: [0]=00-07  [1]=07-13  [2]=13-20  [3]=20-00
+        const SLOT_INDEX = {
+            "00:00/07:00": 0,
+            "07:00/13:00": 1,
+            "13:00/20:00": 2,
+            "20:00/00:00": 3
+        };
+        const SLOT_LABEL = ["00:00-07:00", "07:00-13:00", "13:00-20:00", "20:00-00:00"];
+
+        // Rimuove tutti gli override collegati a una richiesta (usato prima di riscriverli,
+        // quando la richiesta viene oscurata, o quando viene cancellata).
+        async function removeReperibilitaOverrides(requestId) {
+            try {
+                const q = query(collection(db, "reperibilita_overrides"), where("requestId", "==", requestId));
+                const snap = await getDocs(q);
+                await Promise.all(snap.docs.map(d => deleteDoc(d.ref)));
+            } catch (e) {
+                console.error("Errore rimozione override reperibilità:", e);
+            }
+        }
+
+        // Giorni per mese (2026 non bisestile) — usato per lo shift di data qui sotto.
+        const DIM_2026 = [0,31,28,31,30,31,30,31,31,30,31,30,31];
+
+        // Le fasce 00:00-07:00 (slot 0) e 07:00-13:00 (slot 1) sono, nella struttura letta
+        // dal programma turni (righe 29-32 dell'Excel), la "coda" del turno che INIZIA nel
+        // giorno selezionato qui (r.dateFrom): sono registrate sulla riga Excel del giorno
+        // SUCCESSIVO, non su quella del giorno selezionato. Le fasce 13:00-20:00 (slot 2) e
+        // 20:00-00:00 (slot 3) sono invece sulla riga del giorno selezionato stesso.
+        // Se non si sposta la data per gli slot 0/1, l'override finisce sulla cella sbagliata:
+        // non viene mai applicato alla reperibilità realmente ceduta, e nel frattempo sovrascrive
+        // per errore la fascia di un turno completamente diverso (quello di un altro operatore,
+        // iniziato il giorno prima). Questa funzione calcola la data giusta per ogni slot.
+        function overrideDateForSlot(dateFromISO, slotIndex) {
+            const parts = dateFromISO.split("-"); // YYYY-MM-DD
+            if (parts.length !== 3) return dateFromISO;
+            let y = parseInt(parts[0]), m = parseInt(parts[1]), d = parseInt(parts[2]);
+            if (slotIndex === 0 || slotIndex === 1) {
+                d += 1;
+                if (d > DIM_2026[m]) { d = 1; m += 1; if (m > 12) { m = 1; y += 1; } }
+            }
+            return y + "-" + String(m).padStart(2, "0") + "-" + String(d).padStart(2, "0");
+        }
+
+        // Ricalcola e riscrive gli override per una richiesta di tipo "copertura_reperibilita".
+        // Va chiamata dopo ogni salvataggio/modifica/oscuramento/ripristino della richiesta.
+        async function syncReperibilitaOverrides(requestId, r) {
+            // Rimuove sempre prima gli eventuali override esistenti per questa richiesta,
+            // così una modifica di data/fasce/operatore non lascia residui vecchi.
+            await removeReperibilitaOverrides(requestId);
+
+            if (r.type !== 'copertura_reperibilita') return;
+            if (r.obscured) return; // richiesta ritirata -> nessun override attivo
+            if (!r.swapWith || !r.timeSlot || !r.dateFrom) return;
+
+            const slots = r.timeSlot.split(", ").map(s => s.trim()).filter(Boolean);
+            await Promise.all(slots.map(slot => {
+                const slotIndex = SLOT_INDEX[slot];
+                if (slotIndex === undefined) return Promise.resolve();
+                const effectiveDate = overrideDateForSlot(r.dateFrom, slotIndex);
+                const overrideId = `${effectiveDate}_${slotIndex}`;
+                return setDoc(doc(db, "reperibilita_overrides", overrideId), {
+                    date: effectiveDate,
+                    slotIndex: slotIndex,
+                    timeSlot: SLOT_LABEL[slotIndex],
+                    originalDriver: r.name || null,
+                    newDriver: r.swapWith,
+                    requestId: requestId,
+                    updatedAt: new Date().toISOString()
+                });
+            }));
+        }
+
+        // Helper: label sicura anche per vecchie chiavi non presenti
+        function getLabel(type) {
+            return LABELS[type] || type || "—";
+        }
+        function getIcon(type) {
+            return ICONS[type] || "help_outline";
+        }
+        function getColor(type) {
+            return COLORS[type] || "bg-default";
+        }
+
+        // ============================================================
+        // HEADER / LOGIN
+        // ============================================================
+        function updateHeaderName(name) {
+            document.getElementById('headerUserName').textContent = name;
+            document.getElementById('loginStatusDisplay').style.display = 'block';
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            if (!currentUser) {
+                const lm = document.getElementById('login-modal');
+                lm.style.display = 'flex';
+                lm.style.opacity = '1';
+                lm.style.zIndex = '9999';
+            } else {
+                updateHeaderName(currentUser);
+                checkFirstVisitAndShowGuide();
+            }
+        });
+
+        function checkFirstVisitAndShowGuide() {
+            if (!localStorage.getItem('118_istruzioni_viste')) {
+                setTimeout(() => {
+                    window.openModal('guide-modal');
+                    localStorage.setItem('118_istruzioni_viste', 'true');
+                }, 500);
+            }
+        }
+
+        // Cambiare nome sul dispositivo (prima l'unico modo era cancellare i dati del browser).
+        window.changeUser = function() {
+            const lm = document.getElementById('login-modal');
+            const sel = document.getElementById('loginSelectName');
+            if (currentUser) sel.value = currentUser;
+            lm.style.display = 'flex';
+            lm.style.opacity = '1';
+            lm.style.zIndex = '9999';
+        };
+
+        window.saveUserLogin = function() {
+            const name = document.getElementById('loginSelectName').value;
+            if (!name) { alert("Seleziona il tuo nome prima di procedere."); return; }
+            localStorage.setItem('118_user_name', name);
+            currentUser = name;
+            updateHeaderName(currentUser);
+            if (window.renderRequests) window.renderRequests();
+            const lm = document.getElementById('login-modal');
+            lm.style.opacity = '0';
+            setTimeout(() => { lm.style.display = 'none'; checkFirstVisitAndShowGuide(); }, 300);
+        };
+
+        // ============================================================
+        // NOTE
+        // ============================================================
+        onSnapshot(query(collection(db, "note_migliorative"), orderBy("timestamp", "desc")), (snapshot) => {
+            savedNotes = [];
+            snapshot.forEach(d => savedNotes.push({ id: d.id, ...d.data() }));
+            window.renderNotes();
+        });
+
+        window.renderNotes = function() {
+            const container = document.getElementById('notes-list');
+            container.innerHTML = "";
+            if (savedNotes.length === 0) {
+                container.innerHTML = `<div style="text-align:center; padding:15px; color:var(--text-sec); font-size:0.8rem;">Nessuna nota presente. Sii il primo a scriverne una!</div>`;
+                return;
+            }
+            savedNotes.forEach(n => {
+                const dateStr = n.timestamp
+                    ? new Date(n.timestamp).toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+                    : '';
+                const deleteBtn = window.isAdmin
+                    ? `<span class="material-icons-round" style="font-size:16px; color:#ef4444; cursor:pointer;" onclick="window.deleteNote('${n.id}')" title="Elimina">delete</span>`
+                    : '';
+                container.innerHTML += `
+                    <div style="background: #fef9c3; padding: 10px 12px; border-radius: 8px; border: 1px solid #fde047;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 4px;">
+                            <span style="font-size: 0.7rem; font-weight: 700; color: #854d0e;">${dateStr}</span>
+                            ${deleteBtn}
+                        </div>
+                        <div style="font-size: 0.85rem; color: #451a03; white-space: pre-wrap;">${esc(n.testo)}</div>
+                    </div>`;
+            });
+        };
+
+        window.saveNotes = async function() {
+            const text = document.getElementById('appNotesText').value.trim();
+            if (!text) { alert("Scrivi qualcosa prima di aggiungere la nota!"); return; }
+            const btn = document.getElementById('btnSaveNotes');
+            const orig = btn.textContent;
+            btn.textContent = "AGGIUNTA IN CORSO...";
+            try {
+                await addDoc(collection(db, "note_migliorative"), { testo: text, timestamp: new Date().toISOString() });
+                document.getElementById('appNotesText').value = "";
+                btn.textContent = "AGGIUNTO CON SUCCESSO!";
+                setTimeout(() => btn.textContent = orig, 1500);
+            } catch(e) {
+                console.error(e);
+                btn.textContent = "ERRORE";
+                setTimeout(() => btn.textContent = orig, 2000);
+            }
+        };
+
+        window.deleteNote = async function(id) {
+            if (confirm("Eliminare definitivamente questa nota?")) {
+                try { await deleteDoc(doc(db, "note_migliorative", id)); } catch (e) { console.error(e); }
+            }
+        };
+
+        // ============================================================
+        // TAB SWITCH
+        // ============================================================
+        window.switchTab = function(tabName) {
+            const isRichieste = tabName === 'richieste';
+            document.getElementById('requests-container').style.display = isRichieste ? 'block' : 'none';
+            document.getElementById('searchBox').style.display = isRichieste ? 'block' : 'none';
+            document.getElementById('listFilters').style.display = isRichieste ? 'flex' : 'none';
+            const fr = document.getElementById('iframeTurni');
+            if (!isRichieste && fr && !fr.getAttribute('src')) fr.setAttribute('src', fr.dataset.src);
+            document.getElementById('mainFab').style.display = isRichieste ? 'flex' : 'none';
+            document.getElementById('turni-container').style.display = isRichieste ? 'none' : 'block';
+            document.getElementById('btnTabRichieste').classList.toggle('active', isRichieste);
+            document.getElementById('btnTabTurni').classList.toggle('active', !isRichieste);
+        };
+
+        // ============================================================
+        // FORM — logica tipo richiesta
+        // ============================================================
+        document.getElementById('reqType').addEventListener('change', function(e) {
+            const val = e.target.value;
+            const swapGroup      = document.getElementById('swap-group');
+            const swapInput      = document.getElementById('reqNameSwap');
+            const timeSlotGroup  = document.getElementById('time-slot-group');
+            const approvalGroup  = document.getElementById('approval-group');
+            const dateFromGroup  = document.getElementById('date-from-group');
+            const dateToGroup    = document.getElementById('date-to-group');
+            const daysGroup      = document.getElementById('days-group');
+            const labelDateFrom  = document.getElementById('labelDateFrom');
+            const cambioInfo     = document.getElementById('cambio-turno-info');
+            const repDateGroup   = document.getElementById('rep-date-group');
+            const repSel         = document.getElementById('repDateSelect');
+            const allSlotCb      = document.getElementById('reqTimeSlotAll');
+            const cambioShiftsGroup = document.getElementById('cambio-shifts-group');
+            const myShiftSel     = document.getElementById('reqMyShift');
+            const otherShiftSel  = document.getElementById('reqOtherShift');
+            const riposoGroup    = document.getElementById('riposo-group');
+            document.querySelectorAll('#typeTiles .type-tile').forEach(t => t.classList.toggle('active', t.dataset.type === val));
+
+            // reset
+            riposoGroup.style.display = 'none';
+            swapGroup.style.display = 'none'; swapInput.required = false;
+            timeSlotGroup.style.display = 'none';
+            approvalGroup.style.display = 'none';
+            cambioInfo.style.display = 'none';
+            repDateGroup.style.display = 'none';
+            cambioShiftsGroup.style.display = 'none';
+            myShiftSel.required = false; otherShiftSel.required = false;
+            if (repSel) repSel.required = false;
+            document.querySelectorAll('input[name="reqTimeSlot"]').forEach(cb => cb.checked = false);
+            if (allSlotCb) allSlotCb.checked = false;
+            dateFromGroup.style.display = 'block';
+            dateToGroup.style.display = 'block';
+            daysGroup.style.display = 'block';
+            labelDateFrom.textContent = "Dal Giorno";
+            document.getElementById('reqDateFrom').required = true;
+
+            if (val === 'cambio_turno' || val === 'copertura_reperibilita' || val === 'cambio_riposo') {
+                swapGroup.style.display = 'block';
+                swapInput.required = true;
+            }
+            if (val === 'cambio_riposo') {
+                riposoGroup.style.display = 'block';
+                dateFromGroup.style.display = 'none';
+                dateToGroup.style.display = 'none';
+                daysGroup.style.display = 'none';
+                document.getElementById('reqDateFrom').required = false;
+                populateRiposoSelects();
+            }
+            if (val === 'cambio_turno') {
+                cambioInfo.style.display = 'block';
+                cambioShiftsGroup.style.display = 'block';
+                myShiftSel.required = true; otherShiftSel.required = true;
+                dateToGroup.style.display = 'none';
+                daysGroup.style.display = 'none';
+            }
+            if (val === 'copertura_reperibilita') {
+                timeSlotGroup.style.display = 'block';
+                dateToGroup.style.display = 'none';
+                daysGroup.style.display = 'none';
+                labelDateFrom.textContent = "Il Giorno (Data)";
+                // Sostituisce il campo data libero con l'elenco delle SUE reperibilità reali:
+                // il campo classico resta nel DOM (serve al salvataggio) ma nascosto.
+                dateFromGroup.style.display = 'none';
+                document.getElementById('reqDateFrom').required = false;
+                repDateGroup.style.display = 'block';
+                if (repSel) repSel.required = true;
+                populateRepDateSelect();
+            }
+            if (APPROVAL_TYPES.includes(val)) {
+                approvalGroup.style.display = 'block';
+            }
+        });
+
+        // ============================================================
+        // OPEN ADD / EDIT MODAL
+        // ============================================================
+        window.openAddModal = function() {
+            window.editingId = null;
+            document.getElementById('modal-title-add').textContent = "Nuova Richiesta";
+            document.getElementById('requestForm').reset();
+            riposoPrefill = null;
+            document.getElementById('btnSubmit').textContent = "INVIA RICHIESTA";
+
+            const nameSelect = document.getElementById('reqName');
+            if (currentUser === 'Centrale 118' || window.isAdmin) {
+                nameSelect.disabled = false;
+                nameSelect.value = "";
+            } else {
+                nameSelect.value = currentUser;
+                nameSelect.disabled = true;
+            }
+            document.getElementById('reqType').dispatchEvent(new Event('change'));
+            window.openModal('add-modal');
+        };
+
+        window.editRequest = async function(id) {
+            const r = requests.find(x => x.id === id);
+            if (!r) return;
+            window.editingId = id;
+            window.closeModal('detail-modal');
+
+            document.getElementById('modal-title-add').textContent = "Modifica Richiesta";
+            const nameSelect = document.getElementById('reqName');
+            nameSelect.disabled = !(currentUser === 'Centrale 118' || window.isAdmin);
+            nameSelect.value = r.name;
+
+            document.getElementById('requestForm').reset();
+            nameSelect.value = r.name;
+            if (r.swapWith) document.getElementById('reqNameSwap').value = r.swapWith;
+            if (r.type === 'cambio_riposo') riposoPrefill = { my: r.dateFrom, other: r.restDateOther };
+            document.getElementById('reqType').value = r.type;
+            document.getElementById('reqType').dispatchEvent(new Event('change'));
+
+            if (r.swapWith) document.getElementById('reqNameSwap').value = r.swapWith;
+            if (r.dateFrom) document.getElementById('reqDateFrom').value = r.dateFrom;
+            if (r.dateTo && r.dateTo !== r.dateFrom) document.getElementById('reqDateTo').value = r.dateTo;
+            if (r.effectiveDays && r.effectiveDays !== "N/A") document.getElementById('reqDays').value = r.effectiveDays;
+            if (r.notes) document.getElementById('reqNotes').value = r.notes;
+
+            if (r.type === 'cambio_turno') {
+                if (r.myShift) document.getElementById('reqMyShift').value = r.myShift;
+                if (r.otherShift) document.getElementById('reqOtherShift').value = r.otherShift;
+                const lbl = document.getElementById('reqOtherShiftLabel');
+                if (lbl && r.swapWith) lbl.textContent = 'Turno di ' + r.swapWith;
+            }
+
+            if (r.type === 'copertura_reperibilita' && r.timeSlot) {
+                const slots = r.timeSlot.split(", ");
+                document.querySelectorAll('input[name="reqTimeSlot"]').forEach(cb => {
+                    cb.checked = slots.includes(cb.value);
+                });
+                document.getElementById('reqTimeSlotAll').checked = Object.keys(SLOT_INDEX).every(s => slots.includes(s));
+                // La lista reperibilità del select viene popolata in modo asincrono (legge
+                // turni.xlsx): quando è pronta, riseleziona la data già salvata sulla richiesta.
+                if (r.dateFrom) populateRepDateSelect(r.dateFrom);
+            }
+
+            document.getElementById('btnSubmit').textContent = "SALVA MODIFICHE";
+            window.openModal('add-modal');
+        };
+
+        // ============================================================
+        // BIBBIA — regole e automazioni impostate dall'Area Admin del programma turni,
+        // lette qui in tempo reale (stessa collezione Firestore "admin_config").
+        // ============================================================
+        let BIBBIA_CONFIG_R = { tipiRichiesta: {}, autoSyncReperibilita: true, autoApplyCambioTurno: false };
+        onSnapshot(doc(db, "admin_config", "bibbia"), (docSnap) => {
+            BIBBIA_CONFIG_R = Object.assign(
+                { tipiRichiesta: {}, autoSyncReperibilita: true, autoApplyCambioTurno: false },
+                docSnap.exists() ? docSnap.data() : {}
+            );
+            applyBibbiaRequestTypes();
+            if (window.renderRequests) window.renderRequests();
+        });
+
+        // Nasconde dal menu "Tipo di Richiesta" le voci disattivate dall'admin. Se l'utente
+        // aveva già selezionato un tipo che viene disattivato in questo momento, lo lascia
+        // com'è (non lo forza a cambiare mentre magari sta ancora compilando).
+        function applyBibbiaRequestTypes() {
+            const tipi = BIBBIA_CONFIG_R.tipiRichiesta || {};
+            document.querySelectorAll('#reqType option[value]').forEach(opt => {
+                if (!opt.value) return;
+                const enabled = tipi[opt.value] !== false;
+                opt.disabled = !enabled;
+                opt.style.display = enabled ? '' : 'none';
+            });
+            document.querySelectorAll('#typeTiles .type-tile').forEach(t => { t.hidden = tipi[t.dataset.type] === false; });
+            // Se un intero optgroup è tutto disattivato, lo nasconde per pulizia.
+            document.querySelectorAll('#reqType optgroup').forEach(og => {
+                const opts = Array.from(og.querySelectorAll('option'));
+                og.style.display = opts.every(o => o.disabled) ? 'none' : '';
+            });
+        }
+
+        // ============================================================
+        // SAVE REQUEST
+        // ============================================================
+        onSnapshot(query(collection(db, "richieste_turni"), orderBy("timestamp", "desc")), (snapshot) => {
+            requests = [];
+            snapshot.forEach(d => requests.push({ id: d.id, ...d.data() }));
+            window.renderRequests();
+        });
+
+        // Cessioni reperibilità già importate in automatico nel programma turni: sono le
+        // richieste che hanno almeno un documento in "reperibilita_overrides" (scritto da
+        // syncReperibilitaOverrides). Queste non restano "In attesa": diventano verdi con la
+        // scritta "Importata in automatico", anche se nessuno le ha segnate come inserite.
+        let autoRepIds = new Set();
+        // Cambi turno / cambi riposo già applicati da soli nel programma turni: hanno il loro
+        // documento in "turno_overrides" e la Bibbia ha "Cambio turno automatico" attivo.
+        let autoSwapIds = new Set();
+        const isSwapType = (t) => t === 'cambio_turno' || t === 'cambio_riposo';
+        const isAutoImported = (r) => !r.obscured && (
+            (r.type === 'copertura_reperibilita' && autoRepIds.has(r.id)) ||
+            (isSwapType(r.type) && BIBBIA_CONFIG_R.autoApplyCambioTurno === true && autoSwapIds.has(r.id)));
+        onSnapshot(collection(db, "turno_overrides"), (snapshot) => {
+            const ids = new Set();
+            snapshot.forEach(d => { const rid = d.data().requestId; if (rid) ids.add(rid); });
+            autoSwapIds = ids;
+            window.renderRequests();
+        }, (err) => console.warn("Cambi automatici non leggibili:", err));
+        onSnapshot(collection(db, "reperibilita_overrides"), (snapshot) => {
+            const ids = new Set();
+            snapshot.forEach(d => { const rid = d.data().requestId; if (rid) ids.add(rid); });
+            autoRepIds = ids;
+            window.renderRequests();
+        }, (err) => console.warn("Cessioni automatiche non leggibili:", err));
+
+        // Tiene il payload pronto in attesa di conferma dell'utente nella finestrella di riepilogo.
+        let pendingRequestPayload = null;
+
+        window.saveRequest = async function(e) {
+            e.preventDefault();
+
+            const reqType = document.getElementById('reqType').value;
+            const dFrom   = document.getElementById('reqDateFrom').value;
+            const dToRaw  = document.getElementById('reqDateTo').value;
+            const isSwap  = (reqType === 'cambio_turno' || reqType === 'copertura_reperibilita' || reqType === 'cambio_riposo');
+            const myNameV = document.getElementById('reqName').value;
+            const swapV   = document.getElementById('reqNameSwap').value;
+            if (!myNameV) { alert("Seleziona l'operatore."); return; }
+            if (isSwap && !swapV) { alert("Seleziona il collega con cui fai il cambio."); return; }
+            if (isSwap && normalizeRepNameR(swapV) === normalizeRepNameR(myNameV)) {
+                alert("Il collega deve essere una persona diversa dall'operatore.");
+                return;
+            }
+            if (!isSwap && dFrom && dToRaw && dToRaw < dFrom) {
+                alert("La data \"Al giorno\" è prima di \"Dal giorno\": controlla le date.");
+                return;
+            }
+
+            let restDateOther = null, riposoDate = null;
+            if (reqType === 'cambio_riposo') {
+                const v = getRiposoValues();
+                if (!v.my || !v.other) { alert("Scegli i due giorni di riposo da scambiare."); return; }
+                if (v.my === v.other) { alert("I due giorni di riposo devono essere diversi."); return; }
+                const btn = document.getElementById('btnSubmit');
+                const prevBtnText = btn.textContent;
+                btn.textContent = "Controllo turni...";
+                await loadReperibilitaData();
+                btn.textContent = prevBtnText;
+                const problems = checkRiposoSwap(myNameV, swapV, v.my, v.other);
+                if (problems.length) {
+                    alert("⚠️ Il cambio riposo non corrisponde al programma turni:\n\n" + problems.join("\n") + "\n\nScegli giorni in cui uno riposa e l'altro lavora.");
+                    return;
+                }
+                riposoDate = v.my; restDateOther = v.other;
+            }
+
+            let selectedTimeSlots = null;
+            if (reqType === 'copertura_reperibilita') {
+                if (!dFrom) {
+                    alert("Seleziona una data tra le tue reperibilità in calendario.");
+                    return;
+                }
+                const checked = document.querySelectorAll('input[name="reqTimeSlot"]:checked');
+                if (checked.length === 0) {
+                    alert("Devi spuntare almeno una fascia.");
+                    return;
+                }
+                selectedTimeSlots = Array.from(checked).map(cb => cb.value).join(", ");
+            }
+
+            let myShift = null, otherShift = null;
+            if (reqType === 'cambio_turno') {
+                myShift    = document.getElementById('reqMyShift').value;
+                otherShift = document.getElementById('reqOtherShift').value;
+                const otherName = document.getElementById('reqNameSwap').value;
+                const myName    = document.getElementById('reqName').value;
+                if (!dFrom || !myShift || !otherShift || !otherName) {
+                    alert("Compila data, operatore e i turni di entrambi prima di continuare.");
+                    return;
+                }
+                // ── Controllo di corrispondenza col programma turni reale ──
+                // Non lasciamo passare un cambio turno se quello che l'operatore dichiara
+                // non corrisponde a quello che risulta davvero sul file turni: altrimenti,
+                // se poi l'automazione "Cambio turno automatico" è attiva, si rischierebbe
+                // di scambiare turni sbagliati.
+                const btn = document.getElementById('btnSubmit');
+                const prevBtnText = btn.textContent;
+                btn.textContent = "Controllo turni...";
+                await loadReperibilitaData();
+                btn.textContent = prevBtnText;
+
+                const parts = dFrom.split("-");
+                if (parts.length === 3 && repDataLoaded) {
+                    const mNum = parseInt(parts[1]), day = parseInt(parts[2]);
+                    const myActual    = normalizeShiftCodeR(getShiftCodeFor(myName, mNum, day));
+                    const otherActual = normalizeShiftCodeR(getShiftCodeFor(otherName, mNum, day));
+                    const SHIFT_NAMES = { M: 'Mattina', P: 'Pomeriggio', N: 'Notte' };
+                    const mismatches = [];
+                    if (myActual && myActual !== myShift) {
+                        mismatches.push(`Il tuo turno quel giorno risulta ${SHIFT_NAMES[myActual] || myActual}, non ${SHIFT_NAMES[myShift]}.`);
+                    }
+                    if (otherActual && otherActual !== otherShift) {
+                        mismatches.push(`Il turno di ${otherName} quel giorno risulta ${SHIFT_NAMES[otherActual] || otherActual}, non ${SHIFT_NAMES[otherShift]}.`);
+                    }
+                    if (mismatches.length > 0) {
+                        alert("⚠️ Il cambio turno indicato non corrisponde al programma turni:\n\n" + mismatches.join("\n") + "\n\nCorreggi i turni indicati e riprova.");
+                        return;
+                    }
+                }
+                // Se i dati turni non sono disponibili (file non raggiungibile), la richiesta
+                // procede comunque come testo semplice: solo il controllo automatico salta,
+                // non l'invio della richiesta in sé.
+            }
+
+            if (reqType === 'cambio_riposo') {
+                // turno che ciascuno va a fare: io il turno del collega nel mio riposo,
+                // il collega il mio turno nel suo riposo (solo informativo).
+                myShift    = normalizeShiftCodeR(shiftOn(myNameV, restDateOther).raw) || null;
+                otherShift = normalizeShiftCodeR(shiftOn(swapV, riposoDate).raw) || null;
+            }
+            const noDays = (reqType === 'copertura_reperibilita' || reqType === 'cambio_riposo');
+            const dateMain = reqType === 'cambio_riposo' ? riposoDate : dFrom;
+
+            const payload = {
+                name:             myNameV,
+                type:             reqType,
+                swapWith:         isSwap ? swapV : null,
+                timeSlot:         selectedTimeSlots,
+                myShift:          myShift,
+                otherShift:       otherShift,
+                dateFrom:         dateMain,
+                dateTo:           (noDays || !dToRaw) ? dateMain : dToRaw,
+                restDateOther:    restDateOther,
+                effectiveDays:    noDays ? "N/A" : (document.getElementById('reqDays').value || "1"),
+                notes:            document.getElementById('reqNotes').value.trim(),
+                headNurseApproval: APPROVAL_TYPES.includes(reqType) ? 'attesa' : 'non_richiesta',
+                insertedInShifts:  false,
+                insertedAt:        null
+            };
+
+            pendingRequestPayload = payload;
+            showRequestSummary(payload);
+            window.closeModal('add-modal');
+            window.openModal('confirm-request-modal');
+        };
+
+        // Costruisce il testo di riepilogo mostrato prima dell'invio definitivo.
+        function showRequestSummary(payload) {
+            const box = document.getElementById('confirm-request-summary');
+            function row(label, value) {
+                if (!value) return '';
+                return `<div style="display:flex; justify-content:space-between; gap:12px; padding:9px 0; border-bottom:1px solid var(--border);">
+                            <span style="color:var(--text-sec); font-size:0.78rem; font-weight:700;">${label}</span>
+                            <span style="font-weight:800; font-size:0.85rem; text-align:right;">${value}</span>
+                        </div>`;
+            }
+            const dateLabel = (payload.dateFrom === payload.dateTo || !payload.dateTo)
+                ? formatDateIt(payload.dateFrom)
+                : `${formatDateIt(payload.dateFrom)} → ${formatDateIt(payload.dateTo)}`;
+
+            let html = '';
+            html += row('Operatore', esc(payload.name));
+            html += row('Tipo di richiesta', LABELS[payload.type] || payload.type);
+            if (payload.swapWith) html += row('Con chi', esc(payload.swapWith));
+            if (payload.type === 'cambio_riposo') {
+                html += `<div style="background:#f0fdfa;border:1px solid #99f6e4;border-radius:8px;padding:10px;font-size:0.85rem;line-height:1.6;">${riposoPlanHtml(payload.name, payload.swapWith, payload.dateFrom, payload.restDateOther)}</div>`;
+            } else {
+                html += row(payload.type === 'copertura_reperibilita' ? 'Data reperibilità' : 'Giorni', dateLabel);
+            }
+            if (payload.timeSlot) html += row('Fasce cedute', payload.timeSlot);
+            const SHIFT_NAMES_SUMMARY = { M: 'Mattina', P: 'Pomeriggio', N: 'Notte' };
+            if (payload.type === 'cambio_turno') {
+                if (payload.myShift) html += row('Il tuo turno', SHIFT_NAMES_SUMMARY[payload.myShift] || payload.myShift);
+                if (payload.otherShift) html += row('Turno di ' + esc(payload.swapWith || 'collega'), SHIFT_NAMES_SUMMARY[payload.otherShift] || payload.otherShift);
+            }
+            if (payload.effectiveDays !== 'N/A' && payload.type !== 'cambio_turno') html += row('Giorni effettivi', esc(payload.effectiveDays));
+            if (payload.notes) html += row('Note', esc(payload.notes));
+            box.innerHTML = html || '<div class="note-empty">Nessun dettaglio da mostrare.</div>';
+        }
+
+        function formatDateIt(iso) {
+            if (!iso) return '';
+            const parts = iso.split('-');
+            if (parts.length !== 3) return iso;
+            return `${parts[2]}/${parts[1]}/${parts[0]}`;
+        }
+
+        // Torna al form per correggere, senza perdere quanto già compilato.
+        window.backToEditRequest = function(e) {
+            if (e && e.target !== e.currentTarget) return;
+            window.closeModal('confirm-request-modal');
+            window.openModal('add-modal');
+        };
+
+        // Scrive/aggiorna l'override di scambio turno per una richiesta "cambio_turno" già
+        // validata. La lettura/applicazione effettiva avviene nel programma turni A.S. 26,
+        // e solo se l'automazione "Cambio turno automatico" è attiva nella Bibbia.
+        // Il Cambio Riposo usa due documenti: <id> per il giorno di riposo di chi chiede e
+        // <id>_riposo per il giorno di riposo del collega (stesso formato, letto già così
+        // dal programma turni: in ciascun giorno i due si scambiano la casella).
+        async function removeTurnoOverrides(requestId) {
+            await Promise.all([
+                deleteDoc(doc(db, "turno_overrides", requestId)).catch(() => {}),
+                deleteDoc(doc(db, "turno_overrides", requestId + "_riposo")).catch(() => {})
+            ]);
+        }
+        async function syncTurnoOverride(requestId, r) {
+            if (!isSwapType(r.type) || r.obscured || !r.swapWith || !r.dateFrom ||
+                (r.type === 'cambio_riposo' && !r.restDateOther)) {
+                await removeTurnoOverrides(requestId);
+                return;
+            }
+            const base = { driverA: r.name, driverB: r.swapWith, requestId: requestId, kind: r.type, updatedAt: new Date().toISOString() };
+            await setDoc(doc(db, "turno_overrides", requestId), { ...base, date: r.dateFrom });
+            if (r.type === 'cambio_riposo') {
+                await setDoc(doc(db, "turno_overrides", requestId + "_riposo"), { ...base, date: r.restDateOther });
+            } else {
+                await deleteDoc(doc(db, "turno_overrides", requestId + "_riposo")).catch(() => {});
+            }
+        }
+
+        // Conferma definitiva: qui avviene il vero salvataggio su Firestore.
+        window.confirmAndSubmitRequest = async function() {
+            if (!pendingRequestPayload) return;
+            const payload = pendingRequestPayload;
+            const btn = document.getElementById('btnConfirmRequest');
+            btn.textContent = "SALVATAGGIO...";
+            btn.style.opacity = "0.7";
+
+            try {
+                const doSyncRep = BIBBIA_CONFIG_R.autoSyncReperibilita !== false;
+                let requestId;
+                if (window.editingId) {
+                    // Se si cambiano solo le note, la richiesta resta approvata/inserita com'era.
+                    // Prima ogni modifica rimetteva l'approvazione "in attesa" e toglieva
+                    // "inserita nei turni" anche quando date, persone e tipo non cambiavano.
+                    const old = requests.find(x => x.id === window.editingId);
+                    const KEYS = ['name', 'type', 'swapWith', 'timeSlot', 'myShift', 'otherShift', 'dateFrom', 'dateTo', 'restDateOther', 'effectiveDays'];
+                    if (old && KEYS.every(k => (old[k] ?? null) === (payload[k] ?? null))) {
+                        payload.headNurseApproval = old.headNurseApproval || payload.headNurseApproval;
+                        payload.insertedInShifts = !!old.insertedInShifts;
+                        payload.insertedAt = old.insertedAt || null;
+                    }
+                    await updateDoc(doc(db, "richieste_turni", window.editingId), payload);
+                    requestId = window.editingId;
+                } else {
+                    const newDocRef = await addDoc(collection(db, "richieste_turni"), {
+                        ...payload,
+                        timestamp: new Date().toISOString(),
+                        obscured: false
+                    });
+                    requestId = newDocRef.id;
+                }
+                if (doSyncRep) {
+                    await syncReperibilitaOverrides(requestId, { ...payload, obscured: false });
+                }
+                // Sempre: se in modifica il tipo non è più un cambio, il vecchio scambio sparisce.
+                await syncTurnoOverride(requestId, { ...payload, obscured: false });
+
+                document.getElementById('requestForm').reset();
+                window.editingId = null;
+                pendingRequestPayload = null;
+                document.getElementById('reqType').dispatchEvent(new Event('change'));
+                window.closeModal('confirm-request-modal');
+                if (navigator.vibrate) navigator.vibrate(50);
+
+            } catch (err) {
+                console.error(err);
+                alert("Errore durante il salvataggio.");
+            } finally {
+                btn.innerHTML = '<span class="material-icons-round" style="vertical-align:middle;font-size:18px;">check_circle</span> Sì, corretto';
+                btn.style.opacity = "1";
+            }
+        };
+
+        // ============================================================
+        // ADMIN
+        // ============================================================
+        window.toggleAdmin = function() {
+            if (window.isAdmin) {
+                window.isAdmin = false;
+                document.getElementById('adminIcon').style.color = "white";
+                window.switchTab('richieste');
+                alert("Uscito dalla modalità Admin.");
+            } else {
+                const pwd = prompt("Inserisci la password per l'accesso Admin:");
+                if (pwd === "00") {
+                    window.isAdmin = true;
+                    document.getElementById('adminIcon').style.color = "#fde047";
+                    alert("Accesso Admin effettuato.");
+                } else if (pwd !== null) {
+                    alert("Password errata.");
+                }
+            }
+            window.renderRequests();
+            window.renderNotes();
+        };
+
+        window.deleteRequest = async function(id) {
+            if (confirm("Eliminare definitivamente?")) {
+                try {
+                    await removeReperibilitaOverrides(id);
+                    await removeTurnoOverrides(id);
+                    await deleteDoc(doc(db, "richieste_turni", id));
+                    window.closeModal('detail-modal');
+                }
+                catch (e) { console.error(e); }
+            }
+        };
+
+        window.obscureRequest = async function(id) {
+            if (confirm("Vuoi ritirare/oscurare questa richiesta?")) {
+                try {
+                    await updateDoc(doc(db, "richieste_turni", id), { obscured: true });
+                    await removeReperibilitaOverrides(id);
+                    await removeTurnoOverrides(id);
+                    window.closeModal('detail-modal');
+                }
+                catch (e) { console.error(e); }
+            }
+        };
+
+        window.restoreRequest = async function(id) {
+            try {
+                await updateDoc(doc(db, "richieste_turni", id), { obscured: false });
+                const r = requests.find(x => x.id === id);
+                if (r) {
+                    if (BIBBIA_CONFIG_R.autoSyncReperibilita !== false) {
+                        await syncReperibilitaOverrides(id, { ...r, obscured: false });
+                    }
+                    if (isSwapType(r.type)) {
+                        await syncTurnoOverride(id, { ...r, obscured: false });
+                    }
+                }
+                window.closeModal('detail-modal');
+            }
+            catch (e) { console.error(e); }
+        };
+
+        window.saveDetailChanges = async function(id) {
+            const r = requests.find(x => x.id === id);
+            if (!r) return;
+            let updateData = {};
+            let hasChanges = false;
+
+            if (APPROVAL_TYPES.includes(r.type)) {
+                const capoEl = document.querySelector(`input[name="capo_${id}"]:checked`);
+                if (capoEl && capoEl.value !== r.headNurseApproval) {
+                    updateData.headNurseApproval = capoEl.value;
+                    hasChanges = true;
+                }
+            }
+            if (window.isAdmin) {
+                const insertEl = document.getElementById(`check_insert_${id}`);
+                if (insertEl && insertEl.checked !== r.insertedInShifts) {
+                    updateData.insertedInShifts = insertEl.checked;
+                    updateData.insertedAt = insertEl.checked ? new Date().toISOString() : null;
+                    hasChanges = true;
+                }
+            }
+
+            if (hasChanges) {
+                try {
+                    await updateDoc(doc(db, "richieste_turni", id), updateData);
+                    window.closeModal('detail-modal');
+                    if (navigator.vibrate) navigator.vibrate(50);
+                } catch (e) {
+                    console.error(e);
+                    alert("Errore nel salvataggio.");
+                }
+            } else {
+                window.closeModal('detail-modal');
+            }
+        };
+
+        window.toggleInserted = async function(id, currentState) {
+            if (navigator.vibrate) navigator.vibrate(20);
+            try {
+                await updateDoc(doc(db, "richieste_turni", id), {
+                    insertedInShifts: !currentState,
+                    insertedAt: !currentState ? new Date().toISOString() : null
+                });
+            } catch(e) { console.error(e); }
+        };
+
+        // Ricorda quali mesi sono aperti: prima ogni aggiornamento della lista li richiudeva.
+        const monthOpenState = {};
+        window.toggleMonth = function(id, month) {
+            const el   = document.getElementById(id);
+            const icon = document.getElementById('icon_' + id);
+            if (month) monthOpenState[month] = el.style.display === 'none';
+            if (el.style.display === 'none') {
+                el.style.display = 'block';
+                icon.textContent = 'expand_less';
+            } else {
+                el.style.display = 'none';
+                icon.textContent = 'expand_more';
+            }
+        };
+
+        window.downloadJSON = function() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(requests, null, 2));
+            const dl = document.createElement('a');
+            dl.setAttribute("href", dataStr);
+            dl.setAttribute("download", "richieste_118_backup_" + new Date().toISOString().slice(0, 10) + ".json");
+            document.body.appendChild(dl); dl.click(); dl.remove();
+        };
+
+        // ============================================================
+        // RENDER LISTA
+        // ============================================================
+        // Filtro della lista: tutte / le mie (anche quelle in cui sono il collega) / da gestire.
+        let listFilter = 'tutte';
+        try { listFilter = localStorage.getItem('118_req_filter') || 'tutte'; } catch (e) {}
+        window.setListFilter = function(f) {
+            listFilter = f;
+            try { localStorage.setItem('118_req_filter', f); } catch (e) {}
+            window.renderRequests();
+        };
+        const isMine = (r) => {
+            const me = normalizeRepNameR(currentUser || '');
+            return !!me && (normalizeRepNameR(r.name) === me || normalizeRepNameR(r.swapWith) === me);
+        };
+        const isPending = (r) => {
+            if (r.obscured) return false;
+            if (r.headNurseApproval === 'no') return false;
+            if (r.insertedInShifts) return false;
+            if (isAutoImported(r)) return false;
+            return true;
+        };
+        // Periodo in breve per la riga della lista.
+        function periodText(r) {
+            if (r.type === 'cambio_riposo') return `riposo ${formatDateShort(r.dateFrom)} ⇄ ${formatDateShort(r.restDateOther)}`;
+            const dFrom = formatDateIt(r.dateFrom), dTo = formatDateIt(r.dateTo || r.dateFrom);
+            let t = dFrom === dTo ? dFrom : `${dFrom} - ${dTo}`;
+            if (r.type === 'copertura_reperibilita' && r.timeSlot) t += ` (${r.timeSlot})`;
+            return t;
+        }
+        function formatDateShort(iso) {
+            const p = String(iso || '').split('-');
+            return p.length === 3 ? `${p[2]}/${p[1]}` : (iso || '?');
+        }
+
+        window.renderRequests = function() {
+            const container = document.getElementById('requests-container');
+            const search    = document.getElementById('searchInput').value.toLowerCase().trim();
+            const isManager = window.isAdmin || currentUser === 'Centrale 118';
+            container.innerHTML = "";
+
+            document.querySelectorAll('#listFilters .list-filter').forEach(b => b.classList.toggle('active', b.dataset.f === listFilter));
+            const allPending = requests.filter(isPending).length;
+            const pc = document.getElementById('pendingCount');
+            if (pc) pc.textContent = allPending ? '(' + allPending + ')' : '';
+
+            const filtered = requests.filter(r => {
+                if (listFilter === 'mie' && !isMine(r)) return false;
+                if (listFilter === 'attesa' && !isPending(r)) return false;
+                if (!search) return true;
+                return String(r.name || '').toLowerCase().includes(search) ||
+                    String(r.swapWith || '').toLowerCase().includes(search) ||
+                    getLabel(r.type).toLowerCase().includes(search);
+            });
+
+            if (filtered.length === 0) {
+                const why = listFilter === 'mie' ? (currentUser ? 'Nessuna richiesta tua o con te come collega' : 'Scegli prima il tuo nome')
+                    : listFilter === 'attesa' ? 'Niente da gestire: tutto in ordine' : 'Nessuna richiesta';
+                container.innerHTML = `<div class="empty-state"><span class="material-icons-round">list_alt</span><h3>${why}</h3></div>`;
+                return;
+            }
+
+            const byTime = (a, b) => new Date(b.timestamp) - new Date(a.timestamp);
+            const pendingRequests = filtered.filter(isPending).sort(byTime);
+            const otherRequests   = filtered.filter(r => !isPending(r)).sort(byTime);
+
+            const generateRow = (r) => {
+                const sendDate = r.timestamp ? new Date(r.timestamp).toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' }) : '';
+
+                // Oscurata — vista utente normale
+                if (r.obscured && !isManager) {
+                    return `
+                        <div class="list-row row-obscured" onclick="window.openDetailModal('${r.id}')">
+                            <div class="row-icon bg-default"><span class="material-icons-round" style="font-size:18px">visibility_off</span></div>
+                            <div class="row-content">
+                                <div class="row-header">
+                                    <div class="row-title">${esc(r.name)}</div>
+                                    <div class="row-date-sent">Inviata il ${sendDate}</div>
+                                </div>
+                                <div class="row-details" style="color: #ef4444; font-weight: 700;">Richiesta Ritirata / Oscurata</div>
+                            </div>
+                        </div>`;
+                }
+
+                const auto = isAutoImported(r);
+                const rowClass = r.obscured ? "row-obscured"
+                    : r.headNurseApproval === 'no' ? "row-rejected"
+                    : (r.insertedInShifts || auto) ? "row-confirmed"
+                    : "row-pending";
+
+                // Stato scritto in parole (oltre al colore della riga).
+                let chips = '';
+                if (!r.obscured) {
+                    if (APPROVAL_TYPES.includes(r.type)) {
+                        if (r.headNurseApproval === 'si')      chips += `<span class="status-chip st-ok">✓ Approvata</span>`;
+                        else if (r.headNurseApproval === 'no') chips += `<span class="status-chip st-no">✗ Non approvata</span>`;
+                        else                                   chips += `<span class="status-chip st-wait">⏳ Da approvare</span>`;
+                    }
+                    if (auto) chips += `<span class="status-chip st-ok">✓ ${r.type === 'copertura_reperibilita' ? 'Importata' : 'Applicato'} in automatico</span>`;
+                    else if (r.insertedInShifts) chips += `<span class="status-chip st-ok">✓ Inserita nei turni</span>`;
+                    else if (r.headNurseApproval !== 'no') chips += `<span class="status-chip st-wait">⏳ Da inserire nei turni</span>`;
+                }
+
+                let periodDetails = esc(periodText(r));
+                if (r.swapWith) periodDetails += ` · con ${esc(r.swapWith)}`;
+
+                const adminTag     = (r.obscured && isManager) ? `<span style="color:#ef4444;font-size:0.65rem;margin-right:4px;">[OSCURATA]</span>` : '';
+                const insertButton = (!r.obscured && window.isAdmin) ? `
+                    <button class="btn-quick-insert ${r.insertedInShifts ? 'inserted' : ''}" onclick="event.stopPropagation(); window.toggleInserted('${r.id}', ${!!r.insertedInShifts})">
+                        <span class="material-icons-round" style="font-size:14px">${r.insertedInShifts ? 'check_circle' : 'radio_button_unchecked'}</span>
+                        ${r.insertedInShifts ? 'Inserito' : 'Segna inserito'}
+                    </button>` : '';
+
+                return `
+                    <div class="list-row ${rowClass}" onclick="window.openDetailModal('${r.id}')">
+                        <div class="row-icon ${getColor(r.type)}"><span class="material-icons-round" style="font-size:18px">${getIcon(r.type)}</span></div>
+                        <div class="row-content">
+                            <div class="row-header">
+                                <div class="row-title">${adminTag}${esc(r.name)}</div>
+                                <div class="row-date-sent">Inviata il ${sendDate}</div>
+                            </div>
+                            <div class="row-details">
+                                <strong>${esc(getLabel(r.type))}</strong> • <span style="color:var(--primary);font-weight:600;">${periodDetails}</span>
+                            </div>
+                            ${(!r.obscured && (chips || insertButton)) ? `
+                            <div class="row-actions">
+                                <div>${chips}</div>
+                                <div>${insertButton}</div>
+                            </div>` : ''}
+                        </div>
+                    </div>`;
+            };
+
+            let html = '';
+            if (pendingRequests.length > 0) {
+                html += `<div class="section-title" style="color:#ef4444;">Da gestire (${pendingRequests.length})</div><div class="month-group" style="border: 2px solid #fee2e2;">${pendingRequests.map(generateRow).join('')}</div>`;
+            }
+
+            if (otherRequests.length > 0) {
+                html += `<div class="section-title">Concluse e storico</div>`;
+
+                const groups    = {};
+                const groupKeys = [];
+                otherRequests.forEach(r => {
+                    const m   = new Date(r.timestamp).toLocaleDateString('it-IT', { month: 'long', year: 'numeric' });
+                    const cap = m.charAt(0).toUpperCase() + m.slice(1);
+                    if (!groups[cap]) { groups[cap] = []; groupKeys.push(cap); }
+                    groups[cap].push(r);
+                });
+
+                const currentMonthName = new Date().toLocaleDateString('it-IT', { month: 'long', year: 'numeric' });
+                const capCurrent = currentMonthName.charAt(0).toUpperCase() + currentMonthName.slice(1);
+
+                groupKeys.forEach((month, idx) => {
+                    // aperto il mese in corso (o il primo, se si sta cercando/filtrando)
+                    const open         = (month in monthOpenState) ? monthOpenState[month]
+                        : (month === capCurrent || ((search || listFilter !== 'tutte') && idx === 0));
+                    const containerId  = `month_group_${idx}`;
+                    html += `
+                        <div class="month-group">
+                            <div class="month-header" onclick="window.toggleMonth('${containerId}', '${month}')">
+                                <div style="display:flex;align-items:center;gap:6px;">
+                                    <span class="material-icons-round" style="font-size:16px">calendar_month</span> Inviate a ${month} (${groups[month].length})
+                                </div>
+                                <span class="material-icons-round" id="icon_${containerId}" style="font-size:20px;">${open ? 'expand_less' : 'expand_more'}</span>
+                            </div>
+                            <div id="${containerId}" style="display:${open ? 'block' : 'none'};">
+                                ${groups[month].map(generateRow).join('')}
+                            </div>
+                        </div>`;
+                });
+            }
+            container.innerHTML = html;
+        };
+
+        // ============================================================
+        // DETTAGLIO
+        // ============================================================
+        window.openDetailModal = function(id) {
+            const r = requests.find(x => x.id === id);
+            if (!r || (r.obscured && !window.isAdmin && currentUser !== 'Centrale 118')) return;
+
+            let html = '';
+
+            html += `<div class="detail-item" style="background:#f8fafc;padding:12px;border-radius:8px;">
+                        <div class="detail-label" style="color:var(--primary);">Data e Ora Invio Richiesta</div>
+                        <div class="detail-value" style="font-size:0.95rem;">${r.timestamp ? new Date(r.timestamp).toLocaleString('it-IT') : '—'}</div>
+                     </div>`;
+
+            html += `<div class="detail-item" style="background:#f8fafc;padding:12px;border-radius:8px;">
+                        <div class="detail-label" style="color:var(--primary);">Stato Inserimento Turni</div>
+                        <div class="detail-value" style="font-size:0.95rem;">
+                            ${isAutoImported(r)
+                                ? `<span style="color:#059669;font-weight:700;">✓ ${r.type === 'copertura_reperibilita' ? 'Importata' : 'Applicato'} in automatico nel programma turni</span>`
+                                : r.insertedInShifts
+                                ? `<span style="color:#059669;font-weight:700;">✓ Inserita il ${r.insertedAt ? new Date(r.insertedAt).toLocaleString('it-IT') : 'Data non disponibile'}</span>`
+                                : `<span style="color:#64748b;font-weight:700;">⏳ In attesa di inserimento</span>`}
+                        </div>
+                     </div>`;
+
+            html += `<div class="detail-item"><div class="detail-label">Operatore</div><div class="detail-value">${esc(r.name)}</div></div>
+                     <div class="detail-item"><div class="detail-label">Tipo Richiesta</div><div class="detail-value">${esc(getLabel(r.type))}</div></div>`;
+
+            if (r.swapWith) html += `<div class="detail-item"><div class="detail-label">Cambio/Copertura con</div><div class="detail-value" style="color:var(--primary)">${esc(r.swapWith)}</div></div>`;
+            if (r.timeSlot) html += `<div class="detail-item"><div class="detail-label">Fasce Orarie Scelte</div><div class="detail-value">${esc(r.timeSlot)}</div></div>`;
+            if (r.type === 'cambio_turno' && (r.myShift || r.otherShift)) {
+                const SN = { M: 'Mattina', P: 'Pomeriggio', N: 'Notte' };
+                html += `<div class="detail-item"><div class="detail-label">Turni scambiati</div><div class="detail-value">${esc(r.name)}: ${SN[r.myShift] || esc(r.myShift || '?')} ⇄ ${esc(r.swapWith)}: ${SN[r.otherShift] || esc(r.otherShift || '?')}</div></div>`;
+            }
+            if (r.type === 'cambio_riposo') {
+                html += `<div class="detail-item"><div class="detail-label">Cosa cambia</div><div class="detail-value" style="font-weight:500;font-size:0.88rem;line-height:1.6;">${riposoPlanHtml(r.name, r.swapWith, r.dateFrom, r.restDateOther)}</div></div>`;
+            }
+
+            const dFrom   = formatDateIt(r.dateFrom);
+            const dTo     = formatDateIt(r.dateTo || r.dateFrom);
+            const periodStr = r.type === 'cambio_riposo' ? 'Il ' + dFrom + ' e il ' + formatDateIt(r.restDateOther)
+                : (r.type === 'copertura_reperibilita' || dFrom === dTo) ? 'Il ' + dFrom : 'Dal ' + dFrom + ' al ' + dTo;
+            const urlTurni  = `https://centrale118rsm-code.github.io/Turni-Autisti-2026-Rsm/?date=${r.dateFrom}#${r.dateFrom}`;
+
+            html += `<div class="detail-item">
+                        <div class="detail-label">Periodo</div>
+                        <div style="display:flex;justify-content:space-between;align-items:center;">
+                            <div class="detail-value">${periodStr}</div>
+                            <a href="${urlTurni}" target="_blank" class="btn-icon" style="background:var(--primary);color:white;width:30px;height:30px;" title="Apri Turni per questa data">
+                                <span class="material-icons-round" style="font-size:18px;">event</span>
+                            </a>
+                        </div>
+                     </div>`;
+
+            if (r.effectiveDays && r.effectiveDays !== 'N/A' && r.type !== 'copertura_reperibilita' && !isSwapType(r.type)) {
+                html += `<div class="detail-item"><div class="detail-label">Giorni Effettivi</div><div class="detail-value">${esc(r.effectiveDays)}</div></div>`;
+            }
+
+            html += `<div class="detail-item"><div class="detail-label">Note</div><div class="detail-value" style="font-weight:400;white-space:pre-wrap;user-select:text;">${r.notes ? esc(r.notes) : "—"}</div></div>`;
+
+            if (isSwapType(r.type)) {
+                html += `<div style="background:#eff6ff;padding:12px;border-radius:10px;border:1px solid #bfdbfe;margin-bottom:15px;">
+                            <div style="display:flex;gap:8px;align-items:flex-start;">
+                                <span class="material-icons-round" style="color:#2563eb;font-size:18px;flex-shrink:0;margin-top:1px;">info</span>
+                                <div style="color:#1e40af;font-size:0.8rem;font-weight:600;line-height:1.5;">
+                                    L'orario presente nella casella dei turni sarà l'orario effettivo di lavoro da svolgere. Questo non comporterà alcun credito o debito di minutaggio significativo ai fini dei conteggi.
+                                </div>
+                            </div>
+                         </div>`;
+            }
+
+            let hasControls = false;
+
+            if (APPROVAL_TYPES.includes(r.type)) {
+                if (window.isAdmin || !r.insertedInShifts) {
+                    hasControls = true;
+                    html += `<div style="margin-top:15px;border-top:1px dashed #cbd5e1;padding-top:15px;">
+                                <div class="detail-label" style="margin-bottom:10px;color:var(--primary);">La figura di coordinamento deve approvare la richiesta prima dell'inserimento in turno</div>
+                                <div style="display:flex;flex-direction:column;gap:10px;">
+                                    <label class="checkbox-wrapper"><input type="radio" name="capo_${r.id}" value="si" ${r.headNurseApproval === 'si' ? 'checked' : ''}><span style="color:#059669;">Sì, Approvato</span></label>
+                                    <label class="checkbox-wrapper"><input type="radio" name="capo_${r.id}" value="no" ${r.headNurseApproval === 'no' ? 'checked' : ''}><span style="color:#dc2626;">No, Rifiutato</span></label>
+                                    <label class="checkbox-wrapper"><input type="radio" name="capo_${r.id}" value="attesa" ${r.headNurseApproval === 'attesa' ? 'checked' : ''}><span style="color:#64748b;">In Attesa</span></label>
+                                </div>
+                             </div>`;
+                } else {
+                    const stateStr   = r.headNurseApproval === 'si' ? "Sì, Approvato" : r.headNurseApproval === 'no' ? "No, Rifiutato" : "In Attesa";
+                    const stateColor = r.headNurseApproval === 'si' ? "#059669" : r.headNurseApproval === 'no' ? "#dc2626" : "#64748b";
+                    html += `<div style="margin-top:15px;border-top:1px dashed #cbd5e1;padding-top:15px;">
+                                <div class="detail-label" style="margin-bottom:5px;color:var(--primary);">Approvazione Caposala</div>
+                                <div style="font-weight:800;font-size:0.95rem;color:${stateColor};">${stateStr}</div>
+                             </div>`;
+                }
+            }
+
+            if (window.isAdmin) {
+                hasControls = true;
+                html += `<div class="admin-controls">
+                            <h4>Gestione Turni (Solo Admin)</h4>
+                            <label class="checkbox-wrapper">
+                                <input type="checkbox" id="check_insert_${r.id}" ${r.insertedInShifts ? 'checked' : ''}>
+                                Segna come "Inserita nei turni"
+                            </label>
+                         </div>`;
+            }
+
+            if (hasControls && !r.obscured) {
+                html += `<button class="btn-submit" style="background:#10b981;margin-top:15px;width:100%;box-shadow:0 4px 10px rgba(16,185,129,0.3);" onclick="window.saveDetailChanges('${r.id}')">CONFERMA MODIFICHE</button>`;
+            }
+
+            html += `<div class="action-buttons" style="margin-top:20px;">`;
+            if (r.obscured) {
+                if (window.isAdmin || currentUser === 'Centrale 118') {
+                    html += `<button class="btn-action btn-restore" onclick="window.restoreRequest('${r.id}')">Ripristina</button>`;
+                    if (window.isAdmin) html += `<button class="btn-action btn-delete" onclick="window.deleteRequest('${r.id}')">Elimina</button>`;
+                }
+            } else {
+                if (window.isAdmin) {
+                    html += `<button class="btn-action btn-edit" onclick="window.editRequest('${r.id}')">Modifica</button>`;
+                    html += `<button class="btn-action btn-hide" onclick="window.obscureRequest('${r.id}')">Ritira</button>`;
+                    html += `<button class="btn-action btn-delete" onclick="window.deleteRequest('${r.id}')">Elimina</button>`;
+                } else if (!r.insertedInShifts && (r.name === currentUser || currentUser === 'Centrale 118')) {
+                    html += `<button class="btn-action btn-edit" onclick="window.editRequest('${r.id}')">Modifica</button>`;
+                    html += `<button class="btn-action btn-hide" onclick="window.obscureRequest('${r.id}')">Ritira</button>`;
+                }
+            }
+            html += `</div>`;
+
+            document.getElementById('detail-content').innerHTML = html;
+            window.openModal('detail-modal');
+        };
+
+        // ============================================================
+        // MODAL HELPERS
+        // ============================================================
+        window.openModal = function(id) {
+            document.getElementById(id).style.display = 'flex';
+            setTimeout(() => document.getElementById(id).classList.add('open'), 10);
+        };
+
+        window.closeModal = function(id, e) {
+            if (e && e.target !== e.currentTarget) return;
+            const m = document.getElementById(id);
+            m.classList.remove('open');
+            setTimeout(() => m.style.display = 'none', 300);
+        };
+    </script>
+</body>
+</html>
