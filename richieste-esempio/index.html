@@ -1793,7 +1793,7 @@
                     const mNum = parseInt(parts[1]), day = parseInt(parts[2]);
                     const myActual    = normalizeShiftCodeR(getShiftCodeFor(myName, mNum, day));
                     const otherActual = normalizeShiftCodeR(getShiftCodeFor(otherName, mNum, day));
-                    const SHIFT_NAMES = { M: 'Mattina', P: 'Pomeriggio', N: 'Notte' };
+                    const SHIFT_NAMES = SHIFT_NAMES_R;
                     const mismatches = [];
                     if (myActual && myActual !== myShift) {
                         mismatches.push(`Il tuo turno quel giorno risulta ${SHIFT_NAMES[myActual] || myActual}, non ${SHIFT_NAMES[myShift]}.`);
