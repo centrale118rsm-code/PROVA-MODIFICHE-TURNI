@@ -344,7 +344,15 @@
         .modal-content { border-radius: 24px 24px 0 0; }
         .form-control { border-radius: 12px; }
         .btn-submit { border-radius: 14px; }
-    </style>
+            /* orario permesso a ore */
+        .hours-row { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+        .hours-row small { display:block; font-size:.72rem; color:var(--text-sec); font-weight:600; margin-bottom:3px; }
+        /* fasce di reperibilità: caselle allineate, nello stile del modulo */
+        #time-slot-group .checkbox-wrapper { display:flex; align-items:center; gap:10px; padding:8px 10px; background:#fff; border:1px solid #c7d2fe; border-radius:10px; font-weight:600; color:#312e81; cursor:pointer; margin:0; }
+        #time-slot-group .checkbox-wrapper:has(input:checked) { background:#eef2ff; border-color:#6366f1; }
+        #time-slot-group .checkbox-wrapper input { width:20px; height:20px; margin:0; accent-color:#4f46e5; flex:none; }
+        #time-slot-group > .checkbox-wrapper { border-bottom:1px solid #c7d2fe !important; padding-bottom:8px !important; margin-bottom:6px !important; }
+</style>
 </head>
 <body>
 <!-- PORTALE DI ESEMPIO: legge i dati veri, ma le prove restano solo su questo telefono. -->
@@ -386,17 +394,6 @@
         <button type="button" class="pad pad-ferie" data-type="ferie"><span class="material-icons-round">beach_access</span><b>Congedo ordinario</b></button>
         <button type="button" class="pad pad-altro" data-type=""><span class="material-icons-round">more_horiz</span><b>Altre richieste</b></button>
     </section>
-
-    <!-- Menu ⋮ -->
-    <div class="hmenu-wrap" id="hmenu" onclick="window.toggleHeaderMenu(false)">
-        <div class="hmenu" onclick="event.stopPropagation()">
-            <button type="button" onclick="window.toggleHeaderMenu(false); window.openModal('guide-modal')"><span class="material-icons-round">menu_book</span>Guida</button>
-            <button type="button" onclick="window.toggleHeaderMenu(false); window.openModal('notes-modal')"><span class="material-icons-round" style="color:#eab308">lightbulb</span>Note e consigli</button>
-            <button type="button" onclick="window.toggleHeaderMenu(false); window.changeUser()"><span class="material-icons-round">person</span>Cambia nome</button>
-            <button type="button" onclick="window.toggleHeaderMenu(false); window.toggleAdmin()"><span class="material-icons-round" id="adminIcon">admin_panel_settings</span><span id="adminMenuLabel">Accesso admin</span></button>
-            <button type="button" onclick="window.toggleHeaderMenu(false); window.downloadJSON()"><span class="material-icons-round">download</span>Scarica copia delle richieste</button>
-        </div>
-    </div>
 
     <main id="requests-container"></main>
 
@@ -476,7 +473,7 @@
             </details>
             <details>
                 <summary>Approvazione Caposala & Standby</summary>
-                <p>Tutte richieste di assenza devono essere preventivamente valutate e autorizzate dalla figura di coordinamento. <strong>Tutti gli operatori</strong> possono aprire il dettaglio di una richiesta in attesa, selezionare l'esito dell'approvazione e cliccare "CONFERMA MODIFICHE" per salvare.</p>
+                <p>Tutte le richieste di assenza devono essere preventivamente valutate e autorizzate dalla figura di coordinamento. <strong>Tutti gli operatori</strong> possono aprire il dettaglio di una richiesta in attesa, selezionare l'esito dell'approvazione e cliccare "CONFERMA MODIFICHE" per salvare.</p>
             </details>
             <details>
                 <summary>Inserimento nei Turni (Sfondo Verde)</summary>
@@ -657,7 +654,7 @@
                 <!-- Avviso approvazione -->
                 <div class="form-group" id="approval-group" style="display:none; background:#fef3c7; padding:12px; border-radius:10px; border:1px solid #fde68a;">
                     <div style="color:#b45309; font-size:0.8rem; font-weight:700; line-height: 1.3;">
-                        ⚠️ Tutte richieste di assenza devono essere preventivamente valutate e autorizzate dalla figura di coordinamento ⚠️
+                        ⚠️ Tutte le richieste di assenza devono essere preventivamente valutate e autorizzate dalla figura di coordinamento ⚠️
                         <div style="font-weight:500; margin-top:4px; font-size:0.75rem;">Potrai aggiornare lo stato dell'approvazione successivamente aprendo il dettaglio della richiesta.</div>
                     </div>
                 </div>
@@ -673,9 +670,19 @@
                     </div>
                 </div>
 
+                <!-- Permesso a ore / recupero ore: l'orario esatto (prima si poteva scrivere solo nelle note) -->
+                <div class="form-group" id="hours-group" style="display:none">
+                    <label>Orario del permesso</label>
+                    <div class="hours-row">
+                        <div><small>dalle</small><input type="time" id="reqHourFrom" class="form-control" step="300"></div>
+                        <div><small>alle</small><input type="time" id="reqHourTo" class="form-control" step="300"></div>
+                    </div>
+                    <div class="days-hint" id="hoursHint"></div>
+                </div>
+
                 <div class="form-group" id="days-group">
                     <label>Giorni effettivi di assenza</label>
-                    <input type="number" step="0.5" id="reqDays" class="form-control" placeholder="Es. 1 o 0.5 (Default: 1)">
+                    <input type="number" step="0.5" id="reqDays" class="form-control" placeholder="Es. 1 o 0.5">
                     <div class="days-hint" id="daysHint"></div>
                 </div>
 
@@ -768,6 +775,30 @@
         let requests = [];
         let savedNotes = [];
         let currentUser = localStorage.getItem('118_user_name');
+        // L'app turni apre il portale con "?nome=BARBIERI" (chi è entrato nell'app) e, da un avviso,
+        // con "?richiesta=<id>": si entra con quel nome senza sceglierlo di nuovo e si apre quella
+        // richiesta. Prima questi due dati venivano ignorati (il portale infermieri li usava già).
+        const identityFromParent = new URLSearchParams(location.search).get('nome');
+        let pendingDeepLinkRequestId = new URLSearchParams(location.search).get('richiesta') || null;
+        window.openDeepLinkRequest = function(id) { pendingDeepLinkRequestId = id; tryOpenPendingDeepLink(); };
+        function tryOpenPendingDeepLink() {
+            if (!pendingDeepLinkRequestId) return;
+            const found = requests.find(r => r.id === pendingDeepLinkRequestId);
+            if (!found) return;   // richieste non ancora arrivate: si riprova al prossimo aggiornamento
+            pendingDeepLinkRequestId = null;
+            window.openDetailModal(found.id);
+        }
+        // nome dell'app -> voce del portale ("BARBIERI" -> "Barbieri", "CENTRALE" -> "Centrale 118");
+        // COORDINATORE, TEST, ospiti ecc. non hanno una voce: resta il nome già scelto qui.
+        function applyIdentityFromParent() {
+            if (!identityFromParent) return;
+            const k = String(identityFromParent).trim().toUpperCase().replace(/\s+/g, ' ');
+            const opts = [...document.querySelectorAll('#loginSelectName option')].map(o => o.value).filter(Boolean);
+            const match = (k === 'CENTRALE' || k === 'CENTRALE 118') ? 'Centrale 118' : opts.find(v => v.toUpperCase() === k);
+            if (!match || match === currentUser) return;
+            currentUser = match;
+            try { localStorage.setItem('118_user_name', match); } catch (e) {}
+        }
 
         // ============================================================
         // REPERIBILITÀ OPERATORE — lette dal vivo da turni.xlsx (stesso file usato dal
@@ -1357,6 +1388,7 @@
         }
 
         window.addEventListener('DOMContentLoaded', () => {
+            applyIdentityFromParent();
             if (!currentUser) {
                 const lm = document.getElementById('login-modal');
                 lm.style.display = 'flex';
@@ -1535,10 +1567,13 @@
             const myShiftSel     = document.getElementById('reqMyShift');
             const otherShiftSel  = document.getElementById('reqOtherShift');
             const riposoGroup    = document.getElementById('riposo-group');
+            const hoursGroup     = document.getElementById('hours-group');
             renderTypePicker();
 
             // reset
             riposoGroup.style.display = 'none';
+            hoursGroup.style.display = 'none';
+            document.getElementById('reqHourFrom').required = false; document.getElementById('reqHourTo').required = false;
             swapGroup.style.display = 'none'; swapInput.required = false;
             timeSlotGroup.style.display = 'none';
             approvalGroup.style.display = 'none';
@@ -1587,10 +1622,34 @@
                 if (repSel) repSel.required = true;
                 populateRepDateSelect();
             }
+            if (HOUR_TYPES.includes(val)) {
+                // un giorno solo, con l'orario: i "giorni effettivi" non servono
+                hoursGroup.style.display = 'block';
+                dateToGroup.style.display = 'none';
+                daysGroup.style.display = 'none';
+                labelDateFrom.textContent = "Il Giorno (Data)";
+                document.getElementById('reqHourFrom').required = true; document.getElementById('reqHourTo').required = true;
+                updateHoursHint();
+            }
             if (APPROVAL_TYPES.includes(val)) {
                 approvalGroup.style.display = 'block';
             }
         });
+        // Permesso a ore e recupero ore: si indicano "dalle" e "alle", la durata si calcola da sola.
+        const HOUR_TYPES = ['permesso_ore', 'recupero_ore'];
+        function hoursMinutes(from, to) {
+            const m = t => { const p = String(t || '').split(':'); return p.length === 2 ? (+p[0]) * 60 + (+p[1]) : NaN; };
+            let d = m(to) - m(from); if (isNaN(d)) return null; if (d <= 0) d += 24 * 60;   // a cavallo della mezzanotte
+            return d;
+        }
+        function hoursLabel(min) { return Math.floor(min / 60) + 'h' + (min % 60 ? String(min % 60).padStart(2, '0') : ''); }
+        function hoursText(r) { if (!r || !r.hourFrom || !r.hourTo) return ''; const d = hoursMinutes(r.hourFrom, r.hourTo); return `${r.hourFrom}–${r.hourTo}${d ? ' (' + hoursLabel(d) + ')' : ''}`; }
+        function updateHoursHint() {
+            const f = document.getElementById('reqHourFrom').value, t = document.getElementById('reqHourTo').value, el = document.getElementById('hoursHint');
+            const d = f && t ? hoursMinutes(f, t) : null;
+            el.textContent = d ? 'Durata: ' + hoursLabel(d) : '';
+        }
+        ['reqHourFrom', 'reqHourTo'].forEach(id => document.getElementById(id).addEventListener('input', updateHoursHint));
 
         // ============================================================
         // OPEN ADD / EDIT MODAL
@@ -1640,6 +1699,7 @@
             document.getElementById('reqDays').dataset.manual = '';
             if (r.effectiveDays && r.effectiveDays !== "N/A") { document.getElementById('reqDays').value = r.effectiveDays; document.getElementById('reqDays').dataset.manual = '1'; }
             if (r.notes) document.getElementById('reqNotes').value = r.notes;
+            document.getElementById('reqHourFrom').value = r.hourFrom || ''; document.getElementById('reqHourTo').value = r.hourTo || ''; updateHoursHint();
 
             if (r.type === 'cambio_turno') {
                 if (r.myShift) document.getElementById('reqMyShift').value = r.myShift;
@@ -1703,6 +1763,7 @@
             requests = [];
             snapshot.forEach(d => requests.push({ id: d.id, ...d.data() }));
             window.renderRequests();
+            tryOpenPendingDeepLink();
         });
 
         // Cessioni reperibilità già importate in automatico nel programma turni: sono le
@@ -1890,7 +1951,10 @@
                 myShift    = normalizeShiftCodeR(shiftOn(myNameV, restDateOther).raw) || null;
                 otherShift = normalizeShiftCodeR(shiftOn(swapV, riposoDate).raw) || null;
             }
-            const noDays = (reqType === 'copertura_reperibilita' || reqType === 'cambio_riposo');
+            const isHours = HOUR_TYPES.includes(reqType);
+            const hFrom = isHours ? document.getElementById('reqHourFrom').value : '', hTo = isHours ? document.getElementById('reqHourTo').value : '';
+            if (isHours && (!hFrom || !hTo || !hoursMinutes(hFrom, hTo))) { alert("Indica l'orario del permesso: dalle e alle."); return; }
+            const noDays = (reqType === 'copertura_reperibilita' || reqType === 'cambio_riposo' || isHours);
             const dateMain = reqType === 'cambio_riposo' ? riposoDate : dFrom;
 
             const payload = {
@@ -1903,6 +1967,8 @@
                 dateFrom:         dateMain,
                 dateTo:           (noDays || !dToRaw) ? dateMain : dToRaw,
                 restDateOther:    restDateOther,
+                hourFrom:         isHours ? hFrom : null,
+                hourTo:           isHours ? hTo : null,
                 effectiveDays:    noDays ? "N/A" : (document.getElementById('reqDays').value || "1"),
                 notes:            document.getElementById('reqNotes').value.trim(),
                 headNurseApproval: APPROVAL_TYPES.includes(reqType) ? 'attesa' : 'non_richiesta',
@@ -1952,6 +2018,7 @@
                 html += row(payload.type === 'copertura_reperibilita' ? 'Data reperibilità' : 'Giorni', dateLabel);
             }
             if (payload.timeSlot) html += row('Fasce cedute', payload.timeSlot);
+            if (payload.hourFrom) html += row('Orario', esc(hoursText(payload)));
             const SHIFT_NAMES_SUMMARY = { M: 'Mattina', P: 'Pomeriggio', N: 'Notte' };
             if (payload.type === 'cambio_turno') {
                 if (payload.myShift) html += row('Il tuo turno', SHIFT_NAMES_SUMMARY[payload.myShift] || payload.myShift);
@@ -2019,7 +2086,7 @@
                     // Prima ogni modifica rimetteva l'approvazione "in attesa" e toglieva
                     // "inserita nei turni" anche quando date, persone e tipo non cambiavano.
                     const old = requests.find(x => x.id === window.editingId);
-                    const KEYS = ['name', 'type', 'swapWith', 'timeSlot', 'myShift', 'otherShift', 'dateFrom', 'dateTo', 'restDateOther', 'effectiveDays'];
+                    const KEYS = ['name', 'type', 'swapWith', 'timeSlot', 'myShift', 'otherShift', 'dateFrom', 'dateTo', 'restDateOther', 'hourFrom', 'hourTo', 'effectiveDays'];
                     if (old && KEYS.every(k => (old[k] ?? null) === (payload[k] ?? null))) {
                         payload.headNurseApproval = old.headNurseApproval || payload.headNurseApproval;
                         payload.insertedInShifts = !!old.insertedInShifts;
@@ -2233,6 +2300,7 @@
             const dFrom = formatDateIt(r.dateFrom), dTo = formatDateIt(r.dateTo || r.dateFrom);
             let t = dFrom === dTo ? dFrom : `${dFrom} - ${dTo}`;
             if (r.type === 'copertura_reperibilita' && r.timeSlot) t += ` (${r.timeSlot})`;
+            if (r.hourFrom) t += ` · ${hoursText(r)}`;
             return t;
         }
         function formatDateShort(iso) {
@@ -2413,7 +2481,7 @@
             const dFrom   = formatDateIt(r.dateFrom);
             const dTo     = formatDateIt(r.dateTo || r.dateFrom);
             const periodStr = r.type === 'cambio_riposo' ? 'Il ' + dFrom + ' e il ' + formatDateIt(r.restDateOther)
-                : (r.type === 'copertura_reperibilita' || dFrom === dTo) ? 'Il ' + dFrom : 'Dal ' + dFrom + ' al ' + dTo;
+                : ((r.type === 'copertura_reperibilita' || dFrom === dTo) ? 'Il ' + dFrom : 'Dal ' + dFrom + ' al ' + dTo) + (r.hourFrom ? ', ' + hoursText(r) : '');
             const urlTurni  = `https://centrale118rsm-code.github.io/Turni-Autisti-2026-Rsm/?date=${r.dateFrom}#${r.dateFrom}`;
 
             html += `<div class="detail-item">
