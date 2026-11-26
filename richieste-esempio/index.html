@@ -240,7 +240,7 @@
         .type-tile .material-icons-round { font-size: 19px; width: 30px; height: 30px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
         .type-tile.active { border-color: var(--primary); background: #eff6ff; }
         .type-tile:active { transform: scale(0.97); }
-        #reqType { display: none; }
+        .type-more-label { font-size: 0.72rem; font-weight: 700; color: var(--text-sec); margin: 8px 0 4px; }
 
         /* --- STATO SULLA RIGA (in parole, oltre al colore) --- */
         .status-chip { font-weight: 800; padding: 2px 6px; border-radius: 4px; font-size: 0.65rem; background: rgba(255,255,255,0.8); border: 1px solid; margin-right: 4px; display: inline-block; }
@@ -263,6 +263,85 @@
         /* Stile Optgroup */
         optgroup { font-weight: 800; font-style: normal; color: var(--primary); background-color: #f8fafc; }
         optgroup option { font-weight: 600; color: var(--text-main); background-color: #ffffff; padding: 5px; }
+
+        /* ═══════════ STILE MODERNO (sovrascrive le regole sopra) ═══════════ */
+        :root { --primary: #2563eb; --bg: #f3f5fa; --border: #e5e9f2; --shadow: 0 1px 2px rgba(15,23,42,0.04), 0 6px 18px rgba(15,23,42,0.06); }
+        header {
+            background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 60%, #2563eb 100%); color: #fff;
+            border-bottom: none; border-radius: 0 0 22px 22px; box-shadow: 0 6px 20px rgba(30,58,138,0.25);
+        }
+        .hbar { height: 58px; padding: 0 10px; }
+        .hbtn { color: #fff; background: rgba(255,255,255,0.12); width: 36px; height: 36px; }
+        .hbtn:active, .hbtn.on { background: rgba(255,255,255,0.28); color: #fff; }
+        .htitle b { color: #fff; font-size: 1.05rem; }
+        .htitle small { color: rgba(255,255,255,0.75); }
+        .htitle small span { color: #fde047; font-weight: 900; text-transform: uppercase; }
+        .htitle small u { color: #93c5fd; }
+        .search-container { padding: 0 12px 12px; }
+        .search-container input { background: rgba(255,255,255,0.16); border: 1px solid rgba(255,255,255,0.2); color: #fff; }
+        .search-container input::placeholder { color: rgba(255,255,255,0.7); }
+        .search-container input:focus { background: rgba(255,255,255,0.24); border-color: rgba(255,255,255,0.45); }
+        .search-container .material-icons-round { color: rgba(255,255,255,0.8); left: 22px; }
+        #btnTabTurni.active { background: #fff; color: var(--primary); }
+
+        /* Pulsanti rapidi */
+        .quick { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 14px 12px 4px; }
+        .pad {
+            display: flex; align-items: center; gap: 10px; min-height: 58px; padding: 10px 12px; border-radius: 16px;
+            border: none; cursor: pointer; text-align: left; box-shadow: var(--shadow); background: #fff; color: var(--text-main);
+            transition: transform 0.15s;
+        }
+        .pad:active { transform: scale(0.97); }
+        .pad[hidden] { display: none; }
+        .pad b { font-size: 0.84rem; font-weight: 800; line-height: 1.15; }
+        .pad .material-icons-round { width: 38px; height: 38px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 21px; flex-shrink: 0; color: #fff; }
+        .pad-rep .material-icons-round { background: linear-gradient(135deg, #6366f1, #4338ca); }
+        .pad-turno .material-icons-round { background: linear-gradient(135deg, #f59e0b, #d97706); }
+        .pad-riposo .material-icons-round { background: linear-gradient(135deg, #14b8a6, #0f766e); }
+        .pad-ferie .material-icons-round { background: linear-gradient(135deg, #fb923c, #ea580c); }
+        .pad-altro .material-icons-round { background: #e2e8f0; color: #334155; }
+        .pad-altro { background: #f8fafc; box-shadow: none; border: 1px dashed #cbd5e1; grid-column: span 2; min-height: 44px; justify-content: center; }
+        .pad-altro .material-icons-round { width: 28px; height: 28px; font-size: 18px; }
+
+        /* Lista */
+        #requests-container { padding: 4px 12px 100px; }
+        .list-head { display: flex; align-items: center; justify-content: space-between; margin: 14px 2px 8px; }
+        .list-head .section-title { margin: 0; color: var(--text-main); font-size: 0.8rem; letter-spacing: 0.6px; display: flex; align-items: center; gap: 6px; }
+        .sec-count { background: #f59e0b; color: #fff; border-radius: 999px; padding: 1px 8px; font-size: 0.7rem; font-weight: 900; letter-spacing: 0; }
+        .sec-count.green { background: #22c55e; }
+        .mine-toggle { display: flex; align-items: center; gap: 4px; border: none; background: none; color: var(--text-sec); font-weight: 800; font-size: 0.75rem; cursor: pointer; }
+        .mine-toggle .material-icons-round { font-size: 18px; }
+        .mine-toggle.on { color: var(--primary); }
+        .cards { display: flex; flex-direction: column; gap: 8px; }
+        .list-row {
+            border: none; border-radius: 14px; box-shadow: var(--shadow); padding: 11px 12px; background: #fff;
+            border-left: 5px solid #cbd5e1;
+        }
+        .row-pending { animation: none; background: #fffbeb !important; border-left-color: #f59e0b; }
+        .row-confirmed { background: #f0fdf4 !important; border-left-color: #22c55e !important; border-top: none !important; border-right: none !important; border-bottom: none !important; }
+        .row-rejected { background: #fef2f2 !important; border-left-color: #ef4444; }
+        .row-obscured { border-left-color: #94a3b8; }
+        .row-icon { width: 36px; height: 36px; border-radius: 11px; }
+        .row-details { color: var(--text-sec); }
+        .row-details strong { color: var(--text-main); }
+        .hist-toggle {
+            width: 100%; display: flex; align-items: center; gap: 8px; margin: 18px 0 8px; padding: 12px 14px;
+            border: none; border-radius: 14px; background: #fff; box-shadow: var(--shadow); cursor: pointer;
+            font-weight: 800; font-size: 0.85rem; color: var(--text-main);
+        }
+        .hist-toggle > span:nth-child(2) { flex: 1; text-align: left; }
+        .hist-toggle .material-icons-round { color: #22c55e; transition: transform 0.2s; transform: rotate(-90deg); }
+        .hist-toggle.open .material-icons-round { transform: rotate(0deg); }
+        .month-group { background: none; border: none; box-shadow: none; margin-bottom: 10px; overflow: visible; }
+        .month-header { background: none; border: none; padding: 8px 4px; font-size: 0.72rem; }
+        .empty-state { padding: 18px 10px; background: #fff; border-radius: 14px; box-shadow: var(--shadow); }
+        .empty-state .material-icons-round { color: #22c55e; opacity: 0.8; font-size: 32px; }
+        .empty-state h3 { font-size: 0.9rem; }
+
+        /* Finestre */
+        .modal-content { border-radius: 24px 24px 0 0; }
+        .form-control { border-radius: 12px; }
+        .btn-submit { border-radius: 14px; }
     </style>
 </head>
 <body>
@@ -273,24 +352,38 @@
         <div class="hbar">
             <a href="../" target="_top" class="hbtn btn-back" title="Torna ai turni" onclick="if (window.self !== window.top) { try { window.parent.closeEsempioPanel(); return false; } catch (e) {} }"><span class="material-icons-round">arrow_back</span></a>
             <div class="htitle">
-                <b>Richieste<span id="adminBadge">ADMIN</span></b>
+                <b>Gestione Richieste<span id="adminBadge">ADMIN</span></b>
                 <small id="loginStatusDisplay" onclick="window.changeUser()" title="Cambia nome" style="display:none;"><span id="headerUserName"></span> · <u>cambia</u></small>
             </div>
             <button type="button" class="hbtn" id="btnSearch" onclick="window.toggleSearch()" title="Cerca"><span class="material-icons-round">search</span></button>
+            <button type="button" class="hbtn" id="btnTabTurni" onclick="window.switchTab(currentTabIsTurni() ? 'richieste' : 'turni')" title="Turni"><span class="material-icons-round">calendar_month</span></button>
             <button type="button" class="hbtn" onclick="window.toggleHeaderMenu(true)" title="Altro"><span class="material-icons-round">more_vert</span></button>
         </div>
         <div class="search-container" id="searchBox">
             <span class="material-icons-round">search</span>
             <input type="search" id="searchInput" placeholder="Cerca nome, collega o tipo..." oninput="window.renderRequests()">
         </div>
-        <!-- Schede: le prime tre filtrano la lista, l'ultima apre i turni. -->
-        <nav class="tabs" id="listFilters">
-            <button type="button" class="tab" data-f="attesa" onclick="window.setListFilter('attesa')">Da fare <span class="count" id="pendingCount"></span></button>
-            <button type="button" class="tab" data-f="mie" onclick="window.setListFilter('mie')">Le mie</button>
-            <button type="button" class="tab" data-f="tutte" onclick="window.setListFilter('tutte')">Tutte</button>
-            <button type="button" class="tab" id="btnTabTurni" onclick="window.switchTab('turni')"><span class="material-icons-round">calendar_month</span>Turni</button>
-        </nav>
     </header>
+
+    <!-- Menu ⋮ -->
+    <div class="hmenu-wrap" id="hmenu" onclick="window.toggleHeaderMenu(false)">
+        <div class="hmenu" onclick="event.stopPropagation()">
+            <button type="button" onclick="window.toggleHeaderMenu(false); window.openModal('guide-modal')"><span class="material-icons-round">menu_book</span>Guida</button>
+            <button type="button" onclick="window.toggleHeaderMenu(false); window.openModal('notes-modal')"><span class="material-icons-round" style="color:#eab308">lightbulb</span>Note e consigli</button>
+            <button type="button" onclick="window.toggleHeaderMenu(false); window.changeUser()"><span class="material-icons-round">person</span>Cambia nome</button>
+            <button type="button" onclick="window.toggleHeaderMenu(false); window.toggleAdmin()"><span class="material-icons-round" id="adminIcon">admin_panel_settings</span><span id="adminMenuLabel">Accesso admin</span></button>
+            <button type="button" onclick="window.toggleHeaderMenu(false); window.downloadJSON()"><span class="material-icons-round">download</span>Scarica copia delle richieste</button>
+        </div>
+    </div>
+
+    <!-- Pulsanti rapidi: le richieste più usate, a un tocco (aprono il modulo già impostato). -->
+    <section class="quick" id="quickPads">
+        <button type="button" class="pad pad-rep" data-type="copertura_reperibilita"><span class="material-icons-round">shield</span><b>Cessione reperibilità</b></button>
+        <button type="button" class="pad pad-turno" data-type="cambio_turno"><span class="material-icons-round">swap_horiz</span><b>Cambio turno</b></button>
+        <button type="button" class="pad pad-riposo" data-type="cambio_riposo"><span class="material-icons-round">event_repeat</span><b>Cambio riposo</b></button>
+        <button type="button" class="pad pad-ferie" data-type="ferie"><span class="material-icons-round">beach_access</span><b>Congedo ordinario</b></button>
+        <button type="button" class="pad pad-altro" data-type=""><span class="material-icons-round">more_horiz</span><b>Altre richieste</b></button>
+    </section>
 
     <!-- Menu ⋮ -->
     <div class="hmenu-wrap" id="hmenu" onclick="window.toggleHeaderMenu(false)">
@@ -311,7 +404,7 @@
         <iframe id="iframeTurni" data-src="https://centrale118rsm-code.github.io/Turni-Autisti-2026-Rsm/" title="Consultazione Turni"></iframe>
     </main>
 
-    <button class="fab" id="mainFab" onclick="window.openAddModal()">
+    <button class="fab" id="mainFab" onclick="window.openAddModal('')">
         <span class="material-icons-round">add</span>Nuova
     </button>
 
@@ -419,8 +512,8 @@
                     <label>Cosa vuoi chiedere?</label>
                     <!-- Schede per categoria e riquadri, costruiti da soli dal menu qui sotto
                          (che resta, nascosto, con tutti i tipi: si salva sempre quello). -->
-                    <div class="cat-tabs" id="catTabs"></div>
                     <div class="type-tiles" id="typeTiles"></div>
+                    <div class="type-more-label">oppure scegli fra tutti i tipi:</div>
                     <select id="reqType" class="form-control">
                         <option value="" disabled selected>Seleziona tipo...</option>
                         
@@ -1351,6 +1444,7 @@
         // TAB SWITCH
         // ============================================================
         let currentTab = 'richieste';
+        window.currentTabIsTurni = () => currentTab === 'turni';
         window.switchTab = function(tabName) {
             const isRichieste = tabName === 'richieste';
             currentTab = tabName;
@@ -1360,6 +1454,7 @@
             const fr = document.getElementById('iframeTurni');
             if (!isRichieste && fr && !fr.getAttribute('src')) fr.setAttribute('src', fr.dataset.src);
             document.getElementById('mainFab').style.display = isRichieste ? 'flex' : 'none';
+            document.getElementById('quickPads').style.display = isRichieste ? '' : 'none';
             document.getElementById('turni-container').style.display = isRichieste ? 'none' : 'block';
             document.getElementById('btnTabTurni').classList.toggle('active', !isRichieste);
             if (window.renderRequests) window.renderRequests();
@@ -1381,31 +1476,19 @@
         // SCELTA DEL TIPO: schede per categoria (Cambi, Ferie, Permessi, Speciali) e
         // riquadri, costruiti dal menu nascosto #reqType (che resta l'unica fonte).
         // ============================================================
-        let typeCat = null;
-        function typeGroups() {
-            return Array.from(document.querySelectorAll('#reqType optgroup')).map(og => ({
-                name: og.dataset.tab || og.label,
-                opts: Array.from(og.querySelectorAll('option')).filter(o => o.value && !o.disabled)
-            })).filter(g => g.opts.length);
-        }
-        function renderTypePicker(followSelection) {
+        const QUICK_TYPES = ['cambio_turno', 'cambio_riposo', 'copertura_reperibilita', 'ferie'];
+        const typeEnabled = (t) => { const o = document.querySelector('#reqType option[value="' + t + '"]'); return !!o && !o.disabled; };
+        function renderTypePicker() {
             const sel = document.getElementById('reqType');
-            const groups = typeGroups();
-            if (!groups.length) return;
-            const selGroup = groups.find(g => g.opts.some(o => o.value === sel.value));
-            if (selGroup && (followSelection || !typeCat)) typeCat = selGroup.name;
-            if (!groups.some(g => g.name === typeCat)) typeCat = groups[0].name;
-            document.getElementById('catTabs').innerHTML = groups.map(g =>
-                `<button type="button" class="cat-tab ${g.name === typeCat ? 'active' : ''}" data-cat="${esc(g.name)}">${esc(g.name)}</button>`).join('');
-            const g = groups.find(x => x.name === typeCat);
-            document.getElementById('typeTiles').innerHTML = g.opts.map(o =>
-                `<button type="button" class="type-tile ${o.value === sel.value ? 'active' : ''}" data-type="${o.value}"><span class="material-icons-round ${getColor(o.value)}">${getIcon(o.value)}</span>${esc(getLabel(o.value))}</button>`).join('');
+            document.getElementById('typeTiles').innerHTML = QUICK_TYPES.filter(typeEnabled).map(t =>
+                `<button type="button" class="type-tile ${t === sel.value ? 'active' : ''}" data-type="${t}"><span class="material-icons-round ${getColor(t)}">${getIcon(t)}</span>${esc(getLabel(t))}</button>`).join('');
+            document.querySelectorAll('#quickPads .pad[data-type]').forEach(p => { if (p.dataset.type) p.hidden = !typeEnabled(p.dataset.type); });
         }
-        // (ascoltati sui contenitori: la finestra del modulo ferma i click verso la pagina)
-        document.getElementById('catTabs').addEventListener('click', (e) => {
-            const cat = e.target.closest('.cat-tab');
-            if (cat) { typeCat = cat.dataset.cat; renderTypePicker(); }
+        document.getElementById('quickPads').addEventListener('click', (e) => {
+            const pad = e.target.closest('.pad'); if (!pad) return;
+            window.openAddModal(pad.dataset.type || '');
         });
+        // (ascoltati sui contenitori: la finestra del modulo ferma i click verso la pagina)
         document.getElementById('typeTiles').addEventListener('click', (e) => {
             const tile = e.target.closest('.type-tile');
             if (!tile) return;
@@ -1435,7 +1518,7 @@
             const myShiftSel     = document.getElementById('reqMyShift');
             const otherShiftSel  = document.getElementById('reqOtherShift');
             const riposoGroup    = document.getElementById('riposo-group');
-            renderTypePicker(true);
+            renderTypePicker();
 
             // reset
             riposoGroup.style.display = 'none';
@@ -1495,7 +1578,7 @@
         // ============================================================
         // OPEN ADD / EDIT MODAL
         // ============================================================
-        window.openAddModal = function() {
+        window.openAddModal = function(presetType) {
             window.editingId = null;
             document.getElementById('modal-title-add').textContent = "Nuova Richiesta";
             document.getElementById('requestForm').reset();
@@ -1510,6 +1593,7 @@
                 nameSelect.value = currentUser;
                 nameSelect.disabled = true;
             }
+            document.getElementById('reqType').value = (presetType && typeEnabled(presetType)) ? presetType : '';
             document.getElementById('reqType').dispatchEvent(new Event('change'));
             window.openModal('add-modal');
         };
@@ -2002,12 +2086,15 @@
 
         // Ricorda quali mesi sono aperti: prima ogni aggiornamento della lista li richiudeva.
         const monthOpenState = {};
+        // Storico (richieste verdi) chiuso all'apertura: si apre con la freccia.
+        let historyOpen = false;
+        window.toggleHistory = function() { historyOpen = !historyOpen; window.renderRequests(); };
         window.toggleMonth = function(id, month) {
             const el   = document.getElementById(id);
             const icon = document.getElementById('icon_' + id);
             if (month) monthOpenState[month] = el.style.display === 'none';
             if (el.style.display === 'none') {
-                el.style.display = 'block';
+                el.style.display = 'flex';
                 icon.textContent = 'expand_less';
             } else {
                 el.style.display = 'none';
@@ -2065,26 +2152,15 @@
             const isManager = window.isAdmin || currentUser === 'Centrale 118';
             container.innerHTML = "";
 
-            document.querySelectorAll('#listFilters .tab[data-f]').forEach(b => b.classList.toggle('active', currentTab === 'richieste' && b.dataset.f === listFilter));
-            const allPending = requests.filter(isPending).length;
-            const pc = document.getElementById('pendingCount');
-            if (pc) pc.textContent = allPending ? String(allPending) : '';
-
+            const onlyMine = listFilter === 'mie';
             const filtered = requests.filter(r => {
-                if (listFilter === 'mie' && !isMine(r)) return false;
-                if (listFilter === 'attesa' && !isPending(r)) return false;
+                if (onlyMine && !isMine(r)) return false;
                 if (!search) return true;
                 return String(r.name || '').toLowerCase().includes(search) ||
                     String(r.swapWith || '').toLowerCase().includes(search) ||
                     getLabel(r.type).toLowerCase().includes(search);
             });
 
-            if (filtered.length === 0) {
-                const why = listFilter === 'mie' ? (currentUser ? 'Nessuna richiesta tua o con te come collega' : 'Scegli prima il tuo nome')
-                    : listFilter === 'attesa' ? 'Niente da gestire: tutto in ordine' : 'Nessuna richiesta';
-                container.innerHTML = `<div class="empty-state"><span class="material-icons-round">list_alt</span><h3>${why}</h3></div>`;
-                return;
-            }
 
             const byTime = (a, b) => new Date(b.timestamp) - new Date(a.timestamp);
             const pendingRequests = filtered.filter(isPending).sort(byTime);
@@ -2157,44 +2233,47 @@
                     </div>`;
             };
 
-            let html = '';
-            if (pendingRequests.length > 0) {
-                html += `<div class="section-title" style="color:#ef4444;">Da gestire (${pendingRequests.length})</div><div class="month-group" style="border: 2px solid #fee2e2;">${pendingRequests.map(generateRow).join('')}</div>`;
-            }
+            // Interruttore "Solo le mie" (anche quelle in cui sono il collega).
+            let html = `<div class="list-head">
+                    <div class="section-title">In attesa <span class="sec-count">${pendingRequests.length}</span></div>
+                    <button type="button" class="mine-toggle ${onlyMine ? 'on' : ''}" onclick="window.setListFilter('${onlyMine ? 'tutte' : 'mie'}')">
+                        <span class="material-icons-round">${onlyMine ? 'check_box' : 'check_box_outline_blank'}</span>Solo le mie</button>
+                </div>`;
+            // Gialle (da gestire): sempre in vista.
+            html += pendingRequests.length
+                ? `<div class="cards">${pendingRequests.map(generateRow).join('')}</div>`
+                : `<div class="empty-state"><span class="material-icons-round">task_alt</span><h3>${onlyMine && !currentUser ? 'Scegli prima il tuo nome' : 'Niente in attesa'}</h3></div>`;
 
+            // Verdi (inserite, concluse, rifiutate, ritirate): chiuse sotto una freccia.
             if (otherRequests.length > 0) {
-                html += `<div class="section-title">Concluse e storico</div>`;
-
-                const groups    = {};
-                const groupKeys = [];
-                otherRequests.forEach(r => {
-                    const m   = new Date(r.timestamp).toLocaleDateString('it-IT', { month: 'long', year: 'numeric' });
-                    const cap = m.charAt(0).toUpperCase() + m.slice(1);
-                    if (!groups[cap]) { groups[cap] = []; groupKeys.push(cap); }
-                    groups[cap].push(r);
-                });
-
-                const currentMonthName = new Date().toLocaleDateString('it-IT', { month: 'long', year: 'numeric' });
-                const capCurrent = currentMonthName.charAt(0).toUpperCase() + currentMonthName.slice(1);
-
-                groupKeys.forEach((month, idx) => {
-                    // aperto il mese in corso (o il primo, se si sta cercando/filtrando)
-                    const open         = (month in monthOpenState) ? monthOpenState[month]
-                        : (month === capCurrent || ((search || listFilter !== 'tutte') && idx === 0));
-                    const containerId  = `month_group_${idx}`;
-                    html += `
+                const histOpen = historyOpen || !!search;
+                html += `<button type="button" class="hist-toggle ${histOpen ? 'open' : ''}" onclick="window.toggleHistory()">
+                        <span class="material-icons-round">expand_more</span>
+                        <span>Già inserite e concluse</span><span class="sec-count green">${otherRequests.length}</span>
+                    </button>`;
+                if (histOpen) {
+                    const groups = {}, groupKeys = [];
+                    otherRequests.forEach(r => {
+                        const m   = new Date(r.timestamp).toLocaleDateString('it-IT', { month: 'long', year: 'numeric' });
+                        const cap = m.charAt(0).toUpperCase() + m.slice(1);
+                        if (!groups[cap]) { groups[cap] = []; groupKeys.push(cap); }
+                        groups[cap].push(r);
+                    });
+                    groupKeys.forEach((month, idx) => {
+                        const open = (month in monthOpenState) ? monthOpenState[month] : (idx === 0 || !!search);
+                        const containerId = `month_group_${idx}`;
+                        html += `
                         <div class="month-group">
                             <div class="month-header" onclick="window.toggleMonth('${containerId}', '${month}')">
-                                <div style="display:flex;align-items:center;gap:6px;">
-                                    <span class="material-icons-round" style="font-size:16px">calendar_month</span> Inviate a ${month} (${groups[month].length})
-                                </div>
+                                <span>Inviate a ${month} · ${groups[month].length}</span>
                                 <span class="material-icons-round" id="icon_${containerId}" style="font-size:20px;">${open ? 'expand_less' : 'expand_more'}</span>
                             </div>
-                            <div id="${containerId}" style="display:${open ? 'block' : 'none'};">
+                            <div id="${containerId}" class="cards" style="display:${open ? 'flex' : 'none'};">
                                 ${groups[month].map(generateRow).join('')}
                             </div>
                         </div>`;
-                });
+                    });
+                }
             }
             container.innerHTML = html;
         };
