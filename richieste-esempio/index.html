@@ -338,6 +338,13 @@
         .empty-state .material-icons-round { color: #22c55e; opacity: 0.8; font-size: 32px; }
         .empty-state h3 { font-size: 0.9rem; }
 
+        .answer-btns { display: flex; gap: 8px; margin-top: 8px; }
+        .answer-btns button { flex: 1; display: flex; align-items: center; justify-content: center; gap: 4px; padding: 9px; border-radius: 10px; border: none; font-weight: 800; font-size: 0.82rem; cursor: pointer; }
+        .answer-btns .material-icons-round { font-size: 18px; }
+        .ans-yes { background: #16a34a; color: #fff; }
+        .ans-no { background: #fee2e2; color: #b91c1c; }
+        .days-hint { font-size: 0.72rem; color: #0f766e; font-weight: 700; margin-top: 4px; }
+
         /* Finestre */
         .modal-content { border-radius: 24px 24px 0 0; }
         .form-control { border-radius: 12px; }
@@ -461,7 +468,7 @@
                    1. Tocca <strong>+</strong> e scegli <strong>Cambio riposo</strong>.<br>
                    2. Scegli il collega, poi il <strong>tuo giorno di riposo</strong> e quello <strong>del collega</strong> (l'elenco mostra solo i riposi che risultano nei turni).<br>
                    3. Nel tuo giorno di riposo lavori tu, con il turno del collega, e lui riposa. Nel suo giorno di riposo riposi tu e lui fa il tuo turno.<br>
-                   Mettetevi d'accordo prima di inviare: il portale controlla che i giorni corrispondano ai turni.</p>
+                   Il portale controlla che i giorni corrispondano ai turni. Il collega trova la richiesta in "In attesa" e preme <strong>Accetto</strong>: solo allora il cambio entra nei turni. Lo stesso vale per cambio turno e cessione di reperibilità.</p>
             </details>
             <details>
                 <summary>Trovare le tue richieste</summary>
@@ -649,7 +656,7 @@
                         <input type="date" id="reqOtherRestDate" class="form-control" style="display:none;">
                     </div>
                     <div class="riposo-preview" id="riposoPreview"></div>
-                    <div class="riposo-hint">Vale tra diurnisti o tra turnisti. Nel tuo giorno di riposo lavori tu al posto del collega (con il suo turno) e lui riposa; nel suo giorno di riposo riposi tu e lui lavora al posto tuo. Il collega deve essere d'accordo prima dell'invio.</div>
+                    <div class="riposo-hint">Vale tra diurnisti o tra turnisti. Nel tuo giorno di riposo lavori tu al posto del collega (con il suo turno) e lui riposa; nel suo giorno di riposo riposi tu e lui lavora al posto tuo. Dopo l'invio il collega deve premere "Accetto".</div>
                 </div>
 
                 <!-- Avviso approvazione -->
@@ -674,6 +681,7 @@
                 <div class="form-group" id="days-group">
                     <label>Giorni effettivi di assenza</label>
                     <input type="number" step="0.5" id="reqDays" class="form-control" placeholder="Es. 1 o 0.5 (Default: 1)">
+                    <div class="days-hint" id="daysHint"></div>
                 </div>
 
                 <div class="form-group">
@@ -774,7 +782,11 @@
         const REP_MONTH_NUM = { "GENNAIO":1, "FEBBRAIO":2, "MARZO":3, "APRILE":4, "MAGGIO":5, "GIUGNO":6, "LUGLIO":7, "AGOSTO":8, "SETTEMBRE":9, "OTTOBRE":10, "NOVEMBRE":11, "DICEMBRE":12 };
         const REP_MONTH_NAME = ["", "Gennaio","Febbraio","Marzo","Aprile","Maggio","Giugno","Luglio","Agosto","Settembre","Ottobre","Novembre","Dicembre"];
         const REP_ROWS = [29, 30, 31, 32]; // [00-07, 07-13, 13-20, 20-00], stesse righe dell'Excel usate dal programma turni
-        const REP_YEAR = 2026;
+        // Anno: letto dal file turni (cella A1, es. 2026); quando i mesi ricominciano da
+        // Gennaio (es. "GENNAIO 2027" in fondo al file) si passa all'anno dopo. Le chiavi
+        // dei dati sono date complete "AAAA-MM-GG", così Gennaio 2026 e 2027 non si confondono.
+        let REP_YEAR = new Date().getFullYear();
+        const isoOf = (y, m, d) => y + "-" + String(m).padStart(2, "0") + "-" + String(d).padStart(2, "0");
         let REPERIBILITA_R = {};      // "mese_giorno" -> [fascia0..fascia3], grezzo da Excel
         let repDataLoaded = false;
         let repDataLoadPromise = null;
@@ -816,8 +828,8 @@
 
         // Ritorna il codice turno (M/P/N/R/...) di un operatore in una data precisa, letto
         // dalla matrice caricata da Excel. "" se non trovato o dato non ancora caricato.
-        function getShiftCodeFor(operatorName, mNum, day) {
-            const dayData = SHIFT_MATRIX_R[mNum + "_" + day];
+        function getShiftCodeFor(operatorName, iso) {
+            const dayData = SHIFT_MATRIX_R[iso];
             if (!dayData) return "";
             const nNorm = normalizeRepNameR(operatorName);
             for (const key in dayData) {
@@ -873,34 +885,46 @@
                         return;
                     }
                     let currentMonth = "";
+                    const a1 = parseInt(rowMese && rowMese[1]);
+                    let year = (a1 > 2000 && a1 < 2100) ? a1 : REP_YEAR, lastM = 0, explicitYear = null;
                     const rep = {};
                     const shiftMatrix = {};
                     for (let c = 2; c < rowGiorno.length; c++) {
                         const cellDay = rowGiorno[c];
                         const cellMese = rowMese ? rowMese[c] : null;
                         if (cellMese && typeof cellMese === 'string') {
-                            const parts = cellMese.split(".");
-                            if (parts[0]) currentMonth = parts[0].trim().toUpperCase();
+                            const up = cellMese.toUpperCase();
+                            const found = Object.keys(REP_MONTH_NUM).find(n => up.includes(n));
+                            if (found) {
+                                currentMonth = found;
+                                const ym = up.match(/20\d\d/);
+                                explicitYear = ym ? parseInt(ym[0]) : null;
+                            }
                         }
                         const dayNum = cellDay ? parseInt(cellDay) : null;
                         if (dayNum && !isNaN(dayNum)) {
                             const mNum = REP_MONTH_NUM[currentMonth];
                             if (!mNum) continue;
+                            if (explicitYear) year = explicitYear;
+                            else if (mNum < lastM) year++;
+                            lastM = mNum;
+                            const key = isoOf(year, mNum, dayNum);
                             const fasce = repRowsData.map(rowArr => {
                                 const v = rowArr[c];
                                 return v ? v.toString().trim().toUpperCase() : "";
                             });
                             if (fasce.some(f => f !== "")) {
-                                rep[mNum + "_" + dayNum] = fasce;
+                                rep[key] = fasce;
                             }
                             const dayShifts = {};
                             driverRows.forEach(dr => {
                                 const v = raw[dr.idx] ? raw[dr.idx][c] : null;
                                 dayShifts[dr.name] = v ? v.toString().trim() : "";
                             });
-                            shiftMatrix[mNum + "_" + dayNum] = dayShifts;
+                            shiftMatrix[key] = dayShifts;
                         }
                     }
+                    if (a1 > 2000 && a1 < 2100) REP_YEAR = a1;
                     REPERIBILITA_R = rep;
                     SHIFT_MATRIX_R = shiftMatrix;
                     repDataLoaded = true;
@@ -936,12 +960,12 @@
             const keys = new Set(Object.keys(REPERIBILITA_R).concat(Object.keys(SHIFT_MATRIX_R)));
             for (const key of keys) {
                 if (getRepTitolareR(key) !== nNorm) continue;
-                const [mNum, day] = key.split("_").map(Number);
-                const dateObj = new Date(REP_YEAR, mNum - 1, day);
+                const [y, mNum, day] = key.split("-").map(Number);
+                const dateObj = new Date(y, mNum - 1, day);
                 if (dateObj < minDate) continue; // troppo vecchia: più di una settimana fa
-                out.push({ mNum, day, iso: REP_YEAR + "-" + String(mNum).padStart(2,"0") + "-" + String(day).padStart(2,"0") });
+                out.push({ y, mNum, day, iso: key });
             }
-            out.sort((a, b) => (a.mNum - b.mNum) || (a.day - b.day));
+            out.sort((a, b) => a.iso.localeCompare(b.iso));
             return out;
         }
 
@@ -966,7 +990,7 @@
             // di una settimana (prima spariva dall'elenco e la richiesta non si poteva salvare).
             if (keepValue && !dates.some(d => d.iso === keepValue)) {
                 const kp = keepValue.split("-").map(Number);
-                if (kp.length === 3 && kp[1] >= 1 && kp[1] <= 12) dates.unshift({ mNum: kp[1], day: kp[2], iso: keepValue });
+                if (kp.length === 3 && kp[1] >= 1 && kp[1] <= 12) dates.unshift({ y: kp[0], mNum: kp[1], day: kp[2], iso: keepValue });
             }
 
             sel.innerHTML = '';
@@ -982,10 +1006,10 @@
 
             let currentGroup = null, currentOptgroup = null;
             dates.forEach(d => {
-                if (d.mNum !== currentGroup) {
-                    currentGroup = d.mNum;
+                if (d.y * 100 + d.mNum !== currentGroup) {
+                    currentGroup = d.y * 100 + d.mNum;
                     currentOptgroup = document.createElement('optgroup');
-                    currentOptgroup.label = REP_MONTH_NAME[d.mNum] + " " + REP_YEAR;
+                    currentOptgroup.label = REP_MONTH_NAME[d.mNum] + " " + d.y;
                     sel.appendChild(currentOptgroup);
                 }
                 const opt = document.createElement('option');
@@ -1011,8 +1035,8 @@
         }
         function shiftOn(name, iso) {
             const p = isoParts(iso);
-            if (!p || p.y !== REP_YEAR) return { raw: "", code: "" };
-            const raw = getShiftCodeFor(name, p.m, p.d);
+            if (!p) return { raw: "", code: "" };
+            const raw = getShiftCodeFor(name, isoOf(p.y, p.m, p.d));
             return { raw, code: normalizeShiftCodeR(raw) };
         }
         function shiftLabel(sh) {
@@ -1025,16 +1049,16 @@
             const nNorm = normalizeRepNameR(operatorName);
             const out = [];
             Object.keys(SHIFT_MATRIX_R).forEach(key => {
-                const [mNum, day] = key.split("_").map(Number);
-                const dateObj = new Date(REP_YEAR, mNum - 1, day);
+                const [y, mNum, day] = key.split("-").map(Number);
+                const dateObj = new Date(y, mNum - 1, day);
                 if (dateObj < today) return;
                 const dayData = SHIFT_MATRIX_R[key];
                 let raw = "";
                 for (const k in dayData) if (normalizeRepNameR(k) === nNorm) raw = dayData[k];
                 if (normalizeShiftCodeR(raw) !== 'R') return;
-                out.push({ mNum, day, iso: REP_YEAR + "-" + String(mNum).padStart(2, "0") + "-" + String(day).padStart(2, "0") });
+                out.push({ y, mNum, day, iso: key });
             });
-            out.sort((a, b) => (a.mNum - b.mNum) || (a.day - b.day));
+            out.sort((a, b) => a.iso.localeCompare(b.iso));
             return out;
         }
         const WEEKDAYS_R = ['dom', 'lun', 'mar', 'mer', 'gio', 'ven', 'sab'];
@@ -1042,7 +1066,7 @@
             const list = dates.slice();
             if (keepValue && !list.some(d => d.iso === keepValue)) {
                 const kp = isoParts(keepValue);
-                if (kp) list.unshift({ mNum: kp.m, day: kp.d, iso: keepValue });
+                if (kp) list.unshift({ y: kp.y, mNum: kp.m, day: kp.d, iso: keepValue });
             }
             sel.innerHTML = '';
             const ph = document.createElement('option');
@@ -1050,10 +1074,10 @@
             sel.appendChild(ph);
             let curM = null, og = null;
             list.forEach(d => {
-                if (d.mNum !== curM) { curM = d.mNum; og = document.createElement('optgroup'); og.label = REP_MONTH_NAME[d.mNum] + " " + REP_YEAR; sel.appendChild(og); }
+                if (d.y * 100 + d.mNum !== curM) { curM = d.y * 100 + d.mNum; og = document.createElement('optgroup'); og.label = REP_MONTH_NAME[d.mNum] + " " + d.y; sel.appendChild(og); }
                 const o = document.createElement('option');
                 o.value = d.iso;
-                o.textContent = WEEKDAYS_R[new Date(REP_YEAR, d.mNum - 1, d.day).getDay()] + " " + String(d.day).padStart(2, "0") + " " + REP_MONTH_NAME[d.mNum];
+                o.textContent = WEEKDAYS_R[new Date(d.y, d.mNum - 1, d.day).getDay()] + " " + String(d.day).padStart(2, "0") + " " + REP_MONTH_NAME[d.mNum];
                 og.appendChild(o);
             });
             sel.value = keepValue && list.some(d => d.iso === keepValue) ? keepValue : "";
@@ -1229,6 +1253,18 @@
             "aspettativa":            "bg-ferie"
         };
 
+        // ============================================================
+        // OK DEL COLLEGA — cambio turno, cambio riposo e cessione reperibilità entrano nei
+        // turni solo dopo che il collega ha premuto "Accetto". Le richieste vecchie (senza
+        // il campo colleagueAccepted) valgono come già accettate.
+        // ============================================================
+        const COLLEAGUE_TYPES = ['cambio_turno', 'cambio_riposo', 'copertura_reperibilita'];
+        const needsColleague = (r) => COLLEAGUE_TYPES.includes(r.type) && !!r.swapWith;
+        const colleagueOk = (r) => !needsColleague(r) || r.colleagueAccepted == null || r.colleagueAccepted === 'si';
+        const colleagueWaiting = (r) => needsColleague(r) && r.colleagueAccepted === 'attesa';
+        const colleagueRefused = (r) => needsColleague(r) && r.colleagueAccepted === 'no';
+        const isTheColleague = (r) => !!currentUser && normalizeRepNameR(currentUser) === normalizeRepNameR(r.swapWith);
+
         // Tipi che richiedono approvazione caposala
         const APPROVAL_TYPES = [
             'ferie', 'ferie_anno_prec', 'permesso_ore', 'permesso',
@@ -1268,8 +1304,6 @@
             }
         }
 
-        // Giorni per mese (2026 non bisestile) — usato per lo shift di data qui sotto.
-        const DIM_2026 = [0,31,28,31,30,31,30,31,31,30,31,30,31];
 
         // Le fasce 00:00-07:00 (slot 0) e 07:00-13:00 (slot 1) sono, nella struttura letta
         // dal programma turni (righe 29-32 dell'Excel), la "coda" del turno che INIZIA nel
@@ -1286,7 +1320,7 @@
             let y = parseInt(parts[0]), m = parseInt(parts[1]), d = parseInt(parts[2]);
             if (slotIndex === 0 || slotIndex === 1) {
                 d += 1;
-                if (d > DIM_2026[m]) { d = 1; m += 1; if (m > 12) { m = 1; y += 1; } }
+                const nx = new Date(y, m - 1, d); y = nx.getFullYear(); m = nx.getMonth() + 1; d = nx.getDate();
             }
             return y + "-" + String(m).padStart(2, "0") + "-" + String(d).padStart(2, "0");
         }
@@ -1300,6 +1334,7 @@
 
             if (r.type !== 'copertura_reperibilita') return;
             if (r.obscured) return; // richiesta ritirata -> nessun override attivo
+            if (!colleagueOk(r)) return; // il collega non ha ancora accettato
             if (!r.swapWith || !r.timeSlot || !r.dateFrom) return;
 
             const slots = r.timeSlot.split(", ").map(s => s.trim()).filter(Boolean);
@@ -1582,6 +1617,7 @@
             window.editingId = null;
             document.getElementById('modal-title-add').textContent = "Nuova Richiesta";
             document.getElementById('requestForm').reset();
+            document.getElementById('reqDays').dataset.manual = '';
             riposoPrefill = null;
             document.getElementById('btnSubmit').textContent = "INVIA RICHIESTA";
 
@@ -1619,7 +1655,8 @@
             if (r.swapWith) document.getElementById('reqNameSwap').value = r.swapWith;
             if (r.dateFrom) document.getElementById('reqDateFrom').value = r.dateFrom;
             if (r.dateTo && r.dateTo !== r.dateFrom) document.getElementById('reqDateTo').value = r.dateTo;
-            if (r.effectiveDays && r.effectiveDays !== "N/A") document.getElementById('reqDays').value = r.effectiveDays;
+            document.getElementById('reqDays').dataset.manual = '';
+            if (r.effectiveDays && r.effectiveDays !== "N/A") { document.getElementById('reqDays').value = r.effectiveDays; document.getElementById('reqDays').dataset.manual = '1'; }
             if (r.notes) document.getElementById('reqNotes').value = r.notes;
 
             if (r.type === 'cambio_turno') {
@@ -1711,6 +1748,61 @@
             window.renderRequests();
         }, (err) => console.warn("Cessioni automatiche non leggibili:", err));
 
+        // Giorni (AAAA-MM-GG) toccati da una richiesta: tutto il periodo, più il giorno del
+        // collega nel cambio riposo.
+        function requestDays(r) {
+            const out = new Set();
+            if (r.dateFrom) {
+                const a = new Date(r.dateFrom + 'T12:00'), b = new Date((r.dateTo || r.dateFrom) + 'T12:00');
+                for (let d = new Date(a), n = 0; d <= b && n < 400; d.setDate(d.getDate() + 1), n++)
+                    out.add(isoOf(d.getFullYear(), d.getMonth() + 1, d.getDate()));
+            }
+            if (r.restDateOther) out.add(r.restDateOther);
+            return out;
+        }
+        // Altre richieste ancora valide della stessa persona (anche come collega) negli stessi giorni.
+        function findOverlappingRequests(p, skipId) {
+            const people = [p.name, p.swapWith].filter(Boolean).map(normalizeRepNameR);
+            const days = requestDays(p);
+            return requests.filter(r => r.id !== skipId && !r.obscured && r.headNurseApproval !== 'no' && !colleagueRefused(r) &&
+                [r.name, r.swapWith].filter(Boolean).map(normalizeRepNameR).some(n => people.includes(n)) &&
+                [...requestDays(r)].some(d => days.has(d)));
+        }
+        // Giorni di lavoro (M/P/N) di un operatore fra due date, dal programma turni.
+        // null se mancano i turni di qualche giorno.
+        const AUTO_DAYS_TYPES = ['ferie', 'ferie_anno_prec', 'permesso', 'permesso_matrimonio', 'permesso_studio', 'permesso_sportivo', 'permesso_lutto', 'aspettativa'];
+        function countWorkDays(name, from, to) {
+            if (!repDataLoaded || !name || !from) return null;
+            const a = new Date(from + 'T12:00'), b = new Date((to || from) + 'T12:00');
+            if (b < a) return null;
+            let n = 0;
+            for (let d = new Date(a), i = 0; d <= b && i < 400; d.setDate(d.getDate() + 1), i++) {
+                const iso = isoOf(d.getFullYear(), d.getMonth() + 1, d.getDate());
+                if (!SHIFT_MATRIX_R[iso]) return null;
+                if (isWorkCode(normalizeShiftCodeR(getShiftCodeFor(name, iso)))) n++;
+            }
+            return n;
+        }
+        async function updateAutoDays() {
+            const hint = document.getElementById('daysHint'), inp = document.getElementById('reqDays');
+            const t = document.getElementById('reqType').value;
+            hint.textContent = '';
+            if (!AUTO_DAYS_TYPES.includes(t)) return;
+            const from = document.getElementById('reqDateFrom').value;
+            if (!from) return;
+            await loadReperibilitaData();
+            const name = document.getElementById('reqName').value || currentUser;
+            const n = countWorkDays(name, from, document.getElementById('reqDateTo').value || from);
+            if (n === null) { hint.textContent = ''; return; }
+            if (inp.dataset.manual !== '1') inp.value = n;
+            hint.textContent = `Dai turni: ${n} ${n === 1 ? 'giorno' : 'giorni'} di lavoro nel periodo` + (inp.dataset.manual === '1' && String(inp.value) !== String(n) ? ' (hai scritto un altro numero)' : ' (puoi cambiarlo)');
+        }
+        document.addEventListener('DOMContentLoaded', () => {
+            ['reqDateFrom', 'reqDateTo', 'reqName', 'reqType'].forEach(id => document.getElementById(id).addEventListener('change', updateAutoDays));
+            const inp = document.getElementById('reqDays');
+            inp.addEventListener('input', () => { inp.dataset.manual = inp.value ? '1' : ''; });
+        });
+
         // Tiene il payload pronto in attesa di conferma dell'utente nella finestrella di riepilogo.
         let pendingRequestPayload = null;
 
@@ -1790,9 +1882,8 @@
 
                 const parts = dFrom.split("-");
                 if (parts.length === 3 && repDataLoaded) {
-                    const mNum = parseInt(parts[1]), day = parseInt(parts[2]);
-                    const myActual    = normalizeShiftCodeR(getShiftCodeFor(myName, mNum, day));
-                    const otherActual = normalizeShiftCodeR(getShiftCodeFor(otherName, mNum, day));
+                    const myActual    = normalizeShiftCodeR(getShiftCodeFor(myName, dFrom));
+                    const otherActual = normalizeShiftCodeR(getShiftCodeFor(otherName, dFrom));
                     const SHIFT_NAMES = SHIFT_NAMES_R;
                     const mismatches = [];
                     if (myActual && myActual !== myShift) {
@@ -1833,9 +1924,22 @@
                 effectiveDays:    noDays ? "N/A" : (document.getElementById('reqDays').value || "1"),
                 notes:            document.getElementById('reqNotes').value.trim(),
                 headNurseApproval: APPROVAL_TYPES.includes(reqType) ? 'attesa' : 'non_richiesta',
+                colleagueAccepted: COLLEAGUE_TYPES.includes(reqType) ? 'attesa' : null,
                 insertedInShifts:  false,
                 insertedAt:        null
             };
+
+            // ── Avvisi prima dell'invio (si può comunque proseguire) ──
+            const warns = [];
+            if (reqType === 'cambio_turno' && myShift && myShift === otherShift) {
+                warns.push(`Tu e ${payload.swapWith} avete lo stesso turno (${SHIFT_NAMES_R[myShift] || myShift}): lo scambio non cambia niente.`);
+            }
+            const dup = findOverlappingRequests(payload, window.editingId);
+            if (dup.length) {
+                warns.push("C'è già un'altra richiesta negli stessi giorni:\n" + dup.slice(0, 3).map(r =>
+                    `• ${r.name}: ${getLabel(r.type)} ${periodText(r)}${r.swapWith ? ' con ' + r.swapWith : ''}`).join("\n"));
+            }
+            if (warns.length && !confirm("⚠️ Attenzione\n\n" + warns.join("\n\n") + "\n\nVuoi inviarla lo stesso?")) return;
 
             pendingRequestPayload = payload;
             showRequestSummary(payload);
@@ -1904,7 +2008,7 @@
             ]);
         }
         async function syncTurnoOverride(requestId, r) {
-            if (!isSwapType(r.type) || r.obscured || !r.swapWith || !r.dateFrom ||
+            if (!isSwapType(r.type) || r.obscured || !r.swapWith || !r.dateFrom || !colleagueOk(r) ||
                 (r.type === 'cambio_riposo' && !r.restDateOther)) {
                 await removeTurnoOverrides(requestId);
                 return;
@@ -1939,6 +2043,8 @@
                         payload.headNurseApproval = old.headNurseApproval || payload.headNurseApproval;
                         payload.insertedInShifts = !!old.insertedInShifts;
                         payload.insertedAt = old.insertedAt || null;
+                        if (old.colleagueAccepted !== undefined) payload.colleagueAccepted = old.colleagueAccepted;
+                        else if (needsColleague(payload)) payload.colleagueAccepted = null; // richiesta vecchia: resta valida
                     }
                     await updateDoc(doc(db, "richieste_turni", window.editingId), payload);
                     requestId = window.editingId;
@@ -1975,7 +2081,16 @@
         // ============================================================
         // ADMIN
         // ============================================================
-        window.toggleAdmin = function() {
+        // Password admin: nella pagina c'è solo la sua "impronta" (SHA-256), non il testo.
+        const ADMIN_PWD_SHA256 = "02808b3767cd0b5890319b68198f2dd7331007f00ffe9342d8de02032ab9c974";
+        async function adminPasswordOk(pwd) {
+            try {
+                const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(String(pwd).trim()));
+                const hex = Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+                return hex === ADMIN_PWD_SHA256;
+            } catch (e) { console.error(e); return false; }
+        }
+        window.toggleAdmin = async function() {
             if (window.isAdmin) {
                 window.isAdmin = false;
                 document.body.classList.remove('is-admin');
@@ -1984,7 +2099,7 @@
                 alert("Uscito dalla modalità Admin.");
             } else {
                 const pwd = prompt("Inserisci la password per l'accesso Admin:");
-                if (pwd === "00") {
+                if (pwd !== null && await adminPasswordOk(pwd)) {
                     window.isAdmin = true;
                     document.body.classList.add('is-admin');
                     document.getElementById('adminMenuLabel').textContent = 'Esci da admin';
@@ -2019,6 +2134,26 @@
                 }
                 catch (e) { console.error(e); }
             }
+        };
+
+        // Il collega (o l'admin al suo posto) accetta o rifiuta il cambio/cessione.
+        window.colleagueAnswer = async function(id, yes) {
+            const r = requests.find(x => x.id === id);
+            if (!r) return;
+            const asAdmin = !isTheColleague(r);
+            const q = yes
+                ? (asAdmin ? `Confermi al posto di ${r.swapWith} che accetta?` : `Accetti la richiesta di ${r.name}?`)
+                : (asAdmin ? `Segnare che ${r.swapWith} rifiuta?` : `Rifiuti la richiesta di ${r.name}?`);
+            if (!confirm(q)) return;
+            try {
+                const upd = { colleagueAccepted: yes ? 'si' : 'no', colleagueAnsweredAt: new Date().toISOString(), colleagueAnsweredBy: currentUser || null };
+                await updateDoc(doc(db, "richieste_turni", id), upd);
+                const nr = { ...r, ...upd };
+                if (BIBBIA_CONFIG_R.autoSyncReperibilita !== false || !yes) await syncReperibilitaOverrides(id, nr);
+                await syncTurnoOverride(id, nr);
+                window.closeModal('detail-modal');
+                if (navigator.vibrate) navigator.vibrate(50);
+            } catch (e) { console.error(e); alert("Errore nel salvataggio."); }
         };
 
         window.restoreRequest = async function(id) {
@@ -2129,6 +2264,7 @@
         const isPending = (r) => {
             if (r.obscured) return false;
             if (r.headNurseApproval === 'no') return false;
+            if (colleagueRefused(r)) return false;
             if (r.insertedInShifts) return false;
             if (isAutoImported(r)) return false;
             return true;
@@ -2186,13 +2322,21 @@
 
                 const auto = isAutoImported(r);
                 const rowClass = r.obscured ? "row-obscured"
-                    : r.headNurseApproval === 'no' ? "row-rejected"
+                    : (r.headNurseApproval === 'no' || colleagueRefused(r)) ? "row-rejected"
                     : (r.insertedInShifts || auto) ? "row-confirmed"
                     : "row-pending";
 
                 // Stato scritto in parole (oltre al colore della riga).
                 let chips = '';
+                let answerBtns = '';
                 if (!r.obscured) {
+                    if (colleagueWaiting(r)) {
+                        chips += `<span class="status-chip st-wait">⏳ Aspetta l'ok di ${esc(r.swapWith)}</span>`;
+                        if (isTheColleague(r) || window.isAdmin) answerBtns = `<div class="answer-btns">
+                            <button type="button" class="ans-yes" onclick="event.stopPropagation(); window.colleagueAnswer('${r.id}', true)"><span class="material-icons-round">check</span>Accetto</button>
+                            <button type="button" class="ans-no" onclick="event.stopPropagation(); window.colleagueAnswer('${r.id}', false)"><span class="material-icons-round">close</span>Rifiuto</button></div>`;
+                    } else if (colleagueRefused(r)) chips += `<span class="status-chip st-no">✗ Rifiutata da ${esc(r.swapWith)}</span>`;
+                    else if (needsColleague(r) && r.colleagueAccepted === 'si') chips += `<span class="status-chip st-ok">✓ Accettata da ${esc(r.swapWith)}</span>`;
                     if (APPROVAL_TYPES.includes(r.type)) {
                         if (r.headNurseApproval === 'si')      chips += `<span class="status-chip st-ok">✓ Approvata</span>`;
                         else if (r.headNurseApproval === 'no') chips += `<span class="status-chip st-no">✗ Non approvata</span>`;
@@ -2200,7 +2344,7 @@
                     }
                     if (auto) chips += `<span class="status-chip st-ok">✓ ${r.type === 'copertura_reperibilita' ? 'Importata' : 'Applicato'} in automatico</span>`;
                     else if (r.insertedInShifts) chips += `<span class="status-chip st-ok">✓ Inserita nei turni</span>`;
-                    else if (r.headNurseApproval !== 'no') chips += `<span class="status-chip st-wait">⏳ Da inserire nei turni</span>`;
+                    else if (r.headNurseApproval !== 'no' && !colleagueRefused(r) && !colleagueWaiting(r)) chips += `<span class="status-chip st-wait">⏳ Da inserire nei turni</span>`;
                 }
 
                 let periodDetails = esc(periodText(r));
@@ -2229,6 +2373,7 @@
                                 <div>${chips}</div>
                                 <div>${insertButton}</div>
                             </div>` : ''}
+                            ${answerBtns}
                         </div>
                     </div>`;
             };
@@ -2311,6 +2456,15 @@
             if (r.type === 'cambio_turno' && (r.myShift || r.otherShift)) {
                 const SN = { M: 'Mattina', P: 'Pomeriggio', N: 'Notte' };
                 html += `<div class="detail-item"><div class="detail-label">Turni scambiati</div><div class="detail-value">${esc(r.name)}: ${SN[r.myShift] || esc(r.myShift || '?')} ⇄ ${esc(r.swapWith)}: ${SN[r.otherShift] || esc(r.otherShift || '?')}</div></div>`;
+            }
+            if (needsColleague(r) && r.colleagueAccepted != null) {
+                const st = r.colleagueAccepted === 'si' ? `<span style="color:#059669">✓ Accettata${r.colleagueAnsweredAt ? ' il ' + new Date(r.colleagueAnsweredAt).toLocaleString('it-IT') : ''}</span>`
+                    : r.colleagueAccepted === 'no' ? `<span style="color:#dc2626">✗ Rifiutata</span>`
+                    : `<span style="color:#b45309">⏳ In attesa della sua risposta: finché non accetta non entra nei turni</span>`;
+                html += `<div class="detail-item"><div class="detail-label">Risposta di ${esc(r.swapWith)}</div><div class="detail-value">${st}</div>
+                    ${colleagueWaiting(r) && !r.obscured && (isTheColleague(r) || window.isAdmin) ? `<div class="answer-btns">
+                        <button type="button" class="ans-yes" onclick="window.colleagueAnswer('${r.id}', true)"><span class="material-icons-round">check</span>Accetto</button>
+                        <button type="button" class="ans-no" onclick="window.colleagueAnswer('${r.id}', false)"><span class="material-icons-round">close</span>Rifiuto</button></div>` : ''}</div>`;
             }
             if (r.type === 'cambio_riposo') {
                 html += `<div class="detail-item"><div class="detail-label">Cosa cambia</div><div class="detail-value" style="font-weight:500;font-size:0.88rem;line-height:1.6;">${riposoPlanHtml(r.name, r.swapWith, r.dateFrom, r.restDateOther)}</div></div>`;
