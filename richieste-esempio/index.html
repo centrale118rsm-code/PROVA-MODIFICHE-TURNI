@@ -25,54 +25,72 @@
 
         body { background-color: var(--bg); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; }
 
-        /* --- HEADER --- */
+        /* --- INTESTAZIONE: una sola riga bassa + schede --- */
         header {
-            background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 60%, #2563eb 100%);
-            padding: 14px 20px 15px;
-            color: white; border-radius: 0 0 20px 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            position: sticky; top: 0; z-index: 100;
+            background: #ffffff; color: var(--text-main);
+            padding: env(safe-area-inset-top) 0 0; border-bottom: 1px solid var(--border);
+            position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 8px rgba(15,23,42,0.04);
         }
-        .header-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
-        .header-left { display: flex; align-items: center; gap: 12px; }
-        .header-right { display: flex; align-items: center; gap: 8px; }
-        .btn-back, .btn-icon {
-            background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.2);
-            color: white; width: 36px; height: 36px; border-radius: 10px; display: flex;
-            align-items: center; justify-content: center; cursor: pointer; backdrop-filter: blur(5px);
-            text-decoration: none; transition: 0.2s;
+        .hbar { display: flex; align-items: center; gap: 6px; height: 52px; padding: 0 8px; }
+        .hbtn {
+            width: 38px; height: 38px; border-radius: 10px; border: none; background: transparent;
+            color: #334155; display: flex; align-items: center; justify-content: center; cursor: pointer;
+            text-decoration: none; flex-shrink: 0;
         }
-        .btn-icon.notes-btn { color: #fde047; }
-        .btn-back:active, .btn-icon:active { transform: scale(0.92); }
-        .page-title { font-size: 1.2rem; font-weight: 900; letter-spacing: -0.5px; }
+        .hbtn:active { background: #f1f5f9; }
+        .hbtn.on { color: var(--primary); background: #eff6ff; }
+        .htitle { flex: 1; min-width: 0; line-height: 1.15; }
+        .htitle b { display: block; font-size: 1.05rem; font-weight: 900; letter-spacing: -0.3px; }
+        .htitle small { display: block; font-size: 0.72rem; font-weight: 700; color: var(--text-sec); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; }
+        .htitle small u { color: var(--primary); text-decoration: none; font-weight: 800; }
+        #adminBadge { display: none; margin-left: 6px; background: #fde047; color: #713f12; border-radius: 4px; padding: 1px 5px; font-size: 0.6rem; font-weight: 900; vertical-align: middle; }
+        body.is-admin #adminBadge { display: inline-block; }
 
-        /* --- SEARCH BAR --- */
-        .search-container { position: relative; width: 100%; transition: 0.3s; }
+        .search-container { position: relative; padding: 0 10px 8px; display: none; }
+        .search-container.open { display: block; }
         .search-container input {
-            width: 100%; padding: 10px 14px 10px 38px; border-radius: 10px;
-            border: none; background: rgba(255,255,255,0.2); color: white;
-            font-size: 0.9rem; font-weight: 500; backdrop-filter: blur(5px);
+            width: 100%; padding: 9px 12px 9px 36px; border-radius: 10px; border: 1px solid var(--border);
+            background: var(--bg); color: var(--text-main); font-size: 0.9rem; font-weight: 600;
         }
-        .search-container input::placeholder { color: rgba(255,255,255,0.7); }
-        .search-container input:focus { background: rgba(255,255,255,0.3); outline: none; }
-        .search-container .material-icons-round { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-size: 20px; color: rgba(255,255,255,0.8); }
+        .search-container input:focus { border-color: var(--primary); background: #fff; }
+        .search-container .material-icons-round { position: absolute; left: 20px; top: 9px; font-size: 20px; color: var(--text-sec); }
 
-        /* --- MAIN TABS --- */
-        .main-tabs { display: flex; gap: 8px; margin-top: 12px; }
-        .main-tab { 
-            flex: 1; text-align: center; padding: 10px 8px; font-weight: 800; font-size: 0.75rem; text-transform: uppercase;
-            border-radius: 10px; background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.7); 
-            cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 4px;
+        /* Schede: Da fare / Le mie / Tutte / Turni */
+        .tabs { display: flex; padding: 0 4px; overflow-x: auto; scrollbar-width: none; }
+        .tabs::-webkit-scrollbar { display: none; }
+        .tab {
+            flex: 1; min-width: 0; padding: 10px 4px 9px; border: none; background: none; cursor: pointer;
+            font-weight: 800; font-size: 0.8rem; color: var(--text-sec); border-bottom: 3px solid transparent;
+            display: flex; align-items: center; justify-content: center; gap: 4px; white-space: nowrap;
         }
-        .main-tab.active { background: #fff; color: var(--primary); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .tab .material-icons-round { font-size: 17px; }
+        .tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+        .tab .count { background: #ef4444; color: #fff; border-radius: 999px; font-size: 0.65rem; padding: 1px 6px; font-weight: 900; }
+        .tab .count:empty { display: none; }
+
+        /* Menu ⋮ (guida, note, admin, copia) */
+        .hmenu-wrap { position: fixed; inset: 0; z-index: 1500; display: none; }
+        .hmenu-wrap.open { display: block; }
+        .hmenu {
+            position: absolute; right: 8px; top: calc(env(safe-area-inset-top) + 50px); width: 240px;
+            background: #fff; border-radius: 14px; box-shadow: 0 12px 32px rgba(15,23,42,0.2); border: 1px solid var(--border);
+            padding: 6px; display: flex; flex-direction: column;
+        }
+        .hmenu button {
+            display: flex; align-items: center; gap: 12px; padding: 11px 10px; border: none; background: none;
+            border-radius: 10px; font-weight: 700; font-size: 0.88rem; color: var(--text-main); cursor: pointer; text-align: left;
+        }
+        .hmenu button:active { background: #f1f5f9; }
+        .hmenu button .material-icons-round { color: var(--text-sec); font-size: 20px; }
 
         /* --- MAIN CONTENT (LISTA) --- */
-        #requests-container { padding: 10px 15px; flex: 1; overflow-y: auto; padding-bottom: 100px; display: block; }
+        #requests-container { padding: 6px 12px; flex: 1; overflow-y: auto; padding-bottom: 96px; display: block; }
         
         /* --- MAIN CONTENT (IFRAME TURNI) --- */
         #turni-container { display: none; flex: 1; padding: 0; background: #fff; }
-        #turni-container iframe { width: 100%; height: 100%; min-height: calc(100vh - 150px); border: none; display: block; }
+        #turni-container iframe { width: 100%; height: 100%; min-height: calc(100vh - 100px); border: none; display: block; }
         
-        .section-title { font-size: 0.8rem; font-weight: 900; color: var(--primary); text-transform: uppercase; letter-spacing: 1px; margin: 15px 0 8px 5px; }
+        .section-title { font-size: 0.72rem; font-weight: 900; color: var(--text-sec); text-transform: uppercase; letter-spacing: 0.8px; margin: 12px 0 6px 4px; }
         .month-group { margin-bottom: 16px; background: var(--bg-card); border-radius: 12px; border: 1px solid var(--border); box-shadow: var(--shadow); overflow: hidden; }
         
         .month-header {
@@ -86,7 +104,7 @@
         
         /* RIGHE COMPATTE */
         .list-row {
-            padding: 10px 12px; border-bottom: 1px solid var(--border);
+            padding: 9px 10px; border-bottom: 1px solid var(--border);
             display: flex; align-items: center; gap: 10px; cursor: pointer;
             transition: background 0.2s; background-color: #ffffff;
         }
@@ -129,14 +147,14 @@
 
         /* --- FAB & MODAL --- */
         .fab {
-            position: fixed; bottom: 20px; right: 20px; width: 56px; height: 56px;
-            background: linear-gradient(135deg, #2563eb, #1e3a8a); color: white;
-            border-radius: 18px; display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 8px 20px rgba(37,99,235,0.4); border: none; cursor: pointer; z-index: 90;
+            position: fixed; bottom: calc(env(safe-area-inset-bottom) + 16px); right: 16px; height: 52px; padding: 0 20px 0 14px;
+            background: var(--primary); color: white; gap: 6px; font-weight: 800; font-size: 0.9rem;
+            border-radius: 999px; display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 8px 20px rgba(37,99,235,0.35); border: none; cursor: pointer; z-index: 90;
             transition: transform 0.2s;
         }
-        .fab:active { transform: scale(0.9); }
-        .fab .material-icons-round { font-size: 30px; }
+        .fab:active { transform: scale(0.95); }
+        .fab .material-icons-round { font-size: 26px; }
 
         .modal-overlay {
             position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px);
@@ -204,28 +222,25 @@
         .bg-recupero { background: #f3e8ff; color: #7e22ce; }
         .bg-cambio-riposo { background: #ccfbf1; color: #0f766e; }
 
-        /* --- SCELTA RAPIDA DEL TIPO (riquadri grandi per le richieste più usate) --- */
-        .type-tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
-        .type-tile {
-            display: flex; align-items: center; gap: 8px; padding: 10px; border-radius: 12px;
-            border: 2px solid var(--border); background: #fff; cursor: pointer; text-align: left;
-            font-weight: 800; font-size: 0.8rem; color: var(--text-main); line-height: 1.15;
+        /* --- TIPO DI RICHIESTA: schede per categoria + riquadri --- */
+        .cat-tabs { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; margin-bottom: 8px; }
+        .cat-tabs::-webkit-scrollbar { display: none; }
+        .cat-tab {
+            flex: 1; padding: 8px 10px; border-radius: 999px; border: 1px solid var(--border); background: #fff;
+            font-weight: 800; font-size: 0.78rem; color: var(--text-sec); cursor: pointer; white-space: nowrap;
         }
-        .type-tile .material-icons-round { font-size: 20px; width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .cat-tab.active { background: var(--primary); border-color: var(--primary); color: #fff; }
+        .cat-tab[hidden] { display: none; }
+        .type-tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .type-tile {
+            display: flex; align-items: center; gap: 8px; padding: 9px; border-radius: 12px;
+            border: 2px solid var(--border); background: #fff; cursor: pointer; text-align: left;
+            font-weight: 800; font-size: 0.78rem; color: var(--text-main); line-height: 1.15; min-height: 52px;
+        }
+        .type-tile .material-icons-round { font-size: 19px; width: 30px; height: 30px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
         .type-tile.active { border-color: var(--primary); background: #eff6ff; }
         .type-tile:active { transform: scale(0.97); }
-        .type-tile[hidden] { display: none; }
-        .type-more-label { font-size: 0.72rem; font-weight: 700; color: var(--text-sec); margin: 4px 0; }
-
-        /* --- FILTRI DELLA LISTA --- */
-        .list-filters { display: flex; gap: 6px; margin-top: 10px; }
-        .list-filter {
-            flex: 1; padding: 7px 6px; border-radius: 999px; border: none; cursor: pointer;
-            background: rgba(255,255,255,0.12); color: rgba(255,255,255,0.85);
-            font-weight: 800; font-size: 0.72rem; white-space: nowrap;
-        }
-        .list-filter.active { background: #fde047; color: #0f172a; }
-        .list-filter b { font-weight: 900; }
+        #reqType { display: none; }
 
         /* --- STATO SULLA RIGA (in parole, oltre al colore) --- */
         .status-chip { font-weight: 800; padding: 2px 6px; border-radius: 4px; font-size: 0.65rem; background: rgba(255,255,255,0.8); border: 1px solid; margin-right: 4px; display: inline-block; }
@@ -252,54 +267,41 @@
 </head>
 <body>
 <!-- PORTALE DI ESEMPIO: legge i dati veri, ma le prove restano solo su questo telefono. -->
-<div style="background:#dc2626;color:#fff;font:800 0.72rem Inter,sans-serif;padding:calc(env(safe-area-inset-top) + 6px) 10px 6px;display:flex;align-items:center;gap:8px;position:relative;z-index:101;"><span class="material-icons-round" style="font-size:16px">science</span><span style="flex:1;line-height:1.25">ESEMPIO RICHIESTE: puoi provare tutto, ma quello che invii resta solo su questo telefono e non arriva a nessuno.</span><button type="button" onclick="window.esempioReset && window.esempioReset()" style="border:1px solid rgba(255,255,255,0.6);background:rgba(255,255,255,0.15);color:#fff;border-radius:8px;padding:4px 8px;font:800 0.68rem Inter,sans-serif;cursor:pointer;white-space:nowrap">Azzera prove</button></div>
+<div style="background:#fef2f2;color:#b91c1c;border-bottom:1px solid #fecaca;font:700 0.68rem Inter,sans-serif;padding:4px 10px;display:flex;align-items:center;gap:6px;"><span style="flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Esempio: quello che invii resta solo su questo telefono</span><button type="button" onclick="window.esempioReset && window.esempioReset()" style="border:none;background:none;color:#b91c1c;font:800 0.68rem Inter,sans-serif;text-decoration:underline;cursor:pointer;padding:0">Azzera</button></div>
 
     <header>
-        <div class="header-top">
-            <div class="header-left">
-                <a href="../" target="_top" class="btn-back" title="Torna ai turni" onclick="if (window.self !== window.top) { try { window.parent.closeEsempioPanel(); return false; } catch (e) {} }"><span class="material-icons-round">arrow_back</span></a>
-                <div style="display: flex; flex-direction: column;">
-                    <div class="page-title">Gestione Richieste</div>
-                    <div id="loginStatusDisplay" style="display:none; font-size: 0.8rem; font-weight: 800; color: #fde047; margin-top: 2px;">
-                        LOGGATO COME: <span id="headerUserName" style="color: #ffffff; font-size: 0.95rem; font-weight: 900; text-transform: uppercase;"></span><button type="button" class="user-switch" onclick="window.changeUser()">cambia</button>
-                    </div>
-                </div>
+        <div class="hbar">
+            <a href="../" target="_top" class="hbtn btn-back" title="Torna ai turni" onclick="if (window.self !== window.top) { try { window.parent.closeEsempioPanel(); return false; } catch (e) {} }"><span class="material-icons-round">arrow_back</span></a>
+            <div class="htitle">
+                <b>Richieste<span id="adminBadge">ADMIN</span></b>
+                <small id="loginStatusDisplay" onclick="window.changeUser()" title="Cambia nome" style="display:none;"><span id="headerUserName"></span> · <u>cambia</u></small>
             </div>
-            <div class="header-right">
-                <button class="btn-icon" onclick="window.openModal('guide-modal')" title="Manuale">
-                    <span class="material-icons-round">menu_book</span>
-                </button>
-                <button class="btn-icon notes-btn" onclick="window.openModal('notes-modal')" title="Note e Suggerimenti">
-                    <span class="material-icons-round">lightbulb</span>
-                </button>
-                <button class="btn-icon" onclick="window.toggleAdmin()" title="Accesso Admin" id="adminBtn">
-                    <span class="material-icons-round" id="adminIcon">admin_panel_settings</span>
-                </button>
-                <button class="btn-icon" onclick="window.downloadJSON()" title="Scarica copia di tutte le richieste">
-                    <span class="material-icons-round">download</span>
-                </button>
-            </div>
+            <button type="button" class="hbtn" id="btnSearch" onclick="window.toggleSearch()" title="Cerca"><span class="material-icons-round">search</span></button>
+            <button type="button" class="hbtn" onclick="window.toggleHeaderMenu(true)" title="Altro"><span class="material-icons-round">more_vert</span></button>
         </div>
-        
         <div class="search-container" id="searchBox">
             <span class="material-icons-round">search</span>
             <input type="search" id="searchInput" placeholder="Cerca nome, collega o tipo..." oninput="window.renderRequests()">
         </div>
-        <div class="list-filters" id="listFilters">
-            <button type="button" class="list-filter active" data-f="tutte" onclick="window.setListFilter('tutte')">Tutte</button>
-            <button type="button" class="list-filter" data-f="mie" onclick="window.setListFilter('mie')">Le mie</button>
-            <button type="button" class="list-filter" data-f="attesa" onclick="window.setListFilter('attesa')">Da gestire <b id="pendingCount"></b></button>
-        </div>
-
-        <div class="main-tabs" id="mainTabs">
-            <div class="main-tab active" id="btnTabRichieste" onclick="window.switchTab('richieste')">
-                <span class="material-icons-round" style="font-size:16px">list_alt</span> Richieste
-            </div>
-            <div class="main-tab" id="btnTabTurni" onclick="window.switchTab('turni')">
-                <span class="material-icons-round" style="font-size:16px">calendar_month</span> Turni
-            </div>
-        </div>
+        <!-- Schede: le prime tre filtrano la lista, l'ultima apre i turni. -->
+        <nav class="tabs" id="listFilters">
+            <button type="button" class="tab" data-f="attesa" onclick="window.setListFilter('attesa')">Da fare <span class="count" id="pendingCount"></span></button>
+            <button type="button" class="tab" data-f="mie" onclick="window.setListFilter('mie')">Le mie</button>
+            <button type="button" class="tab" data-f="tutte" onclick="window.setListFilter('tutte')">Tutte</button>
+            <button type="button" class="tab" id="btnTabTurni" onclick="window.switchTab('turni')"><span class="material-icons-round">calendar_month</span>Turni</button>
+        </nav>
     </header>
+
+    <!-- Menu ⋮ -->
+    <div class="hmenu-wrap" id="hmenu" onclick="window.toggleHeaderMenu(false)">
+        <div class="hmenu" onclick="event.stopPropagation()">
+            <button type="button" onclick="window.toggleHeaderMenu(false); window.openModal('guide-modal')"><span class="material-icons-round">menu_book</span>Guida</button>
+            <button type="button" onclick="window.toggleHeaderMenu(false); window.openModal('notes-modal')"><span class="material-icons-round" style="color:#eab308">lightbulb</span>Note e consigli</button>
+            <button type="button" onclick="window.toggleHeaderMenu(false); window.changeUser()"><span class="material-icons-round">person</span>Cambia nome</button>
+            <button type="button" onclick="window.toggleHeaderMenu(false); window.toggleAdmin()"><span class="material-icons-round" id="adminIcon">admin_panel_settings</span><span id="adminMenuLabel">Accesso admin</span></button>
+            <button type="button" onclick="window.toggleHeaderMenu(false); window.downloadJSON()"><span class="material-icons-round">download</span>Scarica copia delle richieste</button>
+        </div>
+    </div>
 
     <main id="requests-container"></main>
 
@@ -310,7 +312,7 @@
     </main>
 
     <button class="fab" id="mainFab" onclick="window.openAddModal()">
-        <span class="material-icons-round">add</span>
+        <span class="material-icons-round">add</span>Nuova
     </button>
 
     <!-- MODAL LOGIN -->
@@ -415,38 +417,32 @@
                 
                 <div class="form-group">
                     <label>Cosa vuoi chiedere?</label>
-                    <!-- Scelta rapida: un tocco per le richieste più usate. Ogni riquadro
-                         seleziona semplicemente la voce corrispondente del menu qui sotto,
-                         che resta lì con TUTTI i tipi di richiesta. -->
-                    <div class="type-tiles" id="typeTiles">
-                        <button type="button" class="type-tile" data-type="cambio_turno"><span class="material-icons-round bg-cambio-turno">swap_horiz</span>Cambio turno</button>
-                        <button type="button" class="type-tile" data-type="cambio_riposo"><span class="material-icons-round bg-cambio-riposo">event_repeat</span>Cambio riposo</button>
-                        <button type="button" class="type-tile" data-type="copertura_reperibilita"><span class="material-icons-round bg-copertura">shield</span>Cessione reperibilità</button>
-                        <button type="button" class="type-tile" data-type="ferie"><span class="material-icons-round bg-ferie">beach_access</span>Congedo ordinario</button>
-                    </div>
-                    <div class="type-more-label">oppure scegli fra tutti i tipi:</div>
-                    <select id="reqType" class="form-control" required>
+                    <!-- Schede per categoria e riquadri, costruiti da soli dal menu qui sotto
+                         (che resta, nascosto, con tutti i tipi: si salva sempre quello). -->
+                    <div class="cat-tabs" id="catTabs"></div>
+                    <div class="type-tiles" id="typeTiles"></div>
+                    <select id="reqType" class="form-control">
                         <option value="" disabled selected>Seleziona tipo...</option>
                         
                         <!-- ⚠️ I value corrispondono ESATTAMENTE alle chiavi in LABELS/ICONS/COLORS -->
-                        <optgroup label="🔄 CAMBI E COPERTURE">
-                            <option value="copertura_reperibilita">Cessione reperibilità</option>
+                        <optgroup label="🔄 CAMBI E COPERTURE" data-tab="Cambi">
                             <option value="cambio_turno">Cambio Turno</option>
                             <option value="cambio_riposo">Cambio Riposo (scambio dei giorni di riposo)</option>
+                            <option value="copertura_reperibilita">Cessione reperibilità</option>
                         </optgroup>
 
-                        <optgroup label="🏖️ FERIE / CONGEDO">
+                        <optgroup label="🏖️ FERIE / CONGEDO" data-tab="Ferie">
                             <option value="ferie">Congedo ordinario</option>
                             <option value="ferie_anno_prec">Congedo ordinario anno precedente</option>
                         </optgroup>
                         
-                        <optgroup label="⏱️ PERMESSI E RECUPERI">
+                        <optgroup label="⏱️ PERMESSI E RECUPERI" data-tab="Permessi">
                             <option value="permesso_ore">Permesso straordinario fruibile a ore</option>
                             <option value="permesso">Permesso straordinario</option>
                             <option value="recupero_ore">Recupero Ore</option>
                         </optgroup>
                         
-                        <optgroup label="⚖️ PERMESSI SPECIALI">
+                        <optgroup label="⚖️ PERMESSI SPECIALI" data-tab="Speciali">
                             <option value="permesso_matrimonio">Permesso Matrimonio</option>
                             <option value="permesso_studio">Permesso Studio</option>
                             <option value="permesso_sportivo">Permesso Sportivo</option>
@@ -1074,11 +1070,7 @@
                 const el = document.getElementById(id);
                 if (el) el.addEventListener('change', updateRiposoPreview);
             });
-            document.querySelectorAll('#typeTiles .type-tile').forEach(t => t.addEventListener('click', () => {
-                const sel = document.getElementById('reqType');
-                sel.value = t.dataset.type;
-                sel.dispatchEvent(new Event('change'));
-            }));
+            renderTypePicker();
             const swapSel = document.getElementById('reqNameSwap');
             if (swapSel) {
                 swapSel.addEventListener('change', function() {
@@ -1358,18 +1350,69 @@
         // ============================================================
         // TAB SWITCH
         // ============================================================
+        let currentTab = 'richieste';
         window.switchTab = function(tabName) {
             const isRichieste = tabName === 'richieste';
+            currentTab = tabName;
             document.getElementById('requests-container').style.display = isRichieste ? 'block' : 'none';
-            document.getElementById('searchBox').style.display = isRichieste ? 'block' : 'none';
-            document.getElementById('listFilters').style.display = isRichieste ? 'flex' : 'none';
+            if (!isRichieste) document.getElementById('searchBox').classList.remove('open');
+            document.getElementById('btnSearch').style.visibility = isRichieste ? '' : 'hidden';
             const fr = document.getElementById('iframeTurni');
             if (!isRichieste && fr && !fr.getAttribute('src')) fr.setAttribute('src', fr.dataset.src);
             document.getElementById('mainFab').style.display = isRichieste ? 'flex' : 'none';
             document.getElementById('turni-container').style.display = isRichieste ? 'none' : 'block';
-            document.getElementById('btnTabRichieste').classList.toggle('active', isRichieste);
             document.getElementById('btnTabTurni').classList.toggle('active', !isRichieste);
+            if (window.renderRequests) window.renderRequests();
         };
+        // Ricerca: si apre dalla lente, così di solito non occupa spazio.
+        window.toggleSearch = function() {
+            const box = document.getElementById('searchBox'), inp = document.getElementById('searchInput');
+            const open = !box.classList.contains('open');
+            box.classList.toggle('open', open);
+            document.getElementById('btnSearch').classList.toggle('on', open);
+            if (open) inp.focus();
+            else if (inp.value) { inp.value = ''; window.renderRequests(); }
+        };
+        window.toggleHeaderMenu = function(open) {
+            document.getElementById('hmenu').classList.toggle('open', !!open);
+        };
+
+        // ============================================================
+        // SCELTA DEL TIPO: schede per categoria (Cambi, Ferie, Permessi, Speciali) e
+        // riquadri, costruiti dal menu nascosto #reqType (che resta l'unica fonte).
+        // ============================================================
+        let typeCat = null;
+        function typeGroups() {
+            return Array.from(document.querySelectorAll('#reqType optgroup')).map(og => ({
+                name: og.dataset.tab || og.label,
+                opts: Array.from(og.querySelectorAll('option')).filter(o => o.value && !o.disabled)
+            })).filter(g => g.opts.length);
+        }
+        function renderTypePicker(followSelection) {
+            const sel = document.getElementById('reqType');
+            const groups = typeGroups();
+            if (!groups.length) return;
+            const selGroup = groups.find(g => g.opts.some(o => o.value === sel.value));
+            if (selGroup && (followSelection || !typeCat)) typeCat = selGroup.name;
+            if (!groups.some(g => g.name === typeCat)) typeCat = groups[0].name;
+            document.getElementById('catTabs').innerHTML = groups.map(g =>
+                `<button type="button" class="cat-tab ${g.name === typeCat ? 'active' : ''}" data-cat="${esc(g.name)}">${esc(g.name)}</button>`).join('');
+            const g = groups.find(x => x.name === typeCat);
+            document.getElementById('typeTiles').innerHTML = g.opts.map(o =>
+                `<button type="button" class="type-tile ${o.value === sel.value ? 'active' : ''}" data-type="${o.value}"><span class="material-icons-round ${getColor(o.value)}">${getIcon(o.value)}</span>${esc(getLabel(o.value))}</button>`).join('');
+        }
+        // (ascoltati sui contenitori: la finestra del modulo ferma i click verso la pagina)
+        document.getElementById('catTabs').addEventListener('click', (e) => {
+            const cat = e.target.closest('.cat-tab');
+            if (cat) { typeCat = cat.dataset.cat; renderTypePicker(); }
+        });
+        document.getElementById('typeTiles').addEventListener('click', (e) => {
+            const tile = e.target.closest('.type-tile');
+            if (!tile) return;
+            const sel = document.getElementById('reqType');
+            sel.value = tile.dataset.type;
+            sel.dispatchEvent(new Event('change'));
+        });
 
         // ============================================================
         // FORM — logica tipo richiesta
@@ -1392,7 +1435,7 @@
             const myShiftSel     = document.getElementById('reqMyShift');
             const otherShiftSel  = document.getElementById('reqOtherShift');
             const riposoGroup    = document.getElementById('riposo-group');
-            document.querySelectorAll('#typeTiles .type-tile').forEach(t => t.classList.toggle('active', t.dataset.type === val));
+            renderTypePicker(true);
 
             // reset
             riposoGroup.style.display = 'none';
@@ -1542,7 +1585,7 @@
                 opt.disabled = !enabled;
                 opt.style.display = enabled ? '' : 'none';
             });
-            document.querySelectorAll('#typeTiles .type-tile').forEach(t => { t.hidden = tipi[t.dataset.type] === false; });
+            if (typeof renderTypePicker === 'function') try { renderTypePicker(); } catch (e) {}
             // Se un intero optgroup è tutto disattivato, lo nasconde per pulizia.
             document.querySelectorAll('#reqType optgroup').forEach(og => {
                 const opts = Array.from(og.querySelectorAll('option'));
@@ -1591,6 +1634,7 @@
             e.preventDefault();
 
             const reqType = document.getElementById('reqType').value;
+            if (!reqType) { alert("Scegli cosa vuoi chiedere (tocca uno dei riquadri)."); return; }
             const dFrom   = document.getElementById('reqDateFrom').value;
             const dToRaw  = document.getElementById('reqDateTo').value;
             const isSwap  = (reqType === 'cambio_turno' || reqType === 'copertura_reperibilita' || reqType === 'cambio_riposo');
@@ -1850,14 +1894,16 @@
         window.toggleAdmin = function() {
             if (window.isAdmin) {
                 window.isAdmin = false;
-                document.getElementById('adminIcon').style.color = "white";
+                document.body.classList.remove('is-admin');
+                document.getElementById('adminMenuLabel').textContent = 'Accesso admin';
                 window.switchTab('richieste');
                 alert("Uscito dalla modalità Admin.");
             } else {
                 const pwd = prompt("Inserisci la password per l'accesso Admin:");
                 if (pwd === "00") {
                     window.isAdmin = true;
-                    document.getElementById('adminIcon').style.color = "#fde047";
+                    document.body.classList.add('is-admin');
+                    document.getElementById('adminMenuLabel').textContent = 'Esci da admin';
                     alert("Accesso Admin effettuato.");
                 } else if (pwd !== null) {
                     alert("Password errata.");
@@ -1985,6 +2031,7 @@
         try { listFilter = localStorage.getItem('118_req_filter') || 'tutte'; } catch (e) {}
         window.setListFilter = function(f) {
             listFilter = f;
+            if (currentTab !== 'richieste') { window.switchTab('richieste'); }
             try { localStorage.setItem('118_req_filter', f); } catch (e) {}
             window.renderRequests();
         };
@@ -2018,10 +2065,10 @@
             const isManager = window.isAdmin || currentUser === 'Centrale 118';
             container.innerHTML = "";
 
-            document.querySelectorAll('#listFilters .list-filter').forEach(b => b.classList.toggle('active', b.dataset.f === listFilter));
+            document.querySelectorAll('#listFilters .tab[data-f]').forEach(b => b.classList.toggle('active', currentTab === 'richieste' && b.dataset.f === listFilter));
             const allPending = requests.filter(isPending).length;
             const pc = document.getElementById('pendingCount');
-            if (pc) pc.textContent = allPending ? '(' + allPending + ')' : '';
+            if (pc) pc.textContent = allPending ? String(allPending) : '';
 
             const filtered = requests.filter(r => {
                 if (listFilter === 'mie' && !isMine(r)) return false;
