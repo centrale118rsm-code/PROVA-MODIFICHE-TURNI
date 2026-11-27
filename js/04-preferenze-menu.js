@@ -7,7 +7,7 @@
     if(IS_IOS) document.documentElement.classList.add('ios');
     var PREF_DEFAULTS = {
         theme:'auto', startPage:'calendario', startToday:true, lite: IS_IOS,
-        myColFirst:false, highlightMe:true, showTimes:true, showRepBars:true, filter:null,
+        myColFirst:false, highlightMe:true, showTimes:true, showTimesD:true, showRepBars:true, filter:null,
         notifyChanges:true, notifyRep:true, notifyTomorrow:false, haptics:true, ticker:true, textSize:'normal', look:'leggera', calView:'normale'
     };
     var prefs = null, prefsOwnerLoaded = null, prefsRemoteTimer = null;
@@ -51,6 +51,7 @@
     function applyBodyPrefClasses() {
         document.body.classList.toggle('pref-hl-me', !!prefs.highlightMe);
         document.body.classList.toggle('pref-no-times', !prefs.showTimes);
+        document.body.classList.toggle('pref-no-times-d', prefs.showTimesD === false);
         document.body.classList.toggle('pref-no-repbar', !prefs.showRepBars);
         document.body.classList.toggle('lite', !!prefs.lite);
         if(prefs.textSize === 'xbig') prefs.textSize = 'big';   // la vecchia "Molto grande" ora è Grande
@@ -86,7 +87,7 @@
         else if(k === 'ticker') asBuildTicker();
         else if(k === 'look') applyBodyPrefClasses();
         else if(k === 'calView') calViewApply(true);
-        else if(['myColFirst','highlightMe','showTimes','showRepBars','lite','textSize'].includes(k)) {
+        else if(['myColFirst','highlightMe','showTimes','showTimesD','showRepBars','lite','textSize'].includes(k)) {
             applyBodyPrefClasses();
             if(k === 'lite') liteFrom = null;
             if(finalData.length) { renderTable(); if(k === 'lite') setTimeout(scrollToToday, 60); }
@@ -123,48 +124,43 @@
     function menuTree() {
         const hasYears = typeof dataSourceMode !== 'undefined' && dataSourceMode === 'firebase' && archivedYears.length > 0;
         const vw = calOverview ? 'insieme' : ((prefs && prefs.calView) || 'normale');
+        // Menu riordinato (27/11/2026): niente più cartelle nascoste, tutte le voci a vista in
+        // quattro riquadri (I miei turni, Calendario, Squadra, App) a forma di tessere. Resta una
+        // cartella sola, "Tempo libero". Le stesse id di prima: la guida le trova da sola.
+        const named = !!(userIdentity && userIdentity !== 'Ospite');
         return [
-            { group:'Per te' },
-            { id:'me', icon:'person', label:'La mia pagina', desc: (userIdentity && userIdentity !== 'Ospite') ? 'Prossimi turni, ore, assenze, reperibilità' : 'Scegli prima chi sei', color:'#1d4ed8', run: () => openMyPage() },
-            { id:'notechat', icon:'forum', label:'Note e chat', desc: (() => { try { const u = noteHubUnread(); return u ? u + (u === 1 ? ' risposta nuova' : ' risposte nuove') : 'Le note dei colleghi e le risposte'; } catch(e) { return 'Le note dei colleghi e le risposte'; } })(), color:'#7c3aed', run: () => noteOpenHub() },
-            { group:'Calendario' },
-            // Oggi, Mesi, Operatori e "inf" sono nella barra in alto: qui non si ripetono
-            { id:'cal', icon:'calendar_month', label:'Calendario', desc:'Legenda, reperibili, stampa, telefono' + (hasYears ? ', anni passati' : ''), color: MN_COLORS.cal, children: [
-                { id:'legend', icon:'palette', label:'Legenda dei colori', desc:'Cosa vuol dire ogni colore e segno', color: MN_COLORS.cal, run: () => openColorLegend() },
-                { id:'replist', icon:'phone_in_talk', label:'Reperibili del mese', desc:'Tabella con chi è reperibile in ogni fascia, cessioni comprese', color:'#dc2626', run: () => openRepList() },
-                { id:'print', icon:'print', label:'Stampa del mese', desc:'PDF dei turni per la bacheca', color: MN_COLORS.cal, run: () => printMonthPick() },
-                { id:'phonecal', icon:'phone_iphone', label:'Nel calendario del telefono', desc:'I tuoi turni nel calendario del telefono, aggiornati da soli', color: MN_COLORS.cal, run: () => openOptionsCal() },
-                (typeof isViewingArchive === 'function' && isViewingArchive()) ? null : { id:'nexty', icon:'fast_forward', label:'Vai al ' + (SHIFT_YEAR + 1), desc:'L’anno dopo è già qui, sotto dicembre: i turni si possono già scrivere', color: MN_COLORS.cal, run: () => goNextYear() },
-                hasYears ? { id:'years', icon:'history', label:'Anni passati', desc:'Consulta gli anni archiviati (sola lettura)', color: MN_COLORS.cal, run: () => openYearPicker() } : null,
+            { group:'I miei turni', icon:'person' },
+            { id:'me', icon:'person', label:'La mia pagina', desc: named ? 'Prossimi turni, ore, assenze, reperibilità' : 'Scegli prima chi sei', color:'#1d4ed8', run: () => openMyPage() },
+            { id:'notechat', icon:'forum', label:'Note e chat', desc: (() => { try { const u = noteHubUnread(); return u ? u + (u === 1 ? ' risposta nuova' : ' risposte nuove') : 'Le note dei colleghi e le risposte'; } catch(e) { return 'Le note dei colleghi e le risposte'; } })(), badge: (() => { try { return noteHubUnread() || 0; } catch(e) { return 0; } })(), color:'#7c3aed', run: () => noteOpenHub() },
+            { id:'conti', icon:'query_stats', label:'Conteggi', desc:'Ore, assenze ed equità dell’anno', color: MN_COLORS.ore, run: () => openHoursModal() },
+            { id:'desid', icon:'beach_access', label:'Ferie desiderate', desc:'Scrivi le ferie e i permessi che vorresti, nella tua colonna', color:'#16a34a', run: () => openDesiderate() },
+            { id:'ferie', icon:'tips_and_updates', label:'Quando fare ferie', desc:'Giorni e periodi consigliati per ferie e permessi', color:'#16a34a', run: () => openFerieAdvice() },
+            { group:'Calendario', icon:'calendar_month' },
+            { id:'calview', icon:'view_day', label:'Vista', desc:'Ora: ' + ({ normale:'tabella', compatta:'compatta', giorni:'giorno per giorno', insieme:'anno intero' })[vw] + ' · scegli tu', color: MN_COLORS.cal, run: () => openCalViewPicker() },
+            { id:'legend', icon:'palette', label:'Legenda colori', desc:'Cosa vuol dire ogni colore e segno', color: MN_COLORS.cal, run: () => openColorLegend() },
+            { id:'replist', icon:'phone_in_talk', label:'Reperibili del mese', desc:'Chi è reperibile in ogni fascia, cessioni comprese', color:'#dc2626', run: () => openRepList() },
+            { id:'print', icon:'print', label:'Stampa del mese', desc:'PDF dei turni per la bacheca', color: MN_COLORS.cal, run: () => printMonthPick() },
+            { id:'phonecal', icon:'phone_iphone', label:'Nel telefono', desc:'I tuoi turni nel calendario del telefono, aggiornati da soli', color: MN_COLORS.cal, run: () => openOptionsCal() },
+            (typeof isViewingArchive === 'function' && isViewingArchive()) ? null : { id:'nexty', icon:'fast_forward', label:'Vai al ' + (SHIFT_YEAR + 1), desc:'L’anno dopo è già qui, sotto dicembre', color: MN_COLORS.cal, run: () => goNextYear() },
+            hasYears ? { id:'years', icon:'history', label:'Anni passati', desc:'Gli anni archiviati, in sola lettura', color: MN_COLORS.cal, run: () => openYearPicker() } : null,
+            { group:'Squadra', icon:'groups' },
+            { id:'req', icon:'assignment', label:'Richieste', desc:'Ferie, permessi, cambi turno, cessioni', color: MN_COLORS.link, run: () => window.openRichiestePanel && window.openRichiestePanel() },
+            { id:'reqwin', icon:'open_in_new', label:'Richieste a parte', desc:'In una finestra accanto ai turni (sul computer)', color: MN_COLORS.link, run: () => window.openRichiesteWindow && window.openRichiesteWindow() },
+            { id:'area', icon:'badge', label:'Area A.S.', desc:'Area riservata degli autisti', color: MN_COLORS.link, run: () => window.open('https://centrale118rsm-code.github.io/Area-riservata-A.S.-118/', '_blank') },
+            { id:'veicoli', icon:'local_shipping', label:'Veicoli 118', desc:'Appuntamenti e stato dei mezzi', color: MN_COLORS.link, run: () => window.open('https://centrale118rsm-code.github.io/Veicoli-118/', '_blank') },
+            { id:'svago', icon:'celebration', label:'Tempo libero', desc:'Uscite di gruppo, ruota della sfiga e gara di ambulanze', color: MN_COLORS.svago, children: [
+                { id:'dinner', icon:'restaurant', label:'Organizza un’uscita', desc:'Chi è libero per colazione, pranzo, cena…', color: MN_COLORS.svago, run: () => openDinnerModal() },
+                { id:'wheel', icon:'casino', label:'La ruota della sfiga', desc:'Estrai a sorte chi tocca', color: MN_COLORS.svago, run: () => openWheelModal() },
+                { id:'race', icon:'sports_score', label:'Gara di ambulanze', desc:'Scommetti su chi arriva primo', color: MN_COLORS.svago, run: () => openRaceModal() }
             ] },
-            { id:'calview', icon:'view_day', label:'Vista del calendario', desc:'Ora: ' + ({ normale:'tabella', compatta:'compatta', giorni:'giorno per giorno', insieme:'anno intero' })[vw] + ' · scegli tu', color: MN_COLORS.cal, run: () => openCalViewPicker() },
-            { id:'ferieg', icon:'beach_access', label:'Ferie', desc:'Quando prenderle e ferie desiderate', color:'#16a34a', children: [
-                { id:'ferie', icon:'tips_and_updates', label:'Quando prendere ferie e permessi', desc:'Giorni e periodi consigliati', color:'#16a34a', run: () => openFerieAdvice() },
-                { id:'desid', icon:'beach_access', label:'Calendario ferie desiderate', desc:'Scrivi le ferie e i permessi che vorresti, nella tua colonna', color:'#16a34a', run: () => openDesiderate() },
-            ] },
-            { id:'conti', icon:'query_stats', label:'Conteggi', desc:'Ore, assenze ed equità dell’anno, in tre schede', color: MN_COLORS.ore, run: () => openHoursModal() },
-            { group:'Squadra' },
-            { id:'link', icon:'apps', label:'Collegamenti', desc:'Richieste, area A.S., veicoli', color: MN_COLORS.link, children: [
-                { id:'req', icon:'assignment', label:'Richieste', desc:'Ferie, permessi, cambi turno, cessioni', color: MN_COLORS.link, run: () => window.openRichiestePanel && window.openRichiestePanel() },
-                { id:'reqwin', icon:'open_in_new', label:'Richieste in una finestra', desc:'A parte, accanto ai turni (sul computer)', color: MN_COLORS.link, run: () => window.openRichiesteWindow && window.openRichiesteWindow() },
-                { id:'area', icon:'badge', label:'Area riservata A.S.', desc:'Area personale degli autisti', color: MN_COLORS.link, run: () => window.open('https://centrale118rsm-code.github.io/Area-riservata-A.S.-118/', '_blank') },
-                { id:'veicoli', icon:'local_shipping', label:'Veicoli 118', desc:'Appuntamenti e stato dei mezzi', color: MN_COLORS.link, run: () => window.open('https://centrale118rsm-code.github.io/Veicoli-118/', '_blank') }
-            ] },
-            { group:'App' },
-            { id:'imp', icon:'more_horiz', label:'Altro', desc:'Opzioni, tempo libero, area riservata, utente', color: MN_COLORS.imp, children: [
-                { id:'opts', icon:'settings', label:'Opzioni dell’app', desc:'Le tue preferenze: tema, calendario, notifiche', color: MN_COLORS.imp, run: () => openOptionsModal() },
-                { id:'svago', icon:'celebration', label:'Tempo libero', desc:'Uscite di gruppo, ruota della sfiga e gara di ambulanze', color: MN_COLORS.svago, children: [
-                    { id:'dinner', icon:'restaurant', label:'Organizza un’uscita', desc:'Chi è libero per colazione, pranzo, cena…', color: MN_COLORS.svago, run: () => openDinnerModal() },
-                    { id:'wheel', icon:'casino', label:'La ruota della sfiga', desc:'Estrai a sorte chi tocca', color: MN_COLORS.svago, run: () => openWheelModal() },
-                    { id:'race', icon:'sports_score', label:'Gara di ambulanze', desc:'Scommetti su chi arriva primo', color: MN_COLORS.svago, run: () => openRaceModal() }
-                ] },
-                { id:'share', icon:'share', label:'Condividi l’app', desc:'Mandala su WhatsApp a chi non ce l’ha', color:'#16a34a', stay:true, run: () => shareAppWhatsApp() },
-                ...(ACCT_ENABLED && famCanUse() ? [{ id:'fam', icon:'family_restroom', label:'Accesso per un familiare', desc:'Fai vedere i tuoi turni a un parente', color: MN_COLORS.imp, run: () => famOpen() }] : []),
-                { id:'riserv', icon:'lock', label:'Area riservata', desc:'Coordinatore e admin: si apre l’area giusta in base alla password', color: MN_COLORS.coord, lock:true, run: () => openAdminLoginModal() },
-                { id:'user', icon: ACCT_ENABLED ? 'logout' : 'switch_account', label: ACCT_ENABLED ? 'Esci dall’account' : 'Cambia utente', desc: userIdentity ? 'Ora sei ' + userIdentity : 'Scegli chi sei', color: MN_COLORS.imp, run: () => requestChangeIdentity() },
-                { id:'reload', icon:'refresh', label:'Aggiorna l’app', desc:'Ricarica per avere l’ultima versione', color: MN_COLORS.imp, run: () => { vibrate(); location.reload(); } }
-            ] },
-            { id:'guida', icon:'menu_book', label:'Guida', desc:'Come si usa l’app e l’area Richieste, con le animazioni', color:'#0ea5e9', run: () => openGuide() }
+            { id:'share', icon:'share', label:'Condividi l’app', desc:'Mandala su WhatsApp a chi non ce l’ha', color:'#16a34a', stay:true, run: () => shareAppWhatsApp() },
+            { group:'App', icon:'tune' },
+            { id:'opts', icon:'settings', label:'Opzioni', desc:'Le tue preferenze: aspetto, calendario, notifiche', color: MN_COLORS.imp, run: () => openOptionsModal() },
+            { id:'guida', icon:'menu_book', label:'Guida', desc:'Come si usa l’app e l’area Richieste', color:'#0ea5e9', run: () => openGuide() },
+            ...(ACCT_ENABLED && famCanUse() ? [{ id:'fam', icon:'family_restroom', label:'Per un familiare', desc:'Fai vedere i tuoi turni a un parente', color: MN_COLORS.imp, run: () => famOpen() }] : []),
+            { id:'reload', icon:'refresh', label:'Aggiorna', desc:'Ricarica per avere l’ultima versione', color: MN_COLORS.imp, run: () => { vibrate(); location.reload(); } },
+            { id:'riserv', icon:'lock', label:'Area riservata', desc:'Coordinatore e admin', color: MN_COLORS.coord, run: () => openAdminLoginModal() },
+            { id:'user', icon: ACCT_ENABLED ? 'logout' : 'switch_account', label: ACCT_ENABLED ? 'Esci' : 'Cambia utente', desc: userIdentity ? 'Ora sei ' + userIdentity : 'Scegli chi sei', color:'#94a3b8', run: () => requestChangeIdentity() }
         ];
     }
     // ═══ CONTEGGI: ore, assenze ed equità come tre schede della stessa finestra ═══
@@ -213,12 +209,19 @@
             const crumbs = ['Menu'].concat(trail.slice(0, -1).map(n => n.label)).join(' \u203a ');
             head.innerHTML = `<button class="mn-back" onclick="menuBack()" aria-label="Indietro"><span class="material-icons-round">arrow_back</span></button><span class="mn-title"><b>${esc(cur.node.label)}</b><small>${esc(crumbs)}</small></span>`;
         }
+        if(!menuPath.length) {
+            // radice: un riquadro per gruppo, voci a tessere (icona + nome); la descrizione resta nel suggerimento
+            const secs = []; cur.list.filter(Boolean).forEach(n => { if(n.group) secs.push({ g: n, items: [] }); else if(secs.length) secs[secs.length - 1].items.push(n); });
+            body.innerHTML = secs.map(sc => `<section class="mn-sec"><div class="mn-sec-h"><span class="material-icons-round">${sc.g.icon || 'folder'}</span>${esc(sc.g.group)}</div><div class="mn-grid">${sc.items.map(n =>
+                `<button class="mn-tile" role="menuitem" title="${esc(n.desc || '')}" onclick="menuPick('${n.id}')"><span class="mn-ico" style="background:${n.color}"><span class="material-icons-round">${n.icon}</span>${n.badge ? `<i class="mn-badge">${n.badge}</i>` : ''}</span><b>${esc(n.label)}</b>${n.children ? '<span class="material-icons-round mn-more">more_horiz</span>' : ''}</button>`).join('')}</div></section>`).join('');
+            body.classList.add('mn-root');
+        } else { body.classList.remove('mn-root');
         body.innerHTML = cur.list.filter(Boolean).map(n => {
             if(n.group) return `<div class="mn-group">${esc(n.group)}</div>`;
             const right = n.children ? `${n.lock ? '<span class="material-icons-round mn-go" style="font-size:15px">lock</span>' : ''}<span class="material-icons-round mn-go">chevron_right</span>`
                 : (n.toggle !== undefined ? `<span class="mn-switch ${n.toggle ? 'on' : ''}"></span>` : (n.lock ? '<span class="material-icons-round mn-go" style="font-size:15px">lock</span>' : ''));
             return `<button class="mn-row" role="menuitem" onclick="menuPick('${n.id}')"><span class="mn-ico" style="background:${n.color}"><span class="material-icons-round">${n.icon}</span></span><span class="mn-txt"><b>${esc(n.label)}</b>${n.desc ? `<small>${esc(n.desc)}</small>` : ''}</span>${right}</button>`;
-        }).join('');
+        }).join(''); }
         body.classList.remove('slide-in', 'slide-back'); void body.offsetWidth;
         if(dir) body.classList.add(dir === 'back' ? 'slide-back' : 'slide-in');
         body.scrollTop = 0;

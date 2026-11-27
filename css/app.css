@@ -1321,7 +1321,9 @@
         #main-table thead th.col-focus { color: var(--primary); box-shadow: inset 0 -3px 0 var(--primary); }
         #main-table td.col-focus-end, #main-table thead th.col-focus-end { border-right: 3px solid var(--primary); }
         #main-table thead th.th-focus-clear { cursor: pointer; color: var(--primary); }
-        body.pref-no-times #main-table .time-tag, body.pref-no-times #cell-probe .time-tag { display:none; }
+        /* orari nascosti dalle Opzioni: turnisti (M, P, N, smonto) e diurnisti (m, p) separati; le ore di permesso restano */
+        body.pref-no-times #main-table .cell.t-M .time-tag:not(.perm-h),body.pref-no-times #main-table .cell.t-P .time-tag:not(.perm-h),body.pref-no-times #main-table .cell.t-N .time-tag:not(.perm-h),body.pref-no-times #main-table .cell.t-S .time-tag:not(.perm-h),body.pref-no-times #main-table .cell.t-R .time-tag:not(.perm-h),body.pref-no-times #main-table .cell.spec-mn .time-tag:not(.perm-h),body.pref-no-times #cell-probe .cell.t-M .time-tag:not(.perm-h),body.pref-no-times #cell-probe .cell.t-P .time-tag:not(.perm-h),body.pref-no-times #cell-probe .cell.t-N .time-tag:not(.perm-h),body.pref-no-times #cell-probe .cell.t-S .time-tag:not(.perm-h),body.pref-no-times #cell-probe .cell.t-R .time-tag:not(.perm-h),body.pref-no-times #cell-probe .cell.spec-mn .time-tag:not(.perm-h) { display:none; }
+        body.pref-no-times-d #main-table .cell.d-M .time-tag:not(.perm-h),body.pref-no-times-d #main-table .cell.d-P .time-tag:not(.perm-h),body.pref-no-times-d #main-table .cell.d-R .time-tag:not(.perm-h),body.pref-no-times-d #cell-probe .cell.d-M .time-tag:not(.perm-h),body.pref-no-times-d #cell-probe .cell.d-P .time-tag:not(.perm-h),body.pref-no-times-d #cell-probe .cell.d-R .time-tag:not(.perm-h) { display:none; }
         body.pref-no-repbar #main-table .rep-bar, body.pref-no-repbar #cell-probe .rep-bar { display:none; }
 
         /* ══ Opzioni dell'app ══ */
@@ -3952,3 +3954,39 @@ body:not(.cal-compact) #main-table .rep-bar-seg, body:not(.cal-compact) #cell-pr
   .nq-row { grid-template-columns:78px 1fr 44px; gap:6px; }
   .nq-hero b { font-size:2rem; }
 }
+
+/* ═══ Menu ☰ riordinato (27/11/2026): quattro riquadri con le voci a tessere ═══ */
+#menu-dropdown { width: min(384px, calc(100vw - 12px)); }
+.mn-body.mn-root { padding: 10px; display: flex; flex-direction: column; gap: 10px; background: var(--bg); }
+.mn-sec { background: var(--bg-card); border: 1px solid var(--hdr-border); border-radius: 14px; padding: 9px 8px 8px; }
+.mn-sec-h { display: flex; align-items: center; gap: 6px; padding: 0 4px 7px; font-size: 11px; font-weight: 800; letter-spacing: .07em; text-transform: uppercase; color: var(--hdr-muted); }
+.mn-sec-h .material-icons-round { font-size: 15px; }
+.mn-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; }
+.mn-tile { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 6px; min-height: 78px; padding: 9px 4px 8px; border: none; border-radius: 11px; background: transparent; color: var(--text-main); font-family: inherit; cursor: pointer; text-align: center; }
+.mn-tile:hover, .mn-tile:focus-visible { background: var(--hdr-hover); outline: none; }
+.mn-tile:active { transform: scale(.96); }
+.mn-tile .mn-ico { width: 40px; height: 40px; border-radius: 12px; position: relative; box-shadow: 0 2px 6px rgba(15,23,42,.14); }
+.mn-tile .mn-ico .material-icons-round { font-size: 22px; }
+.mn-tile b { font-size: 12px; font-weight: 700; line-height: 1.18; max-width: 100%; overflow-wrap: anywhere; }
+.mn-tile .mn-more { position: absolute; top: 4px; right: 6px; font-size: 16px; color: var(--hdr-muted); }
+.mn-badge { position: absolute; top: -5px; right: -7px; min-width: 18px; height: 18px; padding: 0 4px; border-radius: 9px; background: #dc2626; color: #fff; font: 800 10.5px/18px 'Plus Jakarta Sans', sans-serif; font-style: normal; box-shadow: 0 0 0 2px var(--bg-card); }
+
+/* ═══ Settimane separate (27/11/2026): dopo la domenica uno spazio vuoto leggero invece della riga rossa ═══ */
+#main-table tbody tr.week-end > td, body.dark-mode #main-table tbody tr.week-end > td { border-bottom: 12px solid var(--bg) !important; }
+.ov-table tbody tr.week-end > td, body.dark-mode .ov-table tbody tr.week-end > td { box-shadow: none; border-bottom: 10px solid var(--bg) !important; }
+.ov-table tbody tr.week-end + tr > td { border-top: 0; }
+
+/* ═══ Opzioni riordinate (27/11/2026): una scheda per sezione, più aria fra le sezioni ═══ */
+#opt-body { background: var(--bg); padding-bottom: 18px; }
+.opt-card { margin: 14px 12px 0; background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; box-shadow: 0 1px 3px rgba(15,23,42,.05); }
+.opt-card-h { display: flex; align-items: center; gap: 11px; padding: 13px 16px 11px; border-bottom: 1px solid var(--border); background: linear-gradient(180deg, rgba(37,99,235,.06), transparent); }
+.opt-card-h > .material-icons-round { width: 34px; height: 34px; border-radius: 10px; flex: none; display: flex; align-items: center; justify-content: center; font-size: 19px; color: #fff; background: var(--primary); }
+.opt-card-h b { display: block; font-size: .95rem; font-weight: 800; color: var(--text-main); }
+.opt-card-h small { display: block; font-size: .74rem; color: var(--text-sec); margin-top: 1px; }
+.opt-card .option-item { padding: 14px 16px; }
+.opt-card .opt-block { padding: 12px 16px 14px; }
+.opt-card .opt-block:last-child { border-bottom: none; }
+.opt-card .option-category-header { display: none; }
+.opt-card .opt-reset { padding: 12px 16px 14px; }
+.opt-card .info-clock-card, .opt-card .info-update-card { margin-left: 14px; margin-right: 14px; }
+#opt-body .opt-hero { margin: 12px 12px 0; }
