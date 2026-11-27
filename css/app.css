@@ -3910,6 +3910,7 @@ body.as-has-ticker #menu-dropdown, body.as-has-ticker #driver-filter-dropdown { 
 body:not(.cal-compact) #main-table td[data-col] > .cell, body:not(.cal-compact) #cell-probe .cell { font-size:.66rem; letter-spacing:-.3px; padding:1px 2px; }
 body:not(.cal-compact) #main-table .time-tag, body:not(.cal-compact) #cell-probe .time-tag { font-size:.52rem; letter-spacing:-.4px; }
 body:not(.cal-compact) .cell .rep-r { font-size:1.15em; padding:0 2px; margin-left:2px; }
-/* "PERM. LEGGE 7h": le ore stanno sulla stessa riga del nome, così la casella non si alza */
-body:not(.cal-compact) #main-table td[data-col] > .cell > div:first-child:has(> .perm-h), body:not(.cal-compact) #cell-probe .cell > div:first-child:has(> .perm-h) { flex-direction: row !important; flex-wrap: nowrap; align-items: baseline !important; gap: 3px; }
-body:not(.cal-compact) #main-table .time-tag.perm-h, body:not(.cal-compact) #cell-probe .time-tag.perm-h { margin-top: 0; }
+
+/* fasce di reperibilità strette attorno al testo (27/11/2026): niente verde/rosso vuoto ai lati */
+body:not(.cal-compact) #main-table .rep-bar, body:not(.cal-compact) #cell-probe .rep-bar { justify-content:center; gap:2px; background:none; }
+body:not(.cal-compact) #main-table .rep-bar-seg, body:not(.cal-compact) #cell-probe .rep-bar-seg { flex:0 1 auto; padding:0 3px; border-radius:3px; }
