@@ -3868,3 +3868,10 @@ body.as-has-ticker { --header-h: calc(var(--header-base-h) + var(--safe-top) + 2
 @media (max-width: 370px) { .brand-text { display: none; } }
 /* scritta PROVA più piccola sul telefono: non copre più i pulsanti della barra */
 @media (max-width: 560px) { #prova-frame span { font-size: 8px; letter-spacing: 1.5px; padding: 1px 8px 2px; border-radius: 0 0 6px 6px; } }
+
+/* Conteggi: fila di schede Ore · Assenze · Equità in cima alle tre finestre */
+.conti-tabs { display:flex; gap:4px; padding:6px 12px 0; flex-shrink:0; }
+.conti-tabs button { flex:1; display:flex; align-items:center; justify-content:center; gap:5px; height:34px; border:1px solid var(--border); border-radius:10px; background:var(--bg); color:var(--text-sec); font:700 .8rem 'Plus Jakarta Sans',sans-serif; cursor:pointer; }
+.conti-tabs button .material-icons-round { font-size:17px; }
+.conti-tabs button.on { background:#0f766e; border-color:#0f766e; color:#fff; }
+body.dark-mode .conti-tabs button.on { background:#14b8a6; border-color:#14b8a6; color:#04201d; }

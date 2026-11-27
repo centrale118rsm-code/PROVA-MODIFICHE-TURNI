@@ -331,11 +331,11 @@
         try:{ label:'Apri Ferie e permessi', run:() => openFerieAdvice() } });
     T(cFe, { id:'assenze', t:'Conteggio assenze', icon:'event_busy', when:() => has('openAbsModal'),
         sub:'Congedi, permessi, malattie e giornate particolari di tutti.',
-        steps:['<b>' + mp('assenze') + '</b>; vista <b>Anno</b> o <b>Mese</b>.',
+        steps:['<b>' + mp('conti') + ', scheda Assenze</b>; vista <b>Anno</b> o <b>Mese</b>.',
             'Ogni anno: <b>31</b> giorni di congedo ordinario, <b>6</b> permessi straordinari e <b>2</b> permessi notte (il coordinatore può avere impostato spettanze diverse per qualcuno).',
             'Un permesso notte usa anche un permesso straordinario. Le assenze che cadono su un riposo non contano.',
             'Tocca un nome per il dettaglio della persona.'],
-        anim:[MENU(['assenze'], 0), SCR({ title:'Conteggio assenze', icon:'event_busy', col:'#b45309', st:3, say:'Tocca un nome per il dettaglio',
+        anim:[MENU(['conti'], 0), SCR({ title:'Conteggio assenze', icon:'event_busy', col:'#b45309', st:3, say:'Tocca un nome per il dettaglio',
                 body:[{ seg:['Anno', 'Mese'], on:0 }, { kv:['', 'C.O. · Straord. · Notte'] }, row('person', 'ANNA', '18/31 · 2/6 · 1/2', '#b45309'), row('person', 'SARA', '12/31 · 2/6 · 0/2', '#b45309', { hit:true }), row('person', 'LUCA', '25/31 · 5/6 · 2/2', '#b45309')] })],
         try:{ label:'Apri Conteggio assenze', run:() => openAbsModal() } });
     T(cFe, { id:'desiderate', t:'Calendario ferie desiderate', icon:'beach_access', when:() => has('openDesiderate'),
@@ -356,20 +356,20 @@
     const cOr = cat('ore', 'Ore ed equità', 'query_stats', '#0f766e', 'Ore lavorate, saldo, equità dell’anno');
     T(cOr, { id:'ore', t:'Conteggio orario', icon:'query_stats', when:() => has('openHoursModal'),
         sub:'Ore lavorate e saldo rispetto al contratto.',
-        steps:['<b>' + mp('ore') + '</b>: le ore del mese di tutti, settimana per settimana (<b>Riepilogo</b> o <b>Foglio</b>).',
+        steps:['<b>' + mp('conti') + ', scheda Ore</b>: le ore del mese di tutti, settimana per settimana (<b>Riepilogo</b> o <b>Foglio</b>).',
             'Colori: <b>rosso</b> sotto le ore, <b>azzurro</b> in pari, <b>verde</b> sopra.',
             'Il contratto conta 6 ore al giorno dal lunedì al sabato; ferie e assenze giustificate contano come giornata.',
             'Tocca un nome per il <b>dettaglio</b>: settimana, mese, anno, con il grafico.'],
-        anim:[MENU(['ore'], 0), SCR({ title:'Conteggio orario', icon:'query_stats', col:'#0f766e', st:3, say:'Tocca un nome per il dettaglio',
+        anim:[MENU(['conti'], 0), SCR({ title:'Conteggio orario', icon:'query_stats', col:'#0f766e', st:3, say:'Tocca un nome per il dettaglio',
                 body:[{ seg:['Riepilogo', 'Foglio'], on:0 }, { seg:['‹', 'NOVEMBRE', '›'], on:1 }, row('person', 'ANNA', '+2:10', '#16a34a'), row('person', 'SARA', '0:00', '#3b82f6', { hit:true }), row('person', 'LUCA', '−4:30', '#dc2626')] }),
             SCR({ title:'SARA', icon:'query_stats', col:'#0f766e', sub:'Dettaglio ore', st:3, say:'Settimana, mese o anno', hold:2200, body:[{ seg:['SETTIMANA', 'MESE', 'ANNO'], on:1 }, { bar:72 }, { kv:['Fatte', '112:30'] }, { kv:['Dovute', '156:00'] }] })],
         try:{ label:'Apri Conteggio orario', run:() => openHoursModal() } });
     T(cOr, { id:'equita', t:'Equità dell’anno', icon:'balance', when:() => has('openEquity'),
         sub:'Notti, weekend, festivi e reperibilità di ognuno, rispetto alla media.',
-        steps:['<b>' + mp('equita') + '</b>; scegli <b>Fino a oggi</b> o <b>Anno intero</b>.',
+        steps:['<b>' + mp('conti') + ', scheda Equità</b>; scegli <b>Fino a oggi</b> o <b>Anno intero</b>.',
             'Categorie: <b>Panoramica</b>, <b>Notti e weekend</b>, <b>Reperibilità</b>, <b>Chi lavora con chi</b>, <b>Diurnisti e turnisti</b>.',
             'Ogni valore è confrontato con la media della squadra.'],
-        anim:[MENU(['equita'], 0), SCR({ title:'Equità dell’anno', icon:'balance', col:'#0f766e', st:1, say:'Scegli la categoria',
+        anim:[MENU(['conti'], 0), SCR({ title:'Equità dell’anno', icon:'balance', col:'#0f766e', st:1, say:'Scegli la categoria',
                 body:[{ seg:['Fino a oggi', 'Anno intero'], on:0 }, { seg:['Panoramica', 'Notti', 'Reperib.', 'Coppie'], on:0, hit:1 }, row('dark_mode', 'ANNA', 'Notti 42 · media 40', '#1e3a8a'), row('dark_mode', 'SARA', 'Notti 38 · media 40', '#1e3a8a')] })],
         try:{ label:'Apri Equità dell’anno', run:() => openEquity() } });
 
@@ -493,11 +493,11 @@
     const cGe = cat('gestione', 'Coordinatore e admin', 'supervisor_account', '#0b6e7f', 'Accesso riservato, con password');
     T(cGe, { id:'coord', t:'Area coordinatore', icon:'supervisor_account', when:() => has('openCoordLoginModal'),
         sub:'Riservata al coordinatore: serve la password.',
-        steps:['<b>' + mp('coord') + '</b> e la password.',
+        steps:['<b>' + mp('riserv') + '</b> e la password del coordinatore.',
             'Le sezioni sono a sinistra (sul telefono in alto, da scorrere).',
             '<b>Torna al calendario</b> per uscire tenendo l’accesso, <b>Esci da coordinatore</b> per chiuderlo.'],
         coordList:true,
-        anim:[MENU(['coord'], 0), SCR({ title:'Coordinamento', icon:'supervisor_account', col:'#0f2a63', sub:'Infermieri', st:1, say:'Le sezioni del coordinatore', hold:2400,
+        anim:[MENU(['riserv'], 0), SCR({ title:'Coordinamento', icon:'supervisor_account', col:'#0f2a63', sub:'Infermieri', st:1, say:'Le sezioni del coordinatore', hold:2400,
                 body:[row('space_dashboard', 'Panoramica', '', '#2563eb'), row('fact_check', 'Da controllare', '', '#2563eb'), row('edit_calendar', 'Modifica turni', '', '#2563eb'), row('group', 'Operatori', '', '#2563eb'), row('sticky_note_2', 'Note', '', '#2563eb')] })] });
     T(cGe, { id:'modifica', t:'Modificare i turni con la ruota', icon:'edit_calendar', when:() => has('openCoordLoginModal'),
         sub:'Per il coordinatore: la ruota strumenti di Modifica turni.',
@@ -508,10 +508,10 @@
         anim:[CAL({ wheel:true, st:1, say:'La ruota strumenti, in basso a destra', hold:2400 }), CAL({ wheel:true, hit:'c0-3', st:2, say:'Scegli lo strumento e tocca la casella' }), CAL({ wheel:true, st:3, pend:true, say:'Poi Salva', hold:2000 })] });
     T(cGe, { id:'admin', t:'Area admin', icon:'admin_panel_settings', when:() => has('openAdminLoginModal'),
         sub:'Riservata all’amministratore: impostazioni dell’app per tutti.',
-        steps:['<b>' + mp('admin') + '</b> e la password.',
+        steps:['<b>' + mp('riserv') + '</b> e la password dell’admin.',
             'Le sezioni sono elencate qui sotto.'],
         adminList:true,
-        anim:[MENU(['admin'], 0)] });
+        anim:[MENU(['riserv'], 0)] });
 
     // ── app AUTISTI: stesse funzioni, parole e voci adattate ────────────────
     // (sull'app infermieri questo pezzo non fa nulla)
