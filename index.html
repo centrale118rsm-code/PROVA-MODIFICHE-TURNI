@@ -3873,6 +3873,19 @@
         #net-offline .material-icons-round { font-size:16px; color:#fff; }
         #net-offline .net-txt { overflow:hidden; text-overflow:ellipsis; }
         @media print { #net-offline { display:none !important; } }
+        /* Calendario più basso: caselle tutte uguali, alte poco più delle scritte (vista normale) */
+        body:not(.cal-compact) #main-table tbody td[data-col] { padding:1px; }
+        body:not(.cal-compact) #main-table td[data-col] > .cell, body:not(.cal-compact) #cell-probe .cell { padding:2px 4px; line-height:1.02; justify-content:center; gap:1px; border-radius:7px; }
+        body:not(.cal-compact) #main-table td[data-col] > .cell > div:first-child, body:not(.cal-compact) #cell-probe .cell > div:first-child { flex:none !important; }
+        body:not(.cal-compact) #main-table .time-tag, body:not(.cal-compact) #cell-probe .time-tag { margin-top:1px; line-height:1; }
+        body:not(.cal-compact) #main-table .riposo-sub, body:not(.cal-compact) #cell-probe .riposo-sub { margin-top:1px; padding:0 4px; line-height:1.15; }
+        body:not(.cal-compact) #main-table .cell .rep-text, body:not(.cal-compact) #cell-probe .cell .rep-text { margin:1px 0 0; padding:0 4px; line-height:1.1; }
+        body:not(.cal-compact) #main-table .rep-bar, body:not(.cal-compact) #cell-probe .rep-bar { min-height:12px; margin-top:1px; }
+        body:not(.cal-compact) #main-table .cell .rep-text + .rep-bar, body:not(.cal-compact) #cell-probe .cell .rep-text + .rep-bar { margin-top:1px; }
+        body:not(.cal-compact) #main-table .rep-bar-seg, body:not(.cal-compact) #cell-probe .rep-bar-seg { line-height:1; padding:1px 1px 0; }
+        body:not(.cal-compact) #main-table .td-date { line-height:1; padding-top:1px; padding-bottom:1px; }
+        body:not(.cal-compact) #main-table .td-date small { margin-top:0; }
+        body:not(.cal-compact) #main-table .day-staff-counts { margin-top:1px; }
     </style>
 </head>
 <body>
@@ -4888,7 +4901,7 @@
             </button>
             <span class="hdr-sep hdr-hide-sm"></span>
             <button class="hdr-btn hdr-link hdr-hide-sm acct-link" onclick="acctOpenOther(ACCT_OTHER_URL)" title="Apri i turni degli infermieri (prova)">
-                <span class="hdr-as">118</span><span class="hdr-lbl">Infermieri</span>
+                <span class="hdr-as">inf</span>
             </button>
             <button class="hdr-btn" onclick="openNotifCenter()" title="Notifiche">
                 <span class="material-icons-round">notifications</span>
@@ -19175,7 +19188,14 @@
         const cells = []; scope.forEach(el => el.querySelectorAll('td[data-col] > .cell').forEach(c => cells.push(c)));
         if(!cells.length) { if(headEl) { headH = Math.ceil(headEl.getBoundingClientRect().height); fitHead(); } return; }
         let w = 0, h = 0;
-        const measure = list => list.forEach(c => { const r = c.getBoundingClientRect(); if(r.width > w) w = r.width; if(r.height > h) h = r.height; });
+        // prima la larghezza (contenuto più largo), poi l'altezza con le copie larghe quanto
+        // la casella vera: misurate strette andavano a capo e la casella veniva più alta del dovuto
+        const measure = list => {
+            list.forEach(c => { const r = c.getBoundingClientRect(); if(r.width > w) w = r.width; });
+            const cw = Math.max(Math.ceil(w), onlyRows ? cellFit.w : 0) + 4;
+            list.forEach(c => { c.style.setProperty('width', cw + 'px', 'important'); c.querySelectorAll('.rep-bar').forEach(b => b.style.setProperty('width', '100%', 'important')); });
+            list.forEach(c => { const r = c.getBoundingClientRect(); if(r.height > h) h = r.height; });
+        };
         // si misurano copie fuori dalla tabella (una per ogni casella diversa), senza ricalcolare tutto il calendario
         let probe = document.getElementById('cell-probe');
         if(!probe) { probe = document.createElement('div'); probe.id = 'cell-probe'; probe.setAttribute('aria-hidden', 'true'); document.body.appendChild(probe); }
@@ -19187,7 +19207,7 @@
         if(onlyRows) { w = Math.max(w, cellFit.w); h = Math.max(h, cellFit.h); }
         if(!w || !h) return;
         cellFit = { w, h };
-        const W = Math.ceil(w) + 8, H = Math.ceil(h) + 8;   // casella poco più grande del testo
+        const W = Math.ceil(w) + 8, H = Math.ceil(h) + 4;   // casella poco più grande del testo (in altezza appena 2 px sopra e sotto)
         const root = document.documentElement.style;
         if(root.getPropertyValue('--cell-w') !== W + 'px') root.setProperty('--cell-w', W + 'px');
         if(root.getPropertyValue('--cell-h') !== H + 'px') root.setProperty('--cell-h', H + 'px');
