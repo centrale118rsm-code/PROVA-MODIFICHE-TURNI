@@ -1250,4 +1250,18 @@
 
         window.closeRichiestePanel = function() { snapTo(W(), false); };
         window.openRichiestePanel = function(reqId) { ensureLoaded(reqId); snapTo(0, true); };
+        // Richieste in una FINESTRA A SÉ (27/11/2026): sul computer si apre nella metà destra dello
+        // schermo, così a sinistra restano i turni. Sul telefono diventa una scheda nuova.
+        // esempio = true apre la copia di prova (Esempio richieste) invece del portale vero.
+        window.openRichiesteWindow = function(esempio) {
+            vibrate();
+            const identity = (typeof userIdentity !== 'undefined' && userIdentity) ? userIdentity : null;
+            const url = new URL(esempio ? 'richieste-esempio/' : RICHIESTE_URL, location.href);
+            if (identity) url.searchParams.set('nome', identity);
+            const s = window.screen || {}, aw = s.availWidth || 1280, ah = s.availHeight || 800, al = s.availLeft || 0, at = s.availTop || 0;
+            const w = Math.max(420, Math.round(aw / 2));
+            const win = window.open(url.toString(), esempio ? 'richieste118_esempio' : 'richieste118', `popup=yes,width=${w},height=${ah},left=${al + aw - w},top=${at}`);
+            if (win) { try { win.focus(); } catch(e) {} window.closeRichiestePanel(); if (esempio && window.closeEsempioPanel) window.closeEsempioPanel(); }
+            else window.open(url.toString(), '_blank');   // finestre a comparsa bloccate: almeno una scheda nuova
+        };
     })();

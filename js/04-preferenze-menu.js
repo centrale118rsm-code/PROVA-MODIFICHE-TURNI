@@ -146,6 +146,7 @@
             { group:'Squadra' },
             { id:'link', icon:'apps', label:'Collegamenti', desc:'Richieste, area A.S., veicoli', color: MN_COLORS.link, children: [
                 { id:'req', icon:'assignment', label:'Richieste', desc:'Ferie, permessi, cambi turno, cessioni', color: MN_COLORS.link, run: () => window.openRichiestePanel && window.openRichiestePanel() },
+                { id:'reqwin', icon:'open_in_new', label:'Richieste in una finestra', desc:'A parte, accanto ai turni (sul computer)', color: MN_COLORS.link, run: () => window.openRichiesteWindow && window.openRichiesteWindow() },
                 { id:'area', icon:'badge', label:'Area riservata A.S.', desc:'Area personale degli autisti', color: MN_COLORS.link, run: () => window.open('https://centrale118rsm-code.github.io/Area-riservata-A.S.-118/', '_blank') },
                 { id:'veicoli', icon:'local_shipping', label:'Veicoli 118', desc:'Appuntamenti e stato dei mezzi', color: MN_COLORS.link, run: () => window.open('https://centrale118rsm-code.github.io/Veicoli-118/', '_blank') }
             ] },

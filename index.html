@@ -1101,6 +1101,7 @@
     <div class="richieste-panel-header">
         <span class="material-icons-round">assignment</span>
         <span>RICHIESTE</span>
+        <button type="button" class="rp-win-btn" onclick="openRichiesteWindow()" title="Apri le Richieste in una finestra a parte (sul computer: turni a sinistra, richieste a destra)"><span class="material-icons-round">open_in_new</span>Finestra</button>
         <button class="rp-close-btn" onclick="closeRichiestePanel()">
             <span class="material-icons-round">chevron_right</span>
         </button>
@@ -1307,7 +1308,7 @@
 <script src="js/01-avvio.js?v=2"></script>
 <script src="js/02-autisti.js?v=4"></script>
 <script src="js/03-admin.js?v=2"></script>
-<script src="js/04-preferenze-menu.js?v=5"></script>
+<script src="js/04-preferenze-menu.js?v=6"></script>
 <script src="js/05-regole-opzioni.js?v=3"></script>
 <script src="js/06-ferie-desiderate.js?v=2"></script>
 <script src="js/07-squadra-notifiche-excel.js?v=2"></script>
@@ -1316,7 +1317,7 @@
 <script src="js/10-coordinatore.js?v=1"></script>
 <script src="js/11-modifica-calendario.js?v=1"></script>
 <script src="js/12-reperibilita.js?v=5"></script>
-<script src="js/13-leggera-e-avvio-finale.js?v=2"></script>
+<script src="js/13-leggera-e-avvio-finale.js?v=3"></script>
 <script src="js/14-equita-nuova.js?v=2"></script>
 <!-- ══════════════ GUIDA DELL'APP (menu ☰ › Guida) ══════════════
      Blocco autonomo: stile, finestra e codice. Le animazioni sono piccole scene finte
@@ -1362,6 +1363,10 @@
         background: rgba(255,255,255,0.18); color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer;
     }
     #esempio-panel iframe { flex: 1; border: none; width: 100%; background: #fff; }
+    /* tasto "Finestra": apre le Richieste in una finestra a sé, affiancabile ai turni */
+    .richieste-panel-header .rp-win-btn, #esempio-panel .ep-head .rp-win-btn { margin-left: auto; width: auto; height: 32px; padding: 0 12px 0 9px; border-radius: 16px; border: none; background: rgba(255,255,255,0.18); color: #fff; display: flex; align-items: center; gap: 5px; font: 800 0.72rem/1 'Plus Jakarta Sans', sans-serif; letter-spacing: 0.3px; cursor: pointer; }
+    .rp-win-btn .material-icons-round { font-size: 17px; }
+    .richieste-panel-header .rp-win-btn + .rp-close-btn, #esempio-panel .ep-head .rp-win-btn + button { margin-left: 4px; }
     body.esempio-open #side-drag-handle, body.des-open #esempio-handle { display: none; }
     #side-drag-handle.is-open ~ #esempio-handle { display: none; }
 </style>
@@ -1372,6 +1377,7 @@
     <div class="ep-head">
         <span class="material-icons-round">science</span>
         <span>ESEMPIO RICHIESTE · solo prove</span>
+        <button type="button" class="rp-win-btn" onclick="openRichiesteWindow(true)" title="Apri l'esempio in una finestra a parte"><span class="material-icons-round">open_in_new</span>Finestra</button>
         <button type="button" onclick="closeEsempioPanel()" title="Chiudi"><span class="material-icons-round">chevron_right</span></button>
     </div>
     <iframe id="esempio-iframe" title="Esempio richieste"></iframe>
