@@ -17,8 +17,18 @@
         if(!colors) return `<span class="gd-chip" style="background:var(--bg);color:var(--text-main)">${E(short)}</span>`;
         return `<span class="gd-chip" style="background:var(${colors.bg});color:var(${colors.fg})">${E(short)}</span>`;
     }
-    const pathOk = path => { try { let list = menuTree(); for(const id of path) { const n = list.find(x => x && x.id === id); if(!n) return false; list = n.children || []; } return true; } catch(e) { return false; } };
-    const menuLbl = path => { try { let list = menuTree(), n = null; for(const id of path) { n = list.find(x => x && x.id === id); if(!n) return ''; list = n.children || []; } return n.label; } catch(e) { return ''; } };
+    // percorso vero di una voce del menu: conta solo l’ultima voce, che si cerca in tutte le cartelle
+    // (così la guida segue il menu anche quando una voce cambia cartella)
+    const realPath = path => {
+        const id = path[path.length - 1]; let found = null;
+        const dfs = (list, pre) => list.some(n => { if(!n || n.group) return false; const p = pre.concat(n.id); if(n.id === id) { found = p; return true; } return !!(n.children && dfs(n.children, p)); });
+        try { dfs(menuTree(), []); } catch(e) {}
+        return found;
+    };
+    const pathOk = path => !!realPath(path);
+    const menuLbl = path => { try { const rp = realPath(path); if(!rp) return ''; let list = menuTree(), n = null; for(const id of rp) { n = list.find(x => x && x.id === id); list = (n && n.children) || []; } return n ? n.label : ''; } catch(e) { return ''; } };
+    // "☰ › Cartella › Voce" scritto come nel menu vero
+    const mp = (id, fb) => { const rp = realPath([id]); if(!rp) return E('☰' + (fb ? ' › ' + fb : '')); return E('☰ › ' + rp.map((x, i) => menuLbl(rp.slice(0, i + 1))).join(' › ')); };
     const NAMES = ['ANNA', 'LUCA', 'SARA', 'MARCO'];
 
     // ── scene animate (frame) ──────────────────────────────────────────────
@@ -42,7 +52,7 @@
         steps:['La prima volta l’app chiede <b>Chi sei?</b>: tocca il tuo nome nell’elenco.',
             'I nomi già usati in quel momento da un’altra persona collegata sono grigi e non si possono scegliere.',
             'Se preferisci restare anonimo scegli <b>Ospite</b>: vedi i turni, ma non ricevi notifiche e non puoi scrivere note.',
-            'Per cambiare nome: <b>☰ › Impostazioni › Cambia utente</b>.'],
+            'Per cambiare nome: <b>' + mp('user') + '</b>.'],
         tips:['Le tue preferenze (tema, vista del calendario, notifiche…) sono legate al tuo nome: le ritrovi su ogni telefono in cui lo scegli.'],
         anim:[SCR({ title:'Chi sei?', icon:'badge', col:'#1d4ed8', sub:'Seleziona il tuo nome per continuare', st:0, say:'Tocca il tuo nome',
                 body:[row('person', 'ANNA', '', '#64748b'), row('person', 'LUCA', 'in uso da un’altra persona', '#cbd5e1'), row('person', 'SARA', '', '#64748b', { hit:true }), row('person', 'MARCO', '', '#64748b'), row('visibility_off', 'Ospite', 'resta anonimo', '#94a3b8')] }),
@@ -69,7 +79,7 @@
     T(cIn, { id:'installa', t:'Installare l’app sul telefono', icon:'install_mobile',
         sub:'Con l’icona sulla schermata Home si apre come un’app vera.',
         steps:['<b>iPhone</b>: apri l’app con Safari, tocca <b>Condividi</b> e poi <b>Aggiungi alla schermata Home</b>.',
-            '<b>Android</b>: <b>☰ › Impostazioni › Opzioni dell’app</b>, sezione Applicazione, tocca <b>INSTALLA</b>. Se non compare la finestra, usa il menu ⋮ di Chrome › Aggiungi a schermata Home.',
+            '<b>Android</b>: <b>' + mp('opts') + '</b>, sezione Applicazione, tocca <b>INSTALLA</b>. Se non compare la finestra, usa il menu ⋮ di Chrome › Aggiungi a schermata Home.',
             'Poi apri l’app sempre dall’icona.'],
         tips:['Su iPhone le notifiche sul telefono funzionano solo con l’app installata sulla schermata Home.'],
         anim:[MENU(['imp', 'opts'], 1), SCR({ title:'Opzioni', icon:'settings', col:'#64748b', st:1, say:'Sezione Applicazione › INSTALLA',
@@ -77,7 +87,7 @@
         try:{ label:'Apri Opzioni', run:() => openOptionsModal(), when:() => has('openOptionsModal') } });
     T(cIn, { id:'aggiorna', t:'Aggiornare l’app', icon:'refresh',
         sub:'L’app viene migliorata spesso: ogni tanto ricaricala.',
-        steps:['<b>☰ › Impostazioni › Aggiorna l’app</b>: ricarica la pagina con l’ultima versione.',
+        steps:['<b>' + mp('reload') + '</b>: ricarica la pagina con l’ultima versione.',
             'I turni invece si aggiornano da soli, in tempo reale, senza fare niente.'],
         tips:['In caso di dubbio sui turni, controlla sempre i turni cartacei in guardiola.'],
         anim:[MENU(['imp', 'reload'], 0)] });
@@ -118,14 +128,14 @@
     T(cCal, { id:'naviga', t:'Oggi, i mesi e l’anno dopo', icon:'today',
         sub:'Spostarsi nel calendario in un attimo.',
         steps:['All’apertura il calendario parte da <b>oggi</b>, in cima (si può cambiare in Opzioni).',
-            '<b>☰ › Calendario › Vai a oggi</b> ti riporta al giorno corrente.',
-            '<b>Vai a un mese</b>: scegli il mese dalla griglia.',
+            'Il tasto <b>Oggi</b> nella barra in alto ti riporta al giorno corrente.',
+            '<b>Mesi</b>, sempre nella barra in alto: scegli il mese dalla griglia.',
             pathOk(['cal', 'nexty']) ? `<b>${E(menuLbl(['cal', 'nexty']))}</b>: l’anno dopo è già nel calendario, sotto dicembre.` : 'L’anno dopo, quando c’è, si trova sotto dicembre.'],
-        anim:[MENU(['cal', 'today'], 1), MENU(['cal', 'month'], 2)],
+        anim:[CAL({ st:1, say:'Oggi e Mesi sono nella barra in alto', hold:2200 }), MENU(['cal', 'nexty'], 2)],
         try:{ label:'Vai a oggi', run:() => scrollToToday(), when:() => has('scrollToToday') } });
     T(cCal, { id:'viste', t:'Tabella, Compatta o Giorni', icon:'view_day', when:() => has('openCalViewPicker'),
         sub:'Scegli tu come vedere il calendario: vale solo per te.',
-        steps:['<b>☰ › Calendario › Come vedere il calendario</b>.',
+        steps:['<b>' + mp('calview') + '</b>.',
             '<b>Tabella</b>: come sempre. <b>Compatta</b>: caselle piccole con la sigla, più giorni e colleghi nello schermo.',
             '<b>Giorno per giorno</b>: una scheda per giorno con chi fa mattina, pomeriggio e notte. Comoda sul telefono.',
             'La scelta vale solo per te e la ritrovi su ogni telefono; si cambia anche da Opzioni.'],
@@ -136,17 +146,17 @@
         try:{ label:'Scegli la vista', run:() => openCalViewPicker() } });
     T(cCal, { id:'insieme', t:'Vista d’insieme', icon:'grid_view',
         sub:'Tutto l’anno a colpo d’occhio, con quadratini colorati.',
-        steps:['<b>☰ › Vista d’insieme</b>: tutto l’anno di tutti in una pagina.',
+        steps:['<b>' + mp('calview') + ' › Anno intero</b>: tutto l’anno di tutti in una pagina.',
             'Tocca un giorno per vedere il dettaglio.',
-            'Con <b>Vista dettagliata</b> torni al calendario normale.'],
-        anim:[MENU(['view'], 0)],
+            'Scegli di nuovo <b>Tabella</b> (o un’altra vista) per tornare al calendario di sempre.'],
+        anim:[MENU(['calview'], 0)],
         try:{ label:'Apri la vista d’insieme', run:() => toggleCalView(), when:() => has('toggleCalView') } });
     T(cCal, { id:'filtra', t:'Vedere solo alcuni colleghi', icon:'groups',
         sub:'Nascondi le colonne che non ti servono.',
-        steps:['<b>☰ › Calendario › Filtra operatori</b>.',
+        steps:['Il tasto <b>Operatori</b> nella barra in alto.',
             'Tocca i nomi da vedere; <b>TUTTI GLI OPERATORI</b> li rimette tutti.',
             'La scelta resta salvata nelle tue preferenze.'],
-        anim:[MENU(['cal', 'filter'], 0), SCR({ title:'Filtra Operatori', icon:'groups', col:'#2563eb', st:1, say:'Scegli chi vedere',
+        anim:[CAL({ st:0, say:'Tocca Operatori, in alto', hold:1800 }), SCR({ title:'Filtra Operatori', icon:'groups', col:'#2563eb', st:1, say:'Scegli chi vedere',
                 body:[{ btn:'TUTTI GLI OPERATORI', ic:'select_all', g:true }, { opts:['ANNA', 'LUCA', 'SARA', 'MARCO'], on:[0, 2], sq:true, hit:2 }] })],
         try:{ label:'Filtra operatori', run:() => toggleDriverFilterDropdown(), when:() => has('toggleDriverFilterDropdown') } });
     T(cCal, { id:'evidenzia', t:'Mettere vicini due colleghi', icon:'view_column', when:() => has('toggleColFocus'),
@@ -164,7 +174,7 @@
             CAL({ st:1, hold:1800, say:'Il dettaglio del giorno', pop:{ title:'Pomeriggio', ic:'wb_twilight', col:'var(--c-P)', icol:'var(--t-P)', sub:'Domani · ' + (sched('P') || ''), body:[{ sec:'Infermieri in turno', ic:'medical_services' }, { ppl:[['ANNA', 'P']] }] } })] });
     T(cCal, { id:'stampa', t:'Stampa del mese', icon:'print',
         sub:'Il PDF dei turni di tutti, per la bacheca.',
-        steps:['<b>☰ › Calendario › Stampa del mese</b>.',
+        steps:['<b>' + mp('print') + '</b>.',
             'Scegli il mese (quello prima, questo o il prossimo).',
             'L’app scarica un <b>PDF A4 orizzontale</b> con i turni di tutti e i reperibili, pronto da appendere.'],
         anim:[MENU(['cal', 'print'], 0), SCR({ title:'Stampa del mese', icon:'print', col:'#2563eb', st:1, say:'Scegli il mese: parte il PDF',
@@ -172,7 +182,7 @@
         try:{ label:'Stampa del mese', run:() => printMonthPick(), when:() => has('printMonthPick') } });
     T(cCal, { id:'anni', t:'Gli anni passati', icon:'history', when:() => has('openYearPicker'),
         sub:'Il calendario degli anni conclusi, solo da guardare.',
-        steps:['<b>☰ › Anni passati</b> (la voce compare solo quando c’è almeno un anno concluso).',
+        steps:['<b>' + mp('years', 'Calendario › Anni passati') + '</b> (la voce compare solo quando c’è almeno un anno concluso).',
             'Scegli l’anno: si apre in <b>sola lettura</b>.',
             'Una barra in alto ti riporta all’anno attuale.'],
         anim:[SCR({ title:'Anni', icon:'history', col:'#2563eb', sub:'Gli anni passati sono in sola lettura', st:1, say:'Scegli l’anno da consultare', body:[{ btn:'Anno attuale' }, { btn:'Anno passato', g:true, hit:true }] })] });
@@ -200,7 +210,7 @@
         try:{ label:'Apri i miei turni', run:() => { openMyPage(); setTimeout(() => openMyCal(), 400); }, when:() => has('openMyPage') } });
     T(cMe, { id:'telefono', t:'I turni nel calendario del telefono', icon:'phone_iphone', when:() => has('openOptionsCal'),
         sub:'I tuoi turni, assenze e reperibilità nel calendario dell’iPhone o di Google, aggiornati da soli.',
-        steps:['<b>☰ › Calendario › Nel calendario del telefono</b>.',
+        steps:['<b>' + mp('phonecal') + '</b>.',
             '<b>iPhone</b>: tocca <b>iPhone / iPad</b> e conferma <b>Iscriviti</b>.',
             '<b>Google Calendar</b>: tocca <b>Copia il link</b>; dal computer apri calendar.google.com › Altri calendari › + › Da URL e incolla il link.',
             'Si aggiorna da solo, di solito entro un’ora (Google a volte ci mette di più). <b>Scarica ora</b> salva una copia del momento.'],
@@ -219,11 +229,11 @@
                 body:[{ sec:'Con chi ha la notte il giorno dopo', ic:'arrow_downward' }, row('check_circle', 'PAOLA', 'Cambio possibile', '#16a34a'), { sec:'Con chi ha la notte il giorno prima', ic:'arrow_upward' }, row('block', 'GIULIA', 'Toccherebbe altri giorni', '#dc2626'), { note:'Il cambio lo inserisce il coordinatore: manda la richiesta dal portale Richieste.', nc:'#1e3a8a' }] })] });
     T(cMe, { id:'opzioni', t:'Le tue opzioni', icon:'tune',
         sub:'Tema, avvio, colonna in evidenza, orari, notifiche.',
-        steps:['<b>☰ › Impostazioni › Opzioni dell’app</b>.',
+        steps:['<b>' + mp('opts') + '</b>.',
             '<b>Aspetto</b>: tema Chiaro, Scuro o Automatico. <b>Velocità</b>: Modalità leggera (consigliata su iPhone).',
             '<b>Calendario</b>: cosa mostrare all’apertura, partire da oggi, la tua colonna per prima, evidenziare la tua colonna, orari dentro i turni, fasce di reperibilità, colleghi visibili.',
             '<b>Notifiche</b> e <b>calendario del telefono</b>; in fondo <b>Ripristina le mie preferenze</b>.'],
-        tips:['Il tema scuro si accende anche al volo: <b>☰ › Impostazioni › Tema scuro</b>.'],
+        tips:['Il tema scuro si sceglie in <b>' + mp('opts') + '</b>, alla voce Tema.'],
         anim:[MENU(['imp', 'opts'], 0), SCR({ title:'Opzioni', icon:'settings', col:'#64748b', sub:'Le preferenze di SARA', st:1, say:'Scegli il tema',
                 body:[{ grp:'Aspetto' }, { seg:['Chiaro', 'Scuro', 'Automatico'], on:0, hit:1 }, { grp:'Calendario' }, row('first_page', 'La mia colonna per prima', '', '#2563eb', { sw:false }), row('highlight', 'Evidenzia la mia colonna', '', '#2563eb', { sw:true }), row('schedule', 'Orari dentro i turni', '', '#2563eb', { sw:true })] }),
             SCR({ title:'Opzioni', icon:'settings', col:'#64748b', sub:'Le preferenze di SARA', st:2, say:'Accendi e spegni quello che vuoi',
@@ -243,7 +253,7 @@
     T(cNo, { id:'push', t:'Notifiche sul telefono', icon:'notifications_active', when:() => has('pushEnable'),
         sub:'Gli avvisi arrivano anche ad app chiusa.',
         steps:['Scegli prima <b>chi sei</b>: come Ospite non arrivano avvisi.',
-            '<b>☰ › Impostazioni › Opzioni dell’app</b>, sezione Notifiche: <b>Notifiche sul telefono › Attiva</b> e consenti.',
+            '<b>' + mp('opts') + '</b>, sezione Notifiche: <b>Notifiche sul telefono › Attiva</b> e consenti.',
             'Scegli cosa ricevere: <b>Cambi ai miei turni</b>, <b>Promemoria reperibilità</b> (il giorno prima), <b>Il mio turno di domani</b> (dopo mezzogiorno).',
             'Arrivano con qualche minuto di ritardo. Su iPhone servono l’app installata sulla schermata Home.'],
         anim:[MENU(['imp', 'opts'], 1), SCR({ title:'Opzioni', icon:'settings', col:'#64748b', sub:'Notifiche', st:1, say:'Notifiche sul telefono › Attiva',
@@ -294,7 +304,7 @@
         anim:[CAL({ rep:true, st:1, say:'Verde: la fascia la copre il titolare', hold:2400 }), CAL({ rep:'ced', st:2, say:'Rossa: ceduta. Lampeggia per chi la riceve', hold:3000 })] });
     T(cRe, { id:'repmese', t:'Reperibili del mese', icon:'table_view', when:() => has('openRepList'),
         sub:'La tabella con chi è reperibile in ogni fascia, cessioni comprese.',
-        steps:['<b>☰ › Calendario › Reperibili del mese</b>.',
+        steps:['<b>' + mp('replist') + '</b>.',
             'Per ogni giorno le 4 fasce con chi le copre davvero; le cessioni sono in giallo.',
             'Con le frecce cambi mese; <b>Stampa</b> o <b>Scarica PDF</b> per averla su carta.'],
         anim:[MENU(['cal', 'replist'], 0), SCR({ title:'Reperibili del mese', icon:'phone_in_talk', col:'#dc2626', sub:'Già con le cessioni', st:1, say:'Le 4 fasce, giorno per giorno', hold:2400,
@@ -312,7 +322,7 @@
     const cFe = cat('ferie', 'Ferie e assenze', 'beach_access', '#16a34a', 'Giorni consigliati, conteggi, ferie desiderate');
     T(cFe, { id:'consigli', t:'Ferie e permessi consigliati', icon:'beach_access', when:() => has('openFerieAdvice'),
         sub:'Quando conviene chiedere ferie o permessi.',
-        steps:['<b>☰ › Ferie e permessi</b>.',
+        steps:['<b>' + mp('ferie') + '</b>.',
             'Scheda <b>Ferie</b>: i periodi liberi da oggi a fine anno. Scheda <b>Permessi e recuperi</b>: i giorni singoli.',
             'Colori: <b>verde</b> consigliato, <b>arancione</b> un solo posto libero / al limite, <b>rosso</b> sconsigliato.',
             'Vedi <b>Tutti i periodi</b> o <b>Per mese</b>; tocca un periodo per andarci nel calendario. Le regole le decide il coordinatore.'],
@@ -321,7 +331,7 @@
         try:{ label:'Apri Ferie e permessi', run:() => openFerieAdvice() } });
     T(cFe, { id:'assenze', t:'Conteggio assenze', icon:'event_busy', when:() => has('openAbsModal'),
         sub:'Congedi, permessi, malattie e giornate particolari di tutti.',
-        steps:['<b>☰ › Conteggio assenze</b>; vista <b>Anno</b> o <b>Mese</b>.',
+        steps:['<b>' + mp('assenze') + '</b>; vista <b>Anno</b> o <b>Mese</b>.',
             'Ogni anno: <b>31</b> giorni di congedo ordinario, <b>6</b> permessi straordinari e <b>2</b> permessi notte (il coordinatore può avere impostato spettanze diverse per qualcuno).',
             'Un permesso notte usa anche un permesso straordinario. Le assenze che cadono su un riposo non contano.',
             'Tocca un nome per il dettaglio della persona.'],
@@ -330,7 +340,7 @@
         try:{ label:'Apri Conteggio assenze', run:() => openAbsModal() } });
     T(cFe, { id:'desiderate', t:'Calendario ferie desiderate', icon:'beach_access', when:() => has('openDesiderate'),
         sub:'Scrivi le ferie che vorresti, nella tua colonna, prima della riunione.',
-        steps:['<b>☰ › Calendario › Calendario ferie desiderate</b>.',
+        steps:['<b>' + mp('desid') + '</b>.',
             'In basso a destra tocca il cerchio: si apre la <b>ruota</b>. Scegli <b>Ferie</b>, <b>Permesso</b>, <b>Cancella</b> o <b>Nota</b>.',
             'Tocca i giorni <b>nella tua colonna</b> (tieni premuto e trascina per tanti giorni). <b>Dal… al…</b> riempie un periodo intero.',
             'Viste <b>Tutti</b>, <b>Colonne</b>, <b>Anno</b>; i contatori mostrano ferie e permessi usati. Il <b>quinto giorno</b> di ferie di fila diventa riposo.',
@@ -346,7 +356,7 @@
     const cOr = cat('ore', 'Ore ed equità', 'query_stats', '#0f766e', 'Ore lavorate, saldo, equità dell’anno');
     T(cOr, { id:'ore', t:'Conteggio orario', icon:'query_stats', when:() => has('openHoursModal'),
         sub:'Ore lavorate e saldo rispetto al contratto.',
-        steps:['<b>☰ › Conteggio orario</b>: le ore del mese di tutti, settimana per settimana (<b>Riepilogo</b> o <b>Foglio</b>).',
+        steps:['<b>' + mp('ore') + '</b>: le ore del mese di tutti, settimana per settimana (<b>Riepilogo</b> o <b>Foglio</b>).',
             'Colori: <b>rosso</b> sotto le ore, <b>azzurro</b> in pari, <b>verde</b> sopra.',
             'Il contratto conta 6 ore al giorno dal lunedì al sabato; ferie e assenze giustificate contano come giornata.',
             'Tocca un nome per il <b>dettaglio</b>: settimana, mese, anno, con il grafico.'],
@@ -356,7 +366,7 @@
         try:{ label:'Apri Conteggio orario', run:() => openHoursModal() } });
     T(cOr, { id:'equita', t:'Equità dell’anno', icon:'balance', when:() => has('openEquity'),
         sub:'Notti, weekend, festivi e reperibilità di ognuno, rispetto alla media.',
-        steps:['<b>☰ › Equità dell’anno</b>; scegli <b>Fino a oggi</b> o <b>Anno intero</b>.',
+        steps:['<b>' + mp('equita') + '</b>; scegli <b>Fino a oggi</b> o <b>Anno intero</b>.',
             'Categorie: <b>Panoramica</b>, <b>Notti e weekend</b>, <b>Reperibilità</b>, <b>Chi lavora con chi</b>, <b>Diurnisti e turnisti</b>.',
             'Ogni valore è confrontato con la media della squadra.'],
         anim:[MENU(['equita'], 0), SCR({ title:'Equità dell’anno', icon:'balance', col:'#0f766e', st:1, say:'Scegli la categoria',
@@ -371,7 +381,7 @@
     T(cRq, { id:'req-apri', t:'Aprire l’area Richieste', icon:'assignment',
         sub:'Il portale delle richieste è dentro l’app dei turni.',
         steps:['Tocca la <b>maniglia viola</b> sul bordo destro dello schermo (oppure trascinala verso sinistra).',
-            'Oppure <b>☰ › Collegamenti › Richieste</b>.',
+            'Oppure <b>' + mp('req') + '</b>.',
             'Entri già con il tuo nome (quello scelto in “Chi sei?”). Con la freccia in alto a sinistra torni ai turni.'],
         anim:[CAL({ hit:'handle', st:0, say:'Tocca la maniglia a destra' }), REQ_LIST(null, { enter:'r', st:0, say:'Ecco le richieste', hold:1800 }), MENU(['link', 'req'], 1)],
         try:{ label:'Apri le Richieste', run:() => window.openRichiestePanel && window.openRichiestePanel(), when:() => typeof window.openRichiestePanel === 'function' } });
@@ -448,7 +458,7 @@
     const cSq = cat('squadra', 'Squadra e tempo libero', 'celebration', '#d97706', 'Uscite, ruota della sfiga, condividi');
     T(cSq, { id:'uscita', t:'Organizza un’uscita', icon:'restaurant', when:() => has('openDinnerModal'),
         sub:'Trova il giorno in cui siete liberi in più, infermieri e autisti.',
-        steps:['<b>☰ › Tempo libero › Organizza un’uscita</b>.',
+        steps:['<b>' + mp('dinner') + '</b>.',
             'Scegli il <b>mese</b> e il <b>momento</b>: <b>Colazione</b> (non può chi fa la mattina), <b>Pranzo</b> (mattina o pomeriggio), <b>Cena</b> (pomeriggio o notte).',
             'Togli chi non viene (infermieri e autisti) e tocca <b>Cerca il giorno migliore</b>.',
             'I giorni sono in ordine di quanti sono liberi; per chi non può c’è il motivo (turno, ferie, malattia…).'],
@@ -458,7 +468,7 @@
         try:{ label:'Organizza un’uscita', run:() => openDinnerModal() } });
     T(cSq, { id:'ruota', t:'La ruota della sfiga', icon:'casino', when:() => has('openWheelModal'),
         sub:'Estrai a sorte chi tocca.',
-        steps:['<b>☰ › Tempo libero › La ruota della sfiga</b>.',
+        steps:['<b>' + mp('wheel') + '</b>.',
             '<b>Chi partecipa?</b> Spunta almeno 2 colleghi e tocca <b>AVANTI</b>.',
             'Scegli: <b>Smista le fasce orarie</b> (metti l’ora d’inizio, la fine è sempre alle 06:30: il turno si divide in 3 fasce uguali e la ruota assegna chi tocca) oppure <b>Estrazione a caso, per ridere</b>.',
             'Tocca <b>GIRA</b> e scopri chi ha scelto la sfiga!'],
@@ -468,7 +478,7 @@
         try:{ label:'Apri la ruota', run:() => openWheelModal() } });
     T(cSq, { id:'condividi', t:'Condividi l’app', icon:'share', when:() => has('shareAppWhatsApp'),
         sub:'Mandala su WhatsApp a chi non ce l’ha.',
-        steps:['<b>☰ › Condividi l’app</b>.',
+        steps:['<b>' + mp('share') + '</b>.',
             'Si apre WhatsApp con un messaggio già pronto: il link dell’app e come metterla sulla schermata Home (Android e iPhone).',
             'Scegli a chi mandarlo.'],
         anim:[MENU(['share'], 0)] });
@@ -483,7 +493,7 @@
     const cGe = cat('gestione', 'Coordinatore e admin', 'supervisor_account', '#0b6e7f', 'Accesso riservato, con password');
     T(cGe, { id:'coord', t:'Area coordinatore', icon:'supervisor_account', when:() => has('openCoordLoginModal'),
         sub:'Riservata al coordinatore: serve la password.',
-        steps:['<b>☰ › Area coordinatore</b> e la password.',
+        steps:['<b>' + mp('coord') + '</b> e la password.',
             'Le sezioni sono a sinistra (sul telefono in alto, da scorrere).',
             '<b>Torna al calendario</b> per uscire tenendo l’accesso, <b>Esci da coordinatore</b> per chiuderlo.'],
         coordList:true,
@@ -498,7 +508,7 @@
         anim:[CAL({ wheel:true, st:1, say:'La ruota strumenti, in basso a destra', hold:2400 }), CAL({ wheel:true, hit:'c0-3', st:2, say:'Scegli lo strumento e tocca la casella' }), CAL({ wheel:true, st:3, pend:true, say:'Poi Salva', hold:2000 })] });
     T(cGe, { id:'admin', t:'Area admin', icon:'admin_panel_settings', when:() => has('openAdminLoginModal'),
         sub:'Riservata all’amministratore: impostazioni dell’app per tutti.',
-        steps:['<b>☰ › Area admin</b> e la password.',
+        steps:['<b>' + mp('admin') + '</b> e la password.',
             'Le sezioni sono elencate qui sotto.'],
         adminList:true,
         anim:[MENU(['admin'], 0)] });
@@ -521,14 +531,14 @@
         const sig = tp('sigle'), at = cCal.topics.indexOf(sig) + 1;
         const leg = { id:'legenda', t:'Legenda dei colori', icon:'palette', cat:cCal, when:() => has('openColorLegend'),
             sub:'Cosa vuol dire ogni colore e ogni segno del calendario.',
-            steps:['<b>☰ › Calendario › Legenda dei colori</b>.',
+            steps:['<b>' + mp('legend') + '</b>.',
                 'In alto i colori dei <b>turni</b>, dei <b>diurnisti</b> e delle <b>assenze</b>.',
                 'Sotto i <b>segni</b>: REPERIBILE, le fasce, quante <b>ambulanze</b> ci sono di mattina e di pomeriggio (il numero rosso che lampeggia vuol dire una sola), la notte che manca, i giorni in rosso.'],
             legend:true,
             anim:[MENU(['cal', 'legend'], 0), CAL({ st:1, say:'Ogni colore ha il suo significato', hold:2200 }), CAL({ st:2, rep:true, say:'Sotto il turno: reperibilità e fasce', hold:2200 })],
             try:{ label:'Apri la legenda', run:() => openColorLegend() } };
         cCal.topics.splice(at, 0, leg);
-        const an = tp('anni'); if(an) an.steps[0] = '<b>☰ › Calendario › Anni passati</b> (la voce compare solo quando c’è almeno un anno concluso).';
+        const an = tp('anni'); if(an) an.steps[0] = '<b>' + mp('years', 'Calendario › Anni passati') + '</b> (la voce compare solo quando c’è almeno un anno concluso).';
         // area Richieste degli autisti: niente permesso sindacale, niente saldo, cambio turno solo nello stesso giorno, niente CAMBIA
         const nu = tp('req-nuova');
         if(nu) {
@@ -553,7 +563,7 @@
         cSq.desc = 'Uscite, ruota della sfiga, gara di ambulanze';
         cSq.topics.splice(ri, 0, { id:'gara', t:'Gara di ambulanze', icon:'sports_score', cat:cSq, when:() => has('openRaceModal'),
             sub:'Scommetti su chi arriva primo.',
-            steps:['<b>☰ › Tempo libero › Gara di ambulanze</b>.',
+            steps:['<b>' + mp('race') + '</b>.',
                 '<b>Chi scende in pista?</b> Spunta almeno 2 colleghi e tocca <b>IN GRIGLIA</b>.',
                 'Fate le vostre scommesse, poi premi <b>VIA!</b>',
                 'L’ordine d’arrivo è a caso… e l’ultima ambulanza resta in panne!'],
@@ -565,11 +575,11 @@
         if(au) {
             au.id = 'infermieri'; au.t = 'Infermieri e altre app'; au.icon = 'medical_services';
             au.sub = 'Le altre app, da Collegamenti.';
-            au.steps = ['<b>☰ › Collegamenti › ' + E(menuLbl(['link', 'as'])) + '</b> apre l’app degli infermieri in una nuova scheda (sul computer c’è anche il tasto <b>118 Infermieri</b> in alto).',
+            au.steps = ['Il tasto <b>inf</b> nella barra in alto apre l’app degli infermieri in una nuova scheda.',
                 '<b>' + E(menuLbl(['link', 'area'])) + '</b>: l’area personale degli autisti.',
                 '<b>' + E(menuLbl(['link', 'veicoli'])) + '</b>: appuntamenti e stato dei mezzi.',
                 'Nel dettaglio di una casella vedi anche gli infermieri di quel giorno.'];
-            au.anim = [MENU(['link', 'as'], 0), MENU(['link', 'area'], 1), MENU(['link', 'veicoli'], 2)];
+            au.anim = [MENU(['link', 'area'], 0), MENU(['link', 'veicoli'], 1)];
         }
         const sq = tp('uscita'); if(sq) { sq.sub = 'Trova il giorno in cui siete liberi in più, autisti e infermieri.'; }
     }
@@ -729,8 +739,8 @@
     function expand(anim) {
         const out = [];
         (anim || []).forEach(f => {
-            if(f.m !== 'menu') { if(f.menuAt) out.push({ m:'menuview', path:f.menuAt, depth:f.menuAt.length, st:f.st, say:f.say, hold:2200 }); else out.push(f); return; }
-            if(!pathOk(f.path)) return;
+            if(f.m !== 'menu') { if(f.menuAt) { const ma = realPath(f.menuAt) || f.menuAt; out.push({ m:'menuview', path:ma, depth:ma.length, st:f.st, say:f.say, hold:2200 }); } else out.push(f); return; }
+            const rp = realPath(f.path); if(!rp) return; f = Object.assign({}, f, { path:rp });
             out.push(CAL({ hit:'menu', st:f.st, say:'Tocca ☰ in alto a destra' }));
             f.path.forEach((id, d) => out.push({ m:'menuview', path:f.path, depth:d, hit:'m-' + id, st:f.st, say:`Tocca «${menuLbl(f.path.slice(0, d + 1))}»` }));
         });

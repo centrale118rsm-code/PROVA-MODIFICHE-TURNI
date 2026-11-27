@@ -474,16 +474,23 @@
         ['giorni', 'Giorno per giorno', 'view_day', 'Una scheda per giorno: chi fa mattina, pomeriggio e notte, assenti e reperibile.']
     ];
     function ddOn() { return !!(prefs && prefs.calView === 'giorni') && !coordEditModeActive && !SERVER_MODE; }
-    function calViewSet(v) { vibrate(); closeCalViewPicker(); if(prefs.calView !== v) setPref('calView', v); }
+    // nella scelta della vista c'è anche l'anno intero (la vista d'insieme), che non è una preferenza salvata
+    const CAL_VIEW_YEAR = ['insieme', 'Anno intero', 'grid_view', 'Tutto l’anno di tutti a colpo d’occhio, con quadratini colorati.'];
+    function calViewSet(v) {
+        vibrate(); closeCalViewPicker();
+        if(v === 'insieme') { if(!calOverview) setCalView('insieme'); return; }
+        if(calOverview) setCalView('dettaglio');
+        if(prefs.calView !== v) setPref('calView', v);
+    }
     function calViewApply(changed) {
         document.body.classList.toggle('cal-compact', calCompactOn());
         if(finalData.length) renderTable(); else ddSync();
         if(changed) setTimeout(() => scrollToToday(true), 60);
     }
     function openCalViewPicker() {
-        const cur = (prefs && prefs.calView) || 'normale';
+        const cur = calOverview ? 'insieme' : ((prefs && prefs.calView) || 'normale');
         document.getElementById('cvp-card').innerHTML = `<h3>Come vedere il calendario</h3><small>La scelta vale solo per te${prefMe() ? ' e la ritrovi su ogni telefono' : ''}. La cambi quando vuoi, anche da Opzioni.</small>`
-            + CAL_VIEWS.map(([v, l, ic, d]) => `<button class="cvp-opt ${cur === v ? 'on' : ''}" onclick="calViewSet('${v}')"><span class="material-icons-round">${ic}</span><span><b>${l}</b><small>${d}</small></span></button>`).join('');
+            + CAL_VIEWS.concat(coordEditModeActive ? [] : [CAL_VIEW_YEAR]).map(([v, l, ic, d]) => `<button class="cvp-opt ${cur === v ? 'on' : ''}" onclick="calViewSet('${v}')"><span class="material-icons-round">${ic}</span><span><b>${l}</b><small>${d}</small></span></button>`).join('');
         document.getElementById('cvp-modal').classList.add('open');
     }
     function closeCalViewPicker(e) { if(e && e.target !== e.currentTarget) return; const m = document.getElementById('cvp-modal'); if(m) m.classList.remove('open'); }

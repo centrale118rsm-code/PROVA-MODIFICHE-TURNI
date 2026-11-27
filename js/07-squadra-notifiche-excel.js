@@ -32,7 +32,7 @@
                 <div class="fr-chks">${['f','v','p','pn','r','c','m','ng','nl','e','l','s','a','k','gr'].map(k => chk('totalCodes', k, lbl(k))).join('')}</div>
             </div></div>
             <div class="cc-panel"><div class="cc-panel-head"><h3>Persone in ferie nello stesso giorno</h3></div><div class="cc-panel-body">
-                <p class="cc-note" style="margin-bottom:12px">Gli operatori vedono in verde i giorni consigliati, in giallo quelli con un solo posto libero e in rosso quelli sconsigliati (Menu › Ferie e permessi).</p>
+                <p class="cc-note" style="margin-bottom:12px">Gli operatori vedono in verde i giorni consigliati, in giallo quelli con un solo posto libero e in rosso quelli sconsigliati (Menu › Ferie › Quando prendere ferie e permessi).</p>
                 <div class="cc-inline-form">
                     <label class="cc-field" style="max-width:190px">Massimo nello stesso giorno<input type="number" min="1" max="15" class="cc-input" value="${D.max}" onchange="frSet('max', this.value)"></label>
                     <label class="cc-field" style="max-width:230px">Periodi consigliati di almeno (giorni)<input type="number" min="1" max="31" class="cc-input" value="${D.minDays}" onchange="frSet('minDays', this.value)"></label>
@@ -48,7 +48,7 @@
             <div class="cc-panel"><div class="cc-setting"><div><b>Ferie: rispetta la copertura minima</b><small>Sconsiglia i giorni in cui mattina, pomeriggio o notte sono già sotto la copertura minima (${coverageMin.M} / ${coverageMin.P} / ${coverageMin.N}, in Impostazioni).</small></div>
                 <label class="cc-switch"><input type="checkbox" ${D.useCoverage ? 'checked' : ''} onchange="frSet('useCoverage', this.checked)"><span></span></label></div></div>
             <div class="cc-panel"><div class="cc-panel-head"><h3>Permessi e recuperi (assenze di un giorno)</h3></div><div class="cc-panel-body">
-                <p class="cc-note" style="margin-bottom:12px">L’operatore vede i singoli giorni consigliati (Menu › Ferie e permessi, scheda Permessi e recuperi). Se ha scelto il suo nome vede solo i giorni in cui lavora, e il giorno è sconsigliato se senza di lui il suo turno scende sotto la copertura minima.</p>
+                <p class="cc-note" style="margin-bottom:12px">L’operatore vede i singoli giorni consigliati (Menu › Ferie › Quando prendere ferie e permessi, scheda Permessi e recuperi). Se ha scelto il suo nome vede solo i giorni in cui lavora, e il giorno è sconsigliato se senza di lui il suo turno scende sotto la copertura minima.</p>
                 <div class="cc-inline-form">
                     <label class="cc-field" style="max-width:220px">Massimo nello stesso giorno<input type="number" min="1" max="10" class="cc-input" value="${PD.max}" onchange="frSetPerm('max', this.value)"></label>
                 </div>

@@ -561,7 +561,7 @@
         info.hidden = false;
         if(mode === 'coord') { t.textContent = 'Inserisci la password del coordinatore.'; info.hidden = true; }
         else if(mode === 'shared') { t.textContent = 'Inserisci la password di questo accesso.'; info.innerHTML = 'Accesso completo, valido nell’app degli infermieri e in quella degli autisti. <b>Maiuscole e minuscole contano.</b>'; }
-        else if(mode === 'fam') { t.textContent = `Scrivi il codice che ti ha dato ${acctSel}.`; info.innerHTML = `Il codice lo crea l’${ACCT_T.one} dal suo menu <b>☰ › Impostazioni › Accesso per un familiare</b>. Vedrai solo i suoi turni, senza poter cambiare nulla.`; }
+        else if(mode === 'fam') { t.textContent = `Scrivi il codice che ti ha dato ${acctSel}.`; info.innerHTML = `Il codice lo crea l’${ACCT_T.one} dal suo menu <b>☰ › Altro › Accesso per un familiare</b>. Vedrai solo i suoi turni, senza poter cambiare nulla.`; }
         else if(mode === 'new') { t.textContent = 'Primo accesso fatto. Ora scegli la tua password personale (almeno 4 caratteri, diversa da quella provvisoria).'; info.innerHTML = 'Vale per l’app degli infermieri e per quella degli autisti. <b>Se la dimentichi</b>, chiedi al coordinatore: la riporta a quella provvisoria e ne scegli una nuova.'; }
         else { t.textContent = 'Inserisci la tua password.'; info.innerHTML = (r && r.h) ? '<b>Password dimenticata?</b> Chiedi al coordinatore di riportarla a quella provvisoria.' : '<b>Primo accesso?</b> Usa la password provvisoria che ti ha dato il coordinatore: subito dopo scegli la tua.'; }
         acctStep = mode;
@@ -760,9 +760,9 @@
                     'Chi è entrato in una app vede anche l’altra, <b>in sola lettura</b>: turni e note “per tutti” (tasto <b>Note</b> nella barra in basso). Non vede le note al coordinatore o personali e non può cambiare nulla.',
                     'Il tasto in alto (A.S. / 118) apre l’altra prova <b>portando con sé l’accesso</b>: serve sull’iPhone, dove le app installate sulla Home non condividono la memoria.',
                     'Se qualcuno apre l’altra app direttamente, in fondo all’elenco c’è “Sei un infermiere/autista? Entra con il tuo account”.',
-                    '“Esci dall’account” (menu ☰ › Impostazioni, o barra in basso) fa uscire da <b>tutte e due</b> le app su quel telefono.'])
+                    '“Esci dall’account” (menu ☰ › Altro, o barra in basso) fa uscire da <b>tutte e due</b> le app su quel telefono.'])
                 + sec('family_restroom', 'Familiari', [
-                    'L’operatore crea un codice di 6 cifre da <b>☰ › Impostazioni › Accesso per un familiare</b> e lo manda al parente.',
+                    'L’operatore crea un codice di 6 cifre da <b>☰ › Altro › Accesso per un familiare</b> e lo manda al parente.',
                     'Il parente, nella schermata d’accesso, tocca <b>Sono un familiare</b>, sceglie il nome e scrive il codice. Vede <b>solo i turni di quella persona</b>, in sola lettura.',
                     'Il codice si vede solo quando viene creato. Se l’operatore ne crea uno nuovo o lo disattiva, i familiari collegati escono subito.',
                     'Qui in <b>Familiari</b> vedi chi ha un codice attivo, quando l’ha creato e quali telefoni lo usano. Con <b>Togli</b> lo disattivi tu.'])
@@ -787,7 +787,7 @@
                     <td class="act"><button class="adm-btn sm" onclick="admAcctTeam='${k}';admAcctFamOff('${esc(n).replace(/'/g, '&#39;')}').then(()=>{admAcctTeam='fam';admRenderAccounts()})"><span class="material-icons-round">link_off</span>Togli</button></td></tr>`); }));
             box.innerHTML = `<div class="adm-card"><div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">${tabs}</div>${sumHtml}</div>
                 <div class="adm-card"><table class="adm-acct-tbl"><thead><tr><th>Di chi</th><th>Codice creato</th><th>Telefoni dei familiari</th><th></th></tr></thead><tbody>${rows.join('') || '<tr><td colspan="4" class="adm-muted">Nessun accesso familiare attivo.</td></tr>'}</tbody></table>
-                <div class="adm-muted" style="font-size:.74rem;margin-top:8px">Il codice lo crea l’operatore dal suo menu (☰ › Impostazioni › Accesso per un familiare) e si vede solo in quel momento. Il familiare vede solo i turni di quella persona, in sola lettura. <b>Togli</b>: il codice smette di funzionare e i familiari escono subito.</div></div>`;
+                <div class="adm-muted" style="font-size:.74rem;margin-top:8px">Il codice lo crea l’operatore dal suo menu (☰ › Altro › Accesso per un familiare) e si vede solo in quel momento. Il familiare vede solo i turni di quella persona, in sola lettura. <b>Togli</b>: il codice smette di funzionare e i familiari escono subito.</div></div>`;
             return;
         }
         const t = admAcctTeam, T = ACCT_TEAMS[t], names = acctTeamNames(t);

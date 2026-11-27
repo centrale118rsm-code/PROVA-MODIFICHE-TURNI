@@ -1237,7 +1237,7 @@
                 list = all.length ? `<div class="ov-sum-line">${all.length} giorni consigliati da oggi a fine anno${me ? ' tra quelli in cui lavori' : ''}</div><div class="ov-periods">${all.map(dayBtn).join('')}</div>`
                     : `<div class="ov-none">Da oggi a fine anno non ci sono giorni consigliati per un permesso o un recupero.</div>`;
             }
-            if(!me) list += `<div class="ov-none">Scegli chi sei (Menu › Impostazioni › Cambia utente) per vedere solo i giorni in cui lavori e se la tua assenza lascerebbe scoperto il turno.</div>`;
+            if(!me) list += `<div class="ov-none">Scegli chi sei (Menu › Altro › Cambia utente) per vedere solo i giorni in cui lavori e se la tua assenza lascerebbe scoperto il turno.</div>`;
         } else if(ovAdvMode === 'mese') {
             const m = ovAdvMonth, from = new Date(SHIFT_YEAR, m, 1), to = new Date(SHIFT_YEAR, m + 1, 0);
             const P = feriePeriods(ferieRules, from < today ? today : from, to), b = byMonth[m] || { ok:0, last:0, no:0, off:0, free:[] };

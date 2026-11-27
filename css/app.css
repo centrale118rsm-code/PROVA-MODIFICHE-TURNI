@@ -3839,3 +3839,32 @@
         body:not(.cal-compact) #main-table .td-date { line-height:1; padding-top:1px; padding-bottom:1px; }
         body:not(.cal-compact) #main-table .td-date small { margin-top:0; }
         body:not(.cal-compact) #main-table .day-staff-counts { margin-top:1px; }
+
+/* ══ Barra in alto più snella (27/11/2026) ══════════════════════════════════
+   Più bassa, pulsanti tutti uguali senza riquadri, "Mesi" anche sul telefono
+   (nel menu ☰ non ci sono più Oggi, Mesi, Operatori e Infermieri), striscia dei turni più sottile. */
+:root { --header-base-h: 50px; }
+.header-main { padding: 0 8px 0 12px; gap: 8px; }
+.app-brand { gap: 8px; }
+.app-brand img { width: 30px; height: 30px; border-radius: 7px; }
+.app-title-text { font-size: 14.5px; }
+.app-subtitle-text { font-size: 9.5px; }
+.app-actions { gap: 2px; }
+.hdr-btn { height: 36px; min-width: 36px; padding: 0 8px; border-radius: 10px; }
+.hdr-btn .material-icons-round { font-size: 20px; }
+.hdr-btn.hdr-link, .hdr-btn.hdr-link.acct-link { border-color: transparent !important; background: transparent !important; }
+.hdr-as { font-size: 13px; font-weight: 800; letter-spacing: .02em; color: rgba(255,255,255,0.88); text-transform: lowercase; }
+.hdr-btn:hover .hdr-as { color: #fff; }
+.hdr-sep { display: none; }
+#as-ticker { height: 24px; font-size: 11px; line-height: 21px; border-bottom-width: 2px; }
+body.as-has-ticker { --header-h: calc(var(--header-base-h) + var(--safe-top) + 24px); }
+@media (max-width: 560px) {
+    :root { --header-base-h: 46px; }
+    .header-main { padding: 0 2px 0 8px; gap: 4px; }
+    .app-actions { gap: 0; }
+    .hdr-btn { min-width: 34px; height: 34px; padding: 0 5px; }
+    .app-title-text { font-size: 13.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+}
+@media (max-width: 370px) { .brand-text { display: none; } }
+/* scritta PROVA più piccola sul telefono: non copre più i pulsanti della barra */
+@media (max-width: 560px) { #prova-frame span { font-size: 8px; letter-spacing: 1.5px; padding: 1px 8px 2px; border-radius: 0 0 6px 6px; } }
