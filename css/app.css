@@ -3875,3 +3875,32 @@ body.as-has-ticker { --header-h: calc(var(--header-base-h) + var(--safe-top) + 2
 .conti-tabs button .material-icons-round { font-size:17px; }
 .conti-tabs button.on { background:#0f766e; border-color:#0f766e; color:#fff; }
 body.dark-mode .conti-tabs button.on { background:#14b8a6; border-color:#14b8a6; color:#04201d; }
+
+/* ══ Caselle schiacciate (27/11/2026): alte poco più della scritta ══════════════
+   Nome del turno e orario su due righe strette, striscia delle fasce sottile,
+   la scritta REPERIBILE diventa un bordo rosso attorno alla casella. */
+body:not(.cal-compact) #main-table td[data-col] > .cell, body:not(.cal-compact) #cell-probe .cell { padding:1px 3px; line-height:1; gap:0; border-radius:5px; font-size:.72rem; }
+body:not(.cal-compact) #main-table .time-tag, body:not(.cal-compact) #cell-probe .time-tag { margin-top:1px; font-size:.56rem; line-height:1; }
+body:not(.cal-compact) #main-table .cell .rep-text, body:not(.cal-compact) #cell-probe .cell .rep-text { display:none; }
+body:not(.cal-compact) #main-table td[data-col] > .cell:has(> .rep-text) { box-shadow: inset 0 0 0 2px #dc2626; }
+body:not(.cal-compact) #main-table .rep-bar, body:not(.cal-compact) #cell-probe .rep-bar { min-height:0; height:10px; margin-top:1px; gap:1px; padding:0; width:100%; contain:inline-size; }
+body:not(.cal-compact) #main-table .rep-bar-seg, body:not(.cal-compact) #cell-probe .rep-bar-seg { font-size:.47rem; line-height:10px; padding:0 1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0; display:block; text-align:center; }
+body:not(.cal-compact) #main-table .riposo-sub, body:not(.cal-compact) #cell-probe .riposo-sub { display:inline-block; margin:0 0 0 3px; padding:0 3px; font-size:.5rem; line-height:1.2; vertical-align:middle; }
+body:not(.cal-compact) #main-table .td-date { font-size:.9rem; }
+body:not(.cal-compact) #main-table .td-date small { display:inline; font-size:.55rem; margin-left:2px; }
+body:not(.cal-compact) #main-table .td-date .holiday-name { display:none; }
+body:not(.cal-compact) #main-table .day-staff-counts { margin-top:0; }
+body:not(.cal-compact) #main-table .day-staff-counts span { font-size:.42rem; padding:0 2px; }
+body:not(.cal-compact) #main-table .day-staff-counts span b { font-size:.52rem; }
+
+/* ══ Striscia fissa dei turni di oggi (27/11/2026): non scorre, nomi abbreviati se serve ══ */
+#as-ticker { overflow: hidden; }
+#as-ticker .as-fix { display: flex; align-items: center; height: 100%; gap: 10px; padding: 0 10px; white-space: nowrap; overflow: hidden; font: 600 11px/1 'Plus Jakarta Sans', sans-serif; color: #e2e8f0; }
+#as-ticker .as-fix > span { flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+#as-ticker .as-fix b { font-weight: 900; margin-right: 3px; padding: 1px 5px; border-radius: 4px; color: #fff; }
+#as-ticker .as-fix-M b { background: #2563eb; }
+#as-ticker .as-fix-P b { background: #7c3aed; }
+#as-ticker .as-fix-N b { background: #1e3a8a; box-shadow: inset 0 0 0 1px #60a5fa; }
+/* i menu della barra in alto partono sotto la striscia, così non ci finiscono sotto */
+body.as-has-ticker #menu-dropdown, body.as-has-ticker #driver-filter-dropdown { margin-top: 24px; }
+#as-ticker .as-fix.measure > span { flex: none; }

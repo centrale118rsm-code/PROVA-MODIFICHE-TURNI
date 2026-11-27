@@ -286,11 +286,9 @@
         try:{ label:'Apri Note e chat', run:() => noteOpenHub() } });
     T(cNo, { id:'messaggi', t:'I messaggi all’apertura', icon:'campaign',
         sub:'Avvisi che compaiono quando apri l’app.',
-        steps:['All’apertura può comparire un <b>avviso</b> (per esempio quello rosso: “L’app viene aggiornata spesso, in caso di dubbio verifica i turni cartacei in guardiola”).',
-            'Il coordinatore può aggiungere <b>messaggi per tutti</b> per i giorni che sceglie: una barra mostra quanto resta e si chiudono da soli.',
+        steps:['Il coordinatore può aggiungere <b>messaggi per tutti</b> per i giorni che sceglie: una barra mostra quanto resta e si chiudono da soli.',
             'Se più messaggi sono in coda, compaiono uno dopo l’altro.'],
-        anim:[SCR({ title:'ATTENZIONE', icon:'warning', col:'#dc2626', st:0, say:'L’avviso compare all’apertura', hold:2400, body:[{ p:'L’app viene aggiornata spesso. In caso di dubbio, verifica sempre i turni cartacei in guardiola.' }, { bar:100 }] }),
-            SCR({ title:'AVVISO', icon:'campaign', col:'#2563eb', st:1, say:'Poi i messaggi del coordinatore', hold:2400, body:[{ p:'Riunione di reparto giovedì alle 14:00.' }, { bar:70 }] })] });
+        anim:[SCR({ title:'AVVISO', icon:'campaign', col:'#2563eb', st:0, say:'I messaggi del coordinatore, all’apertura', hold:2400, body:[{ p:'Riunione di reparto giovedì alle 14:00.' }, { bar:70 }] })] });
 
     // 5 ─ REPERIBILITÀ
     const cRe = cat('reperibilita', 'Reperibilità', 'phone_in_talk', '#dc2626', 'Fasce, reperibili del mese, cessioni');

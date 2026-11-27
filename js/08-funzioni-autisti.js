@@ -233,27 +233,41 @@
         asBuildTicker();
     }
 
-    // ── Barra scorrevole in fondo: turno di oggi, note, veicoli ─────────
+    // ── Striscia fissa sotto la barra in alto: chi fa mattina, pomeriggio e notte oggi ──
+    // (27/11/2026, richiesta di Mat: non scorre più). Se i nomi interi non ci stanno, tutti
+    // i nomi diventano abbreviati (Bar, Volp…): l'abbreviazione più corta, almeno 3 lettere,
+    // che non si confonde con un altro autista.
+    function asShortNames() {
+        const names = drivers.map(d => d.name.toUpperCase()), out = {};
+        names.forEach(n => {
+            let k = 3;
+            while(k < n.length && names.some(o => o !== n && o.startsWith(n.slice(0, k)))) k++;
+            const s = n.slice(0, k); out[n] = s.charAt(0) + s.slice(1).toLowerCase();
+        });
+        return out;
+    }
     function asBuildTicker() {
         const bar = document.getElementById('as-ticker'); if(!bar) return;
         const show = prefs.ticker !== false && !coordEditModeActive && finalData.length > 1;
         const t = new Date(); t.setHours(0, 0, 0, 0);
         const dd = show ? buildDaysIndex().find(x => x.date.getTime() === t.getTime()) : null;
-        const items = [];
-        if(dd) {
-            const by = { M: [], P: [], N: [] };
-            drivers.filter(d => !d.hidden).forEach(d => { const c = workCode(dd.rowIdx, d.idx), n = d.name.charAt(0) + d.name.slice(1).toLowerCase(); if(c === 'M' || c === 'm' || c === 'M+N') by.M.push(n); if(c === 'P' || c === 'p') by.P.push(n); if(c === 'N' || c === 'M+N') by.N.push(n); });
-            [['M', 'Mattina'], ['P', 'Pomeriggio'], ['N', 'Notte']].forEach(([k, l]) => { if(by[k].length) items.push(`<b>${l}:</b> ${esc(by[k].join(', '))}`); });
-            const key = dd.month + '-' + dd.day, notes = (typeof noteList === 'function' ? noteList() : []).filter(n => n.date === ymd(t) && n.text);
-            if(notes.length) items.push(`<b>${notes.length} ${notes.length > 1 ? 'note' : 'nota'} oggi:</b> ${esc(notes.slice(0, 3).map(n => (n.text || '').slice(0, 44)).join(' • '))}`);
-            (asVehicles[key] || []).forEach(v => items.push(`<b>Officina — ${esc(v.veicolo || 'Veicolo')}:</b> ${esc(v.operazione)}${v.ora ? ' alle ' + esc(v.ora) : ''}`));
-        }
-        document.body.classList.toggle('as-has-ticker', items.length > 0);
-        if(!items.length) { bar.style.display = 'none'; return; }
-        const txt = items.join('<span class="as-tk-sep">●</span>');
-        bar.innerHTML = `<div class="as-tk-track" style="animation-duration:${Math.max(10, Math.min(40, txt.replace(/<[^>]+>/g, '').length * 0.09))}s"><span>${txt}</span><span class="as-tk-sep">●</span><span>${txt}</span><span class="as-tk-sep">●</span></div>`;
+        const by = { M: [], P: [], N: [] };
+        if(dd) drivers.filter(d => !d.hidden).forEach(d => { const c = workCode(dd.rowIdx, d.idx), n = d.name.toUpperCase(); if(c === 'M' || c === 'm' || c === 'M+N') by.M.push(n); if(c === 'P' || c === 'p') by.P.push(n); if(c === 'N' || c === 'M+N') by.N.push(n); });
+        const parts = [['M', 'Mattina', 'M'], ['P', 'Pomeriggio', 'P'], ['N', 'Notte', 'N']].filter(([k]) => by[k].length);
+        document.body.classList.toggle('as-has-ticker', parts.length > 0);
+        if(!parts.length) { bar.style.display = 'none'; bar.innerHTML = ''; return; }
+        const cap = n => n.charAt(0) + n.slice(1).toLowerCase();
+        const html = (lbl, nm) => '<div class="as-fix">' + parts.map(([k, l, s]) => `<span class="as-fix-${k}"><b>${lbl === 'long' ? l : s}</b> ${esc(by[k].map(nm).join(', '))}</span>`).join('') + '</div>';
         bar.style.display = 'block';
+        bar.title = parts.map(([k, l]) => l + ': ' + by[k].map(cap).join(', ')).join(' · ');
+        const short = asShortNames();
+        // dalla versione più lunga alla più corta: si tiene la prima che sta nella striscia
+        const tries = [html('long', cap), html('short', cap), html('short', n => short[n] || cap(n))];
+        for(const h of tries) { bar.innerHTML = h; const f = bar.firstChild; f.classList.add('measure'); const fits = f.scrollWidth <= f.clientWidth + 1; f.classList.remove('measure'); if(fits) break; }
     }
+
+    let asTickerRz = null;
+    window.addEventListener('resize', () => { clearTimeout(asTickerRz); asTickerRz = setTimeout(() => { try { if(document.body.classList.contains('as-has-ticker')) asBuildTicker(); } catch(e) {} }, 200); });
 
     // ── Cane (una sola ambulanza) e gioco dell'ambulanza ────────────────
     let asGame = null;

@@ -80,7 +80,7 @@
     const DEFAULT_COLORS_BAKED = {}; // __ADMIN_DEFAULT_COLORS__
     const DEFAULT_NAME_OVERRIDES_BAKED = {}; // __ADMIN_DEFAULT_NAMES__
     const DEFAULT_SCHEDULE_OVERRIDE_BAKED = {"SCHEDULE":{},"SCHEDULE_DIURNI":{}}; // __ADMIN_DEFAULT_SCHEDULE__
-    const DEFAULT_WELCOME_BAKED = {"active":true,"title":"ATTENZIONE","text":"L'app viene aggiornata spesso.\nIn caso di dubbio, verifica sempre i turni cartacei in guardiola.","duration":3}; // __ADMIN_DEFAULT_WELCOME__
+    const DEFAULT_WELCOME_BAKED = {"active":false,"title":"ATTENZIONE","text":"L'app viene aggiornata spesso.\nIn caso di dubbio, verifica sempre i turni cartacei in guardiola.","duration":3}; // __ADMIN_DEFAULT_WELCOME__
     const DEFAULT_ANNOUNCEMENTS_BAKED = []; // __ADMIN_DEFAULT_ANNOUNCEMENTS__
 
     // ═══════════════════════════════════════════════════════════════════════

@@ -45,7 +45,7 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Condensed:wght@500;600&family=IBM+Plex+Sans:wght@400;450;500;600&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=add_circle,arrow_downward,arrow_selector_tool,arrow_upward,backup,badge,balance,beach_access,bedtime,calendar_month,campaign,check,check_circle,chevron_left,chevron_right,close,cloud_done,cloud_download,cloud_off,cloud_upload,delete,delete_forever,description,diversity_3,done_all,download,drag_indicator,edit,edit_calendar,edit_note,error,event_busy,event_upcoming,expand_less,expand_more,fact_check,filter_list,group,help,history,hourglass_top,info,ink_eraser,inventory_2,layers,login,logout,manage_accounts,move_down,nights_stay,notifications_active,notifications_off,open_in_new,open_with,person_add,person_off,person_remove,person_search,phone_in_talk,picture_as_pdf,print,redo,remove_circle,repeat,restart_alt,restore,save,save_as,schedule,search,settings,shield,space_dashboard,sticky_note_2,summarize,swap_horiz,sync,table_view,task_alt,today,tune,undo,upload,upload_file,verified,view_agenda,view_compact,visibility,visibility_off,warning,wb_twilight&display=block" rel="stylesheet">
-    <link rel="stylesheet" href="css/app.css?v=3">
+    <link rel="stylesheet" href="css/app.css?v=5">
 </head>
 <body>
 <div id="acct-gate" role="dialog" aria-modal="true" aria-label="Accesso">
@@ -469,6 +469,7 @@
             </div>
 
             <div class="admin-tab-panel" id="admin-tab-testi">
+                <div id="admin-welcome-block" style="display:none"><!-- avviso iniziale tolto (27/11/2026): blocco nascosto -->
                 <div class="admin-section-label"><span class="material-icons-round" style="font-size:14px">warning</span> Avviso Iniziale</div>
                 <div class="admin-toggle-row">
                     <span>Mostra avviso all'avvio</span>
@@ -486,9 +487,10 @@
                     <input type="number" id="admin-welcome-duration" min="1" max="30" step="1" style="width:70px;text-align:right;border:none;background:none;color:var(--text-main);font-weight:800;font-size:0.9rem;"> <span style="color:var(--text-sec);font-weight:700;font-size:0.8rem;">sec</span>
                 </div>
                 <button class="btn-admin-save" onclick="saveAdminWelcome()"><span class="material-icons-round">save</span> SALVA AVVISO (per tutti)</button>
+                </div>
 
                 <div class="admin-section-label"><span class="material-icons-round" style="font-size:14px">post_add</span> Avvisi Aggiuntivi</div>
-                <div style="font-size:0.8rem;color:var(--text-sec);margin-bottom:12px;">Vengono mostrati in coda dopo l'avviso iniziale, uno alla volta, all'apertura dell'app.</div>
+                <div style="font-size:0.8rem;color:var(--text-sec);margin-bottom:12px;">Vengono mostrati uno alla volta all'apertura dell'app.</div>
                 <div id="admin-announce-list"></div>
                 <button class="btn-admin-add" onclick="addAdminAnnouncement()"><span class="material-icons-round">add</span> AGGIUNGI NUOVO AVVISO</button>
                 <button class="btn-admin-save" onclick="saveAdminAnnouncements()"><span class="material-icons-round">save</span> SALVA AVVISI AGGIUNTIVI (per tutti)</button>
@@ -498,9 +500,9 @@
                 <div class="admin-section-label"><span class="material-icons-round" style="font-size:14px">file_download</span> Esporta File Aggiornato</div>
                 <div class="export-info-box">
                     Le modifiche fatte da qui (colori, nomi, orari, avvisi) vengono <b>già applicate in tempo reale</b> a tutti tramite Firebase, senza bisogno di ricaricare nulla su GitHub.<br><br>
-                    Se però vuoi anche <b>salvare queste modifiche direttamente nel file index.html</b> — così restano impostate anche se in futuro Firebase non fosse raggiungibile, o per tenere un backup aggiornato — scarica il file qui sotto e ricaricalo su GitHub al posto di quello attuale.
+                    Se però vuoi anche <b>salvare queste modifiche direttamente nel file js/01-avvio.js</b> — così restano impostate anche se in futuro Firebase non fosse raggiungibile, o per tenere un backup aggiornato — scarica il file qui sotto e ricaricalo su GitHub al posto di quello attuale.
                 </div>
-                <button class="btn-export" onclick="exportUpdatedHTML()"><span class="material-icons-round">download</span> SCARICA index.html AGGIORNATO</button>
+                <button class="btn-export" onclick="exportUpdatedHTML()"><span class="material-icons-round">download</span> SCARICA js/01-avvio.js AGGIORNATO</button>
             </div>
 
         </div>
@@ -1302,18 +1304,18 @@
     </table>
 </div>
 
-<script src="js/01-avvio.js?v=1"></script>
+<script src="js/01-avvio.js?v=2"></script>
 <script src="js/02-autisti.js?v=3"></script>
-<script src="js/03-admin.js?v=1"></script>
+<script src="js/03-admin.js?v=2"></script>
 <script src="js/04-preferenze-menu.js?v=3"></script>
 <script src="js/05-regole-opzioni.js?v=2"></script>
 <script src="js/06-ferie-desiderate.js?v=2"></script>
 <script src="js/07-squadra-notifiche-excel.js?v=2"></script>
-<script src="js/08-funzioni-autisti.js?v=1"></script>
+<script src="js/08-funzioni-autisti.js?v=2"></script>
 <script src="js/09-note-mia-pagina-stampa.js?v=1"></script>
 <script src="js/10-coordinatore.js?v=1"></script>
 <script src="js/11-modifica-calendario.js?v=1"></script>
-<script src="js/12-reperibilita.js?v=1"></script>
+<script src="js/12-reperibilita.js?v=2"></script>
 <script src="js/13-leggera-e-avvio-finale.js?v=1"></script>
 <!-- ══════════════ GUIDA DELL'APP (menu ☰ › Guida) ══════════════
      Blocco autonomo: stile, finestra e codice. Le animazioni sono piccole scene finte
@@ -1328,7 +1330,7 @@
     </div>
     <div class="gd-body" id="gd-body"><div class="gd-wrap" id="gd-wrap"></div></div>
 </div>
-<script src="js/guida.js?v=3"></script>
+<script src="js/guida.js?v=4"></script>
 <!-- ══════════════ ESEMPIO RICHIESTE (solo nelle app PROVA) ══════════════
      Linguetta rossa sotto quella blu delle Richieste: apre una copia di esempio del
      portale Richieste (cartella richieste-esempio). Legge i dati veri ma tutto quello che
