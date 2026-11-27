@@ -443,7 +443,7 @@
                 ${group('Caselle personalizzate', items.filter(i => i.group === 3))}
                 <div class="lg-group">Segni nel calendario</div>
                 <div class="lg-grid">
-                    ${sign('<span class="rep-text" style="animation:none;margin:0">REPERIBILE</span>', 'Reperibile del giorno', 'Il titolare della reperibilità (“/R” nel turno).')}
+                    ${sign('<span class="cell" style="display:inline-flex;width:auto;height:auto;padding:2px 6px;cursor:default;box-shadow:none;background:var(--c-M);color:var(--t-M)">MATTINA<span class="rep-r">R</span></span>', 'Reperibile del giorno', 'La R rossa accanto al turno: il titolare della reperibilità (“/R” nel turno).')}
                     ${sign('<span class="lg-bars"><i>13-20</i><i>20-00</i></span>', 'Fasce di reperibilità', 'Le fasce orarie che quell’autista copre.')}
                     ${sign('<span class="day-staff-counts" style="margin:0"><span class="dsc-m">M<b>2</b></span><span class="dsc-p">P<b>2</b></span></span>', 'Ambulanze del giorno', 'Quanti autisti di mattina (M) e di pomeriggio (P).')}
                     ${sign('<span class="day-staff-counts" style="margin:0"><span class="dsc-m dsc-alert-3" style="animation:none">M<b>1</b></span></span>', 'Una sola ambulanza', 'Il numero diventa rosso e lampeggia.')}
