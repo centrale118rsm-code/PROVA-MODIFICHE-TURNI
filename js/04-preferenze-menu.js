@@ -53,8 +53,11 @@
         document.body.classList.toggle('pref-no-times', !prefs.showTimes);
         document.body.classList.toggle('pref-no-repbar', !prefs.showRepBars);
         document.body.classList.toggle('lite', !!prefs.lite);
+        if(prefs.textSize === 'xbig') prefs.textSize = 'big';   // la vecchia "Molto grande" ora è Grande
         document.body.classList.toggle('pref-text-big', prefs.textSize === 'big');
         document.body.classList.toggle('pref-text-xbig', prefs.textSize === 'xbig');
+        // scritte nelle caselle (vista normale): Piccolo = come prima, Medio (predefinito) e Grande; le caselle si adattano da sole
+        document.body.style.setProperty('--cfs', ({ small: 1, normal: 1.22, big: 1.45, xbig: 1.45 })[prefs.textSize] || 1.22);
         applyLook();
     }
     // Grafica "leggera" (predefinita) o "classica" (colori pieni e barre blu notte)

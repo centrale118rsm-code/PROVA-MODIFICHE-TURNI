@@ -3884,9 +3884,9 @@ body:not(.cal-compact) #main-table .time-tag, body:not(.cal-compact) #cell-probe
 body:not(.cal-compact) #main-table .cell .rep-text, body:not(.cal-compact) #cell-probe .cell .rep-text { display:none; }
 /* reperibile: R rossa grande accanto al nome del turno (niente più bordo rosso) */
 .cell .rep-r { display:inline-block; margin-left:3px; padding:0 3px; font-size:1.25em; font-weight:900; line-height:1; color:#fff; background:#dc2626; border-radius:4px; vertical-align:-1px; letter-spacing:0; }
-body:not(.cal-compact) #main-table .rep-bar, body:not(.cal-compact) #cell-probe .rep-bar { min-height:0; height:10px; margin-top:1px; gap:1px; padding:0; width:100%; contain:inline-size; }
-body:not(.cal-compact) #main-table .rep-bar-seg, body:not(.cal-compact) #cell-probe .rep-bar-seg { font-size:.47rem; line-height:10px; padding:0 1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0; display:block; text-align:center; }
-body:not(.cal-compact) #main-table .riposo-sub, body:not(.cal-compact) #cell-probe .riposo-sub { display:inline-block; margin:0 0 0 3px; padding:0 3px; font-size:.5rem; line-height:1.2; vertical-align:middle; }
+body:not(.cal-compact) #main-table .rep-bar, body:not(.cal-compact) #cell-probe .rep-bar { min-height:0; height:calc(10px * var(--cfs, 1)); margin-top:1px; gap:1px; padding:0; width:100%; contain:inline-size; }
+body:not(.cal-compact) #main-table .rep-bar-seg, body:not(.cal-compact) #cell-probe .rep-bar-seg { font-size:calc(.47rem * var(--cfs, 1)); line-height:calc(10px * var(--cfs, 1)); padding:0 1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0; display:block; text-align:center; }
+body:not(.cal-compact) #main-table .riposo-sub, body:not(.cal-compact) #cell-probe .riposo-sub { display:inline-block; margin:0 0 0 3px; padding:0 3px; font-size:calc(.5rem * var(--cfs, 1)); line-height:1.2; vertical-align:middle; }
 body:not(.cal-compact) #main-table .td-date { font-size:.9rem; }
 body:not(.cal-compact) #main-table .td-date small { display:inline; font-size:.55rem; margin-left:2px; }
 body:not(.cal-compact) #main-table .td-date .holiday-name { display:none; }
@@ -3907,8 +3907,8 @@ body.as-has-ticker #menu-dropdown, body.as-has-ticker #driver-filter-dropdown { 
 #as-ticker .as-fix.measure > span { flex: none; }
 
 /* caselle più strette (27/11/2026): scritte un po' più piccole e strette */
-body:not(.cal-compact) #main-table td[data-col] > .cell, body:not(.cal-compact) #cell-probe .cell { font-size:.66rem; letter-spacing:-.3px; padding:1px 2px; }
-body:not(.cal-compact) #main-table .time-tag, body:not(.cal-compact) #cell-probe .time-tag { font-size:.52rem; letter-spacing:-.4px; }
+body:not(.cal-compact) #main-table td[data-col] > .cell, body:not(.cal-compact) #cell-probe .cell { font-size:calc(.66rem * var(--cfs, 1)); letter-spacing:-.3px; padding:1px 2px; }
+body:not(.cal-compact) #main-table .time-tag, body:not(.cal-compact) #cell-probe .time-tag { font-size:calc(.52rem * var(--cfs, 1)); letter-spacing:-.4px; }
 body:not(.cal-compact) .cell .rep-r { font-size:1.15em; padding:0 2px; margin-left:2px; }
 
 /* fasce di reperibilità strette attorno al testo (27/11/2026): niente verde/rosso vuoto ai lati */
