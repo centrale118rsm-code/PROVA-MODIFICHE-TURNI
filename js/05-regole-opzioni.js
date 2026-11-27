@@ -242,6 +242,10 @@
         const seg = (key, opts) => `<div class="opt-seg">${opts.map(([v, l, ic]) => `<button class="${prefs[key] === v ? 'on' : ''}" onclick="optSet('${key}','${v}')">${ic ? `<span class="material-icons-round">${ic}</span>` : ''}${l}</button>`).join('')}</div>`;
         const sw = (key, title, sub) => `<div class="option-item"><div class="opt-txt"><span>${title}</span><small>${sub}</small></div><label class="switch"><input type="checkbox" ${prefs[key] ? 'checked' : ''} onchange="optSet('${key}', this.checked)"><span class="slider"></span></label></div>`;
         const nSel = selectedDrivers.size;
+        // interruttore acceso se la preferenza non è stata spenta (per le voci nuove senza valore salvato)
+        const swOff = (key, title, sub) => `<div class="option-item"><div class="opt-txt"><span>${title}</span><small>${sub}</small></div><label class="switch"><input type="checkbox" ${prefs[key] !== false ? 'checked' : ''} onchange="optSet('${key}', this.checked)"><span class="slider"></span></label></div>`;
+        // riquadro di una sezione (27/11/2026): titolo con icona e le sue voci dentro una scheda
+        const card = (ic, t, sub, inner, id) => `<section class="opt-card"${id ? ` id="${id}"` : ''}><div class="opt-card-h"><span class="material-icons-round">${ic}</span><div><b>${t}</b>${sub ? `<small>${sub}</small>` : ''}</div></div>${inner}</section>`;
         const lastUp = (() => { try { const d = new Date(document.lastModified); return d.toLocaleDateString('it-IT', { day:'2-digit', month:'short', year:'numeric' }) + ' - ' + d.toLocaleTimeString('it-IT', { hour:'2-digit', minute:'2-digit' }); } catch(e) { return ''; } })();
         document.getElementById('opt-sub').textContent = named ? 'Le preferenze di ' + nm : 'Preferenze di questo dispositivo';
         body.innerHTML = `
@@ -251,31 +255,34 @@
                 <button onclick="closeOptionsModal();setTimeout(requestChangeIdentityDirect,220)"><span class="material-icons-round">switch_account</span>${named ? 'Cambia' : 'Scegli'}</button>
             </div>
 
-            <div class="option-category-header"><span class="material-icons-round">palette</span> Aspetto</div>
-            <div class="opt-block"><div class="opt-txt"><span>Tema</span><small>Automatico segue l’impostazione del telefono.</small></div>
-                ${seg('theme', [['light', 'Chiaro', 'light_mode'], ['dark', 'Scuro', 'dark_mode'], ['auto', 'Automatico', 'brightness_auto']])}</div>
-            <div class="opt-block"><div class="opt-txt"><span>Testo nelle caselle</span><small>Grandezza delle scritte nelle caselle del calendario: le caselle si adattano da sole.</small></div>
+            ${card('grid_on', 'Caselle del calendario', 'Cosa si vede dentro ogni casella', `
+            <div class="opt-block"><div class="opt-txt"><span>Testo nelle caselle</span><small>Le caselle si adattano da sole alla grandezza scelta.</small></div>
                 ${seg('textSize', [['small', 'Piccolo', 'text_decrease'], ['normal', 'Medio', 'text_fields'], ['big', 'Grande', 'text_increase']])}</div>
-            <div class="opt-block"><div class="opt-txt"><span>Legenda dei colori</span><small>Cosa vuol dire ogni colore e ogni segno del calendario.</small></div>
-                <div class="opt-seg"><button onclick="closeOptionsModal();setTimeout(openColorLegend,220)"><span class="material-icons-round">palette</span>Apri la legenda</button></div></div>
+            ${sw('showTimes', 'Orari dei turnisti', 'Gli orari sotto mattina, pomeriggio, notte e smonto.')}
+            ${swOff('showTimesD', 'Orari dei diurnisti', 'Gli orari sotto i turni da diurnista (mattina e pomeriggio in minuscolo).')}
+            ${sw('showRepBars', 'Fasce di reperibilità', 'Le barre verdi e rosse delle fasce sotto i turni.')}
+            ${sw('highlightMe', 'Evidenzia la mia colonna', 'Colora leggermente la tua colonna per trovarla subito.')}
+            ${sw('myColFirst', 'La mia colonna per prima', named ? 'I tuoi turni sempre nella prima colonna, accanto alla data.' : 'Disponibile dopo aver scelto chi sei.')}
+            <div class="option-item"><div class="opt-txt"><span>Legenda dei colori</span><small>Cosa vuol dire ogni colore e ogni segno.</small></div>
+                <button class="btn-change-identity" onclick="closeOptionsModal();setTimeout(openColorLegend,220)"><span class="material-icons-round" style="font-size:16px">palette</span> APRI</button></div>`)}
 
-            <div class="option-category-header"><span class="material-icons-round">speed</span> Velocità</div>
-            ${sw('lite', 'Modalità leggera' + (IS_IOS ? ' · consigliata su iPhone' : ''), 'Il calendario mostra due mesi alla volta (gli altri si caricano scorrendo) e toglie animazioni ed effetti: molto più fluido su iPhone e sui telefoni meno recenti.')}
-
-            <div class="option-category-header"><span class="material-icons-round">calendar_month</span> Calendario</div>
+            ${card('calendar_month', 'Calendario', 'Come si apre e cosa mostra', `
             <div class="opt-block"><div class="opt-txt"><span>All’apertura mostra</span><small>La schermata con cui parte l’app.</small></div>
                 ${seg('startPage', [['calendario', 'Calendario', 'view_agenda'], ['me', 'La mia pagina', 'person']])}</div>
-            <div class="opt-block"><div class="opt-txt"><span>Come vedere il calendario</span><small>Tabella: come sempre. Compatta: caselle piccole con la sigla, più giorni e colleghi nello schermo. Giorni: una scheda per giorno con chi lavora, comoda sul telefono.</small></div>
+            <div class="opt-block"><div class="opt-txt"><span>Come vedere il calendario</span><small>Tabella: come sempre. Compatta: caselle piccole con la sigla. Giorni: una scheda per giorno, comoda sul telefono.</small></div>
                 ${seg('calView', [['normale', 'Tabella', 'table_chart'], ['compatta', 'Compatta', 'view_compact'], ['giorni', 'Giorni', 'view_day']])}</div>
             ${sw('startToday', 'Parti dal giorno di oggi', 'All’apertura il calendario scorre fino a oggi.')}
-            ${sw('myColFirst', 'La mia colonna per prima', named ? 'I tuoi turni sempre nella prima colonna, accanto alla data.' : 'Disponibile dopo aver scelto chi sei.')}
-            ${sw('highlightMe', 'Evidenzia la mia colonna', 'Colora leggermente la tua colonna per trovarla subito.')}
-            ${sw('showTimes', 'Orari dentro i turni', 'Spegnendoli le caselle diventano più piccole e ne vedi di più.')}
-            ${sw('showRepBars', 'Fasce di reperibilità', 'Le barre verdi e rosse delle fasce sotto i turni.')}
             <div class="option-item"><div class="opt-txt"><span>Colleghi visibili</span><small>${nSel ? `Ne vedi ${nSel} su ${drivers.filter(d => !d.hidden).length}` : 'Vedi tutti i colleghi'}</small></div>
-                <button class="btn-change-identity" onclick="closeOptionsModal();setTimeout(() => toggleDriverFilterDropdown(), 240)"><span class="material-icons-round" style="font-size:16px">groups</span> SCEGLI</button></div>
+                <button class="btn-change-identity" onclick="closeOptionsModal();setTimeout(() => toggleDriverFilterDropdown(), 240)"><span class="material-icons-round" style="font-size:16px">groups</span> SCEGLI</button></div>`)}
 
-            <div class="option-category-header"><span class="material-icons-round">notifications</span> Notifiche</div>
+            ${card('palette', 'Aspetto e velocità', 'Colori, animazioni e vibrazione', `
+            <div class="opt-block"><div class="opt-txt"><span>Tema</span><small>Automatico segue l’impostazione del telefono.</small></div>
+                ${seg('theme', [['light', 'Chiaro', 'light_mode'], ['dark', 'Scuro', 'dark_mode'], ['auto', 'Automatico', 'brightness_auto']])}</div>
+            ${sw('lite', 'Modalità leggera' + (IS_IOS ? ' · consigliata su iPhone' : ''), 'Due mesi alla volta (gli altri si caricano scorrendo) e niente animazioni: più fluido su iPhone e telefoni meno recenti.')}
+            ${sw('ticker', 'Striscia dei turni di oggi', 'In alto, sotto la barra: chi fa mattina, pomeriggio e notte oggi.')}
+            ${sw('haptics', 'Vibrazione al tocco', 'Una breve vibrazione quando tocchi i pulsanti.')}`)}
+
+            ${card('notifications', 'Notifiche', named ? 'Gli avvisi che arrivano sul tuo telefono' : 'Solo per chi ha scelto il suo nome', `
             ${named ? '' : `<div class="option-item"><div class="opt-txt"><span>Come Ospite non ricevi notifiche</span><small>Gli avvisi sono personali: scegli il tuo nome per riceverli, anche ad app chiusa.</small></div>
                 <button class="btn-change-identity" onclick="closeOptionsModal();setTimeout(requestChangeIdentityDirect,220)">SCEGLI</button></div>`}
             ${named ? pushOptionsHtml() : ''}
@@ -283,28 +290,25 @@
             ${sw('notifyRep', 'Promemoria reperibilità', 'Il giorno prima, se sei reperibile o copri una fascia.')}
             ${sw('notifyTomorrow', 'Il mio turno di domani', 'Dopo mezzogiorno, un promemoria con il turno del giorno dopo.')}
             ${named ? '' : '</div>'}
-            ${isCoordinator ? `<div class="option-item"><div class="opt-txt"><span>Richieste dal portale</span><small>Sei il coordinatore: con le notifiche sul telefono attive ricevi anche ogni nuova richiesta.</small></div></div>` : ''}
+            ${isCoordinator ? `<div class="option-item"><div class="opt-txt"><span>Richieste dal portale</span><small>Sei il coordinatore: con le notifiche sul telefono attive ricevi anche ogni nuova richiesta.</small></div></div>` : ''}`)}
 
-            <div class="option-category-header" id="opt-cal"><span class="material-icons-round">calendar_month</span> Calendario del telefono</div>
-            ${calOptionsHtml()}
+            ${card('phone_iphone', 'Calendario del telefono', 'I tuoi turni nel calendario di Google o dell’iPhone', calOptionsHtml(), 'opt-cal')}
 
-            <div class="option-category-header"><span class="material-icons-round">apps</span> Applicazione</div>
-            ${sw('haptics', 'Vibrazione al tocco', 'Una breve vibrazione quando tocchi i pulsanti.')}
-            ${sw('ticker', 'Barra scorrevole', 'In fondo allo schermo: chi è in turno oggi, note e veicoli dal meccanico.')}
+            ${card('apps', 'Applicazione', 'Installazione, aggiornamento e ripristino', `
             <div class="option-item" id="install-container"><div class="opt-txt"><span>Installa l’app</span><small>Aggiungila alla schermata Home</small></div>
                 <button class="btn-install" id="btn-install-pwa" onclick="installPWA()"><span class="material-icons-round">install_mobile</span> INSTALLA</button></div>
             <div class="option-item"><div class="opt-txt"><span>Aggiorna</span><small>Ricarica l’ultima versione dei turni</small></div>
                 <button class="btn-change-identity" onclick="vibrate();location.reload()"><span class="material-icons-round" style="font-size:16px">refresh</span> RICARICA</button></div>
-            <div class="opt-reset"><button onclick="optReset()"><span class="material-icons-round">restart_alt</span>Ripristina le mie preferenze</button></div>
+            <div class="opt-reset"><button onclick="optReset()"><span class="material-icons-round">restart_alt</span>Ripristina le mie preferenze</button></div>`)}
 
-            <div class="option-category-header"><span class="material-icons-round">info</span> Info</div>
+            ${card('info', 'Info', '', `
             <div class="info-clock-card">
                 <div class="live-clock-date" id="options-live-date">—</div>
                 <div class="live-clock-time"><span id="options-live-hm">--:--</span><span class="clock-seconds" id="options-live-s">:--</span></div>
             </div>
             <div class="info-update-card"><span class="material-icons-round">update</span>
                 <div><div style="font-weight:800;font-size:0.85rem;color:var(--text-main);">Ultimo aggiornamento dell’app</div>
-                <div style="font-size:0.78rem;color:var(--text-sec);" id="options-last-update">${esc(lastUp)}</div></div></div>`;
+                <div style="font-size:0.78rem;color:var(--text-sec);" id="options-last-update">${esc(lastUp)}</div></div></div>`)}`;
     }
     function optSet(k, v) {
         vibrate();
