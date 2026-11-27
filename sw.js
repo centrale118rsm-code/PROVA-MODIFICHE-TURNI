@@ -5,12 +5,28 @@
 // v7: modalità offline. Il nome della cache è solo di questa app: le app dello stesso sito
 // (ufficiale autisti, infermieri) hanno le loro cache e non si toccano.
 const CACHE_PREFIX = 'prova-autisti-';
-const CACHE_NAME = CACHE_PREFIX + 'v36';
+const CACHE_NAME = CACHE_PREFIX + 'v38';
 const OLD_CACHES = ['turni-autisti-cache-v3', 'turni-autisti-cache-v4', 'turni-autisti-cache-v5', 'turni-autisti-cache-v6'];   // vecchie cache di questa app (la v2 è dell'app ufficiale)
 
 const urlsToCache = [
   './',
   './index.html',
+  './css/app.css',
+  './css/guida.css',
+  './js/01-avvio.js',
+  './js/02-autisti.js',
+  './js/03-admin.js',
+  './js/04-preferenze-menu.js',
+  './js/05-regole-opzioni.js',
+  './js/06-ferie-desiderate.js',
+  './js/07-squadra-notifiche-excel.js',
+  './js/08-funzioni-autisti.js',
+  './js/09-note-mia-pagina-stampa.js',
+  './js/10-coordinatore.js',
+  './js/11-modifica-calendario.js',
+  './js/12-reperibilita.js',
+  './js/13-leggera-e-avvio-finale.js',
+  './js/guida.js',
   './manifest.json?v=9',
   './logo.png',
   './icon-autisti3-512.png',
