@@ -365,10 +365,10 @@
     T(cOr, { id:'equita', t:'Equità dell’anno', icon:'balance', when:() => has('openEquity'),
         sub:'Notti, weekend, festivi e reperibilità di ognuno, rispetto alla media.',
         steps:['<b>' + mp('conti') + ', scheda Equità</b>; scegli <b>Fino a oggi</b> o <b>Anno intero</b>.',
-            'Categorie: <b>Panoramica</b>, <b>Notti e weekend</b>, <b>Reperibilità</b>, <b>Chi lavora con chi</b>, <b>Diurnisti e turnisti</b>.',
-            'Ogni valore è confrontato con la media della squadra.'],
-        anim:[MENU(['conti'], 0), SCR({ title:'Equità dell’anno', icon:'balance', col:'#0f766e', st:1, say:'Scegli la categoria',
-                body:[{ seg:['Fino a oggi', 'Anno intero'], on:0 }, { seg:['Panoramica', 'Notti', 'Reperib.', 'Coppie'], on:0, hit:1 }, row('dark_mode', 'ANNA', 'Notti 42 · media 40', '#1e3a8a'), row('dark_mode', 'SARA', 'Notti 38 · media 40', '#1e3a8a')] })],
+            'Nella scheda <b>Equità</b> tocca una voce (notti, weekend, festivi, reperibilità, saldo ore…): vedi la media in grande, chi ne ha di più e di meno e una barra per persona.',
+            'La linea tratteggiata è la media della squadra. Ci sono anche <b>Chi lavora con chi</b> e <b>Diurnisti e turnisti</b>.'],
+        anim:[MENU(['conti'], 0), SCR({ title:'Equità dell’anno', icon:'balance', col:'#0f766e', st:1, say:'Scegli la voce',
+                body:[{ seg:['Fino a oggi', 'Anno intero'], on:0 }, { seg:['Notti', 'Weekend', 'Festivi', 'Reperib.'], on:0, hit:1 }, row('dark_mode', 'ANNA', 'Notti 42 · media 40', '#1e3a8a'), row('dark_mode', 'SARA', 'Notti 38 · media 40', '#1e3a8a')] })],
         try:{ label:'Apri Equità dell’anno', run:() => openEquity() } });
 
     // 8 ─ AREA RICHIESTE
