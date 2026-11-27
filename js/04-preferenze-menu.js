@@ -139,11 +139,7 @@
                 { id:'ferie', icon:'tips_and_updates', label:'Quando prendere ferie e permessi', desc:'Giorni e periodi consigliati', color:'#16a34a', run: () => openFerieAdvice() },
                 { id:'desid', icon:'beach_access', label:'Calendario ferie desiderate', desc:'Scrivi le ferie e i permessi che vorresti, nella tua colonna', color:'#16a34a', run: () => openDesiderate() },
             ] },
-            { id:'conti', icon:'query_stats', label:'Conteggi', desc:'Ore, assenze ed equità dell’anno', color: MN_COLORS.ore, children: [
-                { id:'ore', icon:'query_stats', label:'Conteggio orario', desc:'Ore lavorate e saldo rispetto al contratto', color: MN_COLORS.ore, run: () => openHoursModal() },
-                { id:'assenze', icon:'event_busy', label:'Conteggio assenze', desc:'C.O., permessi, malattia, domeniche e festivi lavorati', color:'#b45309', run: () => openAbsModal() },
-                { id:'equita', icon:'balance', label:'Equità dell’anno', desc:'Notti, weekend, festivi e reperibilità di ognuno', color:'#0f766e', run: () => openEquity() },
-            ] },
+            { id:'conti', icon:'query_stats', label:'Conteggi', desc:'Ore, assenze ed equità dell’anno, in tre schede', color: MN_COLORS.ore, run: () => openHoursModal() },
             { group:'Squadra' },
             { id:'link', icon:'apps', label:'Collegamenti', desc:'Richieste, area A.S., veicoli', color: MN_COLORS.link, children: [
                 { id:'req', icon:'assignment', label:'Richieste', desc:'Ferie, permessi, cambi turno, cessioni', color: MN_COLORS.link, run: () => window.openRichiestePanel && window.openRichiestePanel() },
@@ -160,16 +156,42 @@
                 ] },
                 { id:'share', icon:'share', label:'Condividi l’app', desc:'Mandala su WhatsApp a chi non ce l’ha', color:'#16a34a', stay:true, run: () => shareAppWhatsApp() },
                 ...(ACCT_ENABLED && famCanUse() ? [{ id:'fam', icon:'family_restroom', label:'Accesso per un familiare', desc:'Fai vedere i tuoi turni a un parente', color: MN_COLORS.imp, run: () => famOpen() }] : []),
-                { id:'riserv', icon:'lock', label:'Area riservata', desc:'Coordinatore e admin, con password', color: MN_COLORS.coord, children: [
-                    { id:'coord', icon:'supervisor_account', label:'Area coordinatore', desc:'Accesso riservato', color: MN_COLORS.coord, lock:true, run: () => openCoordLoginModal() },
-                    { id:'admin', icon:'admin_panel_settings', label:'Area admin', desc:'Accesso riservato', color: MN_COLORS.admin, lock:true, run: () => openAdminLoginModal() },
-                ] },
+                { id:'riserv', icon:'lock', label:'Area riservata', desc:'Coordinatore e admin: si apre l’area giusta in base alla password', color: MN_COLORS.coord, lock:true, run: () => openAdminLoginModal() },
                 { id:'user', icon: ACCT_ENABLED ? 'logout' : 'switch_account', label: ACCT_ENABLED ? 'Esci dall’account' : 'Cambia utente', desc: userIdentity ? 'Ora sei ' + userIdentity : 'Scegli chi sei', color: MN_COLORS.imp, run: () => requestChangeIdentity() },
                 { id:'reload', icon:'refresh', label:'Aggiorna l’app', desc:'Ricarica per avere l’ultima versione', color: MN_COLORS.imp, run: () => { vibrate(); location.reload(); } }
             ] },
             { id:'guida', icon:'menu_book', label:'Guida', desc:'Come si usa l’app e l’area Richieste, con le animazioni', color:'#0ea5e9', run: () => openGuide() }
         ];
     }
+    // ═══ CONTEGGI: ore, assenze ed equità come tre schede della stessa finestra ═══
+    // In cima a ognuna delle tre finestre c'è la stessa fila di schede: si passa dall'una
+    // all'altra senza chiudere. Il tasto indietro del telefono chiude quella aperta.
+    const CONTI = [
+        { k:'ore', id:'hours-modal', ic:'query_stats', l:'Ore', open: () => openHoursModal(), close: () => closeHoursModal() },
+        { k:'assenze', id:'abs-modal', ic:'event_busy', l:'Assenze', open: () => openAbsModal(), close: () => closeAbsModal() },
+        { k:'equita', id:'eq-modal', ic:'balance', l:'Equità', open: () => openEquity(), close: () => closeEquity() }
+    ];
+    function contiTabsInstall() {
+        CONTI.forEach(c => {
+            const mc = document.querySelector('#' + c.id + ' .modal-content'), hd = mc && mc.querySelector('.modal-header');
+            if(!hd || mc.querySelector('.conti-tabs')) return;
+            const bar = document.createElement('div'); bar.className = 'conti-tabs'; bar.setAttribute('role', 'tablist');
+            bar.innerHTML = CONTI.map(x => `<button type="button" role="tab" class="${x.k === c.k ? 'on' : ''}" aria-selected="${x.k === c.k}" onclick="contiGo('${x.k}')"><span class="material-icons-round">${x.ic}</span>${x.l}</button>`).join('');
+            hd.insertAdjacentElement('afterend', bar);
+        });
+    }
+    function contiGo(k) {
+        const t = CONTI.find(c => c.k === k); if(!t) return;
+        const cur = CONTI.find(c => { const el = document.getElementById(c.id); return el && el.classList.contains('open'); });
+        if(cur === t) return;
+        t.open();
+        const el = document.getElementById(t.id); if(el) el.classList.add('open');   // subito aperta: la cronologia del tasto indietro resta una sola
+        if(cur) { cur.close(); const o = document.getElementById(cur.id); if(o) { o.style.display = 'none'; o.classList.remove('open'); } }
+        try { currentBackButtonModalId = t.id; } catch(e) {}
+    }
+    try { contiTabsInstall(); } catch(e) {}
+    if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => { try { contiTabsInstall(); } catch(e) {} });
+
     function menuNodeAt(path) {
         let list = menuTree(), node = null;
         for(const id of path) { node = list.find(n => n && n.id === id); if(!node || !node.children) return null; list = node.children; }

@@ -1276,10 +1276,14 @@
     }
 
     // ── Login Admin ──────────────────────────────────────────────────────
+    // Area riservata: una sola password. Quella dell'admin apre il pannello admin,
+    // quella del coordinatore apre l'area coordinatore.
     function openAdminLoginModal() {
         closeMenu();
         document.getElementById('admin-pw-input').value = "";
         document.getElementById('admin-pw-error').innerText = "";
+        const coordIn = typeof isCoordLoggedIn === 'function' && isCoordLoggedIn();
+        const sc = document.getElementById('admin-login-coord-in'); if(sc) sc.style.display = coordIn ? '' : 'none';
         let m = document.getElementById('admin-login-modal'); m.style.display = 'flex';
         setTimeout(() => { m.classList.add('open'); document.getElementById('admin-pw-input').focus(); }, 10);
     }
@@ -1290,6 +1294,10 @@
         if(await pwMatch(val, ADMIN_PW_H)) {
             closeAdminLoginModal();
             setTimeout(openAdminPanel, 250);
+        } else if(typeof COORD_PW_H !== 'undefined' && (await pwMatch(val.trim(), COORD_PW_H) || await pwMatch(val.trim().toLowerCase(), COORD_PW_H))) {
+            coordSessionSet(true);
+            closeAdminLoginModal();
+            setTimeout(() => openCoordConsole(), 250);
         } else {
             document.getElementById('admin-pw-error').innerText = "Password errata. Riprova.";
         }
