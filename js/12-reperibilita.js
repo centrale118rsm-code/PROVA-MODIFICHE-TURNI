@@ -896,11 +896,14 @@
             const click = `handleCellClick(${i},${d.idx},'${mName}',${dNum},'${dayWeek}','${rawVal.replace(/\\/g,'\\\\').replace(/'/g,"\\'")}')`.replace(/&/g,'&amp;').replace(/"/g,'&quot;');
             const sel = coordEditModeActive && coordSelectedCell && coordSelectedCell.row === i && coordSelectedCell.col === d.idx;
             const tdCls = [sel ? 'coord-selected' : '', d.idx === rtMeIdx ? 'me-col' : '', cover ? cover.cls[d.idx] || '' : '', colFocusCls(d.idx)].filter(Boolean).join(' ');
-            html += `<td${tdCls ? ` class="${tdCls}"` : ''} data-row="${i}" data-col="${d.idx}" data-month="${mName}" data-day="${dNum}" data-orig="${orig}" onclick="${click}">${noteFlagHtml(isoDate, d.idx)}${chk && chk.cells[d.idx] ? `<span class="chk-flag ${chk.cells[d.idx].err ? 'err' : ''}" title="${esc(chk.cells[d.idx].msgs.join(' \u00b7 '))}">!</span>` : ''}${calCompactOn() ? miniCellHtml(formatCell(cellInfo, prevCellInfo, false, repCellHtml(d.originalName || d.name, isoDate))) : formatCell(cellInfo, prevCellInfo, showGraziella, repCellHtml(d.originalName || d.name, isoDate))}</td>`;
+            html += `<td${tdCls ? ` class="${tdCls}"` : ''} data-row="${i}" data-col="${d.idx}" data-month="${mName}" data-day="${dNum}" data-orig="${orig}" onclick="${click}">${noteFlagHtml(isoDate, d.idx)}${chk && chk.cells[d.idx] ? `<span class="chk-flag ${chk.cells[d.idx].err ? 'err' : ''}" title="${esc(chk.cells[d.idx].msgs.join(' \u00b7 '))}">!</span>` : ''}${calCompactOn() ? miniCellHtml(formatCell(cellInfo, prevCellInfo, false, repCellHtml(d.originalName || d.name, isoDate))) : flatCellHtml(formatCell(cellInfo, prevCellInfo, showGraziella, repCellHtml(d.originalName || d.name, isoDate)))}</td>`;
         });
         tr.innerHTML = html;
         return tr;
     }
+    // Caselle schiacciate (27/11/2026, richiesta di Mat): le scritte su due righe ("PERMESSO<br>NOTTE",
+    // "20-00<br>BIANCHI") vanno su una riga sola, così la casella è alta poco più del testo.
+    function flatCellHtml(h) { return typeof h === 'string' ? h.replace(/\s*<br\s*\/?>\s*/gi, ' ') : h; }
     function renderTable() {
         dayChecksCache = null;
         const tbody = document.getElementById('table-body');

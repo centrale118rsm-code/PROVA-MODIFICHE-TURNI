@@ -1121,7 +1121,8 @@
     function showStartupMessages() {
         applyWelcomeConfig();
         announcementQueue = (customAnnouncements || []).filter(a => a.active !== false).concat(cmStartupItems()).concat(pnRepStartupItems());   // + messaggi del coordinatore, reperibili in permesso notte
-        if(welcomeConfig.active === false) { showNextAnnouncement(); return; }
+        // avviso iniziale "ATTENZIONE… turni cartacei" tolto su richiesta di Mat (27/11/2026): restano gli avvisi aggiuntivi
+        if(true || welcomeConfig.active === false) { showNextAnnouncement(); return; }
         const durationSec = welcomeConfig.duration && welcomeConfig.duration > 0 ? welcomeConfig.duration : 3;
         let wm = document.getElementById('welcome-modal');
         const bar = document.getElementById('welcome-progress-bar');
@@ -1168,7 +1169,8 @@
         vibrate();
         showAdminToast("Preparazione file in corso...");
         try {
-            const res = await fetch(location.pathname + '?export=' + Date.now(), { cache:'no-store' });
+            // le impostazioni incorporate stanno in js/01-avvio.js (l'app è divisa in più file)
+            const res = await fetch(new URL('js/01-avvio.js?export=' + Date.now(), location.href), { cache:'no-store' });
             if(!res.ok) throw new Error('Impossibile leggere il file corrente (' + res.status + ')');
             let src = await res.text();
             src = bakeMarkerConst(src, '__ADMIN_DEFAULT_COLORS__', 'DEFAULT_COLORS_BAKED', colorOverrides);
@@ -1177,13 +1179,13 @@
             src = bakeMarkerConst(src, '__ADMIN_DEFAULT_WELCOME__', 'DEFAULT_WELCOME_BAKED', welcomeConfig);
             src = bakeMarkerConst(src, '__ADMIN_DEFAULT_ANNOUNCEMENTS__', 'DEFAULT_ANNOUNCEMENTS_BAKED', customAnnouncements);
 
-            const blob = new Blob([src], { type:'text/html;charset=utf-8' });
+            const blob = new Blob([src], { type:'text/javascript;charset=utf-8' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
-            a.href = url; a.download = 'index.html';
+            a.href = url; a.download = '01-avvio.js';
             document.body.appendChild(a); a.click(); document.body.removeChild(a);
             setTimeout(() => URL.revokeObjectURL(url), 5000);
-            showAdminToast("File scaricato: carica su GitHub per pubblicare");
+            showAdminToast("File scaricato: caricalo su GitHub nella cartella js/");
         } catch(e) {
             console.error(e);
             showAdminToast("Errore durante l'esportazione del file");
