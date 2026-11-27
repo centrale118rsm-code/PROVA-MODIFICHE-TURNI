@@ -104,7 +104,7 @@
         if(onlyRows) { w = Math.max(w, cellFit.w); h = Math.max(h, cellFit.h); }
         if(!w || !h) return;
         cellFit = { w, h };
-        const W = Math.ceil(w) + 8, H = Math.ceil(h) + 4;   // casella poco più grande del testo (in altezza appena 2 px sopra e sotto)
+        const W = Math.ceil(w) + 5, H = Math.ceil(h) + 4;   // casella poco più grande del testo (in altezza appena 2 px sopra e sotto)
         const root = document.documentElement.style;
         if(root.getPropertyValue('--cell-w') !== W + 'px') root.setProperty('--cell-w', W + 'px');
         if(root.getPropertyValue('--cell-h') !== H + 'px') root.setProperty('--cell-h', H + 'px');

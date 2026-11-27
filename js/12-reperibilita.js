@@ -923,7 +923,10 @@
         let at;
         if(lead) at = from + rest.indexOf('</div>');                       // <div>MATTINA</div>
         else { const a = rest.search(/<div|<\/div>/); at = a < 0 ? -1 : from + a; }   // PERMESSO LEGGE<div class="time-tag">
-        return at < 0 ? h : h.slice(0, at).replace(/\s+$/, '') + ' ' + R + h.slice(at);
+        if(at < 0) return h;
+        // senza <div> attorno (es. PERM. LEGGE) il nome e la R vanno in uno <span>, se no la R finisce su un'altra riga
+        if(!lead) return h.slice(0, from) + '<span>' + h.slice(from, at).trim() + ' ' + R + '</span>' + h.slice(at);
+        return h.slice(0, at).replace(/\s+$/, '') + ' ' + R + h.slice(at);
     }
     function renderTable() {
         dayChecksCache = null;
