@@ -254,8 +254,8 @@
             <div class="option-category-header"><span class="material-icons-round">palette</span> Aspetto</div>
             <div class="opt-block"><div class="opt-txt"><span>Tema</span><small>Automatico segue l’impostazione del telefono.</small></div>
                 ${seg('theme', [['light', 'Chiaro', 'light_mode'], ['dark', 'Scuro', 'dark_mode'], ['auto', 'Automatico', 'brightness_auto']])}</div>
-            <div class="opt-block"><div class="opt-txt"><span>Grandezza delle scritte</span><small>Scritte più grandi nelle caselle del calendario: le caselle si allargano da sole.</small></div>
-                ${seg('textSize', [['normal', 'Normale', 'text_fields'], ['big', 'Grande', 'format_size'], ['xbig', 'Molto grande', 'zoom_in']])}</div>
+            <div class="opt-block"><div class="opt-txt"><span>Testo nelle caselle</span><small>Grandezza delle scritte nelle caselle del calendario: le caselle si adattano da sole.</small></div>
+                ${seg('textSize', [['small', 'Piccolo', 'text_decrease'], ['normal', 'Medio', 'text_fields'], ['big', 'Grande', 'text_increase']])}</div>
             <div class="opt-block"><div class="opt-txt"><span>Legenda dei colori</span><small>Cosa vuol dire ogni colore e ogni segno del calendario.</small></div>
                 <div class="opt-seg"><button onclick="closeOptionsModal();setTimeout(openColorLegend,220)"><span class="material-icons-round">palette</span>Apri la legenda</button></div></div>
 
