@@ -903,7 +903,28 @@
     }
     // Caselle schiacciate (27/11/2026, richiesta di Mat): le scritte su due righe ("PERMESSO<br>NOTTE",
     // "20-00<br>BIANCHI") vanno su una riga sola, così la casella è alta poco più del testo.
-    function flatCellHtml(h) { return typeof h === 'string' ? h.replace(/\s*<br\s*\/?>\s*/gi, ' ') : h; }
+    // Reperibile del giorno: al posto della scritta REPERIBILE (non ci sta più) una R rossa
+    // grande subito dopo il nome del turno ("MATTINA R").
+    const FLAT_ABBR = { 'PERMESSO':'PERM.', 'FESTIVO':'FEST.', 'NON GOD.':'N.G.', 'NON LAV.':'N.L.', 'DISTACCO':'DIST.', 'SPECIALE':'SPEC.', 'CONGEDO':'CONG.', 'MALATTIA':'MALAT.', 'SINDACALE':'SIND.', 'MATERNITÀ':'MATERN.', 'STRAORDINARIO':'STRAORD.' };
+    const FLAT_ABBR_RE = new RegExp('\\b(' + Object.keys(FLAT_ABBR).map(k => k.replace(/\./g, '\\.')).join('|') + ')(?![A-ZÀ-Ü])', 'g');
+    function flatCellHtml(h) {
+        if(typeof h !== 'string') return h;
+        h = h.replace(/\s*<br\s*\/?>\s*/gi, ' ');
+        // caselle strette: le parole lunghe delle assenze si accorciano (PERMESSO LEGGE → PERM. LEGGE)
+        h = h.replace(/>([^<>]+)</g, (m, t) => '>' + t.replace(FLAT_ABBR_RE, w => FLAT_ABBR[w]) + '<');
+        const REP = '<div class="rep-text">REPERIBILE</div>';
+        if(h.indexOf(REP) < 0) return h;
+        h = h.replace(REP, '');
+        const R = '<span class="rep-r" title="Reperibile">R</span>';
+        const inner = h.indexOf('<div style="flex:1');
+        if(inner < 0) return h;
+        const from = h.indexOf('>', inner) + 1;
+        const rest = h.slice(from), lead = rest.match(/^\s*<div>/);
+        let at;
+        if(lead) at = from + rest.indexOf('</div>');                       // <div>MATTINA</div>
+        else { const a = rest.search(/<div|<\/div>/); at = a < 0 ? -1 : from + a; }   // PERMESSO LEGGE<div class="time-tag">
+        return at < 0 ? h : h.slice(0, at).replace(/\s+$/, '') + ' ' + R + h.slice(at);
+    }
     function renderTable() {
         dayChecksCache = null;
         const tbody = document.getElementById('table-body');
