@@ -3972,8 +3972,13 @@ body:not(.cal-compact) #main-table .rep-bar-seg, body:not(.cal-compact) #cell-pr
 .mn-badge { position: absolute; top: -5px; right: -7px; min-width: 18px; height: 18px; padding: 0 4px; border-radius: 9px; background: #dc2626; color: #fff; font: 800 10.5px/18px 'Plus Jakarta Sans', sans-serif; font-style: normal; box-shadow: 0 0 0 2px var(--bg-card); }
 
 /* ═══ Settimane separate (27/11/2026): dopo la domenica uno spazio vuoto leggero invece della riga rossa ═══ */
-#main-table tbody tr.week-end > td, body.dark-mode #main-table tbody tr.week-end > td { border-bottom: 12px solid var(--bg) !important; }
-.ov-table tbody tr.week-end > td, body.dark-mode .ov-table tbody tr.week-end > td { box-shadow: none; border-bottom: 10px solid var(--bg) !important; }
+#main-table tbody tr.week-end > td, body.dark-mode #main-table tbody tr.week-end > td {
+    border-bottom: 24px solid transparent !important;
+    background-image: linear-gradient(180deg, var(--wk-gap-a), var(--wk-gap-b)) !important; background-origin: border-box !important;
+    background-size: 100% 24px !important; background-position: bottom !important; background-repeat: no-repeat !important; }
+:root { --wk-gap-a: #eef2fb; --wk-gap-b: #d6e0f3; }
+body.dark-mode { --wk-gap-a: #172033; --wk-gap-b: #24324d; }
+.ov-table tbody tr.week-end > td, body.dark-mode .ov-table tbody tr.week-end > td { box-shadow: none; border-bottom: 20px solid transparent !important; background-image: linear-gradient(180deg, var(--wk-gap-a), var(--wk-gap-b)) !important; background-origin: border-box !important; background-size: 100% 20px !important; background-position: bottom !important; background-repeat: no-repeat !important; }
 .ov-table tbody tr.week-end + tr > td { border-top: 0; }
 
 /* ═══ Opzioni riordinate (27/11/2026): una scheda per sezione, più aria fra le sezioni ═══ */
